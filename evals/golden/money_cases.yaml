@@ -1,0 +1,72 @@
+# Money / tax / lead-time golden cases. SYNTHETIC, illustrative vendor wording (not real quotes).
+# Each case runs: inert -> RegexQuoteExtractor -> ground -> normalise_quote(profile=...).
+# Keys: profile (us|uk), start (received_on), holidays (optional, ISO dates), text (vendor reply),
+# expect: currency, tax_basis, unit_price_each (Decimal string or null), lead_time_days (optional),
+# flags (must be present), absent_flags (must not be present).
+cases:
+  - id: uk_ex_vat_each
+    profile: uk
+    start: 2026-10-02
+    text: "Unit price: £4.20 each + VAT"
+    expect: { currency: GBP, tax_basis: ex_tax, unit_price_each: "4.2000", flags: [], absent_flags: [tax_basis_assumed, tax_inc_converted, currency_ambiguous] }
+  - id: uk_inc_vat_converted
+    profile: uk
+    start: 2026-10-02
+    text: "Unit price: £5.04 each inc VAT"
+    expect: { currency: GBP, tax_basis: inc_tax, unit_price_each: "4.2000", flags: [tax_inc_converted], absent_flags: [tax_basis_assumed] }
+  - id: uk_per_100_ex_vat
+    profile: uk
+    start: 2026-10-02
+    text: "Unit price: £310 per 100 + VAT"
+    expect: { currency: GBP, tax_basis: ex_tax, unit_price_each: "3.10", flags: [] }
+  - id: uk_bare_dollar_ambiguous
+    profile: uk
+    start: 2026-10-02
+    text: "Unit price: $4.20 each + VAT"
+    expect: { currency: null, tax_basis: ex_tax, flags: [currency_ambiguous], absent_flags: [currency_assumed_usd] }
+  - id: uk_euro_ex_vat_accepted
+    profile: uk
+    start: 2026-10-02
+    text: "Unit price: €3.90 each ex VAT"
+    expect: { currency: EUR, tax_basis: ex_tax, unit_price_each: "3.90", flags: [], absent_flags: [currency_unrecognised] }
+  - id: uk_no_tax_statement_assumes_ex_tax
+    profile: uk
+    start: 2026-10-02
+    text: "Unit price: £4.20 each"
+    expect: { currency: GBP, tax_basis: ex_tax, unit_price_each: "4.20", flags: [tax_basis_assumed] }
+  - id: uk_excl_vat_sentence
+    profile: uk
+    start: 2026-10-02
+    text: "Unit price: £4.20 each. All prices are exclusive of VAT."
+    expect: { currency: GBP, tax_basis: ex_tax, unit_price_each: "4.20", flags: [], absent_flags: [tax_basis_assumed] }
+  - id: uk_two_working_days_friday_with_holiday
+    profile: uk
+    start: 2026-10-02            # a Friday
+    holidays: [2026-10-05]       # the following Monday (synthetic bank holiday)
+    text: "Unit price: £4.20 each + VAT\nLead time: 2 working days"
+    expect: { currency: GBP, lead_time_days: 5, flags: [lead_time_business_days], absent_flags: [lead_time_working_days_assumed] }
+  - id: uk_bare_days_are_working_days
+    profile: uk
+    start: 2026-10-02
+    text: "Unit price: £4.20 each + VAT\nLead time: 3 days"
+    expect: { currency: GBP, lead_time_days: 5, flags: [lead_time_working_days_assumed] }
+  - id: uk_calendar_days_kept
+    profile: uk
+    start: 2026-10-02
+    text: "Unit price: £4.20 each + VAT\nLead time: 3 calendar days"
+    expect: { currency: GBP, lead_time_days: 3, absent_flags: [lead_time_working_days_assumed] }
+  - id: uk_next_working_day_from_friday
+    profile: uk
+    start: 2026-10-02
+    text: "Unit price: £4.20 each + VAT\nShips next working day"
+    expect: { currency: GBP, lead_time_days: 3 }
+  - id: us_bare_dollar_unchanged
+    profile: us
+    start: 2026-10-02
+    text: "Unit price: $4.20 each\nLead time: 3 days"
+    expect: { currency: USD, tax_basis: unknown, unit_price_each: "4.20", lead_time_days: 3, flags: [currency_assumed_usd], absent_flags: [tax_basis_assumed, tax_basis_unknown, tax_inc_converted, currency_ambiguous, lead_time_working_days_assumed] }
+  - id: us_vat_wording_is_noop
+    profile: us
+    start: 2026-10-02
+    text: "Unit price: £5.04 each inc VAT"
+    expect: { currency: GBP, tax_basis: unknown, unit_price_each: "5.04", absent_flags: [tax_inc_converted, tax_basis_assumed, tax_basis_unknown] }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { api } from "@/lib/api";
 import { errMsg, useAsync } from "@/lib/useAsync";
 import { Button, Card, ErrorNote, H2 } from "@/components/ui/ui";
+import { copy, useProfile } from "@/lib/profile";
 import { Candidates, Comparison, Questions, Quotes, RfqPanel, SpecCard, Timeline } from "@/components/request-parts";
 
 export default function RequestPage() {
@@ -11,6 +12,7 @@ export default function RequestPage() {
   const d = useAsync(() => api.getRequest(id), [id]);
   const vendors = useAsync(() => api.listVendors(), []);
   const audit = useAsync(() => api.audit(id).catch(() => null), [id]);
+  const profile = useProfile();
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [po, setPo] = useState(false);
@@ -38,7 +40,10 @@ export default function RequestPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Request</h1>
+      <h1 className="text-2xl font-semibold">{copy(profile, "request.heading", "Request")}</h1>
+      {profile.legal.notices.length > 0 && (
+        <Card aria-label="Legal notices"><H2>Notices</H2><ul className="list-disc pl-5 text-sm">{profile.legal.notices.map((n) => <li key={n}>{n}</li>)}</ul></Card>
+      )}
       <ErrorNote message={err ?? d.error} />
       <SpecCard r={det.request} />
       <Questions r={det.request} onDone={d.setData} />

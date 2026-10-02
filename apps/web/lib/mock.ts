@@ -1,7 +1,7 @@
 // EXAMPLE DATA ONLY. Synthetic, illustrative; not real parts, vendors, prices or cross-references.
 // Used when NEXT_PUBLIC_API_MOCK=1 so the UI renders without the backend.
 import type {
-  ApprovalLinkView, ComparisonView, EventView, PreparedRFQ, QuoteView, RequestDetail, RequestView, Vendor,
+  ApprovalLinkView, ComparisonView, EventView, PreparedRFQ, PublicProfile, QuoteView, RequestDetail, RequestView, Vendor,
 } from "./api";
 
 export const MOCK_LABEL = "Example data (synthetic, not real parts, prices or vendors)";
@@ -56,10 +56,32 @@ const vendors: Vendor[] = [
 ];
 const requests: RequestView[] = [baseRequest()];
 
+const profiles: Record<string, PublicProfile> = {
+  us: {
+    id: "us", digest: "0".repeat(64),
+    locale: { region: "US", language: "en-US", timezone: "America/New_York", date_format: "%m/%d/%Y" },
+    money: { base_currency: "USD", accepted_currencies: ["USD", "CAD", "EUR", "GBP", "MXN"] },
+    tax: { name: "Sales tax", standard_rate: "0", quote_basis_default: "ex_tax" },
+    lead_time: { default_unit: "calendar_days" }, legal: { jurisdiction: "United States", notices: [] },
+    parts: { enabled_families: ["deep_groove_ball_bearing", "v_belt"] }, tiers: { enabled: ["A", "B"] },
+    ui: { language: "en-US", copy_overrides: {} }, features: { down_now_mode: true },
+  },
+  uk: {
+    id: "uk", digest: "1".repeat(64),
+    locale: { region: "GB", language: "en-GB", timezone: "Europe/London", date_format: "%d/%m/%Y" },
+    money: { base_currency: "GBP", accepted_currencies: ["GBP", "EUR", "USD"] },
+    tax: { name: "VAT", standard_rate: "0.20", quote_basis_default: "ex_tax" },
+    lead_time: { default_unit: "working_days" }, legal: { jurisdiction: "England and Wales (UK)", notices: ["Quotes are treated as ex-VAT unless stated. (example notice)"] },
+    parts: { enabled_families: ["deep_groove_ball_bearing", "v_belt"] }, tiers: { enabled: ["A", "B"] },
+    ui: { language: "en-GB", copy_overrides: {} }, features: { down_now_mode: true },
+  },
+};
+
 type Body = Record<string, unknown> | undefined;
 export function mockHandle(method: string, path: string, body?: unknown): unknown {
   const b = body as Body;
   const p = path.split("?")[0];
+  if (method === "GET" && p === "/v1/profile") return profiles[process.env.NEXT_PUBLIC_MOCK_PROFILE ?? "us"] ?? profiles.us;
   if (method === "GET" && p === "/v1/requests") return requests;
   if (method === "POST" && p === "/v1/requests") {
     const d = detail();
@@ -85,6 +107,7 @@ export function mockHandle(method: string, path: string, body?: unknown): unknow
       quantity: 4, total: q.unit_price_each ? (Number(q.unit_price_each) * 4).toFixed(2) : null, offered_mpn: q.offered_mpn, offered_tier: q.offered_tier, flags: q.flags,
       part_summary: "Example part (synthetic)", action_options: ["approve", "decline"],
       expires_at: "2026-10-05T00:00:00Z", note: "",
+      tax_basis: "ex_tax", tax_rate: null, unit_price_quoted: q.unit_price_each, review_notes: [],
     };
     return s;
   }

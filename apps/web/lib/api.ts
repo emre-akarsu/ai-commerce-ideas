@@ -32,6 +32,7 @@ export interface QuoteView {
   uom_raw: string | null; moq: number | null; lead_time_days: number | null; freight: string | null;
   validity_days: number | null; offered_mpn: string | null; condition: string | null; authenticity: Authenticity;
   offered_tier: Tier; source_snippets: Record<string, string>; flags: string[];
+  tax_basis?: string; tax_rate?: string | null; unit_price_quoted?: string | null;
 }
 export interface ComparisonRowView {
   quote_id: string; vendor_id: string; vendor_name?: string; landed_unit_cost: string | null;
@@ -60,6 +61,20 @@ export interface ApprovalLinkView {
   unit_price_each: string | null; currency: string | null; lead_time_days: number | null;
   quantity: number | null; total: string | null; offered_mpn: string | null; offered_tier: Tier;
   flags: string[]; part_summary: string; action_options: string[]; expires_at: string; note: string;
+  tax_basis: string | null; tax_rate: string | null; unit_price_quoted: string | null; review_notes: string[];
+}
+// Mirrors apps/api/main.py PublicProfile (the non-sensitive subset of the deployment profile).
+export interface PublicProfile {
+  id: string; digest: string;
+  locale: { region: string; language: string; timezone: string; date_format: string };
+  money: { base_currency: string; accepted_currencies: string[] };
+  tax: { name: string; standard_rate: string; quote_basis_default: string };
+  lead_time: { default_unit: string };
+  legal: { jurisdiction: string; notices: string[] };
+  parts: { enabled_families: string[] };
+  tiers: { enabled: string[] };
+  ui: { language: string; copy_overrides: Record<string, string> };
+  features: Record<string, boolean>;
 }
 export interface DecisionResult { request_id: string; decision: string; state: string }
 export type VendorInput = Pick<Vendor, "name" | "domain" | "contact_email" | "preferred" | "opted_out"> & { phone?: string | null };
@@ -114,6 +129,7 @@ async function request<T>(path: string, opts: ReqOpts = {}): Promise<T> {
 
 const enc = encodeURIComponent;
 export const api = {
+  profile: () => request<PublicProfile>("/v1/profile"),
   listRequests: (state?: string) => request<RequestView[]>(`/v1/requests${state ? `?state=${enc(state)}` : ""}`),
   createRequest: (b: NewRequestInput) => request<RequestDetail>("/v1/requests", { method: "POST", body: b }),
   getRequest: (id: string) => request<RequestDetail>(`/v1/requests/${enc(id)}`),

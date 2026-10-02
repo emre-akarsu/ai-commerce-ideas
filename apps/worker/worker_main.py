@@ -18,6 +18,7 @@ from sqlalchemy import Engine, text
 
 from aidb.repositories import PgEventStore
 from aidb.session import make_engine
+from aiplat.profile import load_profile
 
 from .app import build_app, make_connector
 from .tasks import WorkerContext
@@ -56,6 +57,7 @@ def build_context() -> WorkerContext:
         clock=clock,
         event_log=PgEventStore(engine, clock),
         tenant_directory=PgTenantDirectory(engine),
+        profile=load_profile(os.environ.get("DEPLOYMENT_PROFILE", "us")),
         # inbound_source and send_service_factory are wired by the deployment (not in this repo
         # yet): tasks that need them fail loudly instead of guessing.
     )

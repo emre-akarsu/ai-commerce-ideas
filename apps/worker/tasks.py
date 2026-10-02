@@ -14,11 +14,13 @@ import re
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from typing import Any, Protocol
 
 from sqlalchemy import Connection, Engine, text
 
 from aidb.session import tenant_session
+from aiplat.profile import ResolvedProfile, load_profile
 from components.core.ports import Clock
 from components.doc_parse import DocumentParser, LocalTextParser, ParsedDocument
 from components.evidence.log import EventLog
@@ -29,6 +31,7 @@ EVT_INBOUND_PARSED = "inbound.parsed"
 EVT_CHAIN_VERIFIED = "audit.chain_verified"
 EVT_CHAIN_INVALID = "audit.chain_invalid"
 EVT_USAGE_ROLLUP = "usage.rollup"
+EVT_RAW_EMAIL_PURGED = "retention.raw_email_purged"
 
 # Opaque storage ref: no path separators, no "..", no leading dot (cannot traverse a store path).
 _REF_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_:@=-]*(?:\.[A-Za-z0-9_:@=-]+)*")
@@ -39,6 +42,7 @@ SCHEDULES: dict[str, str] = {
     "worker.fan_out_follow_ups": "*/15 * * * *",
     "worker.fan_out_verify_audit_chain": "30 2 * * *",
     "worker.fan_out_meter_usage_rollup": "5 * * * *",
+    "worker.fan_out_purge_expired_raw_email": "40 3 * * *",
 }
 
 
@@ -62,6 +66,13 @@ class FollowUpRunner(Protocol):
     def run_due_follow_ups(self, tenant_id: str) -> list[str]: ...
 
 
+class RawEmailStore(Protocol):
+    def purge_older_than(self, conn: Connection, tenant_id: str, cutoff: datetime) -> int:
+        """Delete this tenant's stored RAW inbound email received before ``cutoff`` through the
+        tenant-bound connection; return how many were deleted. Must never touch parsed quotes,
+        purchase orders or audit events (those have their own, longer retention)."""
+
+
 class TenantDirectory(Protocol):
     def tenant_ids(self) -> list[str]:
         """Active tenant ids; the platform's tenant list, not data of any tenant."""
@@ -78,6 +89,9 @@ class WorkerContext:
     on_parsed: Callable[[str, str, ParsedDocument], None] | None = None
     on_chain_invalid: Callable[[str, dict[str, Any]], None] | None = None
     tenant_directory: TenantDirectory | None = None
+    raw_email_store: RawEmailStore | None = None
+    profile: ResolvedProfile | None = None  # deployment profile; default = "us"
+    profile_for_tenant: Callable[[str], ResolvedProfile] | None = None  # tenant overrides
 
 
 def require_tenant(tenant_id: object) -> str:
@@ -155,6 +169,26 @@ class Tasks:
                 self.ctx.on_chain_invalid(tid, result)
         return result
 
+    def _profile_for(self, tenant_id: str) -> ResolvedProfile:
+        if self.ctx.profile_for_tenant is not None:
+            return self.ctx.profile_for_tenant(tenant_id)
+        return self.ctx.profile or load_profile("us")
+
+    def purge_expired_raw_email(self, tenant_id: str | None = None) -> dict[str, Any]:
+        """Delete raw inbound email older than ``profile.retention.raw_email_days``. PO records and
+        the audit log are NOT purged here. Logs and audits counts only, never content."""
+        with self.tenant(tenant_id) as (tid, conn):
+            if self.ctx.raw_email_store is None:
+                raise RuntimeError("no raw email store configured")
+            prof = self._profile_for(tid)
+            days = prof.profile.retention.raw_email_days
+            cutoff = self.ctx.clock.now() - timedelta(days=days)
+            purged = int(self.ctx.raw_email_store.purge_older_than(conn, tid, cutoff))
+        log.info("raw email purge: tenant=%s purged=%d retention_days=%d", tid, purged, days)
+        self.ctx.event_log.append(tid, None, "system", EVT_RAW_EMAIL_PURGED, {
+            "purged": purged, "retention_days": days, "profile": prof.short()})
+        return {"tenant_id": tid, "purged": purged, "retention_days": days}
+
     def meter_usage_rollup(self, tenant_id: str | None = None) -> dict[str, Any]:
         """Stub: usage metering is not designed yet (no pricing claims). Does nothing but run
         in tenant context so the schedule and wiring can be exercised."""
@@ -185,6 +219,10 @@ def register_tasks(app: Any, ctx: WorkerContext) -> Tasks:
     @task(name="worker.meter_usage_rollup", queue="metering")
     def meter_usage_rollup(tenant_id: str | None = None) -> dict[str, Any]:
         return impl.meter_usage_rollup(tenant_id)
+
+    @task(name="worker.purge_expired_raw_email", queue="retention")
+    def purge_expired_raw_email(tenant_id: str | None = None) -> dict[str, Any]:
+        return impl.purge_expired_raw_email(tenant_id)
 
     async def fan_out(target: str, timestamp: int) -> int:
         import asyncio
@@ -217,5 +255,10 @@ def register_tasks(app: Any, ctx: WorkerContext) -> Tasks:
     @task(name="worker.fan_out_meter_usage_rollup", queue="fanout")
     async def fan_out_meter_usage_rollup(timestamp: int) -> int:
         return await fan_out("worker.meter_usage_rollup", timestamp)
+
+    @app.periodic(cron=SCHEDULES["worker.fan_out_purge_expired_raw_email"])
+    @task(name="worker.fan_out_purge_expired_raw_email", queue="fanout")
+    async def fan_out_purge_expired_raw_email(timestamp: int) -> int:
+        return await fan_out("worker.purge_expired_raw_email", timestamp)
 
     return impl

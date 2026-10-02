@@ -210,7 +210,8 @@ def parse_int(raw: str, field_: str, *, minimum: int = 1, maximum: int = 10_000_
 
 def parse_date(raw: str, slash_format: str = "%m/%d/%Y") -> date:
     s = raw.strip()
-    for fmt in ("%Y-%m-%d", slash_format):  # no day-first guessing: ambiguous dates are not accepted
+    # no guessing: only ISO plus the one slash order the caller names (default month-first)
+    for fmt in ("%Y-%m-%d", slash_format):
         try:
             return datetime.strptime(s, fmt).date()  # noqa: DTZ007
         except ValueError:
@@ -243,7 +244,9 @@ def _price_with_symbol(
     iso: str | None = None
     if sym:
         token = sym.group(0)
-        iso = money.symbol_map.get(token) or (money.bare_dollar_currency if token == "$" else None)
+        iso = money.symbol_map.get(token) or (
+            money.bare_dollar_currency if token == "$" else None  # noqa: S105
+        )
         if iso is None:
             raise _Reject("unit_price", "currency_ambiguous", raw)
     return parse_money(_SYMBOL_RE.sub("", raw)), iso

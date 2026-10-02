@@ -16,6 +16,7 @@ from employees.purchasing.service import (
 )
 
 from aiplat.ctx import Ctx, Role
+from aiplat.profile import ResolvedProfile
 from components.core.domain import Vendor
 from components.core.fakes import FakeClock, RecordingTransport
 from components.core.store import Store
@@ -52,7 +53,9 @@ class World:
     other_buyer: Ctx
 
 
-def build_world(caps: CapPolicy | None = None, **settings_kw: object) -> World:
+def build_world(
+    caps: CapPolicy | None = None, profile: ResolvedProfile | None = None, **settings_kw: object
+) -> World:
     clock = FakeClock()
     store = Store()
     log = EventLog(clock, pii_key=b"k" * 32)
@@ -63,7 +66,7 @@ def build_world(caps: CapPolicy | None = None, **settings_kw: object) -> World:
     settings = Settings(**cfg)  # type: ignore[arg-type]
     svc = build_in_memory_service(
         clock=clock, store=store, event_log=log, transport=transport, notifier=notifier,
-        settings=settings, caps=caps, ids=lambda p: f"{p}-{next(counter):03d}", approval_secret=b"s" * 32,
+        settings=settings, caps=caps, profile=profile, ids=lambda p: f"{p}-{next(counter):03d}", approval_secret=b"s" * 32,
         token_gen=lambda: f"reply-{next(counter):03d}",
     )
     admin = Ctx(T1, "admin-1", Role.ADMIN)

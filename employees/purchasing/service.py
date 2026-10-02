@@ -580,10 +580,10 @@ class PurchasingService:
         family = request.family
         attrs = dict(request.attributes)
         if "family" in answers:
-            if family is not None or answers["family"] not in list_families(
-                self._settings.enabled_families
-            ):
+            if family is not None or answers["family"] not in list_families():
                 raise Conflict("unknown or already-set family")
+            if not is_family_enabled(answers["family"], self._settings.enabled_families):
+                raise Conflict(f"family {answers['family']!r} is not enabled in this deployment")
             family = answers["family"]
         known: set[str] = set()
         if family:

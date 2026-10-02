@@ -4,17 +4,19 @@ import { useState } from "react";
 import { api, type Attribute, type CandidateView, type ComparisonView, type EventView, type PreparedRFQ, type QuoteView, type RequestView, type Vendor } from "@/lib/api";
 import { errMsg } from "@/lib/useAsync";
 import { Badge, Button, Card, ErrorNote, H2, inputCls } from "@/components/ui/ui";
+import { formatDate, formatMoney, leadTimeLabel, taxBasisLabel, useProfile } from "@/lib/profile";
 
 const srcTone = (a: Attribute) => (a.source === "model_inference" ? "amber" : "green");
 
 export function SpecCard({ r }: { r: RequestView }) {
+  const profile = useProfile();
   return (
     <Card>
       <H2>Request specification</H2>
       <p className="text-sm text-slate-600">
         State: <Badge tone="blue">{r.state}</Badge> {r.down_now && <Badge tone="red">Down now</Badge>} {r.criticality && <Badge tone="amber">Critical: engineer review</Badge>}
       </p>
-      <p className="text-sm">Family: {r.family ?? "unknown"} · Qty: {r.quantity ?? "?"} · Need by: {r.need_by ?? "?"} · Site: {r.site ?? "?"} · WO: {r.work_order_ref ?? "?"}</p>
+      <p className="text-sm">Family: {r.family ?? "unknown"} · Qty: {r.quantity ?? "?"} · Need by: {formatDate(profile, r.need_by)} · Site: {r.site ?? "?"} · WO: {r.work_order_ref ?? "?"}</p>
       <ul className="mt-3 space-y-2">
         {Object.values(r.attributes).map((a) => (
           <li key={a.name} className="flex flex-wrap items-center gap-2 text-sm">
@@ -142,6 +144,7 @@ function Snip({ q, k, children }: { q: QuoteView; k: string; children: React.Rea
 export function Quotes({ quotes, vendors, comparison, canSelect, onSelect, busy }: {
   quotes: QuoteView[]; vendors: Vendor[]; comparison: ComparisonView | null; canSelect: boolean; onSelect: (id: string) => void; busy: boolean;
 }) {
+  const profile = useProfile();
   const name = (id: string) => vendors.find((v) => v.id === id)?.name ?? comparison?.rows.find((x) => x.vendor_id === id)?.vendor_name ?? id;
   return (
     <Card>
@@ -151,8 +154,8 @@ export function Quotes({ quotes, vendors, comparison, canSelect, onSelect, busy 
         {quotes.map((q) => (
           <li key={q.id} className="rounded-md border p-3 text-sm">
             <div className="font-medium">{name(q.vendor_id)} <Badge tone={q.offered_tier === "A" ? "green" : "amber"}>Offers Tier {q.offered_tier}</Badge> <Badge>{q.authenticity}</Badge></div>
-            <Snip q={q} k="unit_price">{q.unit_price_each ? `${q.unit_price_each} ${q.currency ?? ""} each (${q.uom_raw ?? "?"})` : null}</Snip>
-            <Snip q={q} k="lead_time">{q.lead_time_days != null ? `${q.lead_time_days} days` : null}</Snip>
+            <Snip q={q} k="unit_price">{q.unit_price_each ? `${formatMoney(profile, q.unit_price_each, q.currency)} each, ${taxBasisLabel(profile, q.tax_basis)} (${q.uom_raw ?? "?"})` : null}</Snip>
+            <Snip q={q} k="lead_time">{q.lead_time_days != null ? leadTimeLabel(profile, q.lead_time_days) : null}</Snip>
             <Snip q={q} k="offered_mpn">{q.offered_mpn}</Snip>
             <Snip q={q} k="moq">{q.moq}</Snip>
             <Snip q={q} k="freight">{q.freight}</Snip>
@@ -168,6 +171,7 @@ export function Quotes({ quotes, vendors, comparison, canSelect, onSelect, busy 
 }
 
 export function Comparison({ c, vendors }: { c: ComparisonView; vendors: Vendor[] }) {
+  const profile = useProfile();
   const name = (id: string, n?: string) => n ?? vendors.find((v) => v.id === id)?.name ?? id;
   return (
     <Card>
@@ -179,7 +183,7 @@ export function Comparison({ c, vendors }: { c: ComparisonView; vendors: Vendor[
             {c.rows.map((r) => (
               <tr key={r.quote_id} className={r.quote_id === c.recommended_quote_id ? "bg-green-50" : ""}>
                 <td className="p-1">{name(r.vendor_id, r.vendor_name)} {r.quote_id === c.recommended_quote_id && <Badge tone="green">Recommended</Badge>}</td>
-                <td className="p-1">{r.landed_unit_cost ?? "unknown"}</td><td className="p-1">{r.lead_time_days != null ? `${r.lead_time_days} d` : "unknown"}</td>
+                <td className="p-1">{r.landed_unit_cost ?? "unknown"}</td><td className="p-1">{r.lead_time_days != null ? leadTimeLabel(profile, r.lead_time_days) : "unknown"}</td>
                 <td className="p-1">{r.tier}</td><td className="p-1">{r.authenticity}</td>
                 <td className="p-1">{r.meets_need_by == null ? "unknown" : r.meets_need_by ? "Yes" : "No"}</td><td className="p-1">{r.flags.join(", ") || "none"}</td>
               </tr>
@@ -193,12 +197,13 @@ export function Comparison({ c, vendors }: { c: ComparisonView; vendors: Vendor[
 }
 
 export function Timeline({ events, chainValid }: { events: EventView[]; chainValid: boolean | undefined }) {
+  const profile = useProfile();
   return (
     <Card>
       <H2>Audit timeline</H2>
       <p className="mb-2 text-sm">Hash chain: {chainValid === undefined ? <Badge>Not checked</Badge> : chainValid ? <Badge tone="green">valid</Badge> : <Badge tone="red">INVALID: do not rely on this history</Badge>}</p>
       <ol className="space-y-1 text-sm">
-        {events.map((e) => <li key={e.id}><time dateTime={e.ts}>{e.ts}</time> · {e.actor} · {e.type}</li>)}
+        {events.map((e) => <li key={e.id}><time dateTime={e.ts}>{formatDate(profile, e.ts)}</time> · {e.actor} · {e.type}</li>)}
       </ol>
     </Card>
   );

@@ -499,7 +499,8 @@ def _apply_tax(
             flags.append("tax_basis_unknown")
     if basis == "inc_tax":
         flags.append("tax_inc_converted")
-        return inc_to_ex_tax(price_each, pol.standard_rate), price_each, basis, pol.standard_rate, flags
+        ex_price = inc_to_ex_tax(price_each, pol.standard_rate)
+        return ex_price, price_each, basis, pol.standard_rate, flags
     return price_each, price_each, basis, None, flags
 
 

@@ -68,7 +68,8 @@ describe("approval contract (mock matches ApprovalLinkView / DecisionResult)", (
   it("mock approval link has every field the page needs", async () => {
     const v = await api.approvalLink("t");
     expect(Object.keys(v).sort()).toEqual(["action_options", "currency", "expires_at", "flags", "lead_time_days", "note",
-      "offered_mpn", "offered_tier", "part_summary", "quantity", "quote_id", "request_id", "total", "unit_price_each", "vendor"]);
+      "offered_mpn", "offered_tier", "part_summary", "quantity", "quote_id", "request_id", "review_notes", "tax_basis", "tax_rate",
+      "total", "unit_price_each", "unit_price_quoted", "vendor"]);
     const d = await api.decide("t", "approve");
     expect(Object.keys(d).sort()).toEqual(["decision", "request_id", "state"]);
   });
