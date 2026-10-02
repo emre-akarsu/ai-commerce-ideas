@@ -6,6 +6,7 @@ from decimal import Decimal
 
 import pytest
 
+from components.core.fakes import FakeClock
 from components.purchase_orders.approvals.service import (
     CapCurrencyMismatch,
     CapPolicy,
@@ -13,7 +14,6 @@ from components.purchase_orders.approvals.service import (
     InvalidAmount,
     PerOrderCapExceeded,
 )
-from components.core.fakes import FakeClock
 
 D = Decimal
 

@@ -8,6 +8,15 @@ from typing import Any
 
 import pytest
 
+from components.core.domain import ApprovalKind
+from components.core.fakes import FakeClock
+from components.core.store import Store
+from components.evidence.log import (
+    EVT_APPROVAL_ISSUED,
+    EVT_APPROVAL_TOKEN_CONSUMED,
+    EVT_APPROVAL_TOKEN_ISSUED,
+    EventLog,
+)
 from components.purchase_orders.approvals.service import (
     ApprovalAction,
     ApprovalService,
@@ -23,15 +32,6 @@ from components.purchase_orders.approvals.service import (
     TokenWrongAction,
     quote_fingerprint,
 )
-from components.evidence.log import (
-    EVT_APPROVAL_ISSUED,
-    EVT_APPROVAL_TOKEN_CONSUMED,
-    EVT_APPROVAL_TOKEN_ISSUED,
-    EventLog,
-)
-from components.core.domain import ApprovalKind
-from components.core.fakes import FakeClock
-from components.core.store import Store
 from tests.security.factories import APPROVAL_KEY, T1, T2, make_quote, sha
 
 APPROVER = "user:approver-1"

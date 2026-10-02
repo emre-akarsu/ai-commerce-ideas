@@ -10,8 +10,8 @@ from decimal import Decimal
 
 import pytest
 
-from components.evidence.log import GENESIS_HASH, REDACTED, EventLog
 from components.core.fakes import FakeClock
+from components.evidence.log import GENESIS_HASH, REDACTED, EventLog
 
 PII_KEY = hashlib.sha256(b"unit-test-pii-key").digest()
 

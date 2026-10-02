@@ -7,6 +7,10 @@ from decimal import Decimal
 
 import pytest
 
+from components.core.domain import ApprovalKind
+from components.core.fakes import FakeClock
+from components.core.store import NotFoundError, Store, TenantIsolationError
+from components.evidence.log import EVT_APPROVAL_ISSUED, EVT_RULE_CREATED, EventLog
 from components.purchase_orders.approvals.service import (
     AmountOverRule,
     ApprovalService,
@@ -18,10 +22,6 @@ from components.purchase_orders.approvals.service import (
     RuleScopeMismatch,
     is_human_actor,
 )
-from components.evidence.log import EVT_APPROVAL_ISSUED, EVT_RULE_CREATED, EventLog
-from components.core.domain import ApprovalKind
-from components.core.fakes import FakeClock
-from components.core.store import NotFoundError, Store, TenantIsolationError
 from tests.security.factories import T1, T2, make_vendor, sha
 
 H = sha("message-bytes")

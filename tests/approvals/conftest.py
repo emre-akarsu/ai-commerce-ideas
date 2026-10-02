@@ -5,10 +5,10 @@ from decimal import Decimal
 
 import pytest
 
-from components.purchase_orders.approvals.service import ApprovalService, CapPolicy
-from components.evidence.log import EventLog
 from components.core.fakes import FakeClock
 from components.core.store import Store
+from components.evidence.log import EventLog
+from components.purchase_orders.approvals.service import ApprovalService, CapPolicy
 from tests.security.factories import APPROVAL_KEY, PII_KEY, T1, T2, make_vendor
 
 

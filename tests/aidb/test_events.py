@@ -34,7 +34,9 @@ def test_chain_verifies_across_pg_roundtrip(log, tenants):
     assert log.head(a) == (4, evs[-1].hash) and log.head("nobody") == (0, "0" * 64)
     assert [e.payload["i"] for e in log.events(a, "r1")] == [1, 3]
     # a fresh instance (new process) sees the same verified chain and continues it
-    other = PgEventStore(log._engine, FakeClock(datetime(2027, 1, 1, tzinfo=UTC)), pii_key=b"k" * 32)
+    other = PgEventStore(
+        log._engine, FakeClock(datetime(2027, 1, 1, tzinfo=UTC)), pii_key=b"k" * 32
+    )
     assert other.verify_chain(a)
     nxt = other.append(a, None, "system", "x")
     assert nxt.prev_hash == evs[-1].hash and other.verify_chain(a)
@@ -51,8 +53,13 @@ def test_tamper_detected_and_truncation_detected(log, admin_engine, tenants):
     _fill(log, a)
     with admin_engine.begin() as c:  # superuser + trigger disabled = simulated DB-level attacker
         c.execute(text("ALTER TABLE events DISABLE TRIGGER events_no_update"))
-        c.execute(text("UPDATE events SET data = jsonb_set(data, '{payload,i}', '99') "
-                       "WHERE tenant_id=:t AND seq=2"), {"t": a})
+        c.execute(
+            text(
+                "UPDATE events SET data = jsonb_set(data, '{payload,i}', '99') "
+                "WHERE tenant_id=:t AND seq=2"
+            ),
+            {"t": a},
+        )
         c.execute(text("ALTER TABLE events ENABLE TRIGGER events_no_update"))
     assert log.first_invalid(a) == 1
     assert not log.verify_chain(a)
@@ -82,15 +89,25 @@ def test_append_only_enforced(log, app_engine, admin_engine, tenants):
         c.execute(text("SELECT set_config('aidb.redacting','on',true)"))
         with pytest.raises(DBAPIError):
             with c.begin_nested():
-                c.execute(text("UPDATE events SET data = jsonb_set(data,'{actor}','\"x\"') "
-                               "WHERE tenant_id=:t"), {"t": a})
+                c.execute(
+                    text(
+                        "UPDATE events SET data = jsonb_set(data,'{actor}','\"x\"') "
+                        "WHERE tenant_id=:t"
+                    ),
+                    {"t": a},
+                )
     assert len(log.events(a)) == 1
 
 
 def test_redaction_path_keeps_chain_valid(log, tenants):
     a, b = tenants
-    e = log.append(a, "r1", "agent", "rfq.drafted",
-                   {"vendor": "v1", "_pii": {"email": "buyer@example.com", "name": "Pat"}})
+    e = log.append(
+        a,
+        "r1",
+        "agent",
+        "rfq.drafted",
+        {"vendor": "v1", "_pii": {"email": "buyer@example.com", "name": "Pat"}},
+    )
     before = log.head(a)
     red = log.redact(a, e.id, ["email"], actor="operator:1")
     assert red.payload["_pii"] == {"email": REDACTED, "name": "Pat"}

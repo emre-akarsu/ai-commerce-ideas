@@ -106,7 +106,9 @@ class PgRepo(Generic[T]):
     def _row(self, obj: Any) -> dict[str, Any]:
         extras = {k: v for k, v in self._s.extras(obj).items() if v is not None}
         return {
-            "id": self._s.ident(obj), "tenant_id": self._tenant, **extras,
+            "id": self._s.ident(obj),
+            "tenant_id": self._tenant,
+            **extras,
             "data": self._s.dump(obj),
         }
 
@@ -210,12 +212,22 @@ class PgQuoteRepo(PgRepo[Quote]):
 
 
 def _model_spec(
-    table: Table, kind: str, model: type[Any], extras: Callable[[Any], dict[str, Any]], **policy: bool
+    table: Table,
+    kind: str,
+    model: type[Any],
+    extras: Callable[[Any], dict[str, Any]],
+    **policy: bool,
 ) -> _Spec[Any]:
     return _Spec(
-        table=table, kind=kind, ident=lambda o: o.id, tenant=lambda o: o.tenant_id,
-        dump=lambda o: o.model_dump(mode="json"), load=model.model_validate,
-        check=lambda o: isinstance(o, model), extras=extras, **policy,
+        table=table,
+        kind=kind,
+        ident=lambda o: o.id,
+        tenant=lambda o: o.tenant_id,
+        dump=lambda o: o.model_dump(mode="json"),
+        load=model.model_validate,
+        check=lambda o: isinstance(o, model),
+        extras=extras,
+        **policy,
     )
 
 
@@ -225,18 +237,25 @@ def _doc_spec(table: Table, kind: str) -> _Spec[dict[str, Any]]:
         return out
 
     return _Spec(
-        table=table, kind=kind, ident=lambda d: str(d["id"]), tenant=lambda d: str(d["tenant_id"]),
-        dump=dump, load=lambda d: d, check=lambda d: isinstance(d, dict) and "id" in d
-        and "tenant_id" in d,
+        table=table,
+        kind=kind,
+        ident=lambda d: str(d["id"]),
+        tenant=lambda d: str(d["tenant_id"]),
+        dump=dump,
+        load=lambda d: d,
+        check=lambda d: isinstance(d, dict) and "id" in d and "tenant_id" in d,
         extras=lambda d: {"request_id": d.get("request_id")},
-        allow_save=False, allow_delete=False,
+        allow_save=False,
+        allow_delete=False,
     )
 
 
 def _specs() -> dict[str, _Spec[Any]]:
     return {
         "requests": _model_spec(
-            m.requests, "request", Request,
+            m.requests,
+            "request",
+            Request,
             lambda o: {"request_id": o.id, "state": o.state.value, "created_at": o.created_at},
         ),
         "vendors": _model_spec(m.vendors, "vendor", Vendor, lambda o: {"vendor_id": o.id}),
@@ -244,21 +263,36 @@ def _specs() -> dict[str, _Spec[Any]]:
             m.rfqs, "rfq", RFQ, lambda o: {"request_id": o.request_id, "vendor_id": o.vendor_id}
         ),
         "quotes": _model_spec(
-            m.quotes, "quote", Quote, lambda o: {"vendor_id": o.vendor_id, "version": o.version},
-            allow_save=False, allow_delete=False, versioned=True,
+            m.quotes,
+            "quote",
+            Quote,
+            lambda o: {"vendor_id": o.vendor_id, "version": o.version},
+            allow_save=False,
+            allow_delete=False,
+            versioned=True,
         ),
         "approvals": _model_spec(
-            m.approvals, "approval", Approval, lambda o: {"state": o.kind.value},
-            allow_save=False, allow_delete=False,
+            m.approvals,
+            "approval",
+            Approval,
+            lambda o: {"state": o.kind.value},
+            allow_save=False,
+            allow_delete=False,
         ),
         "standing_rules": _model_spec(
-            m.standing_rules, "standing_rule", StandingRule, lambda o: {"vendor_id": o.vendor_id},
+            m.standing_rules,
+            "standing_rule",
+            StandingRule,
+            lambda o: {"vendor_id": o.vendor_id},
             allow_save=False,
         ),
         "po_drafts": _model_spec(
-            m.po_drafts, "po_draft", PurchaseOrderDraft,
+            m.po_drafts,
+            "po_draft",
+            PurchaseOrderDraft,
             lambda o: {"request_id": o.request_id, "vendor_id": o.vendor_id},
-            allow_save=False, allow_delete=False,
+            allow_save=False,
+            allow_delete=False,
         ),
         "corrections": _doc_spec(m.corrections, "correction"),
         "consent_records": _doc_spec(m.consent_records, "consent_record"),
@@ -270,7 +304,9 @@ class PgTenantStore:
 
     def __init__(self, conn: Connection, tenant_id: str) -> None:
         if bound_tenant(conn) != tenant_id:
-            raise TenantIsolationError("connection is not bound to this tenant (use tenant_session)")
+            raise TenantIsolationError(
+                "connection is not bound to this tenant (use tenant_session)"
+            )
         self.tenant_id = tenant_id
         self._c = conn
         s = _specs()
@@ -360,7 +396,8 @@ class PgEventStore(EventLog):
             last = conn.execute(
                 select(m.events.c.seq, m.events.c.hash)
                 .where(m.events.c.tenant_id == tenant_id)
-                .order_by(m.events.c.seq.desc()).limit(1)
+                .order_by(m.events.c.seq.desc())
+                .limit(1)
             ).first()
             seq = (last.seq if last else 0) + 1
             prev_hash = last.hash if last else GENESIS_HASH
@@ -376,13 +413,27 @@ class PgEventStore(EventLog):
                 stored[PII_KEY] = pii
                 stored[DIGESTS_KEY] = digests
             event = Event(
-                id=event_id, tenant_id=tenant_id, request_id=request_id, ts=ts, actor=actor,
-                type=type, payload=stored, prev_hash=prev_hash, hash=digest,
+                id=event_id,
+                tenant_id=tenant_id,
+                request_id=request_id,
+                ts=ts,
+                actor=actor,
+                type=type,
+                payload=stored,
+                prev_hash=prev_hash,
+                hash=digest,
             )
             conn.execute(
                 insert(m.events).values(
-                    id=event_id, tenant_id=tenant_id, request_id=request_id, seq=seq, ts=ts,
-                    actor=actor, type=type, prev_hash=prev_hash, hash=digest,
+                    id=event_id,
+                    tenant_id=tenant_id,
+                    request_id=request_id,
+                    seq=seq,
+                    ts=ts,
+                    actor=actor,
+                    type=type,
+                    prev_hash=prev_hash,
+                    hash=digest,
                     data=event.model_dump(mode="json"),
                 )
             )
@@ -393,14 +444,16 @@ class PgEventStore(EventLog):
             q = select(m.events.c.data).where(m.events.c.tenant_id == tenant_id)
             if request_id is not None:
                 q = q.where(m.events.c.request_id == request_id)
-            return [Event.model_validate(d) for d in conn.execute(q.order_by(m.events.c.seq))
-                    .scalars()]
+            return [
+                Event.model_validate(d) for d in conn.execute(q.order_by(m.events.c.seq)).scalars()
+            ]
 
     def head(self, tenant_id: str) -> tuple[int, str]:
         with tenant_session(self._engine, tenant_id) as conn:
             row = conn.execute(
-                select(m.event_heads.c.count, m.event_heads.c.last_hash)
-                .where(m.event_heads.c.tenant_id == tenant_id)
+                select(m.event_heads.c.count, m.event_heads.c.last_hash).where(
+                    m.event_heads.c.tenant_id == tenant_id
+                )
             ).first()
         return (int(row.count), str(row.last_hash)) if row else (0, GENESIS_HASH)
 
@@ -442,12 +495,19 @@ class PgEventStore(EventLog):
             raise
         updated = Event.model_validate(row if row else data)
         self.append(
-            tenant_id, updated.request_id, actor, EVT_PII_REDACTED,
+            tenant_id,
+            updated.request_id,
+            actor,
+            EVT_PII_REDACTED,
             {"event_id": event_id, "fields": wanted},
         )
         return updated
 
 
 __all__ = [
-    "PgEventStore", "PgQuoteRepo", "PgRepo", "PgStore", "PgTenantStore",
+    "PgEventStore",
+    "PgQuoteRepo",
+    "PgRepo",
+    "PgStore",
+    "PgTenantStore",
 ]

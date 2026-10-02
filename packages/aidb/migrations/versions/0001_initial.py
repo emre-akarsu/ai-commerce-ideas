@@ -22,8 +22,16 @@ down_revision = None
 branch_labels = None
 depends_on = None
 
-PLAIN = ["requests", "vendors", "rfqs", "approvals", "standing_rules", "po_drafts",
-         "corrections", "consent_records"]
+PLAIN = [
+    "requests",
+    "vendors",
+    "rfqs",
+    "approvals",
+    "standing_rules",
+    "po_drafts",
+    "corrections",
+    "consent_records",
+]
 GRANTS = {
     "tenants": "SELECT",
     "requests": "SELECT, INSERT, UPDATE, DELETE",
@@ -153,23 +161,32 @@ def _events_triggers() -> None:
         RAISE EXCEPTION 'events is append-only: % rejected', TG_OP
             USING ERRCODE = 'restrict_violation';
     END $f$""")
-    op.execute("CREATE TRIGGER events_no_update BEFORE UPDATE ON events "
-               "FOR EACH ROW EXECUTE FUNCTION aidb_events_guard()")
-    op.execute("CREATE TRIGGER events_no_delete BEFORE DELETE ON events "
-               "FOR EACH ROW EXECUTE FUNCTION aidb_events_reject()")
-    op.execute("CREATE TRIGGER events_no_truncate BEFORE TRUNCATE ON events "
-               "FOR EACH STATEMENT EXECUTE FUNCTION aidb_events_reject()")
+    op.execute(
+        "CREATE TRIGGER events_no_update BEFORE UPDATE ON events "
+        "FOR EACH ROW EXECUTE FUNCTION aidb_events_guard()"
+    )
+    op.execute(
+        "CREATE TRIGGER events_no_delete BEFORE DELETE ON events "
+        "FOR EACH ROW EXECUTE FUNCTION aidb_events_reject()"
+    )
+    op.execute(
+        "CREATE TRIGGER events_no_truncate BEFORE TRUNCATE ON events "
+        "FOR EACH STATEMENT EXECUTE FUNCTION aidb_events_reject()"
+    )
     op.execute("""
     CREATE FUNCTION aidb_events_head() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
     SET search_path = public, pg_temp AS $f$
     BEGIN
         INSERT INTO event_heads (tenant_id, count, last_hash)
         VALUES (NEW.tenant_id, NEW.seq, NEW.hash)
-        ON CONFLICT (tenant_id) DO UPDATE SET count = EXCLUDED.count, last_hash = EXCLUDED.last_hash;
+        ON CONFLICT (tenant_id) DO UPDATE
+          SET count = EXCLUDED.count, last_hash = EXCLUDED.last_hash;
         RETURN NULL;
     END $f$""")
-    op.execute("CREATE TRIGGER events_head AFTER INSERT ON events "
-               "FOR EACH ROW EXECUTE FUNCTION aidb_events_head()")
+    op.execute(
+        "CREATE TRIGGER events_head AFTER INSERT ON events "
+        "FOR EACH ROW EXECUTE FUNCTION aidb_events_head()"
+    )
     op.execute("""
     CREATE FUNCTION aidb_redact_event(p_event_id text, p_fields text[]) RETURNS jsonb
     LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp AS $f$

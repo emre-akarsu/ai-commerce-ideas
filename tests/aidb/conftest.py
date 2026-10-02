@@ -44,8 +44,10 @@ def pg_db() -> Iterator[str]:
         with root.connect() as c:
             c.execute(text("SELECT 1"))
     except Exception as exc:  # noqa: BLE001
-        pytest.skip(f"Postgres unreachable at {ADMIN_URL} ({exc.__class__.__name__}); "
-                    "run scripts/pg_dev.sh start or set AIDB_TEST_PG_URL")
+        pytest.skip(
+            f"Postgres unreachable at {ADMIN_URL} ({exc.__class__.__name__}); "
+            "run scripts/pg_dev.sh start or set AIDB_TEST_PG_URL"
+        )
     name = f"aidb_t_{uuid.uuid4().hex[:10]}"
     ddl(root, f'CREATE DATABASE "{name}"')
     try:

@@ -26,7 +26,7 @@ class PrivilegedRoleError(RuntimeError):
 def to_sa_url(url: str) -> str:
     """postgresql://... -> postgresql+psycopg://... (psycopg 3)."""
     if url.startswith("postgresql://"):
-        return "postgresql+psycopg://" + url[len("postgresql://"):]
+        return "postgresql+psycopg://" + url[len("postgresql://") :]
     return url
 
 
