@@ -1,5 +1,8 @@
 # Top Features — Prioritisation and MVP Cut
 
+> **v0.2 UPDATE (2026-10-02):** after red-team review (`03-red-team-vc-review.md`), priorities changed: **F1b nameplate/photo identification, F11 CSV work-order/PO import, F21 down-now mode, F22 phone/SMS scripts and logging are now P0**; **F14 vendor scorecards are internal-only**; authorised flag is exception-only; five roles → three; follow-ups default off; tiers renamed A–D "matches per source" (spec §3). Pricing is per completed request. See `04-product-spec.md` v0.2 for the authoritative list. The v0.1 table below is kept for the record.
+
+
 As of 2026-10-02. Companion to `01-pmf-lean-canvas.md`. Scores are my judgement (1–5), not data. With agentic development, **engineering cost is low, so effort is scored by *risk and review burden* (how much human checking each feature needs), not build time.** Priority is driven by two things: does it test an assumption in the ledger (A1–A7), and does it directly serve a top job.
 
 ## Scoring

@@ -1,5 +1,15 @@
 # Product-Market Fit Research & Lean Canvas — MRO Purchasing Agent
 
+> **v0.2 UPDATE (2026-10-02) — read this first.** After red-team review (`03-red-team-vc-review.md`) the following v0.1 statements are **superseded**:
+> - **Problem reframed:** the dominant pain is *identifying and sourcing the part* (nameplate/obsolete/OEM-specific), not "quote loops take days" (with a known rep it takes minutes). Positioning: **identify the part, then get it quoted.**
+> - **Competitor claim is stale:** Aron targets "mid-market to Fortune 10" and is MRO-first and email-native; Ramp shipped mid-market procurement agents (Apr 2026). Treat the "no one serves this segment" claim as **unproven**; differentiation must be demonstrated (Phase 0 test T3).
+> - **Moat:** none proven. It is a hypothesis (consented equivalence graph + vendor-response history + work-order/PO history) and the product is a wrapper unless T3 shows we win ≥20 real requests where general LLMs/Aron fail.
+> - **Pricing:** $600/mo at ~4 qualifying requests/month is ~$150/request; per-completed-request pricing ($15–25, first 10 free) replaces the flat fee until frequency is measured. ACV at the old pricing ≈ $7.9k ⇒ $100M ARR would need ≈12.7k paying sites; may be a $10–50M ARR niche or acquisition target.
+> - **Beachhead:** bearings are the *engineering* test bed (deterministic); the *commercial* beachhead is set by buyer email/PO audits (T1).
+> - **Metrics/gates** restated in doc 03 §5 and spec §8–9 (statistical; one WTP unit; operator cost ≤5 min).
+> The text below is the v0.1 analysis, kept for the record.
+
+
 As of 2026-10-02. Built from round 1/2 research (`research/raw`, `docs/ideas`) and the PMF research pass (`research/pmf/01–05`). **Everything here is a hypothesis to test, not evidence of fit.** No customer has been interviewed and no willingness to pay has been measured. Source URLs live in the files cited in brackets.
 
 ## 1. PMF hypothesis (one sentence)
