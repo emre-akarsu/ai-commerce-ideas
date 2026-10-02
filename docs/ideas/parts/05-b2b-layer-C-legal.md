@@ -10,6 +10,8 @@
 
 ## UCC Article 2 and Automated Contract Formation
 
+**[Editor's correction, 2026-10-02: the 'Revised UCC § 2-204' paragraph below is wrong as a statement of current law. The 2003 revisions to UCC Article 2, including the electronic-agents language, were never enacted and were withdrawn by their sponsors in 2011 (the red-team legal review verified this on the web; counsel to confirm). The relevant US rules are UETA § 14 and E-SIGN § 101(h) on electronic agents (not independently web-verified here), plus the battle-of-the-forms rule in the *existing* UCC § 2-207, which remains in force.]**
+
 **Revised UCC § 2-204.** The 2003 revision explicitly permits contract formation through the interaction of electronic agents of both parties, "even if no individual was aware of or reviewed the electronic agents' actions or the resulting terms and agreements" ([Revised Article 2](https://www.uniformlaws.org/HigherLogic/System/DownloadDocumentFile.ashx?DocumentFileKey=80bcb18c-b047-bfc4-5b27-4a8bf8982f95&forceDialog=0)). This means an agent that receives an electronic acknowledgment and allows goods to ship has likely formed a binding contract under the UCC—a critical issue for B2B RFQ/PO workflows where confirmation is automated. **Battle of the forms:** Under UCC § 2-207, additional terms in acceptance (e.g., a supplier's net-30 terms embedded in an order confirmation) become part of the contract unless the buyer objects. An agentic layer must programmatically detect and escalate material term conflicts to humans before acceptance is final.
 
 ## EU AI Act Article 50 and Digital Omnibus Timing
