@@ -212,4 +212,4 @@ def test_sandbox_result_is_reinerted() -> None:
 
 def test_sandbox_protocol_is_declared_not_implemented() -> None:
     assert hasattr(SandboxedParserClient, "parse_in_sandbox")
-    assert not any(isinstance(P, SandboxedParserClient) for _ in [0]) or True
+    assert not hasattr(P, "parse_in_sandbox")
