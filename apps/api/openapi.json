@@ -1012,6 +1012,23 @@
             "title": "Source Snippets",
             "type": "object"
           },
+          "tax_basis": {
+            "default": "unknown",
+            "title": "Tax Basis",
+            "type": "string"
+          },
+          "tax_rate": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Rate"
+          },
           "tenant_id": {
             "title": "Tenant Id",
             "type": "string"
@@ -1027,6 +1044,18 @@
               }
             ],
             "title": "Unit Price Each"
+          },
+          "unit_price_quoted": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Price Quoted"
           },
           "uom_raw": {
             "anyOf": [

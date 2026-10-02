@@ -189,7 +189,7 @@ class Quote(_Frozen):
     vendor_id: str
     version: int = 1
     unit_price_each: Decimal | None = None  # normalised via UoM; EX-TAX once basis is known
-    unit_price_quoted: Decimal | None = None  # as stated by the vendor (per each, before tax conversion)
+    unit_price_quoted: Decimal | None = None  # as stated by the vendor, per each, pre-conversion
     tax_basis: str = "unknown"  # "ex_tax" | "inc_tax" | "unknown" (profile decides handling)
     tax_rate: Decimal | None = None  # rate applied when converting inc_tax -> ex_tax
     currency: str | None = None
