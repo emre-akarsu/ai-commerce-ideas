@@ -60,6 +60,7 @@ from .errors import (
 from .message import (
     FOOTER_TEMPLATE,
     NO_FOLLOW_UPS,
+    REQUIRED_FOOTER_CLAUSES,
     FollowUpSchedule,
     MessagePurpose,
     ParsedMessage,
@@ -160,12 +161,10 @@ class SendService:
         max_recipients: int = DEFAULT_MAX_RECIPIENTS,
         footer_text: str = FOOTER_TEMPLATE,
     ) -> None:
-        if (
-            not isinstance(footer_text, str)
-            or "{buyer}" not in footer_text
-            or not footer_text.startswith(FOOTER_TEMPLATE)
+        if not isinstance(footer_text, str) or any(
+            clause.lower() not in footer_text.lower() for clause in REQUIRED_FOOTER_CLAUSES
         ):
-            raise ValueError("footer must keep the mandated R8 sentence naming the buyer")
+            raise ValueError("footer must keep the mandated R8 clauses naming the buyer")
         if max_recipients < 1:
             raise ValueError("max_recipients must be >= 1")
         self._transport = transport
@@ -179,6 +178,11 @@ class SendService:
         self._lock = threading.RLock()
         self._spent: set[str] = set()  # approval ids / nonces handed to the transport
         self._plans: list[_FollowUpPlan] = []
+
+    @property
+    def footer_template(self) -> str:
+        """The R8 disclosure footer template in force (default constant, or the profile's)."""
+        return self._footer
 
     # ------------------------------------------------------------------ prepare
 

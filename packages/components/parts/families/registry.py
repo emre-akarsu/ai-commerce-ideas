@@ -7,7 +7,7 @@ required-attribute table, source list with licences, and eval set (spec §6.2).
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 
 DEEP_GROOVE_BALL_BEARING = "deep_groove_ball_bearing"
@@ -158,5 +158,14 @@ def get_family(name: str) -> FamilySpec:
         raise UnknownFamilyError(f"no required-attribute table for family {name!r}") from None
 
 
-def list_families() -> tuple[str, ...]:
-    return tuple(_FAMILIES)
+def list_families(enabled: Iterable[str] | None = None) -> tuple[str, ...]:
+    """Registered families; with ``enabled`` (a deployment profile's ``parts.enabled_families``)
+    only those. ``None`` keeps the unfiltered behaviour."""
+    if enabled is None:
+        return tuple(_FAMILIES)
+    allowed = set(enabled)
+    return tuple(name for name in _FAMILIES if name in allowed)
+
+
+def is_family_enabled(name: str | None, enabled: Iterable[str] | None) -> bool:
+    return name is not None and (enabled is None or name in set(enabled))

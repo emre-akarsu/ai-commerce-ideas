@@ -27,6 +27,8 @@ FOOTER_TEMPLATE = (
     "Prepared with an AI assistant. It cannot accept terms or place orders; "
     "only a purchase order from {buyer} binds."
 )
+# A profile may localise the footer, but it must keep these clauses (mirrors aiplat.profile).
+REQUIRED_FOOTER_CLAUSES = ("AI assistant", "cannot accept terms", "{buyer}")
 MAX_BODY_CHARS = 20_000
 MAX_SUBJECT_CHARS = 200
 MAX_FOLLOW_UPS = 3
