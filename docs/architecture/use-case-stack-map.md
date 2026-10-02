@@ -1,5 +1,8 @@
 # Use Case → Tech Stack Map
 
+> **Superseded (2026-10-02):** this earlier mapping assumed a headless CRM, n8n and an HTMX UI. The founder's **AI Employees Tech Stack** replaces it; see [`ai-employees-stack-map.md`](ai-employees-stack-map.md) and ADR-010. Kept for reference.
+
+
 As of 2026-10-02. Maps every use case from the research (round 1–2 ideas, the Idea 1 product spec v0.2, and the validation work) to the stack components it needs.
 
 **Provenance of the stack items.** Components tagged **[P]** come from this project's architecture (`README.md`, ADRs). **[Y]** are items you named from your earlier agentic-commerce chat (headless CRM, RPA such as n8n or Playwright, PDF parsing service); I could not see that chat, so I use only what you listed and add my own judgement on fit. **[+]** are additions I chose. Tool names are **examples, not endorsements**: no benchmarks were run, and licences, pricing, security and data-handling terms must be checked before choosing. Fit verdicts are judgement.
