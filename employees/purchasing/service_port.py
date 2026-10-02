@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 """Service interface the API depends on. `PurchasingService` (service.py) implements it.
 
 Every method takes the verified `Ctx`; unknown or cross-tenant ids raise `NotFound` (never leak
