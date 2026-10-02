@@ -1,0 +1,20 @@
+# Purchasing pack manifest (see docs/architecture/ai-employees-stack-map.md section 3).
+# Limits are illustrative defaults, not a recommendation.
+id: purchasing
+name: Parts Sourcing Agent
+role: Identifies maintenance parts and gets quotes from the buyer's vendors; a person approves every send and order
+model: anthropic/claude-sonnet-5-5   # extractor model is configured separately and has no tools
+integrations: [email-alias, csv-import]
+tools:
+  - employees.purchasing.tools.identify_part
+  - employees.purchasing.tools.draft_rfq
+  - employees.purchasing.tools.compare_quotes
+workflows:
+  quote_request: { approval: buyer }              # send-service enforces the hash-bound approval
+  follow_up: { schedule: "0 */4 * * *", approval: standing_rule }   # default off
+modules: [inbox, crm, rfq, reports, approvals]
+uses:
+  approvals: { required_for: [send_rfq, send_po], approver: buyer }
+  crm: { fields: { domain: text, preferred: boolean, opted_out: boolean } }
+  billing: { metered: [completed_request] }
+limits: { per_order_max_usd: 5000, daily_aggregate_max_usd: 15000 }

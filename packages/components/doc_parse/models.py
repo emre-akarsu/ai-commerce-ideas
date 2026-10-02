@@ -28,7 +28,7 @@ class ParserLimits:
 @dataclass(frozen=True)
 class SourceSpan:
     """``text[start:end]`` came from ``part`` of the source (e.g. ``body``, ``page:2``,
-    ``sheet:Parts``, ``header:subject``). Used by the grounding check to point back at the source."""
+    ``sheet:Parts``, ``header:subject``). Used by the grounding check."""
 
     start: int
     end: int

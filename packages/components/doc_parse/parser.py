@@ -192,7 +192,8 @@ class LocalTextParser:
             try:
                 val = str(msg.get(hdr, "") or "")
             except Exception:  # noqa: BLE001 - malformed header objects
-                val, _ = "", b.flag("warn:malformed_eml")
+                val = ""
+                b.flag("warn:malformed_eml")
             if val:
                 b.add(f"{hdr}: {val[:1000]}", f"header:{hdr.lower()}")
         plain: list[str] = []
@@ -324,6 +325,8 @@ class LocalTextParser:
             pages.append(b.add(raw, f"page:{i}", i))
         if not any(pages):
             b.flag("pdf_no_text_layer")
-        return ParsedDocument(b.text, tuple(pages), (), tuple(b.spans), tuple(b.flags), name, digest)
+        return ParsedDocument(
+            b.text, tuple(pages), (), tuple(b.spans), tuple(b.flags), name, digest
+        )
 
 
