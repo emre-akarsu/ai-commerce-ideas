@@ -229,7 +229,9 @@ def build_message(
 
     stamp = int(sent_at.timestamp())
     digest = sha256_hex(f"{rfq_c}|{subject_c}|{body_c}|{followup_seq}".encode())[:10]
-    msg = EmailMessage(policy=policy.SMTP)
+    # 998 = RFC 5322 hard limit: keeps ASCII text 7bit so the footer sentence stays verbatim in the
+    # hashed bytes instead of being quoted-printable soft-wrapped.
+    msg = EmailMessage(policy=policy.SMTP.clone(max_line_length=998))
     try:
         msg["From"] = Address(display_name=buyer_c, addr_spec=alias.addr_spec)
         msg["To"] = rcpt

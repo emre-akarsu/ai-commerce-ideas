@@ -1,4 +1,4 @@
-"""Quote normalisation: Decimal money, UoM conversion, lead time, authenticity tri-state (R5, R9, R12)."""
+"""Quote normalisation: Decimal money, UoM, lead time, authenticity tri-state (R5, R9, R12)."""
 
 from __future__ import annotations
 
@@ -129,7 +129,9 @@ def test_uom_conversion_to_each(price: str, uom: str, each: str):
     assert "uom_unrecognised" not in q.flags and "uom_assumed_each" not in q.flags
 
 
-@pytest.mark.parametrize("uom", ["per 25", "per m", "per foot", "per dozen", "per box", "per c", "/k"])
+@pytest.mark.parametrize(
+    "uom", ["per 25", "per m", "per foot", "per dozen", "per box", "per c", "/k"]
+)
 def test_unsupported_or_ambiguous_uom_gives_no_price_and_a_flag(uom: str):
     q = priced("12.50", uom)
     assert q.unit_price_each is None

@@ -8,3 +8,7 @@ __pycache__/
 outbox/
 .env
 .hypothesis/
+node_modules/
+.next/
+*.tsbuildinfo
+next-env.d.ts

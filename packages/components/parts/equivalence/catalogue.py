@@ -80,7 +80,8 @@ class Catalogue(_Frozen):
         want = normalise_mpn(mpn)
         hits = [p for p in self.parts if normalise_mpn(p.mpn) == want]
         if manufacturer:
-            hits = [p for p in hits if normalise_name(p.manufacturer) == normalise_name(manufacturer)]
+            want_mfr = normalise_name(manufacturer)
+            hits = [p for p in hits if normalise_name(p.manufacturer) == want_mfr]
         return hits
 
     def crossrefs_from(self, part: CatalogPart) -> list[CrossRef]:

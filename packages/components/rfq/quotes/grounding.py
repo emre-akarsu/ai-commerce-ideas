@@ -22,6 +22,7 @@ from collections.abc import Iterable
 from pydantic import BaseModel, ConfigDict
 
 from components.core.domain import ExtractedQuote
+
 from .inert import fold_text, inert_text, reveal_text
 
 __all__ = [

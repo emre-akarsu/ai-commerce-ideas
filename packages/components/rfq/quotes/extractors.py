@@ -19,6 +19,7 @@ from typing import Any
 
 from components.core.domain import ExtractedQuote
 from components.core.ports import LLMProvider
+
 from .inert import inert_text
 
 __all__ = [

@@ -1,0 +1,97 @@
+// EXAMPLE DATA ONLY. Synthetic, illustrative; not real parts, vendors, prices or cross-references.
+// Used when NEXT_PUBLIC_API_MOCK=1 so the UI renders without the backend.
+import type {
+  ApprovalLinkSummary, ComparisonView, EventView, PreparedRFQ, QuoteView, RequestDetail, RequestView, Vendor,
+} from "./api";
+
+export const MOCK_LABEL = "Example data (synthetic, not real parts, prices or vendors)";
+const H = "0".repeat(64);
+
+function baseRequest(): RequestView {
+  return {
+    id: "req-example-1", state: "COMPARISON_READY", family: "deep_groove_ball_bearing",
+    attributes: {
+      bore_mm: { name: "bore_mm", value: "25", unit: "mm", source: "user_input", source_ref: "user message", confidence: 1 },
+      outer_diameter_mm: { name: "outer_diameter_mm", value: "52", unit: "mm", source: "manufacturer_table", source_ref: "EXAMPLE-TABLE-1", confidence: 0.95 },
+      seal: { name: "seal", value: "2RS", unit: null, source: "model_inference", source_ref: "inferred from text", confidence: 0.6 },
+    },
+    quantity: 4, need_by: "2026-10-20", site: "Example Plant 1", work_order_ref: "WO-EXAMPLE-1", criticality: false,
+    down_now: false, open_questions: ["What is the shaft tolerance class?"], questions_asked: 1, created_at: "2026-10-01T09:00:00Z",
+  };
+}
+const rfqPrepared = (): PreparedRFQ[] => [{
+  rfq_id: "rfq-example-1", vendor: { id: "v1", name: "Example Supply Co" }, to: "sales@example-supply.test",
+  subject: "Quote request: 6205-2RS x4", body_preview: "Hello,\nPlease quote 4 x 6205-2RS (EXAMPLE). Need by 2026-10-20.\nThank you.",
+  mime_hash: "a".repeat(64), footer: "Sent on behalf of Example Plant 1 via the purchasing agent. Reply to this message with your quote.",
+}];
+const quote = (): QuoteView => ({
+  id: "q-example-1", rfq_id: "rfq-example-1", vendor_id: "v1", version: 1, unit_price_each: "12.50", currency: "USD",
+  uom_raw: "each", moq: 1, lead_time_days: 5, freight: "8.00", validity_days: 14, offered_mpn: "6205-2RS", condition: "new",
+  authenticity: "vendor_claimed", offered_tier: "A",
+  source_snippets: { unit_price: "Price: $12.50 each", lead_time: "Ships in 5 days", offered_mpn: "6205-2RS" },
+  flags: ["dmarc_ok"],
+});
+const comparison = (): ComparisonView => ({
+  request_id: "req-example-1",
+  rows: [{ quote_id: "q-example-1", vendor_id: "v1", vendor_name: "Example Supply Co", landed_unit_cost: "13.50", lead_time_days: 5, tier: "A", authenticity: "vendor_claimed", meets_need_by: true, flags: [] }],
+  recommended_quote_id: "q-example-1", reasons: ["lowest_landed_cost", "meets_need_by", "tier_a_offer"],
+});
+const events = (): EventView[] => [
+  { id: "e1", request_id: "req-example-1", ts: "2026-10-01T09:00:00Z", actor: "user:example", type: "request.created", payload: {}, prev_hash: H, hash: "1".repeat(64) },
+  { id: "e2", request_id: "req-example-1", ts: "2026-10-01T09:01:00Z", actor: "agent", type: "spec.normalised", payload: {}, prev_hash: "1".repeat(64), hash: "2".repeat(64) },
+];
+const detail = (): RequestDetail => ({
+  request: baseRequest(),
+  candidates: [
+    { mpn: "6205-2RS", manufacturer: "EXAMPLE-MFR", tier: "A", basis: "same_mpn", basis_source: "SYNTHETIC-TEST-SOURCE", basis_date: "2026-01-01", evidence: ["Same manufacturer and MPN"], caveats: [], mismatches: [], synthetic: true },
+    { mpn: "EX-6205-ZZ", manufacturer: "EXAMPLE-ALT", tier: "B", basis: "manufacturer_crossref", basis_source: "SYNTHETIC-TEST-SOURCE", basis_date: "2026-01-01", evidence: [], caveats: ["Shield type differs: verify"], mismatches: ["seal"], synthetic: true },
+  ],
+  rfqs: [{ id: "rfq-example-1", vendor_id: "v1", subject: "Quote request: 6205-2RS x4", sent_message_id: "msg-example-1" }],
+  quotes: [quote()], comparison: comparison(), events: events(), pending_approvals: [], chain_valid: true,
+});
+
+const vendors: Vendor[] = [
+  { id: "v1", name: "Example Supply Co", domain: "example-supply.test", contact_email: "sales@example-supply.test", preferred: true, phone: null, opted_out: false },
+  { id: "v2", name: "Sample Bearings Ltd", domain: "sample-bearings.test", contact_email: "quotes@sample-bearings.test", preferred: false, phone: null, opted_out: false },
+];
+const requests: RequestView[] = [baseRequest()];
+
+type Body = Record<string, unknown> | undefined;
+export function mockHandle(method: string, path: string, body?: unknown): unknown {
+  const b = body as Body;
+  const p = path.split("?")[0];
+  if (method === "GET" && p === "/v1/requests") return requests;
+  if (method === "POST" && p === "/v1/requests") {
+    const d = detail();
+    d.request = { ...baseRequest(), id: `req-example-${requests.length + 1}`, state: "NEEDS_INFO", quantity: (b?.quantity as number) ?? null,
+      site: (b?.site as string) ?? null, work_order_ref: (b?.work_order_ref as string) ?? null, need_by: (b?.need_by as string) ?? null,
+      down_now: Boolean(b?.down_now), criticality: Boolean(b?.criticality) };
+    requests.unshift(d.request);
+    return d;
+  }
+  let m = p.match(/^\/v1\/requests\/([^/]+)$/);
+  if (method === "GET" && m) return { ...detail(), request: { ...baseRequest(), id: decodeURIComponent(m[1]) } };
+  if (method === "POST" && /\/answers$/.test(p)) { const d = detail(); d.request.open_questions = []; return d; }
+  if (method === "POST" && /\/rfqs\/prepare$/.test(p)) return rfqPrepared();
+  if (method === "POST" && /\/approve-send$/.test(p)) return { message_id: "msg-example-1" };
+  if (method === "GET" && /\/comparison$/.test(p)) return comparison();
+  if (method === "POST" && /\/select-quote$/.test(p)) return detail();
+  if (method === "POST" && /\/po-draft$/.test(p)) return { id: "po-example-1" };
+  if (method === "GET" && /^\/v1\/approval-links\//.test(p)) {
+    const s: ApprovalLinkSummary = { request: baseRequest(), quote: quote(), action: "approve", expires_at: "2026-10-05T00:00:00Z" };
+    return s;
+  }
+  if (method === "POST" && /\/decide$/.test(p)) return { status: (b?.action as string) === "approve" ? "approved" : "declined" };
+  if (method === "GET" && p === "/v1/vendors") return vendors;
+  if (method === "POST" && p === "/v1/vendors") {
+    const v = { id: `v${vendors.length + 1}`, phone: null, ...(b as object) } as Vendor; vendors.push(v); return v;
+  }
+  m = p.match(/^\/v1\/vendors\/([^/]+)$/);
+  if (method === "PATCH" && m) {
+    const i = vendors.findIndex((v) => v.id === decodeURIComponent(m![1]));
+    if (i >= 0) vendors[i] = { ...vendors[i], ...(b as object) };
+    return vendors[i];
+  }
+  if (method === "GET" && p === "/v1/audit") return { events: events(), chain_valid: true };
+  throw new Error(`mock: unhandled ${method} ${p}`);
+}
