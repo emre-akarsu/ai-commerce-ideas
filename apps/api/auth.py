@@ -1,7 +1,8 @@
 """JWT bearer verification producing a `Ctx` (api-contract: Auth and tenancy).
 
 Tenant, role and user come only from the verified token. Algorithms are pinned; `exp`, `sub`
-and `aud` are required. Test mode (HMAC tokens) refuses to start when ENV=production.
+and `aud` are required. Test mode (HMAC tokens) starts only when ENV is in an explicit allowlist
+(test, dev, local).
 """
 
 from __future__ import annotations
@@ -14,6 +15,8 @@ from typing import Any, Protocol
 import jwt
 
 from aiplat.ctx import Ctx, Role
+
+TEST_MODE_ENVS = frozenset({"test", "dev", "local"})
 
 
 class AuthError(Exception):
@@ -87,8 +90,10 @@ def build_authenticator(env: Mapping[str, str] | None = None) -> Authenticator:
     e = os.environ if env is None else env
     mode = e.get("AUTH_MODE", "supabase")
     if mode == "test":
-        if e.get("ENV", "").lower() in {"production", "prod"}:
-            raise RuntimeError("AUTH_MODE=test is forbidden when ENV=production")
+        if e.get("ENV", "").strip().lower() not in TEST_MODE_ENVS:  # fail closed (L3)
+            raise RuntimeError(
+                f"AUTH_MODE=test requires ENV to be one of {sorted(TEST_MODE_ENVS)}"
+            )
         secret = e.get("TEST_AUTH_SECRET", "")
         if len(secret) < 32:
             raise RuntimeError("TEST_AUTH_SECRET (>=32 chars) is required in test mode")

@@ -264,6 +264,19 @@ class CapPolicy:
             key = (tenant_id, self._day())
             self._spent[key] = self._spent.get(key, Decimal(0)) + value
 
+    def today(self) -> date:
+        """The UTC day a reservation made now is booked against."""
+        return self._day()
+
+    def release(
+        self, tenant_id: str, amount: Decimal, *, currency: str | None = None, day: date | None = None
+    ) -> None:
+        """Give back a reservation (cancelled/declined order). Never goes below zero."""
+        value = self._validate(amount, currency)
+        with self._lock:
+            key = (tenant_id, day or self._day())
+            self._spent[key] = max(Decimal(0), self._spent.get(key, Decimal(0)) - value)
+
     def spent_today(self, tenant_id: str) -> Decimal:
         with self._lock:
             return self._spent.get((tenant_id, self._day()), Decimal(0))
@@ -492,17 +505,18 @@ class ApprovalService:
         )
 
     def issue_substitution_approval(
-        self, tenant_id: str, approver: str, candidate_mpn: str, quote_version: int, ttl: timedelta
+        self, tenant_id: str, approver: str, candidate_mpn: str, quote_version: int, ttl: timedelta,
+        *, request_id: str | None = None, quote_id: str | None = None,
     ) -> Approval:
-        """R2: a human accepts a non-Tier-A candidate for one quote version."""
+        """R2: a human accepts a non-Tier-A candidate for one quote version. When ``request_id`` and
+        ``quote_id`` are given they are bound into the approval subject (see ``substitution_subject``)
+        so it cannot be replayed for another request or quote."""
         _require_human(approver, "approver")
         if not candidate_mpn.strip() or quote_version < 1:
             raise ValueError("candidate_mpn and quote_version are required")
-        subject = hashlib.sha256(
-            canonical_json({"substitution": candidate_mpn, "quote_version": quote_version}).encode()
-        ).hexdigest()
+        subject = substitution_subject(candidate_mpn, quote_version, request_id, quote_id)
         return self._mint(
-            tenant_id, ApprovalKind.SUBSTITUTION, approver, subject, ttl,
+            tenant_id, ApprovalKind.SUBSTITUTION, approver, subject, ttl, request_id=request_id,
             quote_version=quote_version, candidate_mpn=candidate_mpn,
         )
 
@@ -752,6 +766,16 @@ class ApprovalService:
     ) -> None:
         if self._log is not None:
             self._log.append(tenant_id, request_id, actor, type_, payload)
+
+
+def substitution_subject(
+    candidate_mpn: str, quote_version: int, request_id: str | None = None, quote_id: str | None = None
+) -> str:
+    """Hash a substitution approval is bound to: candidate + quote version (+ request and quote id)."""
+    data: dict[str, Any] = {"substitution": candidate_mpn, "quote_version": quote_version}
+    if request_id is not None or quote_id is not None:
+        data.update({"request_id": request_id, "quote_id": quote_id})
+    return hashlib.sha256(canonical_json(data).encode()).hexdigest()
 
 
 def _coerce_action(action: ApprovalAction | str) -> ApprovalAction:

@@ -54,9 +54,14 @@ export interface NewRequestInput {
   text: string; quantity?: number; need_by?: string; site?: string; work_order_ref?: string;
   down_now?: boolean; criticality?: boolean;
 }
-export interface ApprovalLinkSummary {
-  request: RequestView; quote: QuoteView | null; action: string; expires_at: string;
+// Mirrors employees/purchasing/views.py (checked against apps/api/openapi.json by tests/api).
+export interface ApprovalLinkView {
+  request_id: string; quote_id: string; vendor: { id: string; name: string };
+  unit_price_each: string | null; currency: string | null; lead_time_days: number | null;
+  quantity: number | null; total: string | null; offered_mpn: string | null; offered_tier: Tier;
+  flags: string[]; part_summary: string; action_options: string[]; expires_at: string; note: string;
 }
+export interface DecisionResult { request_id: string; decision: string; state: string }
 export type VendorInput = Pick<Vendor, "name" | "domain" | "contact_email" | "preferred" | "opted_out"> & { phone?: string | null };
 
 export class ApiError extends Error {
@@ -68,7 +73,9 @@ export class ApiError extends Error {
 
 // ---- config / token provider (swap for Supabase Auth later)
 export type TokenProvider = () => string | null | Promise<string | null>;
-let tokenProvider: TokenProvider = () => process.env.NEXT_PUBLIC_DEV_TOKEN || null;
+// The dev token is read only outside production so it is dead-code-eliminated from production bundles.
+let tokenProvider: TokenProvider = () =>
+  (process.env.NODE_ENV !== "production" ? process.env.NEXT_PUBLIC_DEV_TOKEN : undefined) || null;
 export function setTokenProvider(p: TokenProvider): void { tokenProvider = p; }
 export const isMock = (): boolean => process.env.NEXT_PUBLIC_API_MOCK === "1";
 export const baseUrl = (): string => (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
@@ -120,9 +127,9 @@ export const api = {
   selectQuote: (id: string, quote_id: string) =>
     request<RequestDetail>(`/v1/requests/${enc(id)}/select-quote`, { method: "POST", body: { quote_id } }),
   approvalLink: (token: string) =>
-    request<ApprovalLinkSummary>(`/v1/approval-links/${enc(token)}`, { auth: false }),
+    request<ApprovalLinkView>(`/v1/approval-links/${enc(token)}`, { auth: false }),
   decide: (token: string, action: "approve" | "decline") =>
-    request<{ status: string }>(`/v1/approval-links/${enc(token)}/decide`, { method: "POST", body: { action } }),
+    request<DecisionResult>(`/v1/approval-links/${enc(token)}/decide`, { method: "POST", body: { action } }),
   createPoDraft: (id: string) => request<unknown>(`/v1/requests/${enc(id)}/po-draft`, { method: "POST", body: {} }),
   poDraftCsv: async (id: string): Promise<Blob> => {
     if (isMock()) return new Blob(["mpn,quantity,unit_price_each,currency\nEXAMPLE-ONLY,1,0.00,USD\n"], { type: "text/csv" });

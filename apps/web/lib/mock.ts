@@ -1,7 +1,7 @@
 // EXAMPLE DATA ONLY. Synthetic, illustrative; not real parts, vendors, prices or cross-references.
 // Used when NEXT_PUBLIC_API_MOCK=1 so the UI renders without the backend.
 import type {
-  ApprovalLinkSummary, ComparisonView, EventView, PreparedRFQ, QuoteView, RequestDetail, RequestView, Vendor,
+  ApprovalLinkView, ComparisonView, EventView, PreparedRFQ, QuoteView, RequestDetail, RequestView, Vendor,
 } from "./api";
 
 export const MOCK_LABEL = "Example data (synthetic, not real parts, prices or vendors)";
@@ -78,10 +78,17 @@ export function mockHandle(method: string, path: string, body?: unknown): unknow
   if (method === "POST" && /\/select-quote$/.test(p)) return detail();
   if (method === "POST" && /\/po-draft$/.test(p)) return { id: "po-example-1" };
   if (method === "GET" && /^\/v1\/approval-links\//.test(p)) {
-    const s: ApprovalLinkSummary = { request: baseRequest(), quote: quote(), action: "approve", expires_at: "2026-10-05T00:00:00Z" };
+    const q = quote();
+    const s: ApprovalLinkView = {
+      request_id: "req-example-1", quote_id: q.id, vendor: { id: q.vendor_id, name: "Example Supply Co" },
+      unit_price_each: q.unit_price_each, currency: q.currency, lead_time_days: q.lead_time_days,
+      quantity: 4, total: q.unit_price_each ? (Number(q.unit_price_each) * 4).toFixed(2) : null, offered_mpn: q.offered_mpn, offered_tier: q.offered_tier, flags: q.flags,
+      part_summary: "Example part (synthetic)", action_options: ["approve", "decline"],
+      expires_at: "2026-10-05T00:00:00Z", note: "",
+    };
     return s;
   }
-  if (method === "POST" && /\/decide$/.test(p)) return { status: (b?.action as string) === "approve" ? "approved" : "declined" };
+  if (method === "POST" && /\/decide$/.test(p)) return { request_id: "req-example-1", decision: (b?.action as string) === "approve" ? "approve" : "decline", state: "APPROVED" };
   if (method === "GET" && p === "/v1/vendors") return vendors;
   if (method === "POST" && p === "/v1/vendors") {
     const v = { id: `v${vendors.length + 1}`, phone: null, ...(b as object) } as Vendor; vendors.push(v); return v;

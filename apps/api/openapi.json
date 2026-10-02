@@ -20,6 +20,7 @@
       },
       "ApprovalLinkView": {
         "additionalProperties": false,
+        "description": "Everything an approver needs to decide (R11/R3). Vendor-derived strings are inert text.",
         "properties": {
           "action_options": {
             "items": {
@@ -44,6 +45,13 @@
             "title": "Expires At",
             "type": "string"
           },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Flags",
+            "type": "array"
+          },
           "lead_time_days": {
             "anyOf": [
               {
@@ -60,6 +68,38 @@
             "title": "Note",
             "type": "string"
           },
+          "offered_mpn": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offered Mpn"
+          },
+          "offered_tier": {
+            "default": "D",
+            "title": "Offered Tier",
+            "type": "string"
+          },
+          "part_summary": {
+            "default": "",
+            "title": "Part Summary",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
           "quote_id": {
             "title": "Quote Id",
             "type": "string"
@@ -67,6 +107,18 @@
           "request_id": {
             "title": "Request Id",
             "type": "string"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
           },
           "unit_price_each": {
             "anyOf": [
@@ -641,10 +693,6 @@
       "InboundQuoteIn": {
         "additionalProperties": false,
         "properties": {
-          "dmarc_aligned": {
-            "title": "Dmarc Aligned",
-            "type": "boolean"
-          },
           "source_text": {
             "maxLength": 200000,
             "title": "Source Text",
@@ -657,10 +705,23 @@
         },
         "required": [
           "vendor_id",
-          "source_text",
-          "dmarc_aligned"
+          "source_text"
         ],
         "title": "InboundQuoteIn",
+        "type": "object"
+      },
+      "KillSwitchIn": {
+        "additionalProperties": false,
+        "properties": {
+          "engaged": {
+            "title": "Engaged",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "engaged"
+        ],
+        "title": "KillSwitchIn",
         "type": "object"
       },
       "PendingApproval": {
@@ -1598,6 +1659,48 @@
         "summary": "Healthz"
       }
     },
+    "/v1/admin/kill-switch": {
+      "post": {
+        "operationId": "kill_switch_v1_admin_kill_switch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KillSwitchIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "boolean"
+                  },
+                  "title": "Response Kill Switch V1 Admin Kill Switch Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Kill Switch"
+      }
+    },
     "/v1/approval-links/{token}": {
       "get": {
         "operationId": "approval_link_v1_approval_links__token__get",
@@ -1769,6 +1872,25 @@
           }
         },
         "summary": "Import Csv"
+      }
+    },
+    "/v1/inbound/quotes": {
+      "post": {
+        "description": "Trusted inbound-mail webhook: authenticated only by an HMAC over the raw body (R12).",
+        "operationId": "inbound_webhook_v1_inbound_quotes_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Inbound Webhook"
       }
     },
     "/v1/requests": {

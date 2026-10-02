@@ -18,9 +18,13 @@ Everything the hard rules need is enforced here, in code:
 
 from __future__ import annotations
 
+import base64
 import csv
+import hashlib
 import hmac
 import io
+import json
+import os
 import re
 import secrets
 from collections.abc import Callable, Iterable, Mapping
@@ -48,7 +52,8 @@ from components.core.domain import (
 from components.core.fakes import RecordingTransport
 from components.core.ports import Clock, Extractor, LLMProvider
 from components.core.store import NotFoundError, Store, TenantIsolationError, TenantStore
-from components.evidence.log import EVT_APPROVAL_TOKEN_ISSUED, EventLog
+from components.evidence.log import EVT_APPROVAL_TOKEN_ISSUED, CHAIN_KEY_ENV, PII_KEY_ENV, EventLog
+from components.imports.safety import clean_text, neutralise
 from components.parts.equivalence.catalogue import normalise_mpn
 from components.parts.equivalence.engine import classify_offered, find_candidates, is_offerable
 from components.parts.families.registry import get_family, list_families
@@ -64,6 +69,7 @@ from components.purchase_orders.approvals import (
     TokenError,
     quote_fingerprint,
 )
+from components.purchase_orders.approvals.service import substitution_subject
 from components.purchase_orders.approvals.service import (
     NotHumanApprover,
     SeparationOfDuties,
@@ -104,9 +110,18 @@ EVT_RFQ_PREPARED = "rfq.prepared"
 EVT_QUOTE_INGESTED = "quote.ingested"
 EVT_VENDOR_UPSERTED = "vendor.upserted"
 EVT_CSV_IMPORT = "import.csv"
+EVT_VENDOR_CONTACT_CHANGED = "vendor.contact_changed"
+EVT_VENDOR_CONTACT_CONFIRMED = "vendor.contact_confirmed"
+EVT_KILL_SWITCH = "send.kill_switch"
+# M4: a quote carrying any of these can only proceed with a human approval (approver != requester).
+FORCE_APPROVAL_FLAGS = frozenset({
+    "condition_not_new", "condition_unrecognised", "currency_assumed_usd", "freight_unknown",
+    "buyer_entered",
+})
+REFUSE_FLAGS = frozenset({"validity_expired"})  # cannot be selected at all
+QUARANTINE_EXTRA = frozenset({"vendor_pending_callback"})  # R12 callback not yet confirmed
 MAX_SOURCE_CHARS = 200_000
 MAX_ANSWER_CHARS = 80
-FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
 INGEST_STATES = frozenset({S.RFQ_SENT, S.QUOTES_COLLECTING, S.COMPARISON_READY, S.QUOTE_SELECTED})
 SENDABLE_STATES = frozenset({S.RFQ_DRAFTED, S.RFQ_APPROVED, S.RFQ_SENT, S.QUOTES_COLLECTING})
 
@@ -135,6 +150,8 @@ class Settings:
     max_vendors: int = 4  # spec 4a
     down_now_max_vendors: int = 2
     max_csv_bytes: int = 1_000_000
+    daily_approval_threshold: Decimal | None = None  # tenant/day aggregate; default = approval_threshold
+    reply_token_ttl: timedelta = timedelta(days=90)
 
 
 @dataclass(frozen=True)
@@ -177,9 +194,13 @@ def check_r2(
     candidates: Iterable[Candidate],
     substitutions: Iterable[Approval],
     now: datetime,
+    *,
+    request_id: str | None = None,
+    quote_id: str | None = None,
 ) -> None:
     """R2: the PO part number must be an approved Tier-A candidate or carry a SubstitutionApproval
-    for exactly this candidate and quote version. Raises ``Conflict`` otherwise."""
+    for exactly this candidate, quote version and (when given) request id and quote id.
+    Raises ``Conflict`` otherwise."""
     wanted = normalise_mpn(mpn)
     if wanted and any(
         c.tier is Tier.A and is_offerable(c) and normalise_mpn(c.mpn) == wanted for c in candidates
@@ -192,15 +213,23 @@ def check_r2(
             and normalise_mpn(a.candidate_mpn) == wanted
             and a.quote_version == quote_version
             and now < a.expires_at
+            and _bound_to(a, request_id, quote_id, quote_version)
         ):
             return
     raise Conflict("R2: part number is not an approved Tier-A candidate and has no substitution approval")
 
 
+def _bound_to(a: Approval, request_id: str | None, quote_id: str | None, quote_version: int) -> bool:
+    if request_id is None and quote_id is None:
+        return True
+    assert a.candidate_mpn is not None
+    return hmac.compare_digest(
+        a.mime_hash, substitution_subject(a.candidate_mpn, quote_version, request_id, quote_id))
+
+
 def csv_cell(value: object) -> str:
-    """Neutralise spreadsheet formulas (R7): any cell that could start one is prefixed with '."""
-    text = str(value)
-    return "'" + text if text.startswith(FORMULA_PREFIXES) else text
+    """Neutralise spreadsheet formulas (R7) with the single shared sanitiser (imports.safety)."""
+    return neutralise(str(value))
 
 
 def _total(quote: Quote, quantity: int) -> Decimal:
@@ -226,7 +255,15 @@ class PurchasingService:
         ids: IdGenerator = default_ids,
         token_gen: Callable[[], str] = lambda: secrets.token_urlsafe(16),
         llm: LLMProvider | None = None,
+        reply_token_key: bytes | None = None,
     ) -> None:
+        self._reply_key = reply_token_key if reply_token_key is not None else secrets.token_bytes(32)
+        if len(self._reply_key) < 16:
+            raise ValueError("reply_token_key must be at least 16 bytes")
+        # Per-process (documented in docs/architecture/known-gaps.md): approved-but-undrafted spend per
+        # (tenant, request) and caps reservations per (tenant, request) -> (day, amount, currency).
+        self._committed: dict[tuple[str, str], tuple[date, Decimal]] = {}
+        self._reserved: dict[tuple[str, str], tuple[date, Decimal, str]] = {}
         self._store = store
         self._log = event_log
         self._clock = clock
@@ -355,6 +392,8 @@ class PurchasingService:
                                 note="awaiting approver decision via approval link")]
 
     def _comparison(self, request: Request, quotes: list[Quote]) -> Comparison:
+        # callback-pending quotes are quarantined: not even listed as candidates for recommendation
+        quotes = [q for q in quotes if not QUARANTINE_EXTRA & set(q.flags)]
         return compare(
             request.id, quotes, need_by=request.need_by, today=self._clock.now().date(),
             quantity=request.quantity or 1,
@@ -516,6 +555,8 @@ class PurchasingService:
             raise Conflict("no vendors selected")
         vendors: list[Vendor] = [self._get(ts.vendors, vid) for vid in vendor_ids]
         for v in vendors:
+            if self._callback_pending(request.tenant_id, v.id):
+                raise Conflict(f"vendor {v.id} has an unconfirmed contact change (callback pending)")
             if v.opted_out:
                 raise Conflict(f"vendor {v.id} has opted out")
             if not v.preferred:
@@ -537,10 +578,13 @@ class PurchasingService:
         if existing is None:
             rfq = RFQ(id=self._ids("rfq"), tenant_id=ctx.tenant_id, request_id=request.id,
                       vendor_id=vendor.id, subject=f"RFQ: {mpns[0]} x{request.quantity}",
-                      body=body, candidate_mpns=tuple(mpns), reply_token=self._token_gen())
+                      body=body, candidate_mpns=tuple(mpns))
+            rfq = rfq.model_copy(update={"reply_token": self._issue_reply_token(rfq)})
             ts.rfqs.add(rfq)
         else:
-            rfq = existing.model_copy(update={"body": body, "candidate_mpns": tuple(mpns)})
+            rfq = existing.model_copy(update={
+                "body": body, "candidate_mpns": tuple(mpns),
+                "reply_token": self._issue_reply_token(existing)})
             ts.rfqs.save(rfq)
         name, reply_to = self._buyer(ctx)
         try:
@@ -609,39 +653,126 @@ class PurchasingService:
 
     # ------------------------------------------------------------ quotes
 
+    # -- R12: signed reply tokens, vendor callback state
+
+    def _sig(self, body: str) -> str:
+        mac = hmac.new(self._reply_key, b"reply-token|" + body.encode("ascii"), hashlib.sha256)
+        return base64.urlsafe_b64encode(mac.digest()[:16]).decode("ascii").rstrip("=")
+
+    def _issue_reply_token(self, rfq: RFQ) -> str:
+        """HMAC-signed value bound to tenant + rfq + vendor (+ expiry); carries no secret."""
+        exp = int((self._clock.now() + self._settings.reply_token_ttl).timestamp())
+        raw = json.dumps([rfq.tenant_id, rfq.id, rfq.vendor_id, exp], separators=(",", ":"))
+        body = base64.urlsafe_b64encode(raw.encode()).decode("ascii").rstrip("=")
+        return f"{body}.{self._sig(body)}"
+
+    def _verify_reply_token(self, token: object) -> RFQ:
+        """The RFQ the token was issued for, else ``NotFound`` (same error for every failure)."""
+        try:
+            if not isinstance(token, str) or token.count(".") != 1 or len(token) > 500:
+                raise ValueError
+            body, sig = token.split(".")
+            if not hmac.compare_digest(sig, self._sig(body)):
+                raise ValueError
+            tenant, rfq_id, vendor_id, exp = json.loads(
+                base64.urlsafe_b64decode(body + "=" * (-len(body) % 4)))
+            if int(exp) <= int(self._clock.now().timestamp()):
+                raise ValueError
+            rfq = self._ts(str(tenant)).rfqs.get(str(rfq_id))
+            if rfq.vendor_id != vendor_id or rfq.tenant_id != tenant or rfq.reply_token != token:
+                raise ValueError
+        except (ValueError, TypeError, KeyError, NotFoundError, TenantIsolationError) as exc:
+            raise NotFound("reply token") from exc
+        return rfq
+
+    def _callback_pending(self, tenant_id: str, vendor_id: str) -> bool:
+        state = False
+        for e in self._log.events(tenant_id):
+            if e.payload.get("vendor_id") != vendor_id:
+                continue
+            if e.type == EVT_VENDOR_CONTACT_CHANGED:
+                state = True
+            elif e.type == EVT_VENDOR_CONTACT_CONFIRMED:
+                state = False
+        return state
+
+    def confirm_vendor_contact(self, ctx: Ctx, vendor_id: str) -> None:
+        """Admin records that the out-of-band callback to the vendor was made (R12)."""
+        require(ctx, Role.ADMIN)
+        self._get(self._ts(ctx.tenant_id).vendors, vendor_id)
+        if not self._callback_pending(ctx.tenant_id, vendor_id):
+            raise Conflict("no pending contact change for this vendor")
+        self._emit(ctx.tenant_id, None, ctx.actor, EVT_VENDOR_CONTACT_CONFIRMED,
+                   {"vendor_id": vendor_id, "pending_callback": False})
+
+    def set_kill_switch(self, ctx: Ctx, *, engaged: bool) -> None:
+        """Admin only: stop (or resume) all outbound mail for the caller's tenant. Audited."""
+        require(ctx, Role.ADMIN)
+        self._send.set_kill_switch(ctx.tenant_id, engaged=engaged)
+        self._emit(ctx.tenant_id, None, ctx.actor, EVT_KILL_SWITCH, {"engaged": bool(engaged)})
+
+    # -- quote ingestion
+
     def ingest_quote(
-        self, ctx: Ctx, request_id: str, *, vendor_id: str, source_text: str, dmarc_aligned: bool
+        self, ctx: Ctx, request_id: str, *, vendor_id: str, source_text: str
     ) -> QuoteView:
+        """Quote typed/pasted by an authenticated buyer. Carries no sender-authentication claim
+        (flag ``buyer_entered`` forces a human approval at selection)."""
         require(ctx, Role.BUYER)
         ts = self._ts(ctx.tenant_id)
         request = self._load_request(ctx, request_id)
         vendor: Vendor = self._get(ts.vendors, vendor_id)
         rfq = next((r for r in self._rfqs(ts, request.id) if r.vendor_id == vendor.id), None)
+        return self._ingest(request, vendor, rfq, source_text, buyer_entered=True, dmarc_ok=True)
+
+    def ingest_inbound_reply(
+        self, *, reply_token: str, from_domain: str, source_text: str, dmarc_aligned: bool
+    ) -> QuoteView:
+        """Vendor reply from the trusted inbound adapter. Tenant/request/vendor come from the signed
+        token only. A wrong sender domain or a failed DMARC alignment quarantines the quote (R12)."""
+        rfq = self._verify_reply_token(reply_token)
+        ts = self._ts(rfq.tenant_id)
+        request: Request = self._get(ts.requests, rfq.request_id)
+        vendor: Vendor = self._get(ts.vendors, rfq.vendor_id)
+        domain_ok = isinstance(from_domain, str) and (
+            from_domain.strip().lower().rstrip(".") == vendor.domain.strip().lower())
+        view = self._ingest(request, vendor, rfq, source_text, buyer_entered=False,
+                            dmarc_ok=bool(dmarc_aligned is True and domain_ok))
+        self._send.cancel_follow_ups(rfq.tenant_id, rfq.id)
+        return view
+
+    def _ingest(self, request: Request, vendor: Vendor, rfq: RFQ | None, source_text: str,
+                *, buyer_entered: bool, dmarc_ok: bool) -> QuoteView:
+        ts = self._ts(request.tenant_id)
         if rfq is None or not rfq.sent_message_id:
             raise Conflict("no sent RFQ to this vendor")
         if request.state not in INGEST_STATES:
             raise Conflict(f"cannot ingest quotes in state {request.state.value}")
         if not isinstance(source_text, str) or len(source_text) > MAX_SOURCE_CHARS:
             raise Conflict("quote text is missing or too large")
-        quote = self._build_quote(request, rfq, vendor, source_text, bool(dmarc_aligned))
+        extra = ["buyer_entered"] if buyer_entered else []
+        if self._callback_pending(request.tenant_id, vendor.id):
+            extra.append("vendor_pending_callback")
+        quote = self._build_quote(request, rfq, vendor, source_text, dmarc_ok, extra)
         existing = ts.quotes.find(quote.id)
         if existing is None:
             ts.quotes.add(quote)
         else:
             ts.quotes.save(quote)
-        self._emit(ctx.tenant_id, request.id, "agent", EVT_QUOTE_INGESTED, {
+        self._emit(request.tenant_id, request.id, "agent", EVT_QUOTE_INGESTED, {
             "quote_id": quote.id, "version": quote.version, "vendor_id": vendor.id,
-            "flags": list(quote.flags), "offered_tier": quote.offered_tier.value})
+            "flags": list(quote.flags), "offered_tier": quote.offered_tier.value,
+            "buyer_entered": buyer_entered})
         self._advance_after_quote(request)
         return QuoteView(quote=quote, vendor=self._ref(vendor))
 
     def _build_quote(self, request: Request, rfq: RFQ, vendor: Vendor, text: str,
-                     dmarc_aligned: bool) -> Quote:
-        extra: list[str] = []
+                     dmarc_aligned: bool, extra_flags: Iterable[str] = ()) -> Quote:
+        extra: list[str] = list(extra_flags)
         try:
             extracted = self._extractor.extract(text)
         except Exception:  # noqa: BLE001 - a failing extractor yields a blank, flagged quote
-            extracted, extra = ExtractedQuote(), ["extraction_failed"]
+            extracted, extra = ExtractedQuote(), [*extra, "extraction_failed"]
         g = ground(extracted, text)
         prior = self._ts(request.tenant_id).quotes.find(self._quote_id_for(request, rfq))
         quote = normalise_quote(
@@ -686,7 +817,7 @@ class PurchasingService:
 
     @staticmethod
     def _excluded_flags(q: Quote) -> bool:
-        return is_quarantined(q) or INJECTION_FLAG in q.flags
+        return is_quarantined(q) or INJECTION_FLAG in q.flags or bool(QUARANTINE_EXTRA & set(q.flags))
 
     def get_comparison(self, ctx: Ctx, request_id: str) -> Comparison:
         require(ctx, Role.REQUESTER)

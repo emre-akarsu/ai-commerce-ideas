@@ -24,30 +24,30 @@ def _sent(world: World, schedule: FollowUpSchedule | None = None) -> str:
 def test_default_is_no_follow_ups(world: World) -> None:
     _sent(world)
     world.clock.advance(days=60)
-    assert world.send.run_due_follow_ups() == []
+    assert world.send.run_due_follow_ups(T1) == []
     assert len(world.transport.delivered) == 1
 
 
 def test_scheduled_follow_ups_go_out_on_time_and_then_stop(world: World) -> None:
     _sent(world, FollowUpSchedule(2, timedelta(hours=48)))
-    assert world.send.run_due_follow_ups() == []
+    assert world.send.run_due_follow_ups(T1) == []
     world.clock.advance(hours=47)
-    assert world.send.run_due_follow_ups() == []
+    assert world.send.run_due_follow_ups(T1) == []
     world.clock.advance(hours=1)
-    first = world.send.run_due_follow_ups()
+    first = world.send.run_due_follow_ups(T1)
     assert len(first) == 1 and len(world.transport.delivered) == 2
-    assert world.send.run_due_follow_ups() == []  # not twice for the same slot
+    assert world.send.run_due_follow_ups(T1) == []  # not twice for the same slot
     world.clock.advance(hours=48)
-    assert len(world.send.run_due_follow_ups()) == 1
+    assert len(world.send.run_due_follow_ups(T1)) == 1
     world.clock.advance(days=30)
-    assert world.send.run_due_follow_ups() == []  # count exhausted
+    assert world.send.run_due_follow_ups(T1) == []  # count exhausted
     assert len(world.transport.delivered) == 3
 
 
 def test_follow_up_message_is_threaded_footed_and_to_the_same_vendor(world: World) -> None:
     _sent(world, FollowUpSchedule(1, timedelta(hours=24)))
     world.clock.advance(hours=24)
-    world.send.run_due_follow_ups()
+    world.send.run_due_follow_ups(T1)
     original, follow_up = world.transport.delivered
     assert follow_up["to"] == original["to"] == VENDOR_EMAIL
     assert follow_up["raw_mime"] != original["raw_mime"]
@@ -64,7 +64,7 @@ def test_follow_up_message_is_threaded_footed_and_to_the_same_vendor(world: Worl
 def test_follow_ups_are_audited_with_hashes_only(world: World) -> None:
     _sent(world, FollowUpSchedule(1, timedelta(hours=24)))
     world.clock.advance(hours=24)
-    (mid,) = world.send.run_due_follow_ups()
+    (mid,) = world.send.run_due_follow_ups(T1)
     (event,) = [e for e in world.log.events(T1) if e.type == EVT_SEND_FOLLOWUP]
     assert event.payload["message_id"] == mid and event.payload["seq"] == 1
     assert event.payload["rfq_id"] == "rfq-1" and "mime_hash" in event.payload
@@ -76,20 +76,20 @@ def test_kill_switch_pauses_follow_ups_without_losing_them(world: World) -> None
     _sent(world, FollowUpSchedule(1, timedelta(hours=24)))
     world.clock.advance(hours=25)
     world.kill.engage(T1)
-    assert world.send.run_due_follow_ups() == []
+    assert world.send.run_due_follow_ups(T1) == []
     assert len(world.transport.delivered) == 1
     world.kill.release(T1)
-    assert len(world.send.run_due_follow_ups()) == 1
+    assert len(world.send.run_due_follow_ups(T1)) == 1
 
 
 def test_opt_out_cancels_pending_follow_ups(world: World) -> None:
     _sent(world, FollowUpSchedule(2, timedelta(hours=24)))
     world.store.for_tenant(T1).vendors.save(make_vendor("v-1", opted_out=True))
     world.clock.advance(hours=25)
-    assert world.send.run_due_follow_ups() == []
+    assert world.send.run_due_follow_ups(T1) == []
     world.store.for_tenant(T1).vendors.save(make_vendor("v-1", opted_out=False))
     world.clock.advance(days=5)
-    assert world.send.run_due_follow_ups() == []  # cancelled for good, not merely skipped
+    assert world.send.run_due_follow_ups(T1) == []  # cancelled for good, not merely skipped
     assert len(world.transport.delivered) == 1
 
 
@@ -97,7 +97,7 @@ def test_reply_received_cancels_follow_ups(world: World) -> None:
     _sent(world, FollowUpSchedule(3, timedelta(hours=24)))
     assert world.send.cancel_follow_ups(T1, "rfq-1") == 1
     world.clock.advance(days=10)
-    assert world.send.run_due_follow_ups() == []
+    assert world.send.run_due_follow_ups(T1) == []
     assert world.send.cancel_follow_ups(T1, "rfq-1") == 0
 
 
@@ -105,7 +105,7 @@ def test_cancel_is_tenant_scoped(world: World) -> None:
     _sent(world, FollowUpSchedule(1, timedelta(hours=24)))
     assert world.send.cancel_follow_ups("t-other", "rfq-1") == 0
     world.clock.advance(hours=24)
-    assert len(world.send.run_due_follow_ups()) == 1
+    assert len(world.send.run_due_follow_ups(T1)) == 1
 
 
 def test_no_plan_when_the_send_was_refused(world: World) -> None:
@@ -116,5 +116,24 @@ def test_no_plan_when_the_send_was_refused(world: World) -> None:
         world.send.send(p, a)
     world.kill.release()
     world.clock.advance(days=5)
-    assert world.send.run_due_follow_ups() == []
+    assert world.send.run_due_follow_ups(T1) == []
     assert world.transport.delivered == []
+
+
+def test_run_due_follow_ups_is_tenant_scoped_and_requires_a_tenant(world: World) -> None:
+    """H1 regression: a T1-scoped run never sends another tenant's follow-up; no tenant is refused."""
+    _sent(world, FollowUpSchedule(1, timedelta(hours=24)))
+    world.clock.advance(hours=25)
+    assert world.send.run_due_follow_ups("t-other") == []
+    assert len(world.transport.delivered) == 1
+    for bad in ("", "   "):
+        with pytest.raises(ValueError):
+            world.send.run_due_follow_ups(bad)
+    assert len(world.send.run_due_follow_ups(T1)) == 1
+
+
+def test_set_kill_switch_is_per_tenant(world: World) -> None:
+    _sent(world, FollowUpSchedule(1, timedelta(hours=24)))
+    world.clock.advance(hours=25)
+    world.send.set_kill_switch("t-other", engaged=True)
+    assert len(world.send.run_due_follow_ups(T1)) == 1

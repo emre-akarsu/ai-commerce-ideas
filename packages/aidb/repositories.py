@@ -362,12 +362,22 @@ class PgEventStore(EventLog):
     Subclasses EventLog so it is a drop-in; it reuses the module's canonical JSON, chain hash and
     per-event verification, and replaces the in-memory chain with the ``events`` table. Appends
     for one tenant are serialised with a transaction-level advisory lock. Head (count, last hash)
-    is maintained by a trigger and readable by app_user only. See CONTRACT_CHANGES.md for the
+    is maintained by a trigger and readable by app_user only. The chain hash is an HMAC under
+    ``AUDIT_CHAIN_KEY`` which the database never sees, so a DB-role INSERT cannot forge a verifying
+    event. ``event_heads`` lives in the same DB and is not a trust anchor; anchoring the head
+    externally (WORM store / signed checkpoint) is future work. See CONTRACT_CHANGES.md for the
     storage-port proposal that would remove the need to subclass.
     """
 
-    def __init__(self, engine: Engine, clock: Any, *, pii_key: bytes | None = None) -> None:
-        super().__init__(clock, pii_key=pii_key)
+    def __init__(
+        self,
+        engine: Engine,
+        clock: Any,
+        *,
+        pii_key: bytes | None = None,
+        chain_key: bytes | None = None,
+    ) -> None:
+        super().__init__(clock, pii_key=pii_key, chain_key=chain_key)
         self._engine = engine
 
     def append(  # type: ignore[override]
@@ -407,6 +417,7 @@ class PgEventStore(EventLog):
             digest = _chain_hash(
                 prev_hash,
                 _envelope(event_id, tenant_id, request_id, ts, actor, type, normalised, digests),
+                self._chain_key,
             )
             stored = dict(normalised)
             if pii:

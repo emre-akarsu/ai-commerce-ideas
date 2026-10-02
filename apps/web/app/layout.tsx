@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
 import "./globals.css";
 import { MockBanner } from "@/components/ui/ui";
 
 export const metadata: Metadata = { title: "Parts purchasing", description: "Identify and source maintenance parts" };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  await headers(); // opt into dynamic rendering so Next applies the per-request CSP nonce to its scripts
   return (
     <html lang="en">
       <body>

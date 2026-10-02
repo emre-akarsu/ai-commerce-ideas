@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { api, ApiError, setTokenProvider } from "@/lib/api";
+import { assertDeployable, buildCsp } from "../security-policy.mjs";
 
 const ok = (b: unknown) => new Response(JSON.stringify(b), { status: 200 });
 
@@ -59,5 +60,40 @@ describe("safety", () => {
     const root = path.resolve(__dirname, "..");
     const bad = ["app", "components", "lib"].flatMap((d) => walk(path.join(root, d))).filter((f) => /dangerouslySetInnerHTML|\.innerHTML|<img\b/.test(readFileSync(f, "utf8")));
     expect(bad).toEqual([]);
+  });
+});
+
+describe("approval contract (mock matches ApprovalLinkView / DecisionResult)", () => {
+  beforeEach(() => { process.env.NEXT_PUBLIC_API_MOCK = "1"; });
+  it("mock approval link has every field the page needs", async () => {
+    const v = await api.approvalLink("t");
+    expect(Object.keys(v).sort()).toEqual(["action_options", "currency", "expires_at", "flags", "lead_time_days", "note",
+      "offered_mpn", "offered_tier", "part_summary", "quantity", "quote_id", "request_id", "total", "unit_price_each", "vendor"]);
+    const d = await api.decide("t", "approve");
+    expect(Object.keys(d).sort()).toEqual(["decision", "request_id", "state"]);
+  });
+});
+
+describe("CSP and production guards (M9)", () => {
+  const prod = { NODE_ENV: "production", NEXT_PUBLIC_API_URL: "https://api.example.com/v1" } as Record<string, string>;
+  it("production CSP: nonce, no unsafe-inline/eval in script-src, connect-src is API origin, no framing", () => {
+    const csp = buildCsp("abc", prod);
+    const script = csp.split("; ").find((d) => d.startsWith("script-src"))!;
+    expect(script).toContain("'nonce-abc'");
+    expect(script).not.toMatch(/unsafe-inline|unsafe-eval/);
+    expect(csp).toContain("connect-src 'self' https://api.example.com;");
+    expect(csp).not.toContain("connect-src *");
+    expect(csp).toContain("frame-ancestors 'none'");
+  });
+  it("dev CSP may relax eval only", () => {
+    expect(buildCsp("n", { NODE_ENV: "development" })).toContain("'unsafe-eval'");
+  });
+  it("refuses production with mock or dev token", () => {
+    expect(() => assertDeployable({ ...prod, NEXT_PUBLIC_API_MOCK: "1" })).toThrow(/NEXT_PUBLIC_API_MOCK/);
+    expect(() => assertDeployable({ ...prod, NEXT_PUBLIC_DEV_TOKEN: "x" })).toThrow(/NEXT_PUBLIC_DEV_TOKEN/);
+    expect(() => assertDeployable({ ...prod, NEXT_PUBLIC_API_MOCK: "1", APP_ENV: "staging" })).toThrow();
+    expect(() => assertDeployable(prod)).not.toThrow();
+    expect(() => assertDeployable({ ...prod, NEXT_PUBLIC_API_MOCK: "1", APP_ENV: "local" })).not.toThrow();
+    expect(() => assertDeployable({ NODE_ENV: "development", NEXT_PUBLIC_API_MOCK: "1" })).not.toThrow();
   });
 });

@@ -19,7 +19,7 @@ ROUTES = [
     ("POST", "/v1/requests/r1/rfqs/prepare", "buyer", {"vendor_ids": ["v1"]}, "prepare_rfqs"),
     ("POST", "/v1/rfqs/q1/approve-send", "buyer", {"mime_hash": "h"}, "approve_send"),
     ("POST", "/v1/requests/r1/quotes/inbound", "buyer",
-     {"vendor_id": "v1", "source_text": "x", "dmarc_aligned": True}, "ingest_quote"),
+     {"vendor_id": "v1", "source_text": "x"}, "ingest_quote"),
     ("GET", "/v1/requests/r1/comparison", "requester", None, "get_comparison"),
     ("POST", "/v1/requests/r1/select-quote", "buyer", {"quote_id": "qt1"}, "select_quote"),
     ("POST", "/v1/approval-links/tok/decide", "requester", {"action": "approve"},
@@ -31,6 +31,7 @@ ROUTES = [
      {"name": "N", "domain": "n.test", "contact_email": "a@n.test"}, "upsert_vendor"),
     ("PATCH", "/v1/vendors/v1", "admin", {"preferred": False}, "upsert_vendor"),
     ("GET", "/v1/audit", "admin", None, "audit"),
+    ("POST", "/v1/admin/kill-switch", "admin", {"engaged": True}, "set_kill_switch"),
 ]
 
 
@@ -156,7 +157,7 @@ def test_unknown_route_envelope(client):
 def test_security_headers_and_json_only(client):
     r = client.post("/v1/requests/r1/quotes/inbound", headers=hdr("buyer"),
                     json={"vendor_id": "v1", "source_text": "<script>x</script>",
-                          "dmarc_aligned": False})
+                          })
     assert r.headers["content-type"] == "application/json"
     assert r.headers["x-content-type-options"] == "nosniff"
     assert "default-src 'none'" in r.headers["content-security-policy"]

@@ -213,3 +213,43 @@ def test_sandbox_result_is_reinerted() -> None:
 def test_sandbox_protocol_is_declared_not_implemented() -> None:
     assert hasattr(SandboxedParserClient, "parse_in_sandbox")
     assert not hasattr(P, "parse_in_sandbox")
+
+
+def _xlsx_with_doctype(pad: int) -> bytes:
+    import io
+    import zipfile
+
+    import openpyxl
+
+    wb = openpyxl.Workbook()
+    wb.active["A1"] = "hello"
+    buf = io.BytesIO()
+    wb.save(buf)
+    src = zipfile.ZipFile(io.BytesIO(buf.getvalue()))
+    out = io.BytesIO()
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+        for info in src.infolist():
+            data = src.read(info)
+            if info.filename == "xl/worksheets/sheet1.xml":
+                body = data.decode().split("?>", 1)[-1]
+                data = ('<?xml version="1.0"?><!DOCTYPE worksheet [<!ENTITY a "AAAA">]>' + body).encode()
+                data = data.replace(b"</worksheet>", b"<!--" + b"x" * pad + b"--></worksheet>")
+            z.writestr(info.filename, data)
+    return out.getvalue()
+
+
+@pytest.mark.parametrize("pad", [10, 6_000_000])
+def test_xlsx_doctype_rejected_regardless_of_part_size(pad: int) -> None:
+    pytest.importorskip("openpyxl")
+    doc = LocalTextParser().parse(_xlsx_with_doctype(pad), filename="q.xlsx")
+    assert "rejected:xml_entities" in doc.flags
+    assert doc.text == ""
+
+
+def test_xlsx_oversized_xml_part_rejected_not_skipped() -> None:
+    pytest.importorskip("openpyxl")
+    from components.doc_parse import ParserLimits
+
+    parser = LocalTextParser(ParserLimits(max_xml_part_bytes=1_000_000))
+    doc = parser.parse(_xlsx_with_doctype(6_000_000), filename="q.xlsx")
+    assert doc.flags and doc.flags[0].startswith("rejected:xml_")

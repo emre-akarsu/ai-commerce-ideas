@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import threading
+import time
+from collections import OrderedDict
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 
@@ -98,22 +100,53 @@ class _Stored:
     status: int
     content_type: str
     body: bytes
+    stored_at: float = 0.0
+
+
+IdemKey = tuple[str, str, str, str, str, str]  # tenant, user, role, method, path, key
 
 
 class IdempotencyStore:
-    """In-memory store keyed by tenant + key + path; replays only for an identical body hash."""
+    """In-memory store keyed by (tenant, user, role, method, path, key).
 
-    def __init__(self) -> None:
-        self._data: dict[tuple[str, str, str], _Stored] = {}
+    Entries expire after `ttl_seconds` (default 24h, injectable clock) and the store holds at most
+    `max_entries` (oldest evicted first), so a valid token cannot grow memory without bound.
+    """
+
+    def __init__(
+        self, *, ttl_seconds: float = 86_400.0, max_entries: int = 10_000,
+        clock: Callable[[], float] = time.monotonic,
+    ) -> None:
+        self._data: OrderedDict[IdemKey, _Stored] = OrderedDict()
         self._lock = threading.Lock()
+        self._ttl, self._max, self._clock = ttl_seconds, max_entries, clock
 
-    def get(self, k: tuple[str, str, str]) -> _Stored | None:
+    def __len__(self) -> int:
         with self._lock:
+            return len(self._data)
+
+    def _expire(self) -> None:
+        cutoff = self._clock() - self._ttl
+        while self._data:
+            k, v = next(iter(self._data.items()))
+            if v.stored_at > cutoff:
+                break
+            del self._data[k]
+
+    def get(self, k: IdemKey) -> _Stored | None:
+        with self._lock:
+            self._expire()
             return self._data.get(k)
 
-    def put(self, k: tuple[str, str, str], v: _Stored) -> None:
+    def put(self, k: IdemKey, v: _Stored) -> None:
         with self._lock:
-            self._data.setdefault(k, v)
+            self._expire()
+            if k in self._data:
+                return
+            v.stored_at = self._clock()
+            self._data[k] = v
+            while len(self._data) > self._max:
+                self._data.popitem(last=False)
 
 
 def make_idempotency(
@@ -135,7 +168,10 @@ def make_idempotency(
                 json.loads(_envelope("invalid_idempotency_key", "Idempotency-Key too long")),
                 status_code=422,
             )
-        skey = (ctx.tenant_id, key, request.url.path)
+        # Keyed by principal (tenant, user, role) so a cached response is only ever served to the
+        # principal that earned it; a different user/role misses and runs the real auth checks.
+        skey: IdemKey = (ctx.tenant_id, ctx.user_id, str(ctx.role.value), request.method,
+                         request.url.path, key)
         digest = hashlib.sha256(
             request.method.encode() + b"\0" + request.url.query.encode() + b"\0"
             + await request.body()

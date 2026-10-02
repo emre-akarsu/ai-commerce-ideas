@@ -34,6 +34,7 @@ from aiplat.ctx import Ctx, Forbidden, Role, require
 from components.core.domain import Comparison, PurchaseOrderDraft, Vendor
 
 from .auth import Authenticator, AuthError
+from .inbound import verify_inbound_signature
 from .middleware import IdempotencyStore, SecurityMiddleware, make_idempotency
 
 log = logging.getLogger("purchasing.api")
@@ -80,7 +81,17 @@ class ApproveSendIn(_In):
 class InboundQuoteIn(_In):
     vendor_id: str
     source_text: str = Field(max_length=200_000)
+
+
+class InboundWebhookIn(_In):
+    reply_token: str = Field(min_length=1, max_length=500)
+    from_domain: str = Field(min_length=1, max_length=253)
+    source_text: str = Field(max_length=200_000)
     dmarc_aligned: bool
+
+
+class KillSwitchIn(_In):
+    engaged: bool
 
 
 class SelectQuoteIn(_In):
@@ -163,6 +174,9 @@ def create_app(
     cors_origins: Sequence[str] = (),
     max_body_bytes: int = MAX_BODY_BYTES,
     max_upload_bytes: int = MAX_UPLOAD_BYTES,
+    inbound_secret: str | None = None,
+    inbound_window: int = 300,
+    idempotency_store: IdempotencyStore | None = None,
 ) -> FastAPI:
     app = FastAPI(title="Purchasing API", version="1", docs_url=None, redoc_url=None)
     _install_errors(app)
@@ -224,9 +238,29 @@ def create_app(
     @app.post("/v1/requests/{request_id}/quotes/inbound", response_model=QuoteView)
     def inbound(request_id: str, body: InboundQuoteIn, ctx: B) -> QuoteView:
         return svc.ingest_quote(
-            ctx, request_id, vendor_id=body.vendor_id, source_text=body.source_text,
-            dmarc_aligned=body.dmarc_aligned,
+            ctx, request_id, vendor_id=body.vendor_id, source_text=body.source_text
         )
+
+    @app.post("/v1/inbound/quotes", response_model=QuoteView)
+    async def inbound_webhook(request: Request) -> QuoteView:
+        """Trusted inbound-mail webhook: authenticated only by an HMAC over the raw body (R12)."""
+        raw = await request.body()
+        verify_inbound_signature(
+            inbound_secret, raw, request.headers.get("x-inbound-signature"),
+            request.headers.get("x-inbound-timestamp"), window=inbound_window,
+        )
+        body = InboundWebhookIn.model_validate_json(raw)
+        return await run_in_threadpool(
+            lambda: svc.ingest_inbound_reply(
+                reply_token=body.reply_token, from_domain=body.from_domain,
+                source_text=body.source_text, dmarc_aligned=body.dmarc_aligned,
+            )
+        )
+
+    @app.post("/v1/admin/kill-switch")
+    def kill_switch(body: KillSwitchIn, ctx: A) -> dict[str, bool]:
+        svc.set_kill_switch(ctx, engaged=body.engaged)
+        return {"engaged": body.engaged}
 
     @app.get("/v1/requests/{request_id}/comparison", response_model=Comparison)
     def comparison(request_id: str, ctx: C) -> Comparison:
@@ -289,7 +323,9 @@ def create_app(
         return _err(413, "payload_too_large", "file too large")
 
     # middleware: last added = outermost. Order (outer->inner): security, CORS, idempotency.
-    app.middleware("http")(make_idempotency(auth, IdempotencyStore()))
+    app.middleware("http")(make_idempotency(
+        auth, idempotency_store if idempotency_store is not None else IdempotencyStore()
+    ))
     if cors_origins:
         if "*" in cors_origins:
             raise ValueError("wildcard CORS origin is not allowed")

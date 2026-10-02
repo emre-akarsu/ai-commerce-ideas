@@ -30,7 +30,9 @@ EVT_CHAIN_VERIFIED = "audit.chain_verified"
 EVT_CHAIN_INVALID = "audit.chain_invalid"
 EVT_USAGE_ROLLUP = "usage.rollup"
 
-_REF_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:/@=-]{0,199}")
+# Opaque storage ref: no path separators, no "..", no leading dot (cannot traverse a store path).
+_REF_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_:@=-]*(?:\.[A-Za-z0-9_:@=-]+)*")
+_REF_MAX = 200
 
 # name -> cron (UTC). Used for Procrastinate periodic tasks and mirrored by the Render cron docs.
 SCHEDULES: dict[str, str] = {
@@ -57,7 +59,7 @@ class InboundSource(Protocol):
 
 
 class FollowUpRunner(Protocol):
-    def run_due_follow_ups(self) -> list[str]: ...
+    def run_due_follow_ups(self, tenant_id: str) -> list[str]: ...
 
 
 class TenantDirectory(Protocol):
@@ -103,7 +105,9 @@ class Tasks:
         self, tenant_id: str | None = None, message_ref: str | None = None
     ) -> dict[str, Any]:
         with self.tenant(tenant_id) as (tid, conn):
-            if not isinstance(message_ref, str) or not _REF_RE.fullmatch(message_ref):
+            if not isinstance(message_ref, str) or (
+                len(message_ref) > _REF_MAX or not _REF_RE.fullmatch(message_ref)
+            ):
                 raise ValueError("message_ref must be an opaque storage reference")
             if self.ctx.inbound_source is None:
                 raise RuntimeError("no inbound source configured")
@@ -129,7 +133,7 @@ class Tasks:
             if self.ctx.send_service_factory is None:
                 raise RuntimeError("no send-service factory configured")
             runner = self.ctx.send_service_factory(tid)
-            sent = runner.run_due_follow_ups()  # the service enforces approvals/kill switch
+            sent = runner.run_due_follow_ups(tid)  # the service enforces approvals/kill switch
         return {"tenant_id": tid, "sent": len(sent)}
 
     def verify_audit_chain(self, tenant_id: str | None = None) -> dict[str, Any]:

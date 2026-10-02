@@ -58,7 +58,7 @@ def test_construction_guards():
 
 
 def test_test_mode_refused_in_production():
-    env = {"AUTH_MODE": "test", "TEST_AUTH_SECRET": SECRET}
+    env = {"AUTH_MODE": "test", "TEST_AUTH_SECRET": SECRET, "ENV": "test"}
     assert build_authenticator(env)
     for prod in ("production", "PRODUCTION", "prod"):
         with pytest.raises(RuntimeError):
@@ -76,3 +76,15 @@ def test_supabase_mode_and_unknown_mode():
         build_authenticator({"AUTH_MODE": "bogus"})
     with pytest.raises(RuntimeError):
         build_authenticator({})  # defaults to supabase, unconfigured
+
+
+def test_test_mode_requires_explicit_env_allowlist():
+    """L3: fail closed unless ENV is in {test, dev, local}."""
+    base = {"AUTH_MODE": "test", "TEST_AUTH_SECRET": SECRET}
+    for ok in ("test", "dev", "local", "DEV"):
+        assert build_authenticator({**base, "ENV": ok})
+    for bad in ("", "staging", "prd", "live"):
+        with pytest.raises(RuntimeError):
+            build_authenticator({**base, "ENV": bad})
+    with pytest.raises(RuntimeError):  # ENV unset
+        build_authenticator(base)

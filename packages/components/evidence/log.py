@@ -10,6 +10,13 @@ Design
   stays, so the chain still verifies. Keyed (not plain) digests keep low-entropy values such as
   e-mail addresses from being dictionary-attacked out of an exported, redacted log.
 - Events are returned as deep copies so callers cannot mutate the log through a reference.
+- The chain hash is keyed: ``hash = HMAC-SHA256(chain_key, prev_hash | canonical_json(envelope))``.
+  A party that can write rows (e.g. the DB role) but does not hold the chain key cannot forge an
+  event that verifies. Keys: explicit argument, else env ``AUDIT_CHAIN_KEY`` / ``AUDIT_PII_KEY``
+  (UTF-8 bytes of the value, min 16 chars). If neither is set: when ``ENV`` is ``production`` or
+  ``prod`` construction raises; otherwise an ephemeral random key is generated and a warning is
+  logged (such a chain only verifies inside that process, so every process of one deployment must
+  share the same keys). Existing unkeyed chains are not compatible (pre-release).
 - Truncation of the tail is caught by a separately kept head (count + last hash); production should
   also anchor the head externally (see CONTRACT_CHANGES / residual gaps).
 """
@@ -20,6 +27,8 @@ import copy
 import hashlib
 import hmac
 import json
+import logging
+import os
 import secrets
 import threading
 from collections.abc import Iterable, Mapping
@@ -32,6 +41,11 @@ from pydantic import BaseModel
 
 from components.core.domain import Event
 from components.core.ports import Clock
+
+_LOG = logging.getLogger(__name__)
+PII_KEY_ENV = "AUDIT_PII_KEY"
+CHAIN_KEY_ENV = "AUDIT_CHAIN_KEY"
+_PROD_ENVS = frozenset({"production", "prod"})
 
 GENESIS_HASH = "0" * 64
 REDACTED = "[REDACTED]"
@@ -102,8 +116,29 @@ def _same(expected: str, actual: Any) -> bool:
         return False
 
 
-def _chain_hash(prev_hash: str, envelope: dict[str, Any]) -> str:
-    return hashlib.sha256((prev_hash + "|" + canonical_json(envelope)).encode("ascii")).hexdigest()
+def resolve_key(explicit: bytes | None, env_name: str) -> bytes:
+    """Explicit key, else env var, else (non-production only) an ephemeral key with a warning."""
+    if explicit is not None:
+        if len(explicit) < 16:  # noqa: PLR2004
+            raise ValueError(f"{env_name}: key must be at least 16 bytes")
+        return explicit
+    value = os.environ.get(env_name)
+    if value:
+        if len(value) < 16:  # noqa: PLR2004
+            raise ValueError(f"{env_name} must be at least 16 characters")
+        return value.encode("utf-8")
+    if os.environ.get("ENV", "").strip().lower() in _PROD_ENVS:
+        raise RuntimeError(f"{env_name} is required when ENV is production")
+    _LOG.warning(
+        "%s not set: using an EPHEMERAL key; audit chains will not verify across processes "
+        "or restarts. Set it for any shared deployment.", env_name,
+    )
+    return secrets.token_bytes(32)
+
+
+def _chain_hash(prev_hash: str, envelope: dict[str, Any], key: bytes) -> str:
+    msg = (prev_hash + "|" + canonical_json(envelope)).encode("ascii")
+    return hmac.new(key, msg, hashlib.sha256).hexdigest()
 
 
 def _split_payload(
@@ -138,10 +173,13 @@ def _envelope(event_id: str, tenant_id: str, request_id: str | None, ts: datetim
 class EventLog:
     """Append-only, per-tenant hash-chained event log (in-memory for R0)."""
 
-    def __init__(self, clock: Clock, *, pii_key: bytes | None = None) -> None:
+    def __init__(
+        self, clock: Clock, *, pii_key: bytes | None = None, chain_key: bytes | None = None
+    ) -> None:
         self._clock = clock
-        # Secret for personal-data digests. Production: managed key store, one key per tenant.
-        self._pii_key = pii_key if pii_key is not None else secrets.token_bytes(32)
+        # Secrets: see module docstring (explicit > env > ephemeral outside production).
+        self._pii_key = resolve_key(pii_key, PII_KEY_ENV)
+        self._chain_key = resolve_key(chain_key, CHAIN_KEY_ENV)
         self._chains: dict[str, list[Event]] = {}
         self._heads: dict[str, tuple[int, str]] = {}
         self._index: dict[tuple[str, str], int] = {}
@@ -176,6 +214,7 @@ class EventLog:
             digest = _chain_hash(
                 prev_hash,
                 _envelope(event_id, tenant_id, request_id, ts, actor, type, normalised, digests),
+                self._chain_key,
             )
             stored = dict(normalised)
             if pii:
@@ -264,6 +303,7 @@ class EventLog:
                     event.id, event.tenant_id, event.request_id, event.ts, event.actor,
                     event.type, public, digests,
                 ),
+                self._chain_key,
             )
         except (TypeError, ValueError):
             return False

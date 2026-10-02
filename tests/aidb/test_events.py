@@ -15,7 +15,7 @@ from components.evidence.log import REDACTED
 
 @pytest.fixture
 def log(app_engine):
-    return PgEventStore(app_engine, FakeClock(), pii_key=b"k" * 32)
+    return PgEventStore(app_engine, FakeClock(), pii_key=b"k" * 32, chain_key=b"h" * 32)
 
 
 def _fill(log, tenant, n=4):
@@ -35,7 +35,7 @@ def test_chain_verifies_across_pg_roundtrip(log, tenants):
     assert [e.payload["i"] for e in log.events(a, "r1")] == [1, 3]
     # a fresh instance (new process) sees the same verified chain and continues it
     other = PgEventStore(
-        log._engine, FakeClock(datetime(2027, 1, 1, tzinfo=UTC)), pii_key=b"k" * 32
+        log._engine, FakeClock(datetime(2027, 1, 1, tzinfo=UTC)), pii_key=b"k" * 32, chain_key=b"h" * 32
     )
     assert other.verify_chain(a)
     nxt = other.append(a, None, "system", "x")
@@ -130,3 +130,48 @@ def test_redaction_cannot_alter_other_content_via_function(log, app_engine, tena
         c.execute(text("SELECT aidb_redact_event(:e, ARRAY['email'])"), {"e": e.id})
     snap = copy.deepcopy(log.events(a)[0])
     assert snap.hash == e.hash and snap.payload["_pii"]["email"] == REDACTED
+
+
+def test_db_role_cannot_forge_a_verifying_event(app_engine, admin_url, tenants):
+    """M7: app_user can INSERT a hand-computed (unkeyed) event but verify_chain rejects it."""
+    import json
+
+    from sqlalchemy import text
+
+    from aidb.repositories import PgEventStore
+    from aidb.session import tenant_session
+    from components.core.domain import Event
+    from components.core.fakes import FakeClock
+    from components.evidence.log import _chain_hash, _envelope
+
+    t = tenants[0]
+    clock = FakeClock()
+    log = PgEventStore(app_engine, clock, pii_key=b"k" * 32, chain_key=b"h" * 32)
+    log.append(t, None, "system", "note", {"n": 1})
+    assert log.verify_chain(t)
+    prev = log.events(t)[-1].hash
+    seq, eid, ts = 2, f"evt-{t}-000002", clock.now()
+    pub = {"jti": "forged"}
+    h = _chain_hash(prev, _envelope(eid, t, None, ts, "user:x", "approval.token_issued", pub, {}), b"")
+    ev = Event(id=eid, tenant_id=t, request_id=None, ts=ts, actor="user:x",
+               type="approval.token_issued", payload=pub, prev_hash=prev, hash=h)
+    with tenant_session(app_engine, t) as c:
+        c.execute(text("insert into events(id,tenant_id,request_id,seq,ts,actor,type,prev_hash,hash,data)"
+                       " values (:i,:t,null,:s,:ts,:a,:ty,:p,:h,cast(:d as jsonb))"),
+                  {"i": eid, "t": t, "s": seq, "ts": ts, "a": ev.actor, "ty": ev.type, "p": prev,
+                   "h": h, "d": json.dumps(ev.model_dump(mode="json"))})
+    assert not log.verify_chain(t)
+    assert log.first_invalid(t) == 1
+
+
+def test_pg_chain_verifies_across_store_instances_with_same_keys(app_engine, tenants):
+    from aidb.repositories import PgEventStore
+    from components.core.fakes import FakeClock
+
+    t = tenants[1]
+    a = PgEventStore(app_engine, FakeClock(), pii_key=b"k" * 32, chain_key=b"h" * 32)
+    b = PgEventStore(app_engine, FakeClock(), pii_key=b"k" * 32, chain_key=b"h" * 32)
+    a.append(t, "r", "system", "send.delivered", {"_pii": {"to": "s@v.example"}})
+    assert b.verify_chain(t)
+    assert not PgEventStore(app_engine, FakeClock(), pii_key=b"k" * 32,
+                            chain_key=b"x" * 32).verify_chain(t)

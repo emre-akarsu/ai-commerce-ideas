@@ -80,11 +80,21 @@ class StubService:
         self._rec("approve_send", ctx, rfq_id=rfq_id, mime_hash=mime_hash)
         return SendResult(message_id="m1")
 
-    def ingest_quote(self, ctx, request_id, *, vendor_id, source_text, dmarc_aligned):
+    def ingest_quote(self, ctx, request_id, *, vendor_id, source_text):
         self._rec("ingest_quote", ctx, id=request_id, vendor_id=vendor_id)
         q = Quote(id="qt1", tenant_id=ctx.tenant_id, rfq_id="q1", vendor_id=vendor_id,
                   unit_price_each=Decimal("1.50"), source_snippets={"unit_price": "<b>1.50</b>"})
         return QuoteView(quote=q, vendor=VendorRef(id=vendor_id, name="Acme"))
+
+    def ingest_inbound_reply(self, *, reply_token, from_domain, source_text, dmarc_aligned):
+        self._rec("ingest_inbound_reply", None, reply_token=reply_token, from_domain=from_domain,
+                  dmarc_aligned=dmarc_aligned)
+        q = Quote(id="qt2", tenant_id="t1", rfq_id="q1", vendor_id="v1",
+                  unit_price_each=Decimal("2.00"), source_snippets={})
+        return QuoteView(quote=q, vendor=VendorRef(id="v1", name="Acme"))
+
+    def set_kill_switch(self, ctx, *, engaged):
+        self._rec("set_kill_switch", ctx, engaged=engaged)
 
     def get_comparison(self, ctx, request_id):
         self._rec("get_comparison", ctx, id=request_id)
@@ -98,8 +108,9 @@ class StubService:
         self._rec("get_approval_link", None, token=token)
         return ApprovalLinkView(
             request_id="r1", quote_id="qt1", vendor=VendorRef(id="v1", name="Acme"),
-            unit_price_each=Decimal("1.5"), currency="USD", lead_time_days=3,
-            action_options=["approve", "decline"], expires_at=datetime(2030, 1, 1, tzinfo=UTC),
+            unit_price_each=Decimal("1.5"), currency="USD", lead_time_days=3, quantity=2,
+            total=Decimal("3.00"), offered_mpn="6204", offered_tier="A", flags=["price_stale"],
+            part_summary="bearing", action_options=["approve", "decline"], expires_at=datetime(2030, 1, 1, tzinfo=UTC),
         )
 
     def decide_approval_link(self, ctx, token, action):
@@ -145,9 +156,13 @@ def auth() -> JwtAuthenticator:
     return JwtAuthenticator(key=SECRET, algorithms=("HS256",))
 
 
+INBOUND_SECRET = "inbound-secret-inbound-secret-123456"
+
+
 @pytest.fixture
 def client(svc, auth) -> TestClient:
-    return TestClient(create_app(svc, auth, max_upload_bytes=2000, max_body_bytes=5000),
+    return TestClient(create_app(svc, auth, max_upload_bytes=2000, max_body_bytes=5000,
+                                 inbound_secret=INBOUND_SECRET),
                       raise_server_exceptions=False)
 
 

@@ -40,7 +40,7 @@ class DictSource:
 
 
 class NoRunner:
-    def run_due_follow_ups(self) -> list[str]:
+    def run_due_follow_ups(self, tenant_id: str) -> list[str]:
         raise AssertionError("must not be called without tenant context")
 
 
@@ -110,7 +110,7 @@ def test_refuses_privileged_connection_and_unknown_tenant(
 def test_end_to_end_job_runs_in_tenant_session_and_appends_event(
     admin_url: str, admin_engine: Any, app_engine: Any, tenant: str
 ) -> None:
-    source = DictSource({"msg/1": RawInbound("m.eml", EML)})
+    source = DictSource({"msg-1": RawInbound("m.eml", EML)})
     ctx = _pg_ctx(app_engine, inbound_source=source)
     from apps.worker.app import make_connector
 
@@ -119,7 +119,7 @@ def test_end_to_end_job_runs_in_tenant_session_and_appends_event(
     async def go() -> None:
         async with app.open_async():
             await app.configure_task("worker.parse_inbound_message").defer_async(
-                tenant_id=tenant, message_ref="msg/1")
+                tenant_id=tenant, message_ref="msg-1")
             await app.configure_task("worker.parse_inbound_message").defer_async(
                 tenant_id=tenant, message_ref="../../etc/passwd")  # not an opaque ref
             await app.run_worker_async(wait=False, install_signal_handlers=False)
@@ -210,3 +210,26 @@ def test_fan_out_defers_per_tenant_with_queueing_lock(admin_url: str, app_engine
     asyncio.run(go())
     jobs = [j for j in app.connector.jobs.values() if j["task_name"] == "worker.verify_audit_chain"]
     assert sorted(j["args"]["tenant_id"] for j in jobs) == ["ta", "tb"]
+
+
+@pytest.mark.parametrize("ref", ["../x", "a/b", "a\\b", ".hidden", "a..b", "msg/1", "", "x" * 201, "a."])
+def test_message_ref_regex_rejects_traversal(ref: str) -> None:
+    from apps.worker import tasks
+
+    assert not (len(ref) <= tasks._REF_MAX and tasks._REF_RE.fullmatch(ref))
+
+
+@pytest.mark.parametrize("ref", ["msg-1", "m.eml", "abc:def@1=2_3"])
+def test_message_ref_regex_accepts_opaque_refs(ref: str) -> None:
+    from apps.worker import tasks
+
+    assert tasks._REF_RE.fullmatch(ref)
+
+
+def test_worker_main_directory_uses_definer_function(admin_url: str, app_engine: Any) -> None:
+    from apps.worker.worker_main import PgTenantDirectory
+
+    from aidb import migrate
+
+    migrate.create_tenant(admin_url, "t-dir-1", "D")
+    assert "t-dir-1" in PgTenantDirectory(app_engine).tenant_ids()

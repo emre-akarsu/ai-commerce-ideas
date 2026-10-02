@@ -23,7 +23,7 @@ def clock() -> FakeClock:
 
 @pytest.fixture
 def log(clock: FakeClock) -> EventLog:
-    return EventLog(clock, pii_key=PII_KEY)
+    return EventLog(clock, pii_key=PII_KEY, chain_key=PII_KEY)
 
 
 def _fill(log: EventLog, clock: FakeClock, tenant: str = "t1", n: int = 4) -> None:
@@ -57,7 +57,7 @@ def test_empty_tenant_chain_verifies(log: EventLog) -> None:
 def test_hash_is_deterministic_for_same_inputs() -> None:
     def build() -> list[str]:
         clock = FakeClock()
-        log = EventLog(clock, pii_key=PII_KEY)
+        log = EventLog(clock, pii_key=PII_KEY, chain_key=PII_KEY)
         log.append("t1", "r1", "system", "a", {"b": 1, "a": [1, 2]})
         log.append("t1", None, "agent", "c", {"z": "q", "_pii": {"email": "x@y.z"}})
         return [e.hash for e in log.events("t1")]
@@ -66,8 +66,8 @@ def test_hash_is_deterministic_for_same_inputs() -> None:
 
 
 def test_payload_key_order_does_not_change_hash() -> None:
-    a = EventLog(FakeClock(), pii_key=PII_KEY)
-    b = EventLog(FakeClock(), pii_key=PII_KEY)
+    a = EventLog(FakeClock(), pii_key=PII_KEY, chain_key=PII_KEY)
+    b = EventLog(FakeClock(), pii_key=PII_KEY, chain_key=PII_KEY)
     ea = a.append("t1", "r", "system", "t", {"x": 1, "y": 2})
     eb = b.append("t1", "r", "system", "t", {"y": 2, "x": 1})
     assert ea.hash == eb.hash
@@ -212,7 +212,7 @@ def test_deleting_middle_or_last_event_detected(log: EventLog, clock: FakeClock)
     _fill(log, clock, n=5)
     del _chain(log)[2]
     assert not log.verify_chain("t1")
-    log2 = EventLog(clock, pii_key=PII_KEY)
+    log2 = EventLog(clock, pii_key=PII_KEY, chain_key=PII_KEY)
     _fill(log2, clock, n=5)
     _chain(log2).pop()  # truncation: caught by the separately kept head
     assert not log2.verify_chain("t1")

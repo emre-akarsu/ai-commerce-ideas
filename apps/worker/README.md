@@ -21,7 +21,7 @@ Procrastinate (Postgres-backed) background worker. Documentation only for deploy
 | `worker.verify_audit_chain(tenant_id)` | 02:30 daily via `fan_out_verify_audit_chain`; records `audit.chain_verified` / `audit.chain_invalid` |
 | `worker.meter_usage_rollup(tenant_id)` | hourly via `fan_out_meter_usage_rollup` (stub) |
 
-Periodic tasks are fan-outs: they list tenants from `WorkerContext.tenant_directory` and defer one per-tenant job
+Periodic tasks are fan-outs: they list tenants from `WorkerContext.tenant_directory`, which `worker_main` backs with the SECURITY DEFINER function `aidb_list_tenant_ids()` (migration 0002) over the same `app_user` connection (ids only; no RLS-bypassing credential) and defer one per-tenant job
 (with a queueing lock, so a slow run is not piled up).
 
 ## Run locally
@@ -29,13 +29,14 @@ Periodic tasks are fan-outs: they list tenants from `WorkerContext.tenant_direct
 export PYTHONPATH=packages:.
 export PROCRASTINATE_DATABASE_URL=postgresql://...      # queue schema (procrastinate_* tables)
 export DATABASE_URL=postgresql://app_user@.../db        # tenant data: MUST be app_user
-export TENANT_DIRECTORY_URL=postgresql://...            # role that may SELECT tenants.id (fan-out only)
+export AUDIT_PII_KEY=... AUDIT_CHAIN_KEY=...            # >=16 chars, same values as the API; required when ENV=production
 python -c "import procrastinate,psycopg; from procrastinate import schema; \
   psycopg.connect('$PROCRASTINATE_DATABASE_URL', autocommit=True, client_encoding='utf8')\
   .execute(schema.SchemaManager.get_schema())"          # once per database
 python -m apps.worker.worker_main
 ```
-`inbound_source` and `send_service_factory` are not wired in `worker_main.py` yet; tasks that need them fail loudly.
+`inbound_source` and `send_service_factory` are NOT wired in `worker_main.py` (no inbound storage or send-service deployment exists in this repo): `parse_inbound_message` and `run_follow_ups` raise a clear error when they run under it. Wire both before relying on those tasks.
+Without `AUDIT_PII_KEY`/`AUDIT_CHAIN_KEY` a non-production process uses ephemeral keys (warning logged) and its audit chains will not verify elsewhere; with `ENV=production` startup fails.
 Tests: `make test` (real Postgres via `scripts/pg_dev.sh start`; skipped with a reason if unreachable).
 
 ## Render (`render.yaml` snippet, not deployed)
@@ -51,7 +52,9 @@ services:
         sync: false
       - key: DATABASE_URL            # app_user role only
         sync: false
-      - key: TENANT_DIRECTORY_URL
+      - key: AUDIT_PII_KEY
+        sync: false
+      - key: AUDIT_CHAIN_KEY
         sync: false
   # Alternative to Procrastinate periodic tasks: one Render cron per schedule that defers the fan-out job.
   - type: cron

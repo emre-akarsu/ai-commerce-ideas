@@ -23,6 +23,7 @@ class ParserLimits:
     max_cell_chars: int = 2_000
     max_parts: int = 100  # MIME parts / attachments inspected
     max_unzipped_bytes: int = 50 * 1024 * 1024  # xlsx zip-bomb guard
+    max_xml_part_bytes: int = 20 * 1024 * 1024  # xlsx XML part above this is rejected, not skipped
 
 
 @dataclass(frozen=True)

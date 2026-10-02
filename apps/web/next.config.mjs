@@ -1,9 +1,13 @@
+import { assertDeployable } from "./security-policy.mjs";
+
+assertDeployable(); // fail loudly: no mock data / dev token in a production build
+
+// The Content-Security-Policy (nonce-based) is set per request in middleware.ts.
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   async headers() {
     return [{ source: "/(.*)", headers: [
-      { key: "Content-Security-Policy", value: "default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src *; frame-ancestors 'none'" },
       { key: "Referrer-Policy", value: "no-referrer" },
       { key: "X-Content-Type-Options", value: "nosniff" },
     ] }];

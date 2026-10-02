@@ -3,7 +3,9 @@
 Environment:
   PROCRASTINATE_DATABASE_URL  queue schema owner/role (procrastinate_* tables only)
   DATABASE_URL                tenant data, MUST be the app_user role (checked on every task)
-  TENANT_DIRECTORY_URL        optional; role allowed to SELECT tenants.id for the cron fan-out
+  AUDIT_PII_KEY, AUDIT_CHAIN_KEY  audit-log keys (required when ENV=production; same as the API)
+Tenant ids for the cron fan-out come from the SECURITY DEFINER function ``aidb_list_tenant_ids()``
+through the same restricted app_user connection (no RLS-bypassing credential).
 """
 
 from __future__ import annotations
@@ -12,7 +14,7 @@ import asyncio
 import os
 import sys
 
-from sqlalchemy import text
+from sqlalchemy import Engine, text
 
 from aidb.repositories import PgEventStore
 from aidb.session import make_engine
@@ -29,12 +31,14 @@ class SystemClock:
 
 
 class PgTenantDirectory:
-    def __init__(self, url: str) -> None:
-        self._engine = make_engine(url)
+    def __init__(self, engine: Engine) -> None:
+        self._engine = engine
 
     def tenant_ids(self) -> list[str]:
         with self._engine.connect() as conn:
-            return [r[0] for r in conn.execute(text("SELECT id FROM tenants ORDER BY id"))]
+            ids = [r[0] for r in conn.execute(text("SELECT aidb_list_tenant_ids()"))]
+            conn.rollback()
+            return ids
 
 
 def _env(name: str) -> str:
@@ -47,12 +51,11 @@ def _env(name: str) -> str:
 def build_context() -> WorkerContext:
     engine = make_engine(_env("DATABASE_URL"))
     clock = SystemClock()
-    directory_url = os.environ.get("TENANT_DIRECTORY_URL")
     return WorkerContext(
         engine=engine,
         clock=clock,
         event_log=PgEventStore(engine, clock),
-        tenant_directory=PgTenantDirectory(directory_url) if directory_url else None,
+        tenant_directory=PgTenantDirectory(engine),
         # inbound_source and send_service_factory are wired by the deployment (not in this repo
         # yet): tasks that need them fail loudly instead of guessing.
     )

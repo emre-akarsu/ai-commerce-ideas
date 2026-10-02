@@ -123,3 +123,27 @@ def test_superuser_bypasses_rls_documented(admin_engine, tenants):
             ).scalars()
         )
     assert seen == {a, b}
+
+
+def test_tenant_directory_function_lists_ids_but_not_rows(app_engine, tenants):
+    """M8: app_user without tenant context can list ids via the definer function only."""
+    with app_engine.connect() as c:
+        ids = [r[0] for r in c.execute(text("SELECT aidb_list_tenant_ids()"))]
+        assert set(tenants) <= set(ids)
+        assert c.execute(text("SELECT count(*) FROM tenants")).scalar() == 0
+        c.rollback()
+    with tenant_session(app_engine, tenants[0]) as c:
+        _put_vendor(c, tenants[0])
+    with app_engine.connect() as c:
+        assert c.execute(text("SELECT count(*) FROM vendors")).scalar() == 0
+        c.rollback()
+
+
+def test_tenant_directory_function_privileges(admin_engine):
+    with admin_engine.connect() as c:
+        row = c.execute(text(
+            "SELECT prosecdef, proconfig, has_function_privilege('app_user', oid, 'EXECUTE'), "
+            "has_function_privilege('public', oid, 'EXECUTE') "
+            "FROM pg_proc WHERE proname='aidb_list_tenant_ids'")).one()
+    assert row[0] is True and any("search_path" in x for x in row[1])
+    assert row[2] is True and row[3] is False

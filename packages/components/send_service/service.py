@@ -452,12 +452,24 @@ class SendService:
 
     # ------------------------------------------------------------------ follow-ups (F4)
 
-    def run_due_follow_ups(self) -> list[str]:
-        """Send pre-approved follow-ups that are due. At most one per plan per call."""
+    def set_kill_switch(self, tenant_id: str, *, engaged: bool) -> None:
+        """Engage or release the per-tenant stop (the caller audits and authorises it)."""
+        if not isinstance(tenant_id, str) or not tenant_id.strip():
+            raise ValueError("tenant_id is required")
+        (self._kill.engage if engaged else self._kill.release)(tenant_id)
+
+    def run_due_follow_ups(self, tenant_id: str) -> list[str]:
+        """Send pre-approved follow-ups that are due for ONE tenant. At most one per plan per call.
+
+        The tenant is mandatory: a worker task for tenant A must never send tenant B's mail."""
+        if not isinstance(tenant_id, str) or not tenant_id.strip():
+            raise ValueError("tenant_id is required to run follow-ups")
         sent: list[str] = []
         with self._lock:
             now = self._clock.now()
             for plan in self._plans:
+                if plan.tenant_id != tenant_id:
+                    continue
                 if not plan.active or plan.done >= plan.schedule.count or now < plan.due_at():
                     continue
                 if self._kill.is_engaged(plan.tenant_id):

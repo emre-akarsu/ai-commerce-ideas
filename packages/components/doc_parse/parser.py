@@ -26,6 +26,36 @@ __all__ = ["LocalTextParser", "DocumentParser"]
 _ACTIVE_PDF_MARKERS = (b"/JavaScript", b"/JS", b"/Launch", b"/EmbeddedFile", b"/OpenAction")
 
 
+_XML_FORBIDDEN = (b"<!ENTITY", b"<!DOCTYPE")
+_CHUNK = 64 * 1024
+
+
+def _scan_xml_part(zf: zipfile.ZipFile, info: zipfile.ZipInfo, max_bytes: int) -> str | None:
+    """Entity/DOCTYPE guard for an xlsx XML part of ANY size.
+
+    Streams the whole part (so padding cannot push a DOCTYPE past a scanned window) and rejects
+    parts larger than ``max_bytes`` instead of skipping the guard. Returns a rejection flag."""
+    if info.file_size > max_bytes:
+        return "rejected:xml_part_too_large"
+    overlap = max(len(t) for t in _XML_FORBIDDEN) - 1
+    seen = 0
+    tail = b""
+    with zf.open(info) as fh:
+        while True:
+            chunk = fh.read(_CHUNK)
+            if not chunk:
+                return None
+            if seen == 0 and (chunk[:2] in (b"\xff\xfe", b"\xfe\xff") or b"\x00" in chunk[:4]):
+                return "rejected:xml_encoding"  # UTF-16/32 would hide ASCII markers from the scan
+            seen += len(chunk)
+            if seen > max_bytes:  # declared size lied
+                return "rejected:xml_part_too_large"
+            window = tail + chunk
+            if any(token in window for token in _XML_FORBIDDEN):
+                return "rejected:xml_entities"
+            tail = window[-overlap:]
+
+
 class _Builder:
     """Accumulates inert segments into one text with offsets, honouring max_chars."""
 
@@ -263,11 +293,11 @@ class LocalTextParser:
                     return ParsedDocument("", filename=name, sha256=digest,
                                           flags=("rejected:zip_bomb",))
                 for info in infos:
-                    if info.filename.endswith(".xml") and info.file_size < 5_000_000:
-                        head = zf.read(info)
-                        if b"<!ENTITY" in head or b"<!DOCTYPE" in head:
+                    if info.filename.lower().endswith((".xml", ".rels", ".vml")):
+                        verdict = _scan_xml_part(zf, info, self.limits.max_xml_part_bytes)
+                        if verdict:
                             return ParsedDocument("", filename=name, sha256=digest,
-                                                  flags=("rejected:xml_entities",))
+                                                  flags=(verdict,))
         except zipfile.BadZipFile:
             return ParsedDocument("", filename=name, sha256=digest, flags=("error:bad_zip",))
         wb = openpyxl.load_workbook(
