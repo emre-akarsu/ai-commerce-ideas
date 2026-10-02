@@ -1,0 +1,477 @@
+{
+  "label": "SYNTHETIC ILLUSTRATIVE SEED DATA - NOT REAL MANUFACTURER DATA. Invented manufacturers, part numbers and cross-references written for tests; not licensed cross-reference data; never use for real orders (spec 11 Q1).",
+  "family": "deep_groove_ball_bearing",
+  "source_name": "SYNTHETIC-TEST-SOURCE",
+  "synthetic": true,
+  "as_of": "2026-10-02",
+  "parts": [
+    {
+      "mpn": "AL6205-2RS",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RS"
+      }
+    },
+    {
+      "mpn": "AL6205-2RS-C3",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "contact_seal",
+        "internal_clearance": "C3",
+        "precision_class": "P0",
+        "seal_designation": "2RS"
+      }
+    },
+    {
+      "mpn": "AL6205-2Z",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "shield",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2Z"
+      }
+    },
+    {
+      "mpn": "AL6205",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "open",
+        "internal_clearance": "CN",
+        "precision_class": "P0"
+      }
+    },
+    {
+      "mpn": "AL6205-2RS-P6",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P6",
+        "seal_designation": "2RS"
+      }
+    },
+    {
+      "mpn": "AL6205-2RS-V1",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RS"
+      }
+    },
+    {
+      "mpn": "AL6305-2RS",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": "6305",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "62",
+        "width_mm": "17",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RS"
+      }
+    },
+    {
+      "mpn": "AL6204-2RS",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": "6204",
+      "attributes": {
+        "bore_mm": "20",
+        "outer_diameter_mm": "47",
+        "width_mm": "14",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RS"
+      }
+    },
+    {
+      "mpn": "AL6005-2RS",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": "6005",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "47",
+        "width_mm": "12",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RS"
+      }
+    },
+    {
+      "mpn": "AL-P2552-2RS",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": null,
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RS"
+      }
+    },
+    {
+      "mpn": "BT6205-2RSH",
+      "manufacturer": "SynthCo Beta",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RSH"
+      }
+    },
+    {
+      "mpn": "BT6205-2RSH-C3",
+      "manufacturer": "SynthCo Beta",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "contact_seal",
+        "internal_clearance": "C3",
+        "precision_class": "P0",
+        "seal_designation": "2RSH"
+      }
+    },
+    {
+      "mpn": "BT6205-2ZZ",
+      "manufacturer": "SynthCo Beta",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "shield",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "ZZ"
+      }
+    },
+    {
+      "mpn": "BT6305-2RSH",
+      "manufacturer": "SynthCo Beta",
+      "iso_designation": "6305",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "62",
+        "width_mm": "17",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RSH"
+      }
+    },
+    {
+      "mpn": "BT6204-2RSH",
+      "manufacturer": "SynthCo Beta",
+      "iso_designation": "6204",
+      "attributes": {
+        "bore_mm": "20",
+        "outer_diameter_mm": "47",
+        "width_mm": "14",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RSH"
+      }
+    },
+    {
+      "mpn": "BT6005-2RSH",
+      "manufacturer": "SynthCo Beta",
+      "iso_designation": "6005",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "47",
+        "width_mm": "12",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RSH"
+      }
+    },
+    {
+      "mpn": "BT-HD2552-2RSH",
+      "manufacturer": "SynthCo Beta",
+      "iso_designation": null,
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RSH"
+      }
+    },
+    {
+      "mpn": "GM6205-2RS1",
+      "manufacturer": "SynthCo Gamma",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RS1"
+      }
+    },
+    {
+      "mpn": "GM6205-2RS1-C3",
+      "manufacturer": "SynthCo Gamma",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "contact_seal",
+        "internal_clearance": "C3",
+        "precision_class": "P0",
+        "seal_designation": "2RS1"
+      }
+    },
+    {
+      "mpn": "GM6205-ZZ",
+      "manufacturer": "SynthCo Gamma",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "shield",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "ZZ"
+      }
+    },
+    {
+      "mpn": "GM6205",
+      "manufacturer": "SynthCo Gamma",
+      "iso_designation": "6205",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "open",
+        "internal_clearance": "CN",
+        "precision_class": "P0"
+      }
+    },
+    {
+      "mpn": "GM6305-2RS1",
+      "manufacturer": "SynthCo Gamma",
+      "iso_designation": "6305",
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "62",
+        "width_mm": "17",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RS1"
+      }
+    },
+    {
+      "mpn": "GM6204-2RS1",
+      "manufacturer": "SynthCo Gamma",
+      "iso_designation": "6204",
+      "attributes": {
+        "bore_mm": "20",
+        "outer_diameter_mm": "47",
+        "width_mm": "14",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RS1"
+      }
+    },
+    {
+      "mpn": "GM-X2552-2RS",
+      "manufacturer": "SynthCo Gamma",
+      "iso_designation": null,
+      "attributes": {
+        "bore_mm": "25",
+        "outer_diameter_mm": "52",
+        "width_mm": "15",
+        "seal_type": "contact_seal",
+        "internal_clearance": "CN",
+        "precision_class": "P0",
+        "seal_designation": "2RS"
+      }
+    }
+  ],
+  "crossrefs": [
+    {
+      "from_mpn": "AL6205-2RS-V1",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "AL6205-2RS",
+      "to_manufacturer": "SynthCo Alpha",
+      "basis": "supersession",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-03-01",
+      "synthetic": true,
+      "note": "SYNTHETIC same-manufacturer supersession (old MPN -> current MPN)"
+    },
+    {
+      "from_mpn": "AL6205-2RS",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "BT6205-2RSH",
+      "to_manufacturer": "SynthCo Beta",
+      "basis": "manufacturer_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-09-15",
+      "synthetic": true,
+      "note": "SYNTHETIC manufacturer cross-reference"
+    },
+    {
+      "from_mpn": "AL6205-2RS",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "GM6205-2RS1",
+      "to_manufacturer": "SynthCo Gamma",
+      "basis": "manufacturer_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-09-15",
+      "synthetic": true,
+      "note": "SYNTHETIC manufacturer cross-reference"
+    },
+    {
+      "from_mpn": "AL6205-2RS",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "BT-HD2552-2RSH",
+      "to_manufacturer": "SynthCo Beta",
+      "basis": "manufacturer_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-09-15",
+      "synthetic": true,
+      "note": "SYNTHETIC cross-reference to a part with a proprietary number (no ISO designation)"
+    },
+    {
+      "from_mpn": "AL6205-2RS-C3",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "BT6205-2RSH-C3",
+      "to_manufacturer": "SynthCo Beta",
+      "basis": "manufacturer_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-09-15",
+      "synthetic": true,
+      "note": "SYNTHETIC manufacturer cross-reference (C3 to C3)"
+    },
+    {
+      "from_mpn": "AL6305-2RS",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "BT6305-2RSH",
+      "to_manufacturer": "SynthCo Beta",
+      "basis": "manufacturer_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-09-15",
+      "synthetic": true,
+      "note": "SYNTHETIC manufacturer cross-reference"
+    },
+    {
+      "from_mpn": "BT6204-2RSH",
+      "from_manufacturer": "SynthCo Beta",
+      "to_mpn": "AL6204-2RS",
+      "to_manufacturer": "SynthCo Alpha",
+      "basis": "catalogue_crosswalk",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-10-01",
+      "synthetic": true,
+      "note": "SYNTHETIC catalogue crosswalk"
+    },
+    {
+      "from_mpn": "AL6205-2RS",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "GM-X2552-2RS",
+      "to_manufacturer": "SynthCo Gamma",
+      "basis": "marketing_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-09-15",
+      "synthetic": true,
+      "note": "SYNTHETIC competitor marketing claim: never above Tier C"
+    },
+    {
+      "from_mpn": "AL6205-2RS",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "BT6205-2ZZ",
+      "to_manufacturer": "SynthCo Beta",
+      "basis": "manufacturer_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-09-15",
+      "synthetic": true,
+      "note": "SYNTHETIC deliberately wrong entry: contact seal cross-referenced to a shield (2RS vs ZZ)"
+    },
+    {
+      "from_mpn": "AL6205-2RS",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "BT6205-2RSH-C3",
+      "to_manufacturer": "SynthCo Beta",
+      "basis": "manufacturer_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-09-15",
+      "synthetic": true,
+      "note": "SYNTHETIC deliberately wrong entry: CN cross-referenced to C3"
+    },
+    {
+      "from_mpn": "AL6205-2RS",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "BT6305-2RSH",
+      "to_manufacturer": "SynthCo Beta",
+      "basis": "manufacturer_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-09-15",
+      "synthetic": true,
+      "note": "SYNTHETIC deliberately wrong entry: 6205 cross-referenced to 6305"
+    },
+    {
+      "from_mpn": "GM6204-2RS1",
+      "from_manufacturer": "SynthCo Gamma",
+      "to_mpn": "AL6204-2RS",
+      "to_manufacturer": "SynthCo Alpha",
+      "basis": "supersession",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-10-01",
+      "synthetic": true,
+      "note": "SYNTHETIC invalid entry: supersession across manufacturers is not same-manufacturer"
+    }
+  ]
+}

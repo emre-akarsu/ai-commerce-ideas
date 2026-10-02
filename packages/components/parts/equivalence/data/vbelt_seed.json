@@ -1,0 +1,138 @@
+{
+  "label": "SYNTHETIC ILLUSTRATIVE SEED DATA - NOT REAL MANUFACTURER DATA. Invented manufacturers, part numbers and cross-references written for tests; not licensed cross-reference data; never use for real orders (spec 11 Q1).",
+  "family": "v_belt",
+  "source_name": "SYNTHETIC-TEST-SOURCE",
+  "synthetic": true,
+  "as_of": "2026-10-02",
+  "parts": [
+    {
+      "mpn": "SA-SPA1250",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": null,
+      "attributes": {
+        "profile": "SPA",
+        "length_mm": "1250",
+        "banded": "no"
+      }
+    },
+    {
+      "mpn": "SB-SPA1250",
+      "manufacturer": "SynthCo Beta",
+      "iso_designation": null,
+      "attributes": {
+        "profile": "SPA",
+        "length_mm": "1250",
+        "banded": "no"
+      }
+    },
+    {
+      "mpn": "SG-SPA1250",
+      "manufacturer": "SynthCo Gamma",
+      "iso_designation": null,
+      "attributes": {
+        "profile": "SPA",
+        "length_mm": "1250",
+        "banded": "no"
+      }
+    },
+    {
+      "mpn": "SA-SPA1262",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": null,
+      "attributes": {
+        "profile": "SPA",
+        "length_mm": "1262",
+        "banded": "no"
+      }
+    },
+    {
+      "mpn": "SA-SPB1250",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": null,
+      "attributes": {
+        "profile": "SPB",
+        "length_mm": "1250",
+        "banded": "no"
+      }
+    },
+    {
+      "mpn": "SA-SPA1250-B2",
+      "manufacturer": "SynthCo Alpha",
+      "iso_designation": null,
+      "attributes": {
+        "profile": "SPA",
+        "length_mm": "1250",
+        "banded": "yes",
+        "number_of_bands": "2"
+      }
+    },
+    {
+      "mpn": "SB-SPA1250-B2",
+      "manufacturer": "SynthCo Beta",
+      "iso_designation": null,
+      "attributes": {
+        "profile": "SPA",
+        "length_mm": "1250",
+        "banded": "yes",
+        "number_of_bands": "2"
+      }
+    },
+    {
+      "mpn": "SB-SPA1250-B3",
+      "manufacturer": "SynthCo Beta",
+      "iso_designation": null,
+      "attributes": {
+        "profile": "SPA",
+        "length_mm": "1250",
+        "banded": "yes",
+        "number_of_bands": "3"
+      }
+    }
+  ],
+  "crossrefs": [
+    {
+      "from_mpn": "SA-SPA1250",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "SB-SPA1250",
+      "to_manufacturer": "SynthCo Beta",
+      "basis": "manufacturer_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-11-01",
+      "synthetic": true,
+      "note": "SYNTHETIC manufacturer cross-reference"
+    },
+    {
+      "from_mpn": "SA-SPA1250",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "SG-SPA1250",
+      "to_manufacturer": "SynthCo Gamma",
+      "basis": "marketing_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-11-01",
+      "synthetic": true,
+      "note": "SYNTHETIC competitor marketing claim: never above Tier C"
+    },
+    {
+      "from_mpn": "SA-SPA1250-B2",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "SB-SPA1250-B2",
+      "to_manufacturer": "SynthCo Beta",
+      "basis": "manufacturer_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-11-01",
+      "synthetic": true,
+      "note": "SYNTHETIC manufacturer cross-reference (banded, 2 bands)"
+    },
+    {
+      "from_mpn": "SA-SPA1250",
+      "from_manufacturer": "SynthCo Alpha",
+      "to_mpn": "SB-SPA1250-B2",
+      "to_manufacturer": "SynthCo Beta",
+      "basis": "manufacturer_crossref",
+      "basis_source": "SYNTHETIC-TEST-SOURCE",
+      "basis_date": "2025-11-01",
+      "synthetic": true,
+      "note": "SYNTHETIC deliberately wrong entry: single belt cross-referenced to a banded belt"
+    }
+  ]
+}

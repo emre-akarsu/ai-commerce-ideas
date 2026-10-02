@@ -7,9 +7,9 @@ setup:
 test:
 	$(PY) -m pytest tests
 lint:
-	$(PY) -m ruff check src tests evals
+	$(PY) -m ruff check packages apps employees tests evals
 typecheck:
-	$(PY) -m mypy src
+	$(PY) -m mypy packages apps employees
 eval:
 	$(PY) -m evals.run
 check: lint test eval

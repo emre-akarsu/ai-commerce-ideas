@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from purchasing_agent.domain import Approval, ApprovalKind, Quote, Tier
+from components.core.domain import Approval, ApprovalKind, Quote, Tier
 
 
 def test_tiers_and_money_types():

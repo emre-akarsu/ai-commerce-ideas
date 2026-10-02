@@ -2,6 +2,9 @@
 
 Product: MRO parts identification and sourcing agent. Source of truth: `docs/product/04-product-spec.md` (v0.2), architecture in `docs/architecture/` (ADRs). Product-market fit is unproven; do not write marketing claims into code or docs.
 
+## Layout (AI Employees stack; see docs/architecture/ai-employees-stack-map.md)
+`packages/aiplat` (manifest, ctx, @tool) · `packages/aidb` (SQLAlchemy models, RLS, Alembic) · `packages/components/{core,parts,rfq,purchase_orders,send_service,evidence,doc_parse,imports}` · `apps/{api,worker,web}` · `employees/purchasing` (employee.yaml, graph, tools). Packs never import each other; components never import packs.
+
 ## Commands
 - `make test` · `make lint` · `make eval` · `make check` (uses the venv python automatically).
 - Tests must run offline and deterministically: no network, no real LLM, no real email.
@@ -16,7 +19,7 @@ Product: MRO parts identification and sourcing agent. Source of truth: `docs/pro
 7. Tenant isolation: access data only through tenant-scoped repositories.
 
 ## Working rules
-- `src/purchasing_agent/domain.py` and `ports.py` are frozen contracts. Do **not** edit them; if a change is needed, write it to `docs/architecture/CONTRACT_CHANGES.md` and report.
+- `packages/components/core/domain.py` and `ports.py` are frozen contracts. Do **not** edit them; if a change is needed, write it to `docs/architecture/CONTRACT_CHANGES.md` and report.
 - Own only the files your ticket names. Write the failing test first. Keep functions small and typed.
 - Report what you ran and the result plainly, including failures. Do not claim tests pass unless you ran them.
 - Seed data is **synthetic/illustrative** and not licensed cross-reference data; label it as such and never present it as real.
