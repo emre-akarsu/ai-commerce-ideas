@@ -1,0 +1,33 @@
+# TEMPLATE for a new deployment. Copy to profiles/<id>.yaml, fill every REPLACE, then:
+#   python -m aiplat.profile validate <id>      # schema + invariants
+#   python -m aiplat.profile diff us <id>       # review what differs from a known profile
+#   pytest tests/profiles                       # conformance suite runs over every profile in profiles/
+# Work through docs/templates/new-deployment-checklist.md (research kit, legal review, data licences).
+extends: base
+description: REPLACE (market, currency, tax regime, language)
+locale:
+  region: REPLACE            # ISO 3166 alpha-2
+  language: REPLACE          # BCP-47, e.g. de-DE
+  timezone: REPLACE          # IANA, e.g. Europe/Berlin
+  date_format: "REPLACE"     # strftime, e.g. "%d.%m.%Y"
+  working_week: [0, 1, 2, 3, 4]
+  holidays: []               # public holidays as ISO dates; empty means weekends only
+money:
+  base_currency: REPLACE     # ISO 4217
+  accepted_currencies: [REPLACE]
+  symbol_map: {}             # unambiguous symbols only
+  bare_dollar_currency: null # what a bare "$" means here, or null if ambiguous
+  assumed_currency: flag_require_approval
+tax: { name: REPLACE, standard_rate: "0", quote_basis_default: unknown, unknown_basis: flag_require_approval }
+lead_time: { default_unit: working_days }
+legal:
+  jurisdiction: REPLACE
+  contact_data_regime: REPLACE   # e.g. GDPR; counsel must confirm
+  # Must keep: "AI assistant", "cannot accept terms", and the {buyer} placeholder.
+  disclosure_footer: "Prepared with an AI assistant. It cannot accept terms or place orders; only a purchase order from {buyer} binds."
+  notices: []
+retention: { raw_email_days: 90, po_records_years: 7, audit_years: 7 }   # confirm against local record-keeping law
+approvals: { threshold: "REPLACE" }                                       # in base currency
+parts: { enabled_families: [deep_groove_ball_bearing, v_belt], standards: ["REPLACE"] }
+billing: { currency: REPLACE }
+ui: { language: REPLACE }

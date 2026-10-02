@@ -1,0 +1,12 @@
+# Platform defaults shared by every deployment. ABSTRACT: it is not a valid profile on its own
+# (no jurisdiction/currency); leaf profiles (us, uk, ...) extend it and must supply locale, money, legal.
+# Hard rules R1-R12 have no keys here by design; config can localise and tighten, never loosen.
+profile_version: 1
+description: Platform defaults
+retention: { raw_email_days: 90, po_records_years: 7, audit_years: 7 }
+approvals: { threshold: "500", send_approval_ttl_minutes: 30, substitution_ttl_hours: 24 }
+comms: { max_vendors: 4, down_now_max_vendors: 2, reply_token_ttl_days: 90 }
+tiers: { enabled: [A, B], unlock_c_after_confirmed: 50 }
+parts: { enabled_families: [deep_groove_ball_bearing, v_belt], standards: ["ISO 15"] }
+billing: { free_requests: 10, prices_include_tax: false }
+features: { photo_intake: false, phone_sms_scripts: true, down_now_mode: true }

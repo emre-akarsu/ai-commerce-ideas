@@ -1,0 +1,18 @@
+# United States deployment: reproduces the behaviour the product shipped with before profiles existed.
+extends: base
+description: United States (USD, ex-sales-tax quotes, calendar-day lead times)
+locale: { region: US, language: en-US, timezone: America/New_York, date_format: "%m/%d/%Y" }
+money:
+  base_currency: USD
+  accepted_currencies: [USD, CAD, EUR, GBP, MXN]
+  symbol_map: { "US$": USD, "€": EUR, "£": GBP, "C$": CAD, "CA$": CAD }
+  bare_dollar_currency: USD
+  assumed_currency: flag_require_approval
+tax: { name: Sales tax, standard_rate: "0", quote_basis_default: ex_tax, unknown_basis: assume_default_flag }
+lead_time: { default_unit: calendar_days }
+legal:
+  jurisdiction: United States
+  contact_data_regime: "state privacy laws (e.g. CCPA/CPRA); consult counsel"
+  disclosure_footer: "Prepared with an AI assistant. It cannot accept terms or place orders; only a purchase order from {buyer} binds."
+billing: { currency: USD }
+ui: { language: en-US }
