@@ -108,18 +108,18 @@ Method: ~17 web searches; evidence is from search-result snippets (not all pages
 
 | Rank | Opportunity | D | W | Df | F | Score |
 |---|---|---|---|---|---|---|
-| 1 | #2 Agent-readable catalog + cross-reference/equivalence graph | 4 | 4 | 4 | 3 | 3.8 |
-| 2 | #11 Agent-callable replenishment / VMI for SMB consumables | 3 | 4 | 4 | 3 | 3.6 |
-| 3 | #5 Contract price compliance / leakage recovery | 4 | 3 | 3 | 4 | 3.5 |
-| 4 | #8 Agent mandate/spend audit ledger + trust (procurement-specific) | 4 | 3 | 4 | 2 | 3.3 |
-| 5 | #7 Reusable verified-supplier passport (KYB, certs, ESG) | 3 | 3 | 4 | 3 | 3.25 |
-| 6 | #12 Surplus/obsolete parts matching | 3 | 3 | 3 | 3 | 3.0 |
+| 1 | #2 Agent-readable catalog + cross-reference/equivalence graph | 4 | 4 | 4 | 3 | 3.75 |
+| 2 | #11 Agent-callable replenishment / VMI for SMB consumables | 3 | 4 | 4 | 3 | 3.55 |
+| 3 | #5 Contract price compliance / leakage recovery | 4 | 3 | 3 | 4 | 3.45 |
+| 4 | #8 Agent mandate/spend audit ledger + trust (procurement-specific) | 4 | 3 | 4 | 2 | 3.30 |
+| 5 | #1 Supplier RFQ/quote agents (mid-market distributors; crowded) | 5 | 2 | 3 | 4 | 3.40 |
+| 6 | #7 Reusable verified-supplier passport (KYB, certs, ESG) | 3 | 3 | 4 | 3 | 3.25 |
 | 7 | #3 Seller-side agent negotiation | 3 | 4 | 2 | 3 | 3.05 |
-| 8 | #1 Supplier RFQ/quote agents (mid-market distributors) | 5 | 2 | 3 | 4 | 3.3 (crowded, so penalized) |
-| 9 | #10 Healthcare supply (emerging markets) | 3 | 3 | 4 | 2 | 3.05 |
-| 10 | #9 Public procurement (EU SME bidders) | 4 | 2 | 3 | 3 | 3.0 |
+| 8 | #10 Healthcare supply (emerging markets) | 3 | 3 | 4 | 2 | 3.05 |
+| 9 | #12 Surplus/obsolete parts matching | 3 | 3 | 3 | 3 | 3.00 |
+| 10 | #9 Public procurement (EU SME bidders) | 4 | 2 | 3 | 3 | 2.95 |
 
-Computed scores: #1 (Rank 8) scores 3.3 on the formula and is placed below ranks with a higher whitespace emphasis; ties were broken by whitespace then time-to-revenue. Excluded from top 10: #4 invoice exceptions (crowded), #6 freight spot booking (funded leaders), #13 SMB chief of staff (the presumptive core product; compare it separately).
+Scores use the stated weights; #1 and #8 are placed by judgment (#1 is held below #8 on the formula-equivalent because crowding makes its whitespace score optimistic; the 3.40 vs 3.30 gap is within rating noise). Excluded from top 10: #4 invoice exceptions (crowded), #6 freight spot booking (funded leaders), #13 SMB chief of staff (the presumptive core product; compare it separately).
 
 ## Cross-cutting takeaways
 1. The best whitespace is **infrastructure that every buyer or seller agent needs**, not another agent: product truth (#2), supplier trust (#7), mandate/audit (#8).
