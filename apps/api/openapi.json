@@ -108,6 +108,36 @@
             "title": "Request Id",
             "type": "string"
           },
+          "review_notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Review Notes",
+            "type": "array"
+          },
+          "tax_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Basis"
+          },
+          "tax_rate": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Rate"
+          },
           "total": {
             "anyOf": [
               {
@@ -131,6 +161,18 @@
               }
             ],
             "title": "Unit Price Each"
+          },
+          "unit_price_quoted": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Price Quoted"
           },
           "vendor": {
             "$ref": "#/components/schemas/VendorRef"
@@ -843,6 +885,225 @@
           "footer"
         ],
         "title": "PreparedRFQ",
+        "type": "object"
+      },
+      "PublicLeadTime": {
+        "properties": {
+          "default_unit": {
+            "title": "Default Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "default_unit"
+        ],
+        "title": "PublicLeadTime",
+        "type": "object"
+      },
+      "PublicLegal": {
+        "properties": {
+          "jurisdiction": {
+            "title": "Jurisdiction",
+            "type": "string"
+          },
+          "notices": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notices",
+            "type": "array"
+          }
+        },
+        "required": [
+          "jurisdiction",
+          "notices"
+        ],
+        "title": "PublicLegal",
+        "type": "object"
+      },
+      "PublicLocale": {
+        "properties": {
+          "date_format": {
+            "title": "Date Format",
+            "type": "string"
+          },
+          "language": {
+            "title": "Language",
+            "type": "string"
+          },
+          "region": {
+            "title": "Region",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "region",
+          "language",
+          "timezone",
+          "date_format"
+        ],
+        "title": "PublicLocale",
+        "type": "object"
+      },
+      "PublicMoney": {
+        "properties": {
+          "accepted_currencies": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Accepted Currencies",
+            "type": "array"
+          },
+          "base_currency": {
+            "title": "Base Currency",
+            "type": "string"
+          }
+        },
+        "required": [
+          "base_currency",
+          "accepted_currencies"
+        ],
+        "title": "PublicMoney",
+        "type": "object"
+      },
+      "PublicParts": {
+        "properties": {
+          "enabled_families": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Enabled Families",
+            "type": "array"
+          }
+        },
+        "required": [
+          "enabled_families"
+        ],
+        "title": "PublicParts",
+        "type": "object"
+      },
+      "PublicProfile": {
+        "description": "The NON-SENSITIVE subset of the deployment profile the UI needs. Retention, caps,\napproval thresholds, billing, provenance and anything tenant-specific are never exposed.",
+        "properties": {
+          "digest": {
+            "title": "Digest",
+            "type": "string"
+          },
+          "features": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "title": "Features",
+            "type": "object"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "lead_time": {
+            "$ref": "#/components/schemas/PublicLeadTime"
+          },
+          "legal": {
+            "$ref": "#/components/schemas/PublicLegal"
+          },
+          "locale": {
+            "$ref": "#/components/schemas/PublicLocale"
+          },
+          "money": {
+            "$ref": "#/components/schemas/PublicMoney"
+          },
+          "parts": {
+            "$ref": "#/components/schemas/PublicParts"
+          },
+          "tax": {
+            "$ref": "#/components/schemas/PublicTax"
+          },
+          "tiers": {
+            "$ref": "#/components/schemas/PublicTiers"
+          },
+          "ui": {
+            "$ref": "#/components/schemas/PublicUi"
+          }
+        },
+        "required": [
+          "id",
+          "digest",
+          "locale",
+          "money",
+          "tax",
+          "lead_time",
+          "legal",
+          "parts",
+          "tiers",
+          "ui",
+          "features"
+        ],
+        "title": "PublicProfile",
+        "type": "object"
+      },
+      "PublicTax": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "quote_basis_default": {
+            "title": "Quote Basis Default",
+            "type": "string"
+          },
+          "standard_rate": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Standard Rate",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "standard_rate",
+          "quote_basis_default"
+        ],
+        "title": "PublicTax",
+        "type": "object"
+      },
+      "PublicTiers": {
+        "properties": {
+          "enabled": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Enabled",
+            "type": "array"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "title": "PublicTiers",
+        "type": "object"
+      },
+      "PublicUi": {
+        "properties": {
+          "copy_overrides": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Copy Overrides",
+            "type": "object"
+          },
+          "language": {
+            "title": "Language",
+            "type": "string"
+          }
+        },
+        "required": [
+          "language",
+          "copy_overrides"
+        ],
+        "title": "PublicUi",
         "type": "object"
       },
       "PurchaseOrderDraft": {
@@ -1920,6 +2181,24 @@
           }
         },
         "summary": "Inbound Webhook"
+      }
+    },
+    "/v1/profile": {
+      "get": {
+        "operationId": "get_profile_v1_profile_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProfile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Profile"
       }
     },
     "/v1/requests": {

@@ -21,6 +21,7 @@ from components.core.domain import ExtractedQuote
 from components.core.ports import LLMProvider
 
 from .inert import inert_text
+from .normalise import EX_TAX_RE, INC_TAX_RE
 
 __all__ = [
     "EXTRACTOR_SYSTEM_PROMPT",
@@ -251,7 +252,7 @@ _NOT_LEAD_CTX_RE = re.compile(
 _IMMEDIATE_RE = re.compile(
     r"\b(?:in[- ]stock|ex[- ]stock|stock(?:ed)?\s+item|same[- ]day|ships?\s+(?:today|now|"
     r"immediately)|immediate(?:ly)?|off[- ]the[- ]shelf|ready\s+to\s+ship|next[- ]day|overnight|"
-    r"back[- ]?order(?:ed)?|out\s+of\s+stock)\b",
+    r"next[- ](?:working|business)[- ]day|back[- ]?order(?:ed)?|out\s+of\s+stock)\b",
     _I,
 )
 _NEGATION_RE = re.compile(r"\b(?:not|no|nothing|never|out\s+of)\b|n't\b", _I)
@@ -405,6 +406,30 @@ def _find_authenticity(segments: list[str]) -> str | None:
     return None
 
 
+# ---------------------------------------------------------------- tax wording
+
+_TAX_CONTEXT_RE = re.compile(
+    rf"\b(?:prices?|pricing|quotes?|quoted|each|unit|net|cost)\b|{_CUR}\s?\d", _I
+)
+_TAX_SKIP_RE = re.compile(r"\b(?:freight|shipping|handling|delivery\s+(?:charges?|cost))\b", _I)
+
+
+def _find_tax_text(segments: list[str]) -> str | None:
+    """Verbatim VAT/tax wording (e.g. "+ VAT", "inc. VAT") in a price-bearing segment. Blank when
+    the wording conflicts (some "ex", some "inc")."""
+    found: dict[str, str] = {}
+    kinds: set[str] = set()
+    for seg in segments:
+        if _TAX_SKIP_RE.search(seg) or not _TAX_CONTEXT_RE.search(seg):
+            continue
+        for kind, pattern in (("ex", EX_TAX_RE), ("inc", INC_TAX_RE)):
+            m = pattern.search(seg)
+            if m:
+                kinds.add(kind)
+                found.setdefault(kind, m.group(0).strip())
+    return found[next(iter(kinds))] if len(kinds) == 1 else None
+
+
 class RegexQuoteExtractor:
     """Deterministic extractor for typical vendor reply emails. Offline, no model."""
 
@@ -425,4 +450,5 @@ class RegexQuoteExtractor:
             offered_mpn=_find_mpn(segs),
             condition=_find_condition(segs),
             authenticity_claim=_find_authenticity(segs),
+            tax_text=_find_tax_text(segs),
         )

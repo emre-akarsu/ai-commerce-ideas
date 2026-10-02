@@ -103,6 +103,10 @@ class ApprovalLinkView(_V):
     action_options: list[str]
     expires_at: datetime
     note: str = ""
+    tax_basis: str | None = None  # "ex_tax" | "inc_tax" | "unknown"
+    tax_rate: Decimal | None = None
+    unit_price_quoted: Decimal | None = None  # as the vendor stated it (pre tax conversion)
+    review_notes: list[str] = Field(default_factory=list)  # informational flags, no forced approval
 
 
 class SendResult(_V):

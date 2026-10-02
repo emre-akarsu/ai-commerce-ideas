@@ -24,9 +24,13 @@ def build_app() -> Any:
         raise RuntimeError(
             "employees.purchasing.service.build_in_memory_service is not available yet"
         ) from exc
+    from aiplat.profile import load_profile
+
+    profile = load_profile(os.environ.get("DEPLOYMENT_PROFILE", "us"))
     origins = [o for o in os.environ.get("CORS_ORIGINS", "").split(",") if o]
     return create_app(
-        build_in_memory_service(), build_authenticator(), cors_origins=origins,
+        build_in_memory_service(profile=profile), build_authenticator(), cors_origins=origins,
+        profile=profile,
         inbound_secret=os.environ.get("INBOUND_WEBHOOK_SECRET") or None,
     )
 

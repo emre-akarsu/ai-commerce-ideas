@@ -8,6 +8,7 @@ import logging
 import uuid
 from collections.abc import Callable, Sequence
 from datetime import date
+from decimal import Decimal
 from typing import Annotated, Any, Literal
 
 from employees.purchasing.service_port import Conflict, NotFound, PurchasingServicePort
@@ -31,6 +32,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from aiplat.ctx import Ctx, Forbidden, Role, require
+from aiplat.profile import ResolvedProfile, load_profile
 from components.core.domain import Comparison, PurchaseOrderDraft, Vendor
 
 from .auth import Authenticator, AuthError
@@ -120,6 +122,82 @@ class VendorPatch(_In):
     opted_out: bool | None = None
 
 
+class PublicLocale(BaseModel):
+    region: str
+    language: str
+    timezone: str
+    date_format: str
+
+
+class PublicMoney(BaseModel):
+    base_currency: str
+    accepted_currencies: list[str]
+
+
+class PublicTax(BaseModel):
+    name: str
+    standard_rate: Decimal
+    quote_basis_default: str
+
+
+class PublicLeadTime(BaseModel):
+    default_unit: str
+
+
+class PublicLegal(BaseModel):
+    jurisdiction: str
+    notices: list[str]
+
+
+class PublicParts(BaseModel):
+    enabled_families: list[str]
+
+
+class PublicTiers(BaseModel):
+    enabled: list[str]
+
+
+class PublicUi(BaseModel):
+    language: str
+    copy_overrides: dict[str, str]
+
+
+class PublicProfile(BaseModel):
+    """The NON-SENSITIVE subset of the deployment profile the UI needs. Retention, caps,
+    approval thresholds, billing, provenance and anything tenant-specific are never exposed."""
+
+    id: str
+    digest: str
+    locale: PublicLocale
+    money: PublicMoney
+    tax: PublicTax
+    lead_time: PublicLeadTime
+    legal: PublicLegal
+    parts: PublicParts
+    tiers: PublicTiers
+    ui: PublicUi
+    features: dict[str, bool]
+
+
+def public_profile(r: ResolvedProfile) -> PublicProfile:
+    p = r.profile
+    return PublicProfile(
+        id=p.id, digest=r.digest,
+        locale=PublicLocale(region=p.locale.region, language=p.locale.language,
+                            timezone=p.locale.timezone, date_format=p.locale.date_format),
+        money=PublicMoney(base_currency=p.money.base_currency,
+                          accepted_currencies=list(p.money.accepted_currencies)),
+        tax=PublicTax(name=p.tax.name, standard_rate=p.tax.standard_rate,
+                      quote_basis_default=p.tax.quote_basis_default),
+        lead_time=PublicLeadTime(default_unit=p.lead_time.default_unit),
+        legal=PublicLegal(jurisdiction=p.legal.jurisdiction, notices=list(p.legal.notices)),
+        parts=PublicParts(enabled_families=list(p.parts.enabled_families)),
+        tiers=PublicTiers(enabled=list(p.tiers.enabled)),
+        ui=PublicUi(language=p.ui.language, copy_overrides=dict(p.ui.copy_overrides)),
+        features=dict(p.features),
+    )
+
+
 def _err(status: int, code: str, message: str) -> JSONResponse:
     return JSONResponse({"error": {"code": code, "message": message}}, status_code=status)
 
@@ -177,6 +255,7 @@ def create_app(
     inbound_secret: str | None = None,
     inbound_window: int = 300,
     idempotency_store: IdempotencyStore | None = None,
+    profile: ResolvedProfile | None = None,
 ) -> FastAPI:
     app = FastAPI(title="Purchasing API", version="1", docs_url=None, redoc_url=None)
     _install_errors(app)
@@ -204,10 +283,15 @@ def create_app(
     A = Annotated[Ctx, admin]
     U = Annotated[Ctx, anyone]
     svc = service
+    public = public_profile(profile or load_profile("us"))
 
     @app.get("/healthz")
     def healthz() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.get("/v1/profile", response_model=PublicProfile)
+    def get_profile(ctx: U) -> PublicProfile:
+        return public  # any authenticated role; static, non-sensitive, tenant-independent
 
     @app.post("/v1/requests", response_model=RequestDetail)
     def create_request(body: CreateRequestIn, ctx: C) -> RequestDetail:

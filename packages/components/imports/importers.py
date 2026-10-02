@@ -17,6 +17,7 @@ from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
+from aiplat.profile import ResolvedProfile
 from components.core.domain import UoM, Vendor
 
 from .safety import clean_text, echo
@@ -207,9 +208,9 @@ def parse_int(raw: str, field_: str, *, minimum: int = 1, maximum: int = 10_000_
     return n
 
 
-def parse_date(raw: str) -> date:
+def parse_date(raw: str, slash_format: str = "%m/%d/%Y") -> date:
     s = raw.strip()
-    for fmt in ("%Y-%m-%d", "%m/%d/%Y"):  # no day-first guessing: ambiguous dates are not accepted
+    for fmt in ("%Y-%m-%d", slash_format):  # no day-first guessing: ambiguous dates are not accepted
         try:
             return datetime.strptime(s, fmt).date()  # noqa: DTZ007
         except ValueError:
@@ -217,13 +218,40 @@ def parse_date(raw: str) -> date:
     raise _Reject("po_date", "invalid_date", raw)
 
 
-def _currency(rec: dict[str, str], default: str | None) -> str:
+def _currency(
+    rec: dict[str, str], default: str | None, accepted: frozenset[str] = CURRENCIES
+) -> str:
     cur = (rec.get("currency", "") or default or "").strip().upper()
     if not cur:
         raise _Reject("currency", "currency_required")
-    if cur not in CURRENCIES:
+    if cur not in accepted:
         raise _Reject("currency", "unknown_currency", cur)
     return cur
+
+
+_SYMBOL_RE = re.compile(r"US\$|CA\$|C\$|[$€£]")
+
+
+def _price_with_symbol(
+    rec: dict[str, str], profile: ResolvedProfile
+) -> tuple[Decimal, str | None]:
+    """Profile-aware price: a currency symbol in the cell is mapped through the profile; a bare
+    "$" the profile does not define is rejected as ambiguous (never assumed)."""
+    raw = rec.get("unit_price", "")
+    sym = _SYMBOL_RE.search(raw)
+    money = profile.profile.money
+    iso: str | None = None
+    if sym:
+        token = sym.group(0)
+        iso = money.symbol_map.get(token) or (money.bare_dollar_currency if token == "$" else None)
+        if iso is None:
+            raise _Reject("unit_price", "currency_ambiguous", raw)
+    return parse_money(_SYMBOL_RE.sub("", raw)), iso
+
+
+def _slash_format(profile: ResolvedProfile) -> str:
+    fmt = profile.profile.locale.date_format
+    return fmt if "/" in fmt else "%m/%d/%Y"
 
 
 # ------------------------------------------------------------------ driver
@@ -301,9 +329,12 @@ def import_assets(content: bytes) -> ImportResult:
 
 def import_po_history(
     content: bytes, vendors: Iterable[Vendor], *, default_currency: str | None = None,
-    default_uom: UoM | None = None,
+    default_uom: UoM | None = None, profile: ResolvedProfile | None = None,
 ) -> ImportResult:
-    """``vendors`` must be the importing tenant's vendors (read via the tenant-scoped repo)."""
+    """``vendors`` must be the importing tenant's vendors (read via the tenant-scoped repo).
+
+    ``profile=None`` keeps the legacy (US) currency list and symbol stripping; with a profile,
+    accepted currencies, symbols and the slash-date order come from it."""
     result = ImportResult("po_history")
     index = VendorIndex(vendors)
     aliases = {
@@ -325,10 +356,19 @@ def import_po_history(
         vendor_id, why = index.match(vname)
         if vendor_id is None:
             raise _Reject("vendor", why or "unknown_vendor", vname)
+        if profile is None:
+            price, cur = parse_money(rec.get("unit_price", "")), _currency(rec, default_currency)
+            when = parse_date(rec.get("po_date", ""))
+        else:
+            price, sym_cur = _price_with_symbol(rec, profile)
+            accepted = frozenset(profile.profile.money.accepted_currencies)
+            cur = _currency(rec, sym_cur or default_currency, accepted)
+            if sym_cur and rec.get("currency", "").strip() and cur != sym_cur:
+                raise _Reject("currency", "currency_conflict", rec.get("currency", ""))
+            when = parse_date(rec.get("po_date", ""), _slash_format(profile))
         return PoHistoryRow(
             n, po, vendor_id, pn, parse_int(rec.get("quantity", ""), "quantity"),
-            parse_money(rec.get("unit_price", "")), _currency(rec, default_currency),
-            parse_uom(rec.get("uom", ""), default_uom), parse_date(rec.get("po_date", "")),
+            price, cur, parse_uom(rec.get("uom", ""), default_uom), when,
         )
 
     required = ("po_number", "vendor", "part_number", "quantity", "unit_price", "po_date")

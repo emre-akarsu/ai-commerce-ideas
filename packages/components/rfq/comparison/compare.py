@@ -15,9 +15,11 @@ from decimal import Decimal
 
 from components.core.domain import Comparison, ComparisonRow, Quote, Tier
 
-__all__ = ["EXCLUDING_FLAGS", "compare", "landed_unit_cost"]
+__all__ = ["CAVEAT_FLAGS", "EXCLUDING_FLAGS", "compare", "landed_unit_cost"]
 
 EXCLUDING_FLAGS: tuple[str, ...] = ("dmarc_fail", "injection_suspected", "ungrounded:unit_price")
+# Not excluded, but never preferred over a clean quote of the same tier (templated reason emitted).
+CAVEAT_FLAGS: tuple[str, ...] = ("tax_basis_unknown", "currency_ambiguous")
 _TIER_RANK = {Tier.A: 0, Tier.B: 1, Tier.C: 2, Tier.D: 3}
 _RECOMMENDABLE = (Tier.A, Tier.B)
 
@@ -27,6 +29,10 @@ def landed_unit_cost(quote: Quote, quantity: int) -> Decimal | None:
     if quote.unit_price_each is None or quote.freight is None:
         return None
     return quote.unit_price_each + quote.freight / Decimal(quantity)
+
+
+def _caveats(quote: Quote) -> tuple[str, ...]:
+    return tuple(f for f in CAVEAT_FLAGS if f in quote.flags)
 
 
 def _meets_need_by(quote: Quote, need_by: date | None, today: date) -> bool | None:
@@ -79,6 +85,7 @@ def compare(
         rank_cost = landed if landed is not None else q.unit_price_each
         key = (
             _TIER_RANK[q.offered_tier],
+            bool(_caveats(q)),
             meets is False,
             landed is None,
             rank_cost if rank_cost is not None else Decimal(0),
@@ -113,6 +120,10 @@ def compare(
                 reasons.append("basis:lowest_landed_cost_within_tier")
             if landed is None:
                 reasons.append("freight_unknown")
+            reasons += [f"caveat:{q.id}:{c}" for c in _caveats(q)]
+            if not _caveats(q):
+                for other, *_ in sorted(pool[1:], key=lambda e: e[0].id):
+                    reasons += [f"deprioritised:{other.id}:{c}" for c in _caveats(other)]
             reasons.append(
                 {True: "need_by:met", False: "need_by:missed", None: "need_by:unknown"}[meets]
             )

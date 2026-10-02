@@ -22,18 +22,20 @@ import base64
 import csv
 import hashlib
 import hmac
+import inspect
 import io
 import json
 import os
 import re
 import secrets
 from collections.abc import Callable, Iterable, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import Any, Protocol, TypeVar
 
 from aiplat.ctx import Ctx, Forbidden, Role, require
+from aiplat.profile import ResolvedProfile, load_profile
 from components.core.domain import (
     RFQ,
     Approval,
@@ -56,7 +58,7 @@ from components.evidence.log import CHAIN_KEY_ENV, EVT_APPROVAL_TOKEN_ISSUED, PI
 from components.imports.safety import clean_text, neutralise
 from components.parts.equivalence.catalogue import normalise_mpn
 from components.parts.equivalence.engine import classify_offered, find_candidates, is_offerable
-from components.parts.families.registry import get_family, list_families
+from components.parts.families.registry import get_family, is_family_enabled, list_families
 from components.parts.spec.intake import parse_request_text
 from components.parts.spec.normaliser import NormalisedSpec, normalise
 from components.purchase_orders.approvals import (
@@ -82,7 +84,7 @@ from components.rfq.quotes.extractors import LLMQuoteExtractor, RegexQuoteExtrac
 from components.rfq.quotes.grounding import INJECTION_FLAG, ground
 from components.rfq.quotes.normalise import is_quarantined, normalise_quote
 from components.rfq.workflow import Workflow, WorkflowError
-from components.send_service import FOOTER_TEMPLATE, SendError, SendService
+from components.send_service import SendError, SendService
 from components.send_service.message import render_footer
 
 from .service_port import Conflict, NotFound
@@ -116,8 +118,10 @@ EVT_KILL_SWITCH = "send.kill_switch"
 # M4: a quote carrying any of these can only proceed with a human approval (approver != requester).
 FORCE_APPROVAL_FLAGS = frozenset({
     "condition_not_new", "condition_unrecognised", "currency_assumed_usd", "freight_unknown",
-    "buyer_entered",
+    "buyer_entered", "tax_basis_unknown", "currency_ambiguous",
 })
+# Shown on the approval link but do not, by themselves, force an approval.
+INFORMATIONAL_FLAGS = frozenset({"tax_basis_assumed", "lead_time_working_days_assumed"})
 REFUSE_FLAGS = frozenset({"validity_expired"})  # cannot be selected at all
 QUARANTINE_EXTRA = frozenset({"vendor_pending_callback"})  # R12 callback not yet confirmed
 MAX_SOURCE_CHARS = 200_000
@@ -152,6 +156,73 @@ class Settings:
     max_csv_bytes: int = 1_000_000
     daily_approval_threshold: Decimal | None = None  # tenant/day aggregate; default = approval_threshold
     reply_token_ttl: timedelta = timedelta(days=90)
+    # Deployment-profile derived (None / "" = not set: filled from the profile when one is given).
+    profile_tag: str = ""  # "<id>@<digest12>", stamped on every audit event
+    enabled_families: tuple[str, ...] | None = None  # None = every registered family
+    tiers_enabled: tuple[str, ...] | None = None  # None = ("A", "B")
+    base_currency: str = "USD"
+    raw_email_days: int = 90
+
+    @classmethod
+    def from_profile(cls, profile: ResolvedProfile, **deployment_kwargs: Any) -> Settings:
+        """Settings derived from a resolved profile. ``deployment_kwargs`` (alias address, buyer
+        names, approvers, ...) are deployment facts and win over derived values."""
+        p = profile.profile
+        derived: dict[str, Any] = {
+            "approval_threshold": p.approvals.threshold,
+            "daily_approval_threshold": p.approvals.daily_aggregate_threshold,
+            "send_approval_ttl": timedelta(minutes=p.approvals.send_approval_ttl_minutes),
+            "substitution_ttl": timedelta(hours=p.approvals.substitution_ttl_hours),
+            "max_vendors": p.comms.max_vendors,
+            "down_now_max_vendors": p.comms.down_now_max_vendors,
+            "reply_token_ttl": timedelta(days=p.comms.reply_token_ttl_days),
+            "profile_tag": profile.short(),
+            "enabled_families": tuple(p.parts.enabled_families),
+            "tiers_enabled": tuple(p.tiers.enabled),
+            "base_currency": p.money.base_currency,
+            "raw_email_days": p.retention.raw_email_days,
+        }
+        return cls(**{**derived, **deployment_kwargs})
+
+    def with_profile_defaults(self, profile: ResolvedProfile) -> Settings:
+        """Fill only the unset profile-derived fields of explicitly given settings."""
+        p = profile.profile
+        return replace(
+            self,
+            profile_tag=self.profile_tag or profile.short(),
+            enabled_families=(self.enabled_families if self.enabled_families is not None
+                              else tuple(p.parts.enabled_families)),
+            tiers_enabled=(self.tiers_enabled if self.tiers_enabled is not None
+                           else tuple(p.tiers.enabled)),
+        )
+
+
+class ProfileStampedLog:
+    """Event-log wrapper: every appended event carries ``profile`` = ``<id>@<digest12>`` (audit).
+    Everything else (reads, chain verification, redaction) is delegated unchanged."""
+
+    def __init__(self, inner: Any, tag: str) -> None:
+        self._inner = inner
+        self.profile_tag = tag
+
+    def append(self, tenant_id: str, request_id: str | None, actor: str, etype: str,
+               payload: Mapping[str, Any] | None = None, *args: Any, **kwargs: Any) -> Event:
+        stamped = {**(payload or {}), "profile": self.profile_tag}
+        return self._inner.append(tenant_id, request_id, actor, etype, stamped, *args, **kwargs)
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._inner, name)
+
+
+def _takes(fn: Callable[..., Any], name: str) -> bool:
+    try:
+        return name in inspect.signature(fn).parameters
+    except (TypeError, ValueError):
+        return False
+
+
+def _tiers_enabled(settings: Settings) -> frozenset[str]:
+    return frozenset(settings.tiers_enabled if settings.tiers_enabled is not None else ("A", "B"))
 
 
 @dataclass(frozen=True)
@@ -256,6 +327,7 @@ class PurchasingService:
         token_gen: Callable[[], str] = lambda: secrets.token_urlsafe(16),
         llm: LLMProvider | None = None,
         reply_token_key: bytes | None = None,
+        profile: ResolvedProfile | None = None,
     ) -> None:
         self._reply_key = reply_token_key if reply_token_key is not None else secrets.token_bytes(32)
         if len(self._reply_key) < 16:
@@ -271,6 +343,10 @@ class PurchasingService:
         self._approvals = approval_service
         self._extractor = extractor
         self._settings = settings or Settings()
+        self._profile = profile
+        if self._settings.profile_tag and not isinstance(event_log, ProfileStampedLog):
+            event_log = ProfileStampedLog(event_log, self._settings.profile_tag)
+            self._log = event_log
         self.notifier: ApprovalNotifier = notifier or InMemoryNotifier()
         self._ids = ids
         self._token_gen = token_gen
@@ -394,9 +470,11 @@ class PurchasingService:
     def _comparison(self, request: Request, quotes: list[Quote]) -> Comparison:
         # callback-pending quotes are quarantined: not even listed as candidates for recommendation
         quotes = [q for q in quotes if not QUARANTINE_EXTRA & set(q.flags)]
+        extra: dict[str, Any] = {"profile": self._profile} if (
+            self._profile is not None and _takes(compare, "profile")) else {}
         return compare(
             request.id, quotes, need_by=request.need_by, today=self._clock.now().date(),
-            quantity=request.quantity or 1,
+            quantity=request.quantity or 1, **extra,
         )
 
     # ------------------------------------------------------------ requests / spec
@@ -432,6 +510,15 @@ class PurchasingService:
         """Request is in SPEC_DRAFT. Record the spec and move to the next state (R4)."""
         request.family = spec.family
         request.attributes = dict(spec.attributes)
+        if spec.family and not is_family_enabled(spec.family, self._settings.enabled_families):
+            request.open_questions = []  # no guessing: never map to a family we do not handle
+            self._move(request, S.ESCALATED, "agent", {
+                "reason": "family not enabled in this deployment",
+                "family": spec.family,
+                "message": (f"This deployment does not handle {spec.family.replace('_', ' ')} "
+                            "requests. A person will review it; nothing has been sent or ordered."),
+            })
+            return
         request.open_questions = list(spec.open_questions)
         request.questions_asked += len(spec.open_questions)
         if spec.escalate:
@@ -457,9 +544,8 @@ class PurchasingService:
             self._move(request, S.ESCALATED, "agent",
                        {"reason": "criticality: engineering review required (tier D)"})
 
-    @staticmethod
-    def _offerable(c: Candidate) -> bool:
-        return c.tier in (Tier.A, Tier.B) and is_offerable(c)
+    def _offerable(self, c: Candidate) -> bool:
+        return c.tier.value in _tiers_enabled(self._settings) and is_offerable(c)
 
     def list_requests(self, ctx: Ctx, *, state: str | None = None) -> list[RequestView]:
         require(ctx, Role.REQUESTER)
@@ -488,14 +574,15 @@ class PurchasingService:
         self._apply_spec(request, spec)
         return self._detail(request)
 
-    @staticmethod
-    def _merge_answers(request: Request, answers: dict[str, str]) -> tuple[dict[str, Any], str | None]:
+    def _merge_answers(self, request: Request, answers: dict[str, str]) -> tuple[dict[str, Any], str | None]:
         from components.core.domain import Attribute, AttrSource
 
         family = request.family
         attrs = dict(request.attributes)
         if "family" in answers:
-            if family is not None or answers["family"] not in list_families():
+            if family is not None or answers["family"] not in list_families(
+                self._settings.enabled_families
+            ):
                 raise Conflict("unknown or already-set family")
             family = answers["family"]
         known: set[str] = set()
@@ -599,7 +686,7 @@ class PurchasingService:
         return PreparedRFQ(
             rfq_id=rfq.id, vendor=self._ref(vendor), to=prepared.to, subject=prepared.subject,
             body_preview=self._send.preview(prepared).text, mime_hash=prepared.mime_hash,
-            footer=render_footer(FOOTER_TEMPLATE, name),
+            footer=render_footer(self._send.footer_template, name),
         )
 
     @staticmethod
@@ -775,12 +862,15 @@ class PurchasingService:
             extracted, extra = ExtractedQuote(), [*extra, "extraction_failed"]
         g = ground(extracted, text)
         prior = self._ts(request.tenant_id).quotes.find(self._quote_id_for(request, rfq))
+        extra_kw: dict[str, Any] = {"profile": self._profile} if (
+            self._profile is not None and _takes(normalise_quote, "profile")) else {}
         quote = normalise_quote(
             g.extracted, quote_id=prior.id if prior else self._ids("quote"),
             tenant_id=request.tenant_id, rfq_id=rfq.id, vendor_id=vendor.id,
             offered_tier=Tier.D, dmarc_aligned=dmarc_aligned,
             grounding_flags=[*g.flags, *extra], snippets=g.snippets,
             version=(prior.version + 1) if prior else 1, received_on=self._clock.now().date(),
+            **extra_kw,
         )
         if quote.offered_mpn and request.family:
             tier = self._classify(request, quote.offered_mpn)
@@ -876,6 +966,9 @@ class PurchasingService:
             raise Conflict("quote is quarantined or flagged")
         if quote.offered_tier is Tier.D:
             raise Conflict("quote offers a Tier D part: engineering review required")
+        if quote.offered_tier.value in ("A", "B") and \
+                quote.offered_tier.value not in _tiers_enabled(self._settings):
+            raise Conflict(f"Tier {quote.offered_tier.value} is not enabled in this deployment")
         if quote.unit_price_each is None or quote.currency is None or not quote.offered_mpn:
             raise Conflict("quote lacks price, currency or offered part number")
 
@@ -951,7 +1044,10 @@ class PurchasingService:
             offered_mpn=clean_text(quote.offered_mpn, limit=80) if quote.offered_mpn else None,
             offered_tier=quote.offered_tier.value, flags=list(quote.flags),
             part_summary=self._part_summary(request), action_options=[claims.action.value],
-            expires_at=claims.expires_at, note=note)
+            expires_at=claims.expires_at, note=note,
+            tax_basis=quote.tax_basis, tax_rate=quote.tax_rate,
+            unit_price_quoted=quote.unit_price_quoted,
+            review_notes=sorted(INFORMATIONAL_FLAGS & set(quote.flags)))
 
     @staticmethod
     def _part_summary(request: Request) -> str:
@@ -1180,6 +1276,14 @@ def _audit_log(clock: Clock, audit_key: bytes | None) -> EventLog:
     return EventLog(clock, pii_key=pii, chain_key=chain)
 
 
+def _caps_from_profile(prof: ResolvedProfile, clock: Clock) -> CapPolicy:
+    """Spend caps in the profile's base currency; unset profile caps keep the shipped defaults."""
+    c = prof.profile.caps
+    per_order = c.per_order_max or Decimal("5000")
+    daily = c.daily_aggregate_max or max(Decimal("15000"), per_order)
+    return CapPolicy(per_order, daily, clock, currency=prof.profile.money.base_currency)
+
+
 def build_in_memory_service(
     *,
     clock: Clock | None = None,
@@ -1196,6 +1300,7 @@ def build_in_memory_service(
     token_gen: Callable[[], str] | None = None,
     approval_secret: bytes | None = None,
     audit_key: bytes | None = None,
+    profile: ResolvedProfile | None = None,
 ) -> PurchasingService:
     """Fully wired service on in-memory stores. The transport is handed to the send-service ONLY.
     Defaults are dev-safe: a recording transport (nothing leaves the process), caps from the manifest
@@ -1209,17 +1314,20 @@ def build_in_memory_service(
         def now(self) -> datetime:
             return datetime.now(UTC)
 
-    cfg = settings or Settings()
+    prof = profile or load_profile("us")  # "us" reproduces the pre-profile behaviour
+    cfg = (settings.with_profile_defaults(prof) if settings is not None
+           else Settings.from_profile(prof))
     clk: Clock = clock or _SystemClock()
     st = store or Store()
-    log = event_log or _audit_log(clk, audit_key)
+    log = ProfileStampedLog(event_log or _audit_log(clk, audit_key), cfg.profile_tag)
     secret = approval_secret or _secret_from_env("APPROVAL_SECRET")
-    policy = caps or CapPolicy(Decimal("5000"), Decimal("15000"), clk)
+    policy = caps or _caps_from_profile(prof, clk)
     approvals = ApprovalService(
         clk, secret, store=st, event_log=log, caps=policy,
         requester_threshold=cfg.approval_threshold)
     send = SendService(transport or RecordingTransport(), clk, st, log, caps=policy,
-                       max_recipients=cfg.max_vendors)
+                       max_recipients=cfg.max_vendors,
+                       footer_text=prof.profile.legal.disclosure_footer)
     if extractor is None:
         extractor = (LLMQuoteExtractor(llm) if use_llm_extractor and llm is not None
                      else RegexQuoteExtractor())
@@ -1227,4 +1335,5 @@ def build_in_memory_service(
     return PurchasingService(
         store=st, event_log=log, clock=clk, send_service=send, approval_service=approvals,
         extractor=extractor, settings=cfg, notifier=notifier, ids=ids, llm=llm,
-        reply_token_key=hmac.new(secret, b"reply-token-key", hashlib.sha256).digest(), **kwargs)
+        reply_token_key=hmac.new(secret, b"reply-token-key", hashlib.sha256).digest(),
+        profile=prof, **kwargs)
