@@ -51,6 +51,8 @@ Approx. 1,406 VC-backed; 2,500+ in US ([StartupInsights, FortuneBusiness](https:
 
 ### TAM & SOM
 
+> *Editor's note: this section's SAM figures are internally inconsistent (USD 456M vs 'entry SAM USD 100–200M'), and the ACV inputs (e.g. USD 1.5M/EMS firm) are assumptions, not sourced. Treat the ~USD 0.45B bottom-up figure as a ceiling at full penetration and the USD 100–200M as an optimistic entry SAM; both unvalidated.*
+
 **TAM (total reachable market):**  
 Global electronic component distribution market USD 199B–328B ([Research & Markets, GII](https://www.researchandmarkets.com/reports/5977757/electronic-component-distribution-market)). Portion that flows through aggregators / multi-supplier RFQ (not locked in single-distributor contracts): (est.) 25–35% = **USD 50B–114B.** 
 

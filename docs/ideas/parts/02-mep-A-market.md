@@ -54,8 +54,8 @@ HVAC, plumbing, and electrical contractors source parts through supply houses vi
 
 - Assume $50/tech/month all-in for: automated part selection/quoting from multiple suppliers, consolidated order, job cost integration, invoice matching (est.).
 - **20-tech firm ACV**: $50 × 20 × 12 = $12,000/year per customer (est.).
-- **Addressable market (11–50 techs, primary target)**: 33k–44k firms × $12k ACV = $396B–$528B TAM (est.).
-- **Conservative SOM (5% capture, years 3–5)**: $20B–$26B (est.).
+- **Addressable market (11–50 techs, primary target)**: 33k–44k firms × $12k ACV = **$0.40B–$0.53B/yr TAM** (est.). *[Editor's correction: original said $396B–$528B (1,000× error).]*
+- **Conservative SOM (5% capture, years 3–5)**: **$20M–$26M ARR** (est.). *[Editor's correction: original said $20B–$26B.]*
 
 ### SAM (Serviceable Addressable Market)
 
@@ -64,7 +64,7 @@ Focus on contractors embedded in ServiceTitan/BuildOps/Jobber (platforms with AP
 - **BuildOps**: Smaller installed base, $5M–$100M revenue range.
 - **Jobber**: ~5–25 techs, strong growth in plumbing/HVAC.
 
-**SAM (Year 1 focus)**: ServiceTitan + BuildOps customers = ~20k–30k contractor firms (est.) × $12k ACV = $240B–$360B SAM (est.).
+**SAM (Year 1 focus)**: ServiceTitan's cited 8,000+ customers (BuildOps' count not sourced) × $12k ACV ≈ **$96M/yr** (est.). *[Editor's correction: original assumed 20k–30k firms (unsupported by the cited 8k ServiceTitan figure) and reported $240B–$360B (1,000× error).]*
 
 ## 3. Top Customer Pains (Sourced)
 

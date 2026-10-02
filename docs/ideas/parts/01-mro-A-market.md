@@ -31,7 +31,7 @@
 
 **Market estimate:**
 - 40,000 plants × USD 2M (midpoint) = USD 80B addressable (est.)
-- At USD 500/month SaaS subscription: USD 2B revenue opportunity (est.)
+- At USD 500/month SaaS subscription: 40,000 × USD 6,000/yr = **USD 240M/yr ARR ceiling at 100% penetration** (est.). *[Editor's correction: original said USD 2B.]*
 
 ### ICP 2: HVAC/MEP/FM Contractors with Multiple Sites
 
@@ -44,7 +44,7 @@
 
 **Market estimate:**
 - 40,000 contractors × USD 1M (midpoint) = USD 40B addressable (est.)
-- At USD 300-1,000/month: USD 1.4B revenue opportunity (est.)
+- At USD 300-1,000/month: 40,000 × USD 3,600–12,000/yr = **USD 144M–480M/yr ARR ceiling** (est.). *[Editor's correction: original said USD 1.4B.]*
 
 ### ICP 3: Food & Beverage Processing Plants
 
@@ -57,9 +57,9 @@
 
 **Market estimate:**
 - 42,708 plants × USD 1M (midpoint) = USD 42.7B addressable (est.)
-- At USD 400/month: USD 2B revenue opportunity (est.)
+- At USD 400/month: 42,708 × USD 4,800/yr = **USD 205M/yr ARR ceiling** (est.). *[Editor's correction: original said USD 2B.]*
 
-**Combined addressable market (3 ICPs): ~USD 5.4B revenue opportunity if capturing 10% of tail spend (est.)**
+**Combined (3 ICPs, editor's recomputation): ARR ceiling ≈ USD 240M + 144–480M + 205M ≈ USD 0.6–0.9B/yr at 100% penetration (est.); realistic early SOM is a small single-digit % of that.** The original '5.4B' figure was not reproducible from its inputs. The 'USD 40–80B addressable' lines above are *customer MRO spend* (an upper bound on spend a buyer-side agent could influence), not revenue. Also note: the per-plant MRO spend of USD 1–3M was derived from Siemens' *downtime-cost* figure, which is not an MRO-spend measure — treat per-plant spend as an unsupported assumption (MRO is often cited at 0.5–4.5% of revenue; see `research/raw/09-business-model.md`).
 
 ---
 

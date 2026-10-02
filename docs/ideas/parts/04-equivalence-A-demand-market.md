@@ -66,7 +66,7 @@ Sources: [Akeneo pricing](https://www.selecthub.com/p/pim-software/akeneo/), [Sa
 - **Enrichment cost per SKU**: $0.25–0.50 (normalized attributes + equivalence)
 - **Annual touch-rate**: 10–20% of SKUs
 
-**Calculation**: 2,500 distributors × 1M SKUs × $0.35 × 15% = USD 131M; 500 manufacturers × 500k × $0.35 × 15% = USD 13M. **Total: USD 144M–200M/year addressable** (assuming 15-25% distributor adoption).
+**Calculation**: 2,500 distributors × 1M SKUs × $0.35 × 15% = USD 131M; 500 manufacturers × 500k × $0.35 × 15% = USD 13M. **Total: ≈USD 144M/year at the stated inputs** (15% is the assumed annual *refresh rate*; the '–200M' upper bound and the '15–25% adoption' note in the original are not reproducible from the formula and should be disregarded). *[Editor's note.]*
 
 ### Buyer Willingness-to-Pay Evidence
 - **Contingency-fee precedent**: Contract-leakage recovery vendors (Dobs.ai, Rivio) show buyers will pay 5-15% of recovered savings; equivalence matching could unlock 2-5% procurement tail-spend savings (USD 4B–40B at scale, implying willingness to pay USD 200M–2B). [Tellius](https://www.tellius.com/resources/blog/best-ai-procurement-software-in-2026-spend-intelligence-value-recovery-compared)

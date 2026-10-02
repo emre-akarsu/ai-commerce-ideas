@@ -40,47 +40,26 @@
 
 ---
 
-## 3. 90-Day Validation Plan
+## 3. 90-Day Validation: Buyer Interview + Pilot
 
-### Phase 1: Buyer Discovery (Weeks 1-3)
+**Phase 1 (Weeks 1–3): Interviews** — 3–5 EMS/broker/hardware buyers. Script:
 
-**Target:** 3-5 EMS/broker/hardware-supplier interviews (~1-2 hours each). Script:
+1. Allocation: How many hours/week calling brokers during shortage? Who approves grey-market?
+2. Spec matching: Time to cross-reference old part → new part → availability after ECN?
+3. Cost shock: Did tariffs/price swings delay BOM lock last year? By how much?
+4. Workflow: % time searching Octopart vs. supplier contact vs. waiting for quotes?
+5. WTP: If saved 4h/week BOM + 2 broker calls, what pay/month?
+6. Lock-in: How locked into DigiKey/Mouser? Would use alternate API?
+7. Approval: Who approves grey-market? Substitutions? Export-controlled items?
+8. Failure cost: If agent suggests wrong alternate found at assembly, rework cost?
+9. Churn: How often change suppliers or distributors?
+10. Integration: ERP (SAP/NetSuite) or spreadsheet BOM? Can integrate agent? Champion?
 
-1. *Allocation risk:* When you get a shortage, how many hours do you spend calling brokers per incident? Who decides "grey market OK"?
-2. *Spec matching pain:* When you get an ECN (engineering change notice), how long to cross-reference old part → new part → check availability?
-3. *Cost shock:* Last year, did tariffs or sudden price moves delay your BOM lock? By how much?
-4. *Workflow friction:* What % of your time is searching Octopart/Mouser vs. contacting suppliers vs. waiting for quotes?
-5. *WTP:* If an agent saved you 4 hours/week on BOM verification + 2 broker calls/week, what would you pay/month? (budget or ACV proxy)
-6. *Incumbent lock:* How locked in are you to DigiKey/Mouser platforms today? Would you use a different API/tool?
-7. *Approval policies:* Who approves grey-market parts? Substitutions? Export-controlled items? (Define authority limits for agent.)
-8. *Failure cost:* If the agent picks the wrong alternate and you find it at assembly, how much rework?
-9. *Churn driver:* How often do you change suppliers or switch to a new distributor?
-10. *Integration:* Do you use ERP (SAP, NetSuite) or spreadsheet for BOM? Can you integrate an agent, and who's the champion?
-
-**Success metric:** 5 buyers = clear pain quantified in hours/cost per month; 3+ willing to pilot.
-
-### Phase 2: Concierge Pilot (Weeks 4-12)
-
-**Scope:** Pick 1 EMS or 2 hardware startups. Run 2-3 BOMs end-to-end:
-- Input: BOM CSV (part number, qty, lead-time preference).
-- Agent flow: Search Nexar/Mouser/DigiKey APIs → check availability & lifecycle → flag alternates → surface allocation risk → queue broker RFQs (manual send) → show cost-per-unit and lead time → export to buyer's ERP or email.
-- Human loop: Buyer approves alternates before any quote sent.
-
-**Kill criteria:**
-- Agent matches <80% of parts in first query (spec mismatch too high).
-- >1 false positive (agent suggests wrong part) per 100 parts.
-- Pilot buyer says "saved <2 hours per BOM" or "would not use without major feature X."
-
-**Go criteria:**
-- 3+ identified alternates per shortage part with form-fit-function validated.
-- Agent reduces BOM-to-cart time by 4+ hours (measured against manual baseline).
-- Pilot buyer commits to $2k+ monthly (ACV proxy) or production order in month 4.
-
-### Phase 3: Numeric Gates (End of Week 12)
-
-- **Retention:** Pilot buyer runs ≥2 independent BOMs in weeks 5-12 (active use).
-- **Spec accuracy:** No customer-reported wrong-part shipments attributable to agent suggestion.
-- **Cost impact:** Net savings (tariff + broker time avoided + allocation time) ≥ agent cost + overhead.
+**Phase 2 (Weeks 4–12): Concierge Pilot** — 1 EMS or 2 hardware startups, 2–3 BOMs end-to-end.
+- Flow: BOM CSV → search Nexar/Mouser/DigiKey → lifecycle check → flag alternates + allocation risk → buyer approves → export to ERP.
+- Kill: <80% parts matched, >1 wrong-part suggestion per 100, or "saved <2h/BOM" or "need feature X."
+- Go: 3+ validated alternates per shortage, 4+ hours saved per BOM, buyer commits $2k+/month or production order month 4.
+- Retention gate: ≥2 independent BOMs run weeks 5–12, zero customer-attributed wrong parts, net savings ≥ agent cost.
 
 ---
 

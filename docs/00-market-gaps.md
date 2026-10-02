@@ -39,7 +39,7 @@
 | Agent reliability | tau2-bench near saturation; ShoppingBench GPT-4.1 48.2% overall; no public B2B procurement benchmark | Medium–low | `[06]` |
 | Supplier agent access | Only unofficial/community MCP servers for McMaster, Mouser, etc.; none official from Grainger/MSC/Fastenal/DigiKey found (absence of evidence ≠ proof) | Low–medium | `[03][06]` |
 
-**Conflicts to flag:** Autodesk's reported $3.6B MaintainX acquisition is "high confidence" in `[03]` but "unverified, one search summary" in `[08]` — confirm before relying on it. EU AI Act high-risk dates differ across sources (Aug 2026 vs Dec 2027) `[10][06]`. Market-size vendors for electronics disagree by up to ~75% `[04]`.
+**Conflicts to flag:** Autodesk's reported $3.6B MaintainX acquisition is "high confidence" in `[03]` but "unverified, one search summary" in `[08]` — a later round-2 pass reports it closed in Aug 2026 (still search-summary level) — confirm on a primary page. EU AI Act high-risk dates differ across sources (Aug 2026 vs Dec 2027) `[10][06]`. Market-size vendors for electronics disagree by up to ~75% `[04]`.
 
 ---
 
@@ -133,4 +133,4 @@ Why industrial MRO scores low on the formula but is still the user's chosen entr
 ## 9. Index
 
 - Round 1 raw research: `research/raw/01-protocols-infra.md` … `10-adjacent-whitespace.md`
-- Round 2 idea deep dives: `docs/ideas/` (assembled from `docs/ideas/parts/`)
+- Round 2 idea deep dives and recommendation: [`docs/ideas/README.md`](ideas/README.md) (five idea docs assembled from `docs/ideas/parts/`)
