@@ -1,0 +1,2 @@
+# ADR-007: Tenant isolation via scoped repositories (R0) and Postgres RLS (R1)
+**Status:** accepted. **Decision:** all data access goes through tenant-scoped repositories constructed with a tenant context; the model/planner never supplies tenant or object IDs (capability tokens). R1 adds Postgres row-level security as defence in depth, per-tenant keys/caches. Shared datasets contain only structured fields with recorded consent, checked at export (R10).

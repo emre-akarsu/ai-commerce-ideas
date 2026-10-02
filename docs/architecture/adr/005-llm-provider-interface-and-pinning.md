@@ -1,0 +1,2 @@
+# ADR-005: LLM behind an interface; deterministic fake in CI; pinned snapshots
+**Status:** accepted. **Decision:** `LLMProvider` protocol; `FakeLLM` (scripted, deterministic) for unit/e2e tests; Anthropic implementation for production configured by snapshot IDs in config files (planner and extractor configurable separately, extractor may be a smaller model). Provider/model change triggers the full eval and regression diff before deploy. **Consequences:** CI runs offline with no secrets; behaviour changes are explicit.

@@ -1,0 +1,2 @@
+# ADR-001: Python, FastAPI/Pydantic, server-rendered HTMX UI
+**Status:** accepted (2026-10-02). **Context:** one-language stack, strong LLM/eval tooling, small simple UI (approvals, comparison). **Decision:** Python 3.11+, FastAPI, Pydantic v2, Jinja2 + HTMX. **Consequences:** fast to build with agents; escape-by-default templates; revisit React only if UX requires. **Alternatives:** TypeScript full-stack (weaker eval/data tooling); Django (heavier).

@@ -1,0 +1,2 @@
+# ADR-008: Alias-domain email, no mailbox OAuth at R0/R1
+**Status:** accepted. **Context:** buyers dislike IT friction; Gmail restricted scopes and Limited Use conflict with shared datasets; "send-as" cannot be constrained (red team B9, S-Sec4). **Decision:** requests arrive by forwarding to a per-account alias; RFQs are sent in the buyer's name from the alias with Reply-To to the buyer and a human phone contact; SPF/DKIM/DMARC configured. **Consequences:** vendors see an alias domain (reply-rate risk measured by test T2); revisit mailbox mode only if T2 shows it matters.
