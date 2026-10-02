@@ -33,19 +33,15 @@ All factual claims carry inline URLs; assumptions labeled '(assumption)'.
 
 ### Proposed Pricing Models for Equivalence Data
 
-**Model A: Per-SKU Enrichment Fee** (one-time or annual)
-- $2–$10 per SKU enriched with manufacturer linkage, equivalency candidates, and confidence scores (assumption).
-- Break-even: 1,000–5,000 SKUs at $10 = $10k–$50k/yr per customer; 10–50 customers needed to break even on $500k fixed costs (~$100 customers).
+**Model A: Per-SKU Enrichment Fee**
+- $2–$10/SKU (manufacturer link + equivalents + confidence scores); break-even ~100 customers at $500k fixed cost (assumption).
 
 **Model B: API Subscription (Monthly Recurring)**
-- Tiered: Startup ($300/mo, 10k calls/mo), Growth ($1,000/mo, 50k calls), Enterprise (custom, 100k+).
-- Revenue: $3.6k–$12k/yr per customer; break-even ~100–140 customers at $500k fixed cost.
-- Aligns with Nexar and PIM pricing bands.
+- Tiered: Startup $300/mo, Growth $1,000/mo, Enterprise custom; break-even ~100–140 customers.
+- Aligns with Nexar ($500–$2k) and PIM ($300–$950/mo) benchmarks.
 
 **Model C: Revenue Share with ERP/CMMS Partners**
-- Partner-embedded API: 5%–15% revenue share on customer spend **routed through partner** ([assumption]).
-- Example: if a CMMS (UpKeep, MaintainX) drives $1M customer spend/yr through your equivalence API, 10% share = $100k/yr.
-- Risk: slow to materialize (needs partner integration), relies on partner adoption and customer migration.
+- 5%–15% share of spend routed through partner integrations ([assumption]); slow cash but high LTV if partners adopt.
 
 **Benchmark Comparables:**
 - Vertical SaaS (PIM, supply-chain APIs): median ACV $25–$50k, though data APIs trend lower ($12–$18k) ([Digital Applied](https://www.digitalapplied.com/blog/saas-unit-economics-2026-cac-payback-reference)).
