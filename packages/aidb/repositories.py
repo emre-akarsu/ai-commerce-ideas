@@ -27,6 +27,7 @@ from dataclasses import dataclass
 from typing import Any, Generic, TypeVar
 
 from sqlalchemy import Connection, Engine, Table, delete, insert, select, text, update
+from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from components.core.domain import (
@@ -189,7 +190,7 @@ class PgRepo(Generic[T]):
         if request_id is not None:
             q = q.where(t.c.request_id == request_id)
         if self._s.versioned:
-            q = q.distinct(t.c.id).order_by(t.c.id, t.c.version.desc())
+            q = q.ext(distinct_on(t.c.id)).order_by(t.c.id, t.c.version.desc())
         else:
             q = q.order_by(t.c.created_at, t.c.id)
         items = [self._s.load(d) for d in self._c.execute(q).scalars()]

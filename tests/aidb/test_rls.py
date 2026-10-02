@@ -33,7 +33,7 @@ def test_cannot_insert_update_delete_other_tenant(app_engine, tenants):
         with pytest.raises(DBAPIError):  # WITH CHECK
             with c.begin_nested():
                 _put_vendor(c, a, "evil")
-        assert c.execute(text("UPDATE vendors SET data='{\"x\":1}' WHERE tenant_id=:t"), {"t": a}).rowcount == 0
+        assert c.execute(text("UPDATE vendors SET data = '[1]'::jsonb WHERE tenant_id=:t"), {"t": a}).rowcount == 0
         assert c.execute(text("DELETE FROM vendors WHERE tenant_id=:t"), {"t": a}).rowcount == 0
         # moving own row into another tenant is rejected by WITH CHECK
         _put_vendor(c, b, "mine")

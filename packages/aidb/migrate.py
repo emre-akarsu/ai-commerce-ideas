@@ -7,7 +7,7 @@ from pathlib import Path
 from alembic import command
 from alembic.config import Config
 
-from .session import to_sa_url
+from .session import make_engine, to_sa_url
 
 MIGRATIONS_DIR = Path(__file__).parent / "migrations"
 
@@ -29,9 +29,9 @@ def downgrade(url: str, revision: str = "base") -> None:
 
 def create_tenant(admin_url: str, tenant_id: str, name: str = "") -> None:
     """Provision a tenant. Admin/owner role only: app_user cannot insert into ``tenants``."""
-    from sqlalchemy import create_engine, text
+    from sqlalchemy import text
 
-    engine = create_engine(to_sa_url(admin_url))
+    engine = make_engine(admin_url)
     try:
         with engine.begin() as conn:
             conn.execute(

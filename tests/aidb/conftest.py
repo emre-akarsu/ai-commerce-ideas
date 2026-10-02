@@ -11,10 +11,10 @@ import uuid
 from collections.abc import Iterator
 
 import pytest
-from sqlalchemy import Engine, create_engine, text
+from sqlalchemy import Engine, text
 
 from aidb import migrate
-from aidb.session import make_engine, to_sa_url
+from aidb.session import make_engine
 
 ADMIN_URL = os.environ.get("AIDB_TEST_PG_URL", "postgresql://postgres@127.0.0.1:54329/postgres")
 
@@ -28,7 +28,7 @@ def _with_db(url: str, name: str, user: str | None = None) -> str:
 
 
 def root_engine() -> Engine:
-    return create_engine(to_sa_url(ADMIN_URL))
+    return make_engine(ADMIN_URL)
 
 
 def ddl(root: Engine, sql: str) -> None:

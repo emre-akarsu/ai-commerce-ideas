@@ -31,7 +31,11 @@ def to_sa_url(url: str) -> str:
 
 
 def make_engine(url: str) -> Engine:
-    return create_engine(to_sa_url(url), pool_pre_ping=True)
+    # client_encoding: psycopg returns bytes for text on SQL_ASCII databases (e.g. initdb in a C
+    # locale); forcing utf8 keeps behaviour identical everywhere.
+    return create_engine(
+        to_sa_url(url), pool_pre_ping=True, connect_args={"client_encoding": "utf8"}
+    )
 
 
 def _valid_tenant(tenant_id: str) -> str:

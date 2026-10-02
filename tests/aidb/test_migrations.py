@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 
 from aidb import migrate
 from aidb.models import TABLES_BY_NAME, TENANT_TABLES
-from aidb.session import to_sa_url
+from aidb.session import make_engine
 from tests.aidb.conftest import ADMIN_URL, _with_db, ddl, root_engine
 
 
@@ -46,7 +46,7 @@ def test_upgrade_from_empty_and_downgrade(pg_db):
     try:
         migrate.upgrade(url)
         migrate.upgrade(url)  # idempotent at head
-        eng = create_engine(to_sa_url(url))
+        eng = make_engine(url)
         with eng.connect() as c:
             n = c.execute(text("SELECT count(*) FROM pg_tables WHERE schemaname='public'")).scalar()
             assert n >= len(TENANT_TABLES)
