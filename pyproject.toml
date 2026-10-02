@@ -9,6 +9,14 @@ dependencies = [
   "jinja2>=3.1",
   "python-multipart>=0.0.9",
   "itsdangerous>=2.1",
+  "pyjwt>=2.8",
+  "pyyaml>=6",
+  "sqlalchemy>=2.0",
+  "alembic>=1.13",
+  "psycopg[binary]>=3.1",
+  "procrastinate>=3.0",
+  "langgraph>=1.0",
+  "uvicorn>=0.30",
 ]
 
 [project.optional-dependencies]
