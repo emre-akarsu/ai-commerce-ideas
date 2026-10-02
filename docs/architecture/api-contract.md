@@ -26,11 +26,13 @@ Shared by `apps/api` (FastAPI) and `apps/web` (Next.js). JSON over HTTPS under `
 | POST | `/v1/requests/{id}/answers` | requester+ | `{answers: {attribute: value}}` to clarifying questions; returns `RequestDetail` |
 | POST | `/v1/requests/{id}/rfqs/prepare` | buyer+ | `{vendor_ids: string[], candidate_mpns?: string[]}` → `PreparedRFQ[]` (nothing is sent) |
 | POST | `/v1/rfqs/{rfq_id}/approve-send` | buyer+ | `{mime_hash}`; authenticated POST creates a per-message `Approval` bound to that hash and calls the send-service; returns `{message_id}` |
-| POST | `/v1/requests/{id}/quotes/inbound` | system or buyer | `{vendor_id, source_text, dmarc_aligned}` → `QuoteView` (quarantined extraction + grounding + normalisation) |
+| POST | `/v1/requests/{id}/quotes/inbound` | buyer+ | `{vendor_id, source_text}` buyer-entered quote → `QuoteView` (flag `buyer_entered`; **no `dmarc_aligned` accepted from the body**, R12) |
+| POST | `/v1/inbound/quotes` | system (HMAC `X-Inbound-Signature`) | Trusted inbound-mail webhook `{reply_token, from_domain, source_text, dmarc_aligned}`; tenant/request derived from the signed reply token; mismatch ⇒ quarantine |
+| POST | `/v1/admin/kill-switch` | admin | `{engaged: bool}` stops sends for the caller's tenant |
 | GET | `/v1/requests/{id}/comparison` | requester+ | `ComparisonView` |
 | POST | `/v1/requests/{id}/select-quote` | buyer+ | `{quote_id}`; creates approval request(s); returns `RequestDetail` |
-| GET | `/v1/approval-links/{token}` | none | Side-effect-free summary `{request, quote, action, expires_at}` (safe for email scanners) |
-| POST | `/v1/approval-links/{token}/decide` | authenticated approver | `{action: "approve"|"decline"}`; consumes token (single use, bound to approver + quote version + action) |
+| GET | `/v1/approval-links/{token}` | none | Side-effect-free `ApprovalLinkView {request_id, quote_id, vendor, unit_price_each, currency, lead_time_days, quantity, total, offered_mpn, offered_tier, flags, part_summary, action_options, expires_at, note}` (safe for email scanners) |
+| POST | `/v1/approval-links/{token}/decide` | authenticated approver | `{action: "approve"|"decline"}` → `DecisionResult {request_id, decision, state}`; consumes token (single use, bound to approver + quote version + action) |
 | POST | `/v1/requests/{id}/po-draft` | buyer+ | Create `PurchaseOrderDraft` for the approved quote; enforces R2 and caps |
 | GET | `/v1/requests/{id}/po-draft.csv` | buyer+ | CSV with formula escaping |
 | GET | `/v1/vendors` · POST `/v1/vendors` · PATCH `/v1/vendors/{id}` | buyer+/admin | Vendor registry (`name, domain, contact_email, preferred, opted_out, phone`) |

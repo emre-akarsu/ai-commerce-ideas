@@ -86,12 +86,20 @@ class RequestDetail(_V):
 
 
 class ApprovalLinkView(_V):
+    """Everything an approver needs to decide (R11/R3). Vendor-derived strings are inert text."""
+
     request_id: str
     quote_id: str
     vendor: VendorRef
     unit_price_each: Decimal | None
     currency: str | None
     lead_time_days: int | None
+    quantity: int | None = None
+    total: Decimal | None = None
+    offered_mpn: str | None = None
+    offered_tier: str = "D"
+    flags: list[str] = Field(default_factory=list)
+    part_summary: str = ""
     action_options: list[str]
     expires_at: datetime
     note: str = ""
