@@ -30,35 +30,34 @@
 
 ## Eight Key Features: Table Stakes vs. Differentiating vs. Absent
 
-### **Table Stakes (Present in Most Direct Competitors)**
-1. **RFQ Automation** – Email or portal-based RFQ distribution with follow-up. Present in Aron, Waybill, Procure AI, Traza, Fairmarkit, Lumari, Fiix (Pro tier).
-2. **Quote Normalization** – Extracting and structuring supplier responses into comparable formats. Present in Aron, Waybill, Procure AI, Traza, Fairmarkit, Lumari.
-3. **PO/ERP Export** – Routing approved orders to ERP or purchasing systems. Present in Aron, Waybill, Procure AI, Traza, Fairmarkit, Lumari.
+### **Table Stakes**
+1. **RFQ Automation** – Present in Aron, Waybill, Procure AI, Traza, Fairmarkit, Lumari, Fiix (Pro).
+2. **Quote Normalization** – Present in Aron, Waybill, Procure AI, Traza, Fairmarkit, Lumari.
+3. **PO/ERP Export** – Present in Aron, Waybill, Procure AI, Traza, Fairmarkit, Lumari.
 
-### **Differentiating (Rare or Exclusive)**
-4. **Payments Handling** – End-to-end settlement and invoice reconciliation. Only Waybill and Amazon Business offer native payment facilitation; others require manual settlement.
-5. **CMMS Integration** – Work-order-driven procurement workflows tied to asset maintenance. Present only in Limble, UpKeep, Fiix, MaintainX; absent in pure buyer-side agents.
-6. **Email-Only Entry (No Portal)** – Reduces friction by requiring no new system access. Aron, Waybill, and Lumari emphasize email-first; others require portal or ERP integration.
+### **Differentiating**
+4. **Payments Handling** – Only Waybill and Amazon Business; others manual settlement.
+5. **CMMS Integration** – Only Limble, UpKeep, Fiix, MaintainX; absent in pure buyer-side agents.
+6. **Email-Only Entry** – Aron, Waybill, Lumari emphasize email-first; others require portal/ERP.
 
 ### **Absent Everywhere**
-7. **Spec Matching at Scale** – Automated matching of buyer specs to available SKUs or configurations across a normalized supplier network. No competitor claims this; most rely on human supplier selection or simple catalog search.
-8. **Transparent, Published Pricing** – Subscription-based pricing disclosed publicly. Absent in all direct competitors (Aron, Waybill, Procure AI, Traza, Didero, Fairmarkit, Lumari); only CMMS platforms (Limble $$/month, UpKeep $24–45/user/month, Fiix $45–75/user/month) and Zoro/Grainger (marketplace models) have published rates.
+7. **Spec Matching at Scale** – Automated SKU matching across normalized supplier network. No competitor claims this.
+8. **Published Pricing** – All direct agents hide pricing (enterprise deals). Only CMMS ($24–75/user/month) and marketplaces disclose.
 
 ---
 
 ## Key Findings
 
-**Distribution Threat:** Amazon Business ($60B+ revenue), Grainger (AWM acquisition), and Zoro represent incumbent consolidation of procurement and inventory into their marketplaces; all three are now investing in agentic AI.
+**Distribution Threat:** Amazon Business ($60B+ revenue), Grainger, and Zoro consolidate procurement into marketplaces; all investing in agentic AI.
 
-**CMMS as Distribution:** Limble, UpKeep, Fiix, and MaintainX own work-order workflows where maintenance buyers live; procurement features are gated and secondary, but the distribution channel is strong.
+**CMMS as Channel:** Limble, UpKeep, Fiix, MaintainX own maintenance work-order workflows; procurement features are gated, but the buyer relationship is strong.
 
-**Unsolved Problems:** No competitor claims end-to-end urgency-driven MRO (request → normalized quotes → approvals → PO) for small, non-strategic buyers. Aron and Fairmarkit target procurement teams; Waybill targets hardware BOM; Lumari targets direct materials. Verusen is inventory intelligence, not execution. CMMS platforms have the maintenance buyer relationship but lack multi-supplier quote automation.
+**Unsolved:** No competitor claims end-to-end urgency MRO for small, non-strategic buyers. Aron/Fairmarkit target procurement teams; Waybill targets hardware BOM; Lumari targets direct materials. CMMS platforms have buyers but lack quote automation.
 
-**Pricing as Moat:** All pure procurement agents keep pricing private, signaling enterprise deal-size variability and account-based sales. CMMS platforms price per user per month, which becomes expensive at scale.
+**Pricing:** All direct agents keep pricing private (enterprise sales); CMMS platforms $24–75/user/month, expensive at scale.
 
 ---
 
-## Not verified:
-- Partium: No web presence or search results found; may not exist as a named product.
-- Specific funding figures for SpaceFlow Technologies and Applied Kinetics (YC S26, F2026) not published.
-- MaintainX Autodesk acquisition (2026) reported in one search summary; primary source not confirmed.
+## Not Verified
+- Partium: No web presence found; may not exist.
+- MaintainX Autodesk acquisition (2026) not confirmed by primary source.
