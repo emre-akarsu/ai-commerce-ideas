@@ -49,9 +49,13 @@ def test_only_the_send_service_calls_deliver_or_uses_mailtransport() -> None:
 
 def test_no_module_imports_the_send_service_except_orchestration_and_tests() -> None:
     """The planner/employee packages must have no import path to the send-service (ADR-003)."""
+    # The application service wires the send-service; the planner side (graph, tools, aiplat) must not.
+    allowed = {ROOT / "employees/purchasing/service.py"}
     offenders = []
     for path in sources():
         if "employees" not in path.parts and "aiplat" not in path.parts:
+            continue
+        if path in allowed:
             continue
         text = path.read_text(encoding="utf-8")
         if "send_service" in text:

@@ -19,7 +19,7 @@ import functools
 import hashlib
 import inspect
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from typing import Any, ParamSpec, Protocol, TypeVar
 
@@ -71,6 +71,7 @@ class ToolContext:
     meter: Meter
     request_id: str | None = None
     approval_check: Callable[[str], bool] | None = None  # (tool name) -> a human approved it
+    services: Mapping[str, Any] = field(default_factory=dict)  # pack services, by name
 
     @property
     def tenant_id(self) -> str:

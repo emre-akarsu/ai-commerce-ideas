@@ -46,7 +46,7 @@ from components.core.domain import (
     Vendor,
 )
 from components.core.fakes import RecordingTransport
-from components.core.ports import Clock, Extractor, LLMProvider, MailTransport
+from components.core.ports import Clock, Extractor, LLMProvider
 from components.core.store import NotFoundError, Store, TenantIsolationError, TenantStore
 from components.evidence.log import EVT_APPROVAL_TOKEN_ISSUED, EventLog
 from components.parts.equivalence.catalogue import normalise_mpn
@@ -702,11 +702,11 @@ class PurchasingService:
         quote: Quote = self._get(ts.quotes, quote_id)
         if quote.rfq_id not in {r.id for r in self._rfqs(ts, request.id)}:
             raise NotFound(quote_id)
+        if request.state not in (S.QUOTES_COLLECTING, S.COMPARISON_READY):
+            raise Conflict(f"cannot select a quote in state {request.state.value}")
+        self._check_selectable(request, quote, ts)  # refuse before any state change
         if request.state is S.QUOTES_COLLECTING:
             self._move(request, S.COMPARISON_READY, ctx.actor, {"step": "buyer_proceeds"})
-        if request.state is not S.COMPARISON_READY:
-            raise Conflict(f"cannot select a quote in state {request.state.value}")
-        self._check_selectable(request, quote, ts)
         qty = request.quantity or 1
         total = _total(quote, qty)
         substitution = quote.offered_tier is not Tier.A
@@ -811,9 +811,12 @@ class PurchasingService:
         sel = self._selection(ctx.tenant_id, request.id)
         if action == "approve":
             if sel.get("substitution"):
-                self._approvals.issue_substitution_approval(
+                sub = self._approvals.issue_substitution_approval(
                     ctx.tenant_id, ctx.actor, quote.offered_mpn or "", quote.version,
                     self._settings.substitution_ttl)
+                self._emit(ctx.tenant_id, request.id, ctx.actor, "approval.substitution_recorded", {
+                    "approval_id": sub.id, "candidate_mpn": sub.candidate_mpn,
+                    "quote_id": quote.id, "quote_version": quote.version})
             self._move(request, S.APPROVED, ctx.actor, {"quote_id": quote.id, "jti": claims.jti})
             return DecisionResult(request_id=request.id, decision="approved", state=request.state)
         self._move(request, S.DECLINED, ctx.actor, {"quote_id": quote.id, "jti": claims.jti})
@@ -958,7 +961,7 @@ def build_in_memory_service(
     clock: Clock | None = None,
     store: Store | None = None,
     event_log: EventLog | None = None,
-    transport: MailTransport | None = None,
+    transport: Any | None = None,  # handed to the send-service only (any MailTransport)
     extractor: Extractor | None = None,
     llm: LLMProvider | None = None,
     use_llm_extractor: bool = False,

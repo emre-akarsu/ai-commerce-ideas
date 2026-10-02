@@ -18,3 +18,20 @@ take it (default in-memory). Concurrency requirement: `append` for one tenant mu
 Tables use primary key `(tenant_id, id)` so ids are not an existence oracle across tenants.
 `TenantStore` (in-memory) raises `TenantIsolationError` on a cross-tenant id; the PG store raises
 `NotFoundError` (RLS hides the row). HTTP layers already must map both to 404.
+
+## purchasing pack: proposals from `employees/purchasing/service.py` (nothing applied)
+- `ApprovalService.peek_token(token) -> TokenClaims`: public, signature-checked, non-consuming decode.
+  The service's side-effect-free `get_approval_link(token)` has no ctx, so it must learn tenant,
+  approver, action and quote version from the signed token; it currently calls the private
+  `ApprovalService._decode`. Please make that public (or add `peek_token`).
+- `ApprovalService.issue_substitution_approval(..., request_id=None)`: the `approval.issued` event
+  for a SubstitutionApproval carries no `request_id`, so it is missing from the per-request audit
+  view. The service works around it with its own `approval.substitution_recorded` event.
+- `aidb.PgStore.for_tenant` is a context manager (one transaction), whereas `SendService` and
+  `ApprovalService` call `store.for_tenant(t)` and use the result as a plain object. A Postgres
+  `build_pg_service` therefore needs either a `Store`-protocol adapter that opens one
+  tenant_session per call, or those services accepting a repository factory. Not built.
+- `Request` has no field for the approval/selection state; the service derives the selected quote
+  (id, version, fingerprint) from the `QUOTE_SELECTED` transition event and candidates from a
+  `candidates.found` event. A typed `Selection`/`CandidateSet` record in `domain.py` would be
+  simpler to query in SQL.

@@ -77,7 +77,8 @@ def test_queued_job_without_tenant_fails_and_does_nothing() -> None:
                        unit_ctx(send_service_factory=lambda _t: NoRunner()))
     app.configure_task("worker.run_follow_ups").defer()  # no tenant_id supplied
     app.run_worker(wait=False, install_signal_handlers=False)
-    (job,) = app.connector.jobs.values()
+    # Periodic fan-out jobs may also be queued when the clock sits on a cron boundary.
+    (job,) = (j for j in app.connector.jobs.values() if j["task_name"] == "worker.run_follow_ups")
     assert job["status"] == "failed"
 
 
