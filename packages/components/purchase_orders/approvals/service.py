@@ -269,7 +269,8 @@ class CapPolicy:
         return self._day()
 
     def release(
-        self, tenant_id: str, amount: Decimal, *, currency: str | None = None, day: date | None = None
+        self, tenant_id: str, amount: Decimal, *, currency: str | None = None,
+        day: date | None = None,
     ) -> None:
         """Give back a reservation (cancelled/declined order). Never goes below zero."""
         value = self._validate(amount, currency)
@@ -509,7 +510,7 @@ class ApprovalService:
         *, request_id: str | None = None, quote_id: str | None = None,
     ) -> Approval:
         """R2: a human accepts a non-Tier-A candidate for one quote version. When ``request_id`` and
-        ``quote_id`` are given they are bound into the approval subject (see ``substitution_subject``)
+        ``quote_id`` are given they are bound into the approval subject (``substitution_subject``)
         so it cannot be replayed for another request or quote."""
         _require_human(approver, "approver")
         if not candidate_mpn.strip() or quote_version < 1:
@@ -769,9 +770,12 @@ class ApprovalService:
 
 
 def substitution_subject(
-    candidate_mpn: str, quote_version: int, request_id: str | None = None, quote_id: str | None = None
+    candidate_mpn: str,
+    quote_version: int,
+    request_id: str | None = None,
+    quote_id: str | None = None,
 ) -> str:
-    """Hash a substitution approval is bound to: candidate + quote version (+ request and quote id)."""
+    """Hash a substitution approval binds to: candidate, quote version, request and quote id."""
     data: dict[str, Any] = {"substitution": candidate_mpn, "quote_version": quote_version}
     if request_id is not None or quote_id is not None:
         data.update({"request_id": request_id, "quote_id": quote_id})

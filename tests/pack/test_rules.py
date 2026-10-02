@@ -32,6 +32,7 @@ from tests.pack.conftest import (
     approved_po_world,
     build_world,
     make_vendor,
+    reply_token,
     start_to_comparison,
 )
 
@@ -111,7 +112,7 @@ def test_injection_in_vendor_reply_changes_nothing_and_is_flagged() -> None:
     )
     sent_before = len(w.transport.delivered)
     vendors_before = w.svc.list_vendors(w.buyer)
-    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=evil, dmarc_aligned=True)
+    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=evil)
     assert "injection_suspected" in q.quote.flags
     d = w.svc.get_request(w.buyer, rid)
     assert d.comparison is not None and d.comparison.recommended_quote_id is None
@@ -126,8 +127,8 @@ def test_injection_in_vendor_reply_changes_nothing_and_is_flagged() -> None:
 
 def test_dmarc_failure_quarantines_quote() -> None:
     w, rid = sent_world()
-    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY,
-                           dmarc_aligned=False)
+    q = w.svc.ingest_inbound_reply(reply_token=reply_token(w, rid), from_domain="acme.example",
+                                   source_text=TIER_A_REPLY, dmarc_aligned=False)
     assert "dmarc_fail" in q.quote.flags
     assert w.svc.get_comparison(w.buyer, rid).recommended_quote_id is None
     with pytest.raises(Conflict):
@@ -138,16 +139,13 @@ def test_dmarc_failure_quarantines_quote() -> None:
 def test_quote_from_vendor_without_sent_rfq_is_refused() -> None:
     w, rid = sent_world()
     with pytest.raises(Conflict):
-        w.svc.ingest_quote(w.buyer, rid, vendor_id="bolt", source_text=TIER_A_REPLY,
-                           dmarc_aligned=True)
+        w.svc.ingest_quote(w.buyer, rid, vendor_id="bolt", source_text=TIER_A_REPLY)
 
 
 def test_second_reply_from_same_vendor_is_a_new_version() -> None:
     w, rid = sent_world()
-    q1 = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY,
-                            dmarc_aligned=True)
-    q2 = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY,
-                            dmarc_aligned=True)
+    q1 = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY)
+    q2 = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY)
     assert q2.quote.id == q1.quote.id and (q1.quote.version, q2.quote.version) == (1, 2)
 
 
@@ -209,8 +207,7 @@ def test_down_now_limits_recipients_to_two() -> None:
 
 def test_cross_tenant_ids_raise_not_found() -> None:
     w, rid = sent_world()
-    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY,
-                           dmarc_aligned=True)
+    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY)
     rfq_id = w.svc.get_request(w.buyer, rid).rfqs[0].id
     o = w.other_buyer
     assert w.svc.list_requests(o) == [] and w.svc.list_vendors(o)[0].id == "other"
@@ -219,7 +216,7 @@ def test_cross_tenant_ids_raise_not_found() -> None:
         lambda: w.svc.answer_questions(Ctx(o.tenant_id, "x", Role.REQUESTER), rid, {}),
         lambda: w.svc.prepare_rfqs(o, rid, vendor_ids=["other"]),
         lambda: w.svc.approve_send(o, rfq_id, mime_hash="0" * 64),
-        lambda: w.svc.ingest_quote(o, rid, vendor_id="other", source_text="x", dmarc_aligned=True),
+        lambda: w.svc.ingest_quote(o, rid, vendor_id="other", source_text="x"),
         lambda: w.svc.get_comparison(o, rid),
         lambda: w.svc.select_quote(o, rid, q.quote.id),
         lambda: w.svc.create_po_draft(o, rid),
@@ -234,8 +231,7 @@ def test_cross_tenant_ids_raise_not_found() -> None:
 
 def test_approval_link_of_another_tenant_is_not_found_and_not_consumed() -> None:
     w, rid = sent_world()
-    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY,
-                           dmarc_aligned=True)
+    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY)
     w.svc.select_quote(w.buyer, rid, q.quote.id)
     token = w.notifier.token_for("user:approver-1", "approve")
     with pytest.raises(NotFound):
@@ -253,7 +249,7 @@ def test_role_enforcement() -> None:
     with pytest.raises(Forbidden):
         w.svc.select_quote(r, rid, "q")
     with pytest.raises(Forbidden):
-        w.svc.ingest_quote(r, rid, vendor_id="acme", source_text="x", dmarc_aligned=True)
+        w.svc.ingest_quote(r, rid, vendor_id="acme", source_text="x")
     with pytest.raises(Forbidden):
         w.svc.audit(w.buyer, rid)
     with pytest.raises(Forbidden):
@@ -289,8 +285,7 @@ def test_vendor_upsert_ignores_model_supplied_tenant() -> None:
 
 def test_wrong_approver_is_forbidden_and_decline_blocks_po() -> None:
     w, rid = sent_world()
-    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY,
-                           dmarc_aligned=True)
+    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY)
     w.svc.select_quote(w.buyer, rid, q.quote.id)
     approve = w.notifier.token_for("user:approver-1", "approve")
     with pytest.raises(Forbidden):
@@ -310,8 +305,7 @@ def test_requester_cannot_be_the_approver_above_threshold() -> None:
     rid = w.svc.create_request(w.requester, text=REQUEST_TEXT).request.id
     p = w.svc.prepare_rfqs(w.buyer, rid, vendor_ids=["acme"])[0]
     w.svc.approve_send(w.buyer, p.rfq_id, mime_hash=p.mime_hash)
-    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY,
-                           dmarc_aligned=True)
+    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY)
     with pytest.raises(Conflict):
         w.svc.select_quote(w.buyer, rid, q.quote.id)
     assert w.notifier.notices == []
@@ -319,8 +313,7 @@ def test_requester_cannot_be_the_approver_above_threshold() -> None:
 
 def test_approval_link_expires_and_get_is_side_effect_free_when_invalid() -> None:
     w, rid = sent_world()
-    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY,
-                           dmarc_aligned=True)
+    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY)
     w.svc.select_quote(w.buyer, rid, q.quote.id)
     token = w.notifier.token_for("user:approver-1", "approve")
     with pytest.raises(NotFound):
@@ -394,8 +387,9 @@ def test_small_tier_a_quote_needs_no_approval_link() -> None:
     rid = w.svc.create_request(w.requester, text=REQUEST_TEXT).request.id
     p = w.svc.prepare_rfqs(w.buyer, rid, vendor_ids=["acme"])[0]
     w.svc.approve_send(w.buyer, p.rfq_id, mime_hash=p.mime_hash)
-    q = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY,
-                           dmarc_aligned=True)
+    q = w.svc.ingest_inbound_reply(reply_token=reply_token(w, rid), from_domain="acme.example",
+                                   source_text=TIER_A_REPLY.replace("$4.20 each USD", "4.20 USD each"),
+                                   dmarc_aligned=True)  # "$" alone would be flagged currency_assumed_usd
     assert w.svc.select_quote(w.buyer, rid, q.quote.id).request.state is S.QUOTE_SELECTED
     assert w.notifier.notices == []
     assert w.svc.create_po_draft(w.buyer, rid).mpn == "AL6205-2RS"

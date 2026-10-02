@@ -102,10 +102,8 @@ def start_to_comparison(w: World) -> tuple[str, list[str]]:
     prepared = w.svc.prepare_rfqs(w.buyer, rid, vendor_ids=["acme", "bolt"])
     for p in prepared:
         w.svc.approve_send(w.buyer, p.rfq_id, mime_hash=p.mime_hash)
-    qa = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY,
-                            dmarc_aligned=True)
-    qb = w.svc.ingest_quote(w.buyer, rid, vendor_id="bolt", source_text=SHIELD_REPLY,
-                            dmarc_aligned=True)
+    qa = w.svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY)
+    qb = w.svc.ingest_quote(w.buyer, rid, vendor_id="bolt", source_text=SHIELD_REPLY)
     return rid, [qa.quote.id, qb.quote.id]
 
 
@@ -115,7 +113,13 @@ def approved_po_world(w: World | None = None, reply: str = TIER_A_REPLY, vendor:
     rid = w.svc.create_request(w.requester, text=REQUEST_TEXT).request.id
     p = w.svc.prepare_rfqs(w.buyer, rid, vendor_ids=[vendor])[0]
     w.svc.approve_send(w.buyer, p.rfq_id, mime_hash=p.mime_hash)
-    q = w.svc.ingest_quote(w.buyer, rid, vendor_id=vendor, source_text=reply, dmarc_aligned=True)
+    q = w.svc.ingest_quote(w.buyer, rid, vendor_id=vendor, source_text=reply)
     w.svc.select_quote(w.buyer, rid, q.quote.id)
     w.svc.decide_approval_link(w.approver, w.notifier.token_for("user:approver-1", "approve"), "approve")
     return w, rid
+
+
+def reply_token(w: World, rid: str, vendor_id: str = "acme") -> str:
+    """The signed per-RFQ token the trusted inbound adapter would read from the reply."""
+    (rfq,) = w.store.for_tenant(T1).rfqs.list(lambda r: r.request_id == rid and r.vendor_id == vendor_id)
+    return rfq.reply_token

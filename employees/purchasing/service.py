@@ -52,7 +52,7 @@ from components.core.domain import (
 from components.core.fakes import RecordingTransport
 from components.core.ports import Clock, Extractor, LLMProvider
 from components.core.store import NotFoundError, Store, TenantIsolationError, TenantStore
-from components.evidence.log import EVT_APPROVAL_TOKEN_ISSUED, CHAIN_KEY_ENV, PII_KEY_ENV, EventLog
+from components.evidence.log import CHAIN_KEY_ENV, EVT_APPROVAL_TOKEN_ISSUED, PII_KEY_ENV, EventLog
 from components.imports.safety import clean_text, neutralise
 from components.parts.equivalence.catalogue import normalise_mpn
 from components.parts.equivalence.engine import classify_offered, find_candidates, is_offerable
@@ -69,13 +69,13 @@ from components.purchase_orders.approvals import (
     TokenError,
     quote_fingerprint,
 )
-from components.purchase_orders.approvals.service import substitution_subject
 from components.purchase_orders.approvals.service import (
     NotHumanApprover,
     SeparationOfDuties,
     TokenApproverMismatch,
     TokenExpired,
     TokenReplayed,
+    substitution_subject,
 )
 from components.rfq.comparison import compare
 from components.rfq.quotes.extractors import LLMQuoteExtractor, RegexQuoteExtractor

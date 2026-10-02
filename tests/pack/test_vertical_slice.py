@@ -42,12 +42,10 @@ def test_happy_path_6205_2rs() -> None:
     assert svc.get_request(w.buyer, rid).request.state is S.RFQ_SENT
 
     # two vendor replies: Tier A offer and a 2Z-shielded (non-equivalent) offer
-    qa = svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY,
-                          dmarc_aligned=True)
+    qa = svc.ingest_quote(w.buyer, rid, vendor_id="acme", source_text=TIER_A_REPLY)
     assert qa.quote.offered_tier is Tier.A and qa.quote.unit_price_each == Decimal("4.20")
     assert qa.quote.currency == "USD"
-    qb = svc.ingest_quote(w.buyer, rid, vendor_id="bolt", source_text=SHIELD_REPLY,
-                          dmarc_aligned=True)
+    qb = svc.ingest_quote(w.buyer, rid, vendor_id="bolt", source_text=SHIELD_REPLY)
     assert qb.quote.offered_tier is Tier.D  # shield vs contact seal: critical mismatch
     assert svc.get_request(w.buyer, rid).request.state is S.COMPARISON_READY
 

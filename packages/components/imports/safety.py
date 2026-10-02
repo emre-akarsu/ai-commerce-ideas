@@ -13,7 +13,7 @@ def neutralise(value: str) -> str:
 
     Leading whitespace/control characters are looked through, because Excel ignores them."""
     stripped = value.lstrip(" \t\r\n\x00\x0b\x0c ")
-    if stripped.startswith(_TRIGGERS):
+    if value.startswith(_TRIGGERS) or stripped.startswith(_TRIGGERS):
         return "'" + value
     return value
 
