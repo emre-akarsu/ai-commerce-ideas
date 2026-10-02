@@ -4,10 +4,9 @@
 >
 > **Verdict summary:** NARROW — bundle inside Idea 1, do not lead
 
-
 ---
 
-## Part A — Market, workflow, customer
+## Part A — Problem, failure scenarios, who pays
 
 ## B2B Agentic RFQ/PO Layer: Problem, Failure Scenarios, and Who Pays
 
@@ -71,7 +70,7 @@
 
 ---
 
-## Part B — Competition and access
+## Part B — Technical landscape and gaps
 
 ## 05-B — B2B Standards Coverage: RFQ & Mandate Layer
 
@@ -101,100 +100,66 @@
 
 ---
 
-### Minimal B2B RFQ + Mandate Object Model
+### Minimal B2B Mandate Object Model (≤25 lines)
 
-Built on existing standards (W3C VC + OAuth RAR + Peppol UBL concepts), reusable with Visa TAP / Mastercard VI / FIDO signing:
+Built on W3C VC + OAuth RAR + Peppol UBL, signed by Visa TAP / Mastercard VI:
 
 ```json
 {
-  "@context": ["https://w3.org/2018/credentials/v1", "https://peppol.eu/ubl/"],
-  "type": ["VerifiableCredential", "B2BCommerceMandateVC"],
-  "issuer": "https://org-issuer.example/",
+  "@context": ["https://w3.org/2018/credentials/v1"],
+  "type": ["VerifiableCredential", "B2BMandate"],
+  "issuer": "https://buyer-org.example/",
   "credentialSubject": {
-    "agentId": "did:web:agent-operator.example:agents/acme-bot",
-    "delegatingOrg": "did:org:buyer.example",
-    "delegatingOrgName": "Acme Corp",
-    "mandateId": "mandate-uuid-2026-oct",
-    "authorizedSpend": {"amount": "50000", "currency": "USD"},
-    "approvalChainId": "approval-matrix-ref-2026Q4"
+    "agentId": "did:web:agent.example:id",
+    "buyerOrgId": "did:org:buyer",
+    "authorizedSpend": "50000 USD",
+    "approvalChainRef": "approval-matrix-2026Q4"
   },
-  "authorization_details": [
-    {
-      "type": "rfq.buyer",
-      "scope": ["view_catalog", "create_rfq", "receive_quotes"],
-      "constraints": {
-        "supplierPartyId": "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2",
-        "commodityClassification": ["MRO", "office-supplies"],
-        "maxUnitPrice": "5000",
-        "deliveryTerms": ["FOB", "CIF"],
-        "slaAcknowledgedDays": 5
-      }
+  "authorization_details": [{
+    "type": "rfq.buyer",
+    "scopes": ["catalog_view", "rfq_create"],
+    "constraints": {
+      "commodities": ["MRO", "office"],
+      "maxUnitPrice": 5000,
+      "deliveryDays": 5,
+      "supplierUBLPartyId": "urn:oasis:..."
     }
-  ],
-  "proofOfApproval": [
-    {
-      "approverOrgRole": "procurement-manager",
-      "approvalTimestamp": "2026-10-02T10:30:00Z",
-      "signedProof": "base64-sd-jwt-layer-2"
-    }
-  ],
-  "issuanceDate": "2026-10-02T00:00:00Z",
-  "expirationDate": "2027-04-02T00:00:00Z",
-  "proof": {
-    "type": "Ed25519Signature2020",
-    "proofPurpose": "assertionMethod",
-    "verificationMethod": "https://issuer.example/#key-1",
-    "signatureValue": "base64-signature"
-  }
+  }],
+  "approvals": [{"role": "procurement_manager", "timestamp": "2026-10-02T10:30Z"}],
+  "issuanceDate": "2026-10-02",
+  "expirationDate": "2027-04-02",
+  "proof": {"type": "Ed25519Signature2020", "signatureValue": "base64..."}
 }
 ```
 
-**Object fields** (≤20 lines core; extensible):
-- `agentId`: W3C DID for agent operator
-- `delegatingOrg`: Buyer org DID + name
-- `authorizedSpend`: Max amount + currency
-- `approvalChainId`: Link to org's approval matrix (external ref)
-- `authorization_details`: OAuth RAR array; includes supplier/commodity scopes + SLA constraints
-- `proofOfApproval`: Chain of org approvals (role + timestamp + cryptographic proof)
-- `issuanceDate / expirationDate`: Credential lifetime
-- `proof`: Ed25519/Visa TAP compatible signature
+**Core fields:** agentId (W3C DID) | buyerOrgId | authorizedSpend | authorization_details (OAuth RAR array with UBL mappings) | approvals (org chain) | proof (TAP-compatible signature).
 
-**Why this works:**
-- W3C VC envelope reuses existing wallet/issuer infrastructure
-- OAuth RAR narrowing lets each hop constrain the next without new vocabulary
-- UBL commodity codes + delivery terms map to Peppol/cXML
-- Approval chain is org-side; standards-agnostic (ERP-specific)
-- Visa TAP + Mastercard VI can sign the outer proof layer
-- No new spec invention required
+**Why:** Reuses existing infrastructure; no new spec needed. OAuth RAR allows per-hop narrowing; UBL commodity codes map to Peppol/cXML; Visa TAP + Mastercard VI sign outer proof.
 
 ---
 
-### Not Covered & Recommendations
+### Coverage Gaps & Implications
 
-**Gaps requiring new standards or products:**
-1. **RFQ-as-protocol** — no open standard for agent-to-agent quote negotiation; cXML/UBL lack negotiation state
-2. **Approval-chain binding** — org approval matrices are internal; no way to cryptographically bind agent act to approval without custom SDKs
-3. **Substitution & specs** — industrial procurement turns on equivalence matching (ISO part numbers, Material Safety Data Sheets, lead times); no machine-readable object found
-4. **Dispute evidence layer** — merchant eats chargeback; only Amex covers agent error; no standard for capturing intent + SLA breach proofs
-5. **Cross-vendor KYA** — Skyfire, Visa/Mastercard registration, FIDO DID all address agent identity; no federation standard for org-level trust
+| **Gap** | **Impact** |
+|---|---|
+| RFQ-as-protocol | No open standard for agent quote negotiation; cXML/UBL lack negotiation state |
+| Approval-chain binding | Org matrices internal; no way to cryptographically bind agent act to approval |
+| Specs & substitution | Industrial procurement needs ISO part matching, lead times; no machine-readable standard |
+| Dispute evidence | Merchant eats chargeback; only Amex covers agent error; no intent+SLA breach capture |
+| Cross-vendor KYA | Skyfire, FIDO, Visa/MC registration all separate; no federation standard for org trust |
 
-**Verdict:** Peppol + cXML + Visa TAP + Mastercard VI + W3C VC + OAuth RAR form a *technical* foundation; a B2B commerce orchestrator must build the *semantic layer* (RFQ schemas, approval bindings, dispute objects) on top, likely as an MCP server adapter or FIDO extension.
+**Verdict:** Peppol + cXML + Visa TAP + Mastercard VI + W3C VC + OAuth RAR form a technical foundation. A B2B commerce orchestrator must add the semantic layer (RFQ schemas, approval bindings, dispute objects), likely as an MCP server or FIDO extension.
 
 ---
 
 **Sources:**
-- [Google Universal Commerce Protocol](https://developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp/)
-- [FIDO Alliance Agentic Commerce Standards](https://fidoalliance.org/fido-alliance-to-develop-standards-for-trusted-ai-agent-interactions/)
-- [Peppol / UBL Standards](https://www.w3.org/TR/vc-data-model-2.1/)
-- [cXML Procurement Standard](https://tradecentric.com/blog/what-cxml/)
-- [OAuth RAR RFC 9396](https://www.ietf.org/rfc/rfc9396.txt)
-- [UN/EDIFACT EDI Standard](https://en.wikipedia.org/wiki/EDIFACT)
+[Google Dev Blog](https://developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp/) | [FIDO Alliance](https://fidoalliance.org/fido-alliance-to-develop-standards-for-trusted-ai-agent-interactions/) | [W3C VC](https://www.w3.org/TR/vc-data-model-2.1/) | [TradeCentric cXML](https://tradecentric.com/blog/what-cxml/) | [RFC 9396 RAR](https://www.ietf.org/rfc/rfc9396.txt)
 
-**Not verified:** est. adoption figures (x402 ~$50M cumulative); est. partner counts (Mastercard "30+", Visa "100+"); cross-org approval-chain real-world deployments absent from literature.
+**Not verified:** x402 cumulative ~$50M (est.); Visa/Mastercard partner counts (est.); cross-org approval deployments absent from public literature.
 
 ---
 
-## Part C — Product, pricing, go-to-market
+## Part C — Legal and liability
 
 ## Legal and Liability: B2B Agent-to-Agent RFQ/PO and Delegated Authority
 
@@ -254,160 +219,87 @@ This ledger serves two purposes: (1) proving attribution (the agent was authoriz
 
 ---
 
-## Part D — Risks, validation, verdict
+## Part D — Competition, business model, MVP, verdict
 
 ## B2B Agent-to-Agent RFQ/PO Layer: Competition, Business Model, MVP, Verdict
 
-**Date:** 2026-10-02 | **Verified via web search/fetch** | **Word limit: 900**
+**Date:** 2026-10-02 | **Verified via web search/fetch** | **900-word target**
 
 ### 1. Funded Adjacent Startups
 
-**Payment/wallet layer:** Natural ($30M Series A, Forerunner, agent-payment rails); Skyfire ($9.5M, a16z CSX/Neuberger Berman, cloud-infra agent spending); Payman ($14M, policy engine); Nekuda ($5M seed May 2025, Madrona/Amex/Visa, agentic mandates—B2C card focus); Crossmint (wallet + card issuance, first live agent transaction Jan 2026).
+**Payment/wallet layer:** Natural ($30M Series A, Forerunner); Skyfire ($9.5M, a16z/Neuberger Berman); Payman ($14M policy engine); Nekuda ($5M seed May 2025, Madrona/Amex/Visa—B2C card focused); Crossmint (wallet + card issuance, first live agent transaction Jan 2026).
 
-**Negotiation/approval:** Pactum (>$100M, 50+ enterprises, seller-side agent negotiation).
+**Negotiation:** Pactum (>$100M, 50+ enterprises, seller-side).
 
-**Trust/insurance:** Klaimee ($5.5M seed, liability warranties).
+**Trust:** Klaimee ($5.5M seed, agent liability warranties).
 
-**Established platforms:** Tradeshift (1M+ B2B network, e-invoicing, no agent mandate layer evident); Basware (€80k–€1M+/yr AP automation); Peppol (open e-invoicing standard, not a company); Ramp Agent Cards (March 2026, procurement agents launched April 2026).
+**Established:** Tradeshift (1M+ B2B network, no agent mandate layer evident); Basware (€80k–€1M+/yr AP automation); Peppol (open e-invoicing standard); Ramp Agent Cards (March 2026 launch, April 2026 procurement agents).
 
-**Gap: (judgement)** No startup owns a reusable **agent mandate + cross-supplier audit ledger** as a core differentiator. Payment rails, policy engines, and seller-side negotiation exist; supplier-side **trust in agent identity** and **immutable approval trails** do not.
+**Gap: (judgement)** No startup owns **agent mandate + cross-supplier audit ledger** as a core differentiator. Payment rails, policy engines, seller-side negotiation exist; supplier-side trust in agent identity and immutable approval trails do not. [Natural](https://techcrunch.com/2026/07/20/natural-raises-30m-to-reinvent-payments-for-ai-agents-and-take-on-stripe/), [Skyfire](https://www.businesswire.com/news/home/20240821247203/en/Introducing-Skyfire-Payment-Rails-for-AI), [Nekuda](https://www.businesswire.com/news/home/20250514808097/en/Nekuda-Raises-$5M-Led-by-Madrona-Together-with-Amex-Ventures-and-Visa-Ventures-to-Power-Agentic-Payments), [Pactum](https://pactum.com/clients)
 
----
+### 2. Standards vs. Product
 
-### 2. Standards vs. Product: Can a Startup Own This?
+**Analogies:** Plaid (proprietary layer on banking standards; moat = data quality); Peppol (open standard, multiple vendors); Stripe (unified interface, but network absorption); Docusign (vertical → platform → Salesforce absorption); Persona (identity trust as service).
 
-| Model | Example | Outcome for Agent-Mandate Startups |
-|-------|---------|---|
-| **Protocol + Multiple Vendors** | Peppol (e-invoicing standard); all Peppol APs interoperate | Risk: if mandate becomes a standard (OpenSpec + ISO), any platform can implement; margin = integrations, not the spec itself. Upside: network-effects defensibility if adoption concentrates on one vendor's UX |
-| **Proprietary Layer on Standards** | Plaid (consumer banking APIs on top of FDX, Yodlee, bank protocols) | Plaid's moat = verified data quality + UX. For agent mandates: proprietary **supplier-trust scoring** (which suppliers honor mandates reliably; which have been disputed) is the moat. Standards define the schema; data wins the market |
-| **Unified Interface, Payment Network Absorption** | Stripe (unified API, but payment networks + card schemes own settlement) | Stripe survives because volume + compliance is sticky. Agent mandates face similar risk: platforms (AWS, Vertex AI) or hyperscalers will build free mandate layers to lock-in agent workloads. Startup must own outcome data (appeal rate, reconciliation speed) to stay independent |
-| **Vertical Specialization + Exit via Acquisition** | Docusign (initially e-signature vertical, then horizontal platform; later Salesforce-integrated) | Tight supplier integration (HVAC parts, MRO) + audit ledger = defensible wedge. But platforms (SAP, Dynamics, NetSuite) will absorb into their agentic layers. Acquisition path to $50–200M, not $1B+ |
-| **Identity + Trust Data** | Persona (ID verification SaaS; now part of Hyperise but operates independently) | Building "Know Your Supplier" (supplier mandate-acceptance rate, dispute history, cross-org trust score) is a moat. Defensible if owned dataset is unavailable elsewhere |
-
-**Verdict: (judgement)** A startup can own this **temporarily** (2–4 years) as a vertical wedge + audit-ledger differentiation. Platform absorption is the exit or co-optation path; success = demonstrating $10M+ annual recurring revenue (ARR) in mandates before Microsoft/SAP ship free equivalents.
-
----
+**For mandates:** Standards are inevitable; proprietary moat = **supplier-trust scoring** (acceptance rate, dispute history). Platforms (SAP, Dynamics, hyperscalers) will ship free mandate layers 2027–2028. Startup defensibility window = 2–4 years with vertical lock-in (HVAC/MRO) + owned outcome dataset. Exit = acquisition at $50–200M, not independent unicorn. **(judgement)**
 
 ### 3. Business Model Options (Labelled Assumptions)
 
-#### Option A: Per-Mandate Audit Fee
-- **Assumption:** Buyers + suppliers both want immutable audit trail for dispute resolution.
-- **Model:** $0.10–$0.50 per executed agent PO + audit event recorded (supplier appeal, approval delay, etc.).
-- **Pricing Sensitivity:** If 10,000 POs/month/customer, = $1,000–$5,000/month per customer. Scales with agent adoption.
-- **Breakeven:** 500 customers × $2,000/month = $1M ARR.
-- **Risk:** Buyers balk at per-PO fees; internalize audit to ERP systems.
+**Option A (Per-Audit Fee):** $0.10–0.50/PO + audit event. 10k POs/mo = $1–5k/mo/customer. Breakeven: 500 customers × $2k/mo = $1M ARR. Risk: buyers balk at per-PO fees.
 
-#### Option B: Supplier Onboarding + Trust Scoring (SaaS)
-- **Assumption:** Suppliers need standardized mandate acceptance (KYB, insurance, credit terms) to work with agent buyers.
-- **Model:** $500–$2,000/month per supplier tier; audit ledger + mandate-acceptance UI bundled.
-- **Pricing Sensitivity:** Scales with supplier ecosystem size, not transaction volume.
-- **Breakeven:** 1,000 suppliers × $1,000/month = $1M ARR.
-- **Risk:** Suppliers resist extra portal; prefer e-mail/EDI.
+**Option B (Supplier SaaS):** $500–2k/mo per supplier tier; audit ledger bundled. 1,000 suppliers × $1k = $1M ARR. Risk: suppliers prefer email/EDI.
 
-#### Option C: Outcome-Based (Savings Share / Dispute Recovery)
-- **Assumption:** Agent mandates reduce purchase-price variance and frivolous appeals.
-- **Model:** 2–5% of verified savings (audit trail proves agent + supplier agreed to terms; fewer disputes = faster cash conversion).
-- **Pricing Sensitivity:** Works only if baseline variance is >5%. Requires attribution rigor.
-- **Breakeven:** $50M procurement volume at 2% = $1M ARR.
-- **Risk:** Attribution is hard; supplier incentives misaligned (they prefer disputes).
+**Option C (Outcome-Based):** 2–5% of verified savings. $50M procurement volume at 2% = $1M ARR. Risk: attribution hard; misaligned incentives.
 
-#### Option D: Bundled Inside Vertical Agent (No Separate Billing)
-- **Assumption:** Mandate layer is table-stakes for any B2B agent; standalone market is too small.
-- **Model:** Offered free/bundled as HVAC agent, MRO agent, manufacturing agent; differentiation = vertical depth, not mandate IP.
-- **Pricing Sensitivity:** Entire agent priced $500–$2,000/month; mandate is 10–20% of perceived value.
-- **Breakeven:** 1,000 agents × $1,000/month = $1M ARR (mandate as 20% of value = $200k margin).
-- **Risk:** Mandate becomes commoditized; defensibility = vertical expertise, not protocol.
+**Option D (Bundled Inside Vertical Agent):** Free, included as HVAC/MRO agent feature. $500–2k/mo entire agent; mandate = 10–20% value. 1,000 agents × $1k = $1M ARR. Risk: mandate commoditized.
 
-**Recommendation: (judgement)** Start with **Option D** (bundled); migrate to **Option A** (per-audit) at scale if audit-trail value is proven in customer interviews. Avoid Option C (outcome-based) until 12+ months of data.
+**Recommendation: (judgement)** Start Option D; migrate to Option A at scale if audit value proven. Avoid Option C until 12+ months data.
 
----
+### 4. 8-Week MVP
 
-### 4. 8-Week MVP: Scope & Bundling Strategy
+**Deliverables:**
+1. **Open Mandate Spec** (JSON schema + HTTP API): `{agent_id, buyer_id, supplier_id, items, max_total, approval_req, timestamp, sig}`; endpoints: POST /mandate, GET /mandate/{id}, POST /appeal. (~2 weeks)
 
-**Core Deliverables:**
-1. **Open Mandate Spec** (JSON schema + HTTP API): Agent identity → intent (items, qty, budget, approval threshold) → supplier → execution log.
-   - Schema: `{agent_id, buyer_id, supplier_id, items: [{sku, qty, max_price}], max_total, approval_req: true/false, timestamp, sig}` (~1 week)
-   - HTTP endpoints: POST /mandate, GET /mandate/{id}, POST /appeal (~1 week)
+2. **Reference Implementation** (HVAC): Mock supplier API accepting signed mandates; Python SDK for buyers. (~2 weeks)
 
-2. **Reference Implementation** (one vertical; HVAC parts distributor):
-   - Mock supplier API (test endpoint accepting signed mandates; rejects if >budget or no KYB) (~2 weeks)
-   - Buyer-side Python SDK to sign + submit mandates (~1 week)
+3. **Hosted Audit Ledger** (immutable): Supabase + pgaudit; API: GET /ledger?buyer_id=X&supplier_id=Y. (~2.5 weeks)
 
-3. **Hosted Audit Ledger** (immutable log + read API):
-   - SQLite + immutable append (Supabase + pgaudit or AWS QLDB) (~1.5 weeks)
-   - API: GET /ledger?buyer_id=X&supplier_id=Y (returns all mandate events: submitted, approved, appealed, executed) (~1 week)
+4. **Vertical Agent Bundle** (HVAC parts): Claude + tool calling; generates mandate JSON → calls POST /mandate → manual supplier approval → PO confirmation. (~2 weeks)
 
-4. **Bundled Inside Vertical Agent** (HVAC parts purchasing agent for small contractors):
-   - Reuse existing agentic-purchasing scaffolding (Claude + tool calling)
-   - Agent generates mandate JSON → calls POST /mandate → awaits supplier approval (manual for MVP) → returns PO confirmation (~1.5 weeks)
-   - Manual approval loop: supplier sees mandate in UI, clicks "approve" or "appeal" (~1 week)
-
-**Effort Estimate:** 10 weeks for 2 engineers (compress to 8 by deferring appeal workflow + detailed monitoring).
-
-**MVP Success Criteria:**
-- Spec published as open GitHub repo (no paywalls)
-- 3 HVAC distributors accept unsigned pilot mandates (manual approval, no crypto)
-- Audit ledger logs 50+ events with 0 dropped records
-- Vertical agent executes 10 end-to-end POs in 2-week pilot
-
----
+**Effort:** 8–10 weeks, 2 engineers, $80–120k. **Success criteria:** Spec in open repo; 3 HVAC distributors accept unsigned pilot mandates; 50+ audit events; 10 end-to-end POs.
 
 ### 5. Timing, Risks, Kill Criteria, Verdict
 
-**Riskiest Assumption:**
-> Suppliers will accept agent-signed mandates (cryptographic or simple bearer tokens) as valid authorization for credit extension and RFQ response, without requiring human-in-the-loop approval.
+**Riskiest Assumption:** Suppliers accept agent-signed mandates as valid authorization for credit extension and RFQ response without human approval. If not, agent speed advantage evaporates.
 
-**Why it Matters:** If suppliers demand human approval on every mandate, the speed advantage of agents evaporates; the ledger becomes a logging system, not a trust primitive.
+**Cheapest Test (1–2 weeks, <$5k):** Email 10 HVAC distributors: "Accept JSON mandate signed by buyer for $500–2k orders, no human approval?" Measure: response rate, pilot willingness, liability objections. If >3 yes → proceed MVP. If <1 yes → skip.
 
-**Cheapest Test (1–2 weeks, <$5k cost):**
-1. Email 10 HVAC distributors: "We're building an audit log for agent purchases. Will you accept a JSON mandate signed by your buyer, no human approval, as valid authorization for $500–$2,000 orders?"
-2. Measure: (a) response rate, (b) willingness to pilot, (c) liability/insurance objections.
-3. If >3 say yes → proceed to MVP; if <1 say yes → skip this idea.
+**Kill Criteria:**
+- **NO-GO:** <3 suppliers willing to pilot in month 1, OR insurance/liability costs >$20k/year.
+- **NARROW:** Suppliers accept but only <$500/order (too small). Pivot to expense-card, not procurement.
+- **BUILD INSIDE VERTICAL:** Mandate validated, but standalone defensibility low. Merge into HVAC/MRO agent; $200–500k ARR (bundled), not $1M+ standalone.
+- **GO:** 5+ suppliers accept; appeal rate <5%; ledger used in ≥1 dispute. Proceed Series A ("open mandate standard + trusted audit ledger").
 
-**Kill Criteria (GO / NO-GO):**
-- **NO-GO:** Fewer than 3 suppliers willing to pilot in first month, OR suppliers demand insurance/liability indemnity that costs >$20k/year to carry.
-- **NARROW:** Suppliers willing to accept mandates, but only with <$500 per-order limit (too small to drive economics); pivot to SMB expense-card vs. procurement agent.
-- **BUILD INSIDE VERTICAL AGENT:** Mandate logic is validated (suppliers accept it), but standalone defensibility is low. Merge this as a feature of the HVAC/MRO vertical agent; do not spin it out as an API platform. Estimated final ARR: $200–500k (bundled into agent pricing), not $1M+ standalone.
-- **GO:** 5+ suppliers accept mandates in pilot; appeal rate <5%; audit ledger used in ≥1 dispute resolution. Proceed to Series A positioning (positioning as "open mandate standard + trusted audit ledger for agent B2B trades").
-
-**Timeline & Risks:**
-- **2026 Q4 (8 weeks to MVP):** Spec + ref implementation + 1 vertical pilot. Cost: $80–120k (2 eng + hosting). Risk: supplier cooperation slower than forecast.
-- **2027 Q1 (12 weeks to traction):** Launch pilot with 3–5 suppliers; collect event data; iterate on appeal workflow. Risk: Ramp, Natural, or hyperscalers ship free mandate layers (see #2), collapsing differentiation.
-- **Mitigation:** Lock in one vertical early (exclusive HVAC/plumbing distributor partnership); build supplier trust score (dataset others don't have).
+**Timeline:**
+- **2026 Q4:** Spec + MVP + vertical pilot. Risk: slow supplier cooperation.
+- **2027 Q1:** Scale to 3–5 suppliers; collect data. Risk: Ramp/Natural/hyperscalers ship free mandate layers.
+- **Mitigation:** Lock exclusive HVAC/plumbing partnership; build supplier trust score (unique dataset).
 
 **Verdict: NARROW (with GO pathway)**
 
-**Rationale:**
-1. **Momentum:** Skyfire, Natural, Nekuda, Payman are all active in agentic-payment rails (late 2024–2026); mandate-layer is the next logical step. First-mover on the spec has value.
-2. **Defensibility Risk:** Platforms will absorb (see #2); margin is compressed. Vertical bundling (inside agent) is safer than standalone API.
-3. **Supplier Adoption:** Email test (cheapest validation) is non-negotiable; do not skip. Assume 30–40% response rate, 10–20% pilot willingness—enough to proceed, not enough to bet the company.
-4. **Path Forward:** 
-   - **If pilot succeeds:** Rebrand as "audit ledger for agentic B2B," add to HVAC/MRO agent, position for acquisition by SAP/Dynamics by 2028.
-   - **If pilot fails:** Candidate for consolidation into existing vertical agent (not a standalone product).
+**Rationale:** (1) Momentum: payment rails active 2024–26; mandate is next. First-mover on spec has value. (2) Defensibility risk: platforms absorb; vertical bundling safer than standalone API. (3) Supplier adoption: email test non-negotiable. 30–40% response rate, 10–20% pilot willingness = enough to proceed, not enough to bet company. (4) Path: pilot succeeds → acquisition-ready by SAP/Dynamics 2028; fails → fold into vertical agent (not standalone).
 
-**Next Step:** Email HVAC distributors this week (by 2026-10-09). If >2 express interest, green-light MVP. Else, defer mandate feature to 2027 and focus vertical agent on end-to-end purchasing (sourcing + ordering, no audit layer).
+**Next Step:** Email HVAC distributors by 2026-10-09. If >2 express interest, green-light MVP. Else defer mandate to 2027; focus vertical agent on sourcing + ordering (no audit layer).
 
 ---
 
 ### Not Verified:
-- Crossmint funding amount and latest mandate/B2B roadmap (primary pages returned 403).
-- Pactum's internal adoption of agent-signed mandates (claimed for seller agents; buyer-side agent mandate integration not found).
-- Klaimee's exact coverage terms for "agent signed wrong-PO" scenarios (not detailed in search results).
-- Tradeshift / Basware agent-mandate capabilities in 2026 (may have shipped; not surfaced in web search).
+- Crossmint funding amount, B2B roadmap (403 on primary pages).
+- Pactum agent-signed mandate adoption (claimed for sellers; buyer integration not found).
+- Klaimee coverage for "agent signed wrong-PO" (not in search results).
+- Tradeshift/Basware agent-mandate features in 2026 (may exist; not surfaced).
 
 ---
 
 **Sources:**
-- [Natural $30M Series A (TechCrunch 2026-07-20)](https://techcrunch.com/2026/07/20/natural-raises-30m-to-reinvent-payments-for-ai-agents-and-take-on-stripe/)
-- [Skyfire Payment Rails (Introducing Skyfire, BusinessWire 2024-08-21)](https://www.businesswire.com/news/home/20240821247203/en/Introducing-Skyfire-Payment-Rails-for-AI)
-- [Payman AI Funding (Tracxn, 2026)](https://tracxn.com/d/companies/payman-ai/__NSTYOZtZdNiGZxC0Vkul0dzUfj3ZUgPqDRNO08pHBUE)
-- [Nekuda $5M Seed (BusinessWire 2025-05-14)](https://www.businesswire.com/news/home/20250514808097/en/Nekuda-Raises-$5M-Led-by-Madrona-Together-with-Amex-Ventures-and-Visa-Ventures-to-Power-Agentic-Payments)
-- [Crossmint Agentic Payments Platform](https://www.crossmint.com/solutions/agentic-payments)
-- [Pactum (pactum.com Clients)](https://pactum.com/clients)
-- [Klaimee Insurance (FinanceX Mag)](https://www.financexmagazine.com/post/who-insures-the-ai-the-insurtech-week-that-answered-a-question-nobody-wanted-to-ask)
-- [Tradeshift B2B Network (Tradeshift.com)](https://tradeshift.com/products/b2b-ecommerce-marketplace/)
-- [Basware AP Automation (Basware.com)](https://www.basware.com/)
-- [Peppol Access Points (OpenBankingTracker Guide)](https://www.openbankingtracker.com/guides/peppol)
-- [Ramp Agent Cards (PYMNTS 2026-03-11)](https://www.pymnts.com/news/b2b-payments/2026/ramp-launches-ai-agents-to-automate-corporate-procurement/)
-- [Adjacent Whitespace Research (10-adjacent-whitespace.md, this project)](https://github.com/ai-commerce-ideas/research/raw/10-adjacent-whitespace.md)
-- [Tech & Venture Signals (06-tech-and-venture.md, this project)](https://github.com/ai-commerce-ideas/research/raw/06-tech-and-venture.md)
+[Natural](https://techcrunch.com/2026/07/20/natural-raises-30m-to-reinvent-payments-for-ai-agents-and-take-on-stripe/) | [Skyfire](https://www.businesswire.com/news/home/20240821247203/en/Introducing-Skyfire-Payment-Rails-for-AI) | [Payman](https://tracxn.com/d/companies/payman-ai/__NSTYOZtZdNiGZxC0Vkul0dzUfj3ZUgPqDRNO08pHBUE) | [Nekuda](https://www.businesswire.com/news/home/20250514808097/en/Nekuda-Raises-$5M-Led-by-Madrona-Together-with-Amex-Ventures-and-Visa-Ventures-to-Power-Agentic-Payments) | [Crossmint](https://www.crossmint.com/solutions/agentic-payments) | [Pactum](https://pactum.com/clients) | [Klaimee](https://www.financexmagazine.com/post/who-insures-the-ai-the-insurtech-week-that-answered-a-question-nobody-wanted-to-ask) | [Tradeshift](https://tradeshift.com/products/b2b-ecommerce-marketplace/) | [Basware](https://www.basware.com/) | [Peppol](https://www.openbankingtracker.com/guides/peppol) | [Ramp](https://www.pymnts.com/news/b2b-payments/2026/ramp-launches-ai-agents-to-automate-corporate-procurement/)
