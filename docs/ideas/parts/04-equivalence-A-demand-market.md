@@ -57,20 +57,16 @@ Sources: [Akeneo pricing](https://www.selecthub.com/p/pim-software/akeneo/), [Sa
 - **Industrial Data Management (broader)**: USD 99.55B in 2026 → USD 181.8B by 2030 at 16.2% CAGR; manufacturing accounts for 11% of data enrichment investments. [Research and Markets](https://www.researchandmarkets.com/reports/6255190/industrial-data-management-market-report)
 
 ### MRO/Industrial Parts Distribution
-- **Global MRO market**: USD 450.5B (2026) per Mordor Intelligence; distribution-only segment USD 59.4B (2026) growing to USD 96.0B (2033) at 7.1% CAGR. [Mordor](https://www.mordorintelligence.com/industry-reports/maintenance-repair-operations-mro-industry), [Persistence Market Research](https://www.persistencemarketresearch.com/market-research/mro-distribution-market.asp)
-- **US MRO addressable**: ~USD 200B with Grainger at ~7% share; top 5 distributors = 25-30% of global market. [Morningstar](https://www.morningstar.com/company-reports/1135036-grainger-continues-to-outshine-the-us-mro-market-in-its-latest-earnings-print)
+- **Global MRO market**: USD 450.5B (2026); distribution-only USD 59.4B growing to USD 96.0B (2033) at 7.1% CAGR. [Mordor](https://www.mordorintelligence.com/industry-reports/maintenance-repair-operations-mro-industry)
+- **US MRO**: ~USD 200B addressable with top 5 distributors holding 25-30% share. [Morningstar](https://www.morningstar.com/company-reports/1135036-grainger-continues-to-outshine-the-us-mro-market-in-its-latest-earnings-print)
 
 ### Bottom-Up Sizing (est.)
-Assumptions:
-- **Buyers**: ~2,500 active mid-market & enterprise distributors + 500 large manufacturers globally
+- **Buyers**: ~2,500 mid-market & enterprise distributors + 500 large manufacturers globally
 - **SKUs per buyer**: 500k–2M average
-- **Enrichment cost per SKU**: $0.25–0.50 (blended, normalized attributes + equivalence graph)
-- **Annual touch-rate**: 10–20% of SKUs (new adds, obsolescence updates)
+- **Enrichment cost per SKU**: $0.25–0.50 (normalized attributes + equivalence)
+- **Annual touch-rate**: 10–20% of SKUs
 
-Calculation:
-- 2,500 distributors × 1M avg. SKUs × $0.35/SKU × 15% annual refresh = **USD 131M/year** (est.)
-- 500 manufacturers × 500k SKUs × $0.35 × 15% = **USD 13M/year** (est.)
-- **Total enrichment + equivalence graph revenue: USD 144M–200M/year (est.)** in an addressable industrial+MRO segment, assuming 15-25% of distributors and 10% of large manufacturers adopt.
+**Calculation**: 2,500 distributors × 1M SKUs × $0.35 × 15% = USD 131M; 500 manufacturers × 500k × $0.35 × 15% = USD 13M. **Total: USD 144M–200M/year addressable** (assuming 15-25% distributor adoption).
 
 ### Buyer Willingness-to-Pay Evidence
 - **Contingency-fee precedent**: Contract-leakage recovery vendors (Dobs.ai, Rivio) show buyers will pay 5-15% of recovered savings; equivalence matching could unlock 2-5% procurement tail-spend savings (USD 4B–40B at scale, implying willingness to pay USD 200M–2B). [Tellius](https://www.tellius.com/resources/blog/best-ai-procurement-software-in-2026-spend-intelligence-value-recovery-compared)

@@ -2,37 +2,29 @@
 
 ## 1. Top 8 Risks (Ranked)
 
-1. **Counterfeit/grey-market parts liability** (judgement: highest impact)
-   - Risk: Hardware startups and EMS buyers face "influx of grey-market counterfeits, brokers and unauthorized traders liquidating hoarded stockpiles" ([Astute Group](https://www.astutegroup.com/news/general/counterfeit-component-risks-rise-as-export-enforcement-tightens/); 2026). Counterfeit failures "erode trust and lead to warranty claims or liability exposure" and "organizations operating in regulated industries may face financial penalties or blacklisting" ([Astute Group](https://www.astutegroup.com/news/aerospace/counterfeit-aerospace-components-case-raises-supply-chain-risks/)).
-   - Buyer trust: agent must label each part source (authorized distributor, broker, grey market) and escalate grey-market recommendations for human approval.
+1. **Counterfeit/grey-market parts & liability** (highest impact)
+   Grey-market counterfeits pose "warranty claims or liability exposure" ([Astute Group](https://www.astutegroup.com/news/general/counterfeit-component-risks-rise-as-export-enforcement-tightens/)). Mitigation: agent must label part source and escalate grey-market for human approval.
 
-2. **Distributor data/API lock-in and terms restrictions**
-   - Nexar API terms prohibit "selling, renting, sublicensing...or otherwise transferring...without Altium's prior written consent" and ban "mass aggregation of Altium data for predictive analytics" without consent ([Nexar Legal](https://nexar.com/api/legal)).
-   - Risk: agent cannot resell pricing intelligence or build proprietary cross-reference models without licenses. Moat moves to ERP integration and approval workflows, not data.
+2. **API lock-in and data terms restrictions**
+   Nexar API prohibits "mass aggregation for predictive analytics" without consent ([Nexar Legal](https://nexar.com/api/legal)). Moat moves to ERP integration and approval workflows, not data resale.
 
 3. **Tariff/export-control cost shock**
-   - As of Feb 2026, China-origin semiconductor ICs face 50% duty under Section 301 + 10% Section 122 surcharge = 65% effective rate ([Morgan Lewis](https://www.morganlewis.com/pubs/2026/01/bis-revises-export-review-policy-for-advanced-ai-chips-destined-for-china-and-macau); [Congress.gov](https://www.congress.gov/crs-product/LSB11409)). Jan 2026 AI chip tariff added 25% on narrow semiconductor categories.
-   - Risk: sudden landed-cost swings make agent forecasts stale; BOM costs can spike 15-30% overnight. EMS buyers hedge by locking in lead-time contracts; agent must surface cost-lock decisions early.
+   Feb 2026: China ICs face 65% effective duty (50% Section 301 + 10% Section 122 surcharge) ([Congress.gov](https://www.congress.gov/crs-product/LSB11409)). BOM costs can spike 15–30% overnight. Agent must surface cost-lock decisions early.
 
-4. **Broker negotiation failure + allocation limits**
-   - Franchised distributors "prioritize long-term contract customers, leaving spot buyers to navigate a secondary market rife with risk" ([Sourcing Intelligence](https://sourcingint.com/blog/top-supply-chain-risks-for-electronic-components-in-2026-and-how-to-fix-them/)). Allocation: "suppliers limit how much buyers can purchase...requiring proof of real demand, early commitment, or switches to approved alternates" (same).
-   - Risk: agent cannot guarantee allocation on first-call; broker quotes may be real but unreliable for EMS production runs. Mitigation: pre-qualify brokers, flag allocation as pending, keep a backlog of alternates.
+4. **Broker allocation limits**
+   Distributors "prioritize long-term customers, leaving spot buyers in secondary markets rife with risk" ([Sourcing Intelligence](https://sourcingint.com/blog/top-supply-chain-risks-for-electronic-components-in-2026-and-how-to-fix-them/)). Agent cannot guarantee allocation; must pre-qualify brokers and flag pending.
 
-5. **Component spec matching and substitution errors**
-   - ShoppingBench (retail e-commerce): best models 48.2% absolute success ([AAAI 2026](https://arxiv.org/html/2508.04266v3)). Circuit-image component ID: ~54% F1 (https://arxiv.org/pdf/2606.20643). No public benchmark for B2B industrial cross-reference.
-   - Risk: wrong-part substitution stops assembly lines. Mitigation: label every substitution as "met / not-met / unknown" per design requirement; require human sign-off on form-fit-function changes.
+5. **Component spec matching errors**
+   ShoppingBench: 48.2% success rate ([AAAI 2026](https://arxiv.org/html/2508.04266v3)). Wrong-part substitution halts lines. Mitigation: label "met/not-met/unknown" per requirement; require human sign-off on substitutions.
 
 6. **Hardware startup low WTP / high churn**
-   - Individual hardware startups have small component orders; ACV <$10k (est.). Many startups fail within 18 months (est.). (judgement)
-   - Risk: acquisition cost high, retention hard. EMS and brokers (higher order volume, repeat business) are better beachhead than individual founders.
+   Individual startups: ACV <$10k. (judgement) Acquisition cost high, retention weak. EMS/brokers are better beachhead.
 
-7. **Aggregators already "agentic-ready" (Octopart, Z2Data)**
-   - Z2Data "markets AI agents that map affected parts and queue alternates" ([Z2Data](https://www.z2data.com/our-ai/)). Octopart/Findchips/Nexar have free or low-cost API tiers for basic matching.
-   - Risk: incumbent moat is data, not autonomy. Differentiation requires workflow (ERP write-back, approval policies, broker negotiation, lifecycle management) and vertical expertise, not better search.
+7. **Incumbent aggregators (Octopart, Z2Data)**
+   Z2Data already "maps affected parts and queues alternates" ([Z2Data](https://www.z2data.com/our-ai/)). Win via vertical expertise and approval workflows, not search.
 
-8. **Regulatory disclosure (EU AI Act, Article 50)**
-   - Article 50 transparency obligations apply "from Aug 2026" for chatbot/voice agents contacting suppliers in EU ([Usercentrics](https://usercentrics.com/knowledge-hub/eu-ai-act-high-risk-delay-article-50-transparency-consent/)).
-   - Risk: low for B2B agent (not high-risk per Annex III); moderate if agent uses voice calling. Disclose AI involvement in supplier contact or avoid EU-initiated voice calls.
+8. **EU AI Act, Article 50 disclosure**
+   Transparency required "from Aug 2026" for agents contacting EU suppliers ([Usercentrics](https://usercentrics.com/knowledge-hub/eu-ai-act-high-risk-delay-article-50-transparency-consent/)). Risk: low for B2B; moderate if voice calling used.
 
 ---
 

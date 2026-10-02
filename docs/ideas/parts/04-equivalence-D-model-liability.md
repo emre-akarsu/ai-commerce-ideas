@@ -74,12 +74,12 @@ Recommending an equivalent/substitute part that fails in a customer's production
 - Purpose-built AI E&O products (HSB, Armilla, Counterpart) are emerging but remain expensive and require strict accuracy controls ([RiskHelm, TianPan](https://tianpan.co/blog/2026/07/04/nobody-will-underwrite-your-agent)).
 
 **Recommended Disclaimers & Guardrails:**
-1. **Confidence Score per Suggestion:** Only surfaces equivalents >85% confidence; labels low-confidence (50–70%) as "review required" (assumption).
-2. **Warranty Caps:** "We warrant equivalence data is sourced from published specs, not field-tested. Customer assumes risk of final validation with supplier/end-user."
-3. **Exclusion of High-Consequence Uses:** Explicitly exclude use in safety-critical (aviation, medical devices, automotive brake systems) from warranty; require escalation to human sourcing agent.
-4. **Audit Trail & Approval Logging:** Document which substitute was offered, customer approval/override, and final order details; supports defense if claimed.
+1. **Confidence Scores:** Surfaces only >85% matches; flags low-confidence as "review required" (assumption).
+2. **Warranty Caps:** "Data sourced from specs, not field-tested; customer validates with supplier."
+3. **Exclude High-Consequence Uses:** Aviation, medical, automotive-safety excluded from warranty (assumption).
+4. **Audit Trail:** Log substitute offered, approval, and order for dispute defense.
 
-**Insurance Cost Estimate:** (assumption) Specialized AI E&O insurance for parts-data recommendations likely $0.5–$2M/yr (5–20% of revenue for a $10M ARR company), subject to loss history and customer vetting ([assumption]).
+**Insurance:** AI E&O insurance likely $0.5–$2M/yr (5–20% of revenue) ([assumption]).
 
 ---
 
