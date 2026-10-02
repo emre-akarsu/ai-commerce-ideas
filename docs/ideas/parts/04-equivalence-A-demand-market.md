@@ -86,6 +86,6 @@ The adjacent-whitespace research cited: "Over 60% of industrial ERP records lack
 
 ## Conclusion
 
-**Demand is clear**: Distributors, manufacturers, and agent-platform builders all need credible, multi-vendor equivalence data. **Pricing evidence shows** mid-market buyers pay $25-90k/year for PIM alone; adding equivalence graph + cross-reference as an API would plausibly command $50-250k/year at scale. **Market sizing** suggests USD 140-200M+ addressable in industrial/MRO enrichment within 3-5 years if 20% of distributors adopt.
+**Demand**: Distributors, manufacturers, and agent platforms need multi-vendor equivalence data. Mid-market buyers pay $25-90k/year for PIM; equivalence APIs could command $50-250k/year. **Market**: USD 140-200M+ addressable in industrial/MRO if 20% adopt.
 
-**Fastest path to evidence**: Interview 10-15 mid-market distributors (Motion, Applied, regional bearing wholesalers) on willingness to pay for a neutral equivalence graph; validate the 60% data-gap claim via a procurement audit at one customer site.
+**Next step**: Validate via distributor interviews and procurement audits.

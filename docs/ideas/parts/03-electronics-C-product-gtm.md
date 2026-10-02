@@ -20,19 +20,19 @@ Date: 2026-10-02
 
 **Three substitution dimensions:**
 
-1. **Parametric equivalence:** Identical headline specs (capacitance, voltage, tolerance, package) but divergent real-world performance ([per Z2Data](https://www.z2data.com/insights/why-electronic-components-alternative-search-is-quietly-reshaping-hardware-design)). Thermal derating curves diverge at higher temps; noise floor in sensitive circuits may fail undetected. **Eval target:** Accuracy on manufacturer cross-references (Digi-key vs. Mouser listings) >95%.
+1. **Parametric equivalence:** Same headline specs (capacitance, voltage, tolerance, package) but divergent real-world performance ([Z2Data](https://www.z2data.com/insights/why-electronic-components-alternative-search-is-quietly-reshaping-hardware-design)). Thermal derating curves diverge at higher temps; noise may fail in sensitive circuits. **Eval:** Cross-reference accuracy >95%.
 
-2. **Form-fit-function:** Physical fit (BGA, DIP pincount), circuit board routing, thermal path. [Lifecycle management requires PCN tracking](https://luminovo.com/resources/blog/guide-electronics-component-lifecycle-obsolescence-management) to flag production change notices upstream. **Eval target:** False-positive substitution rate <5% (customer manual override).
+2. **Form-fit-function:** Physical fit (BGA, DIP pincount), routing, thermal path. [PCN tracking](https://luminovo.com/resources/blog/guide-electronics-component-lifecycle-obsolescence-management) flags production changes upstream. **Eval:** False-positive rate <5%.
 
-3. **Lifecycle risk:** End-of-life (EOL), production discontinuance (PDN), allocation status. [Electronic component lifecycle monitoring](https://www.spartronics.com/how-component-lifecycle-management-protects-long-life-electronic-products/) protects long-life products. **Eval target:** Flag at-risk parts 8+ weeks before declared EOL.
+3. **Lifecycle risk:** EOL, PDN, allocation status. [Lifecycle monitoring](https://www.spartronics.com/how-component-lifecycle-management-protects-long-life-electronic-products/) protects long-life products. **Eval:** Flag at-risk parts 8+ weeks before EOL.
 
-**Existing tools (pricing, limitations):**
-- [Z2Data](https://www.z2data.com/): AI agents map affected parts and queue alternates; pricing not publicly disclosed (assumption: >$25k/yr enterprise tier based on SoftwareAdvice entry). Already moving upstack into workflow.
-- [SiliconExpert](https://www.siliconexpert.com/design-right/): $2,500–$5,000/yr for component intelligence data ([sourced](https://www.softwareadvice.com/product/497049-Supply-Chain-Watch/)). Priced per annual part query; scales with BOM size.
-- [Accuris (Altium partner)](https://resources.altium.com/p/managing-component-obsolescence): Embedded in Altium 365 workflows; pricing bundled. Lifecycle forecasting is core (assumption: targeting design-time risk, not sourcing agents).
-- Supplier-native APIs (DigiKey, Mouser): Free evaluation tiers, enterprise rate-limited; terms on caching/resale unclear (assumption: restrictive for agent use).
+**Existing tools (pricing):**
+- [Z2Data](https://www.z2data.com/): >$25k/yr enterprise ([est.](https://www.softwareadvice.com/product/497049-Supply-Chain-Watch/)).
+- [SiliconExpert](https://www.siliconexpert.com/design-right/): $2.5–5k/yr per annual part query ([sourced](https://www.softwareadvice.com/product/497049-Supply-Chain-Watch/)).
+- [Accuris (Altium)](https://resources.altium.com/p/managing-component-obsolescence): Bundled in Altium 365 (assumption: design-time focused, not sourcing).
+- Supplier APIs (DigiKey, Mouser): Free tiers, enterprise rate-limited; terms on caching unclear (assumption: restrictive).
 
-**Buyer-side agent angle:** Open competitive moat is workflow (concierge → autonomy, ERP write-back, approval rules), not data. Differentiation: rule-checked substitution + supplier negotiation + lifecycle alerts.
+**Moat:** Workflow (concierge → autonomy, ERP write-back, approvals), not data. Differentiation: rule-checked substitution + broker negotiation + lifecycle alerts.
 
 ---
 

@@ -95,13 +95,13 @@ Recommending an equivalent/substitute part that fails in a customer's production
 
 **Payback Period:** 12–15 months median; elite SaaS firms hit <12 months ([SaaS Hero](https://www.saashero.net/strategy/saas-cac-benchmarks-2026/)).
 
-**LTV:CAC Ratio Target:** 3:1 to 5:1 healthy; your Model B (~$12k ARR, 3-yr LTV ~$30k–$35k) gives 2.5–3:1, **marginal** ([09-business-model](../../../research/raw/09-business-model.md), Section 9).
+**LTV:CAC Ratio:** 3:1–5:1 healthy; Model B gives ~2.5–3:1 (marginal).
 
-### Distributor-Specific Insights
+### Distributor Sales Channel
 
-**Acquisition Channel:** Direct sales or channel partnerships with CMMS/procurement vendors (UpKeep, Fiix, MaintainX). These integrate parts-sourcing; selling embedded API access avoids long independent sales cycles (assumption).
+**Acquisition:** Direct sales or channel via CMMS vendors (UpKeep, Fiix) shortens cycles vs. independent sales (assumption).
 
-**Willingness to Pay:** Distributors monetize data through increased order volume and precision (fewer mis-picks, faster fulfillment). 5–10% margin increase on parts volume would justify $20k–$50k/yr platform cost. No primary evidence found; based on Grainger 39% gross margin ([MDM](https://www.mdm.com/news/top-distributor-sectors/contractor/grainger-issues-robust-outlook-after-4q-sales-margins-top-market-expectations/), and the value of reduced returns/errors (assumption).
+**Willingness to Pay:** Distributors justify $20k–$50k/yr if equivalence API enables 5–10% margin gain per order through reduced returns/mis-picks. No primary data; assumption based on Grainger 39% gross margin.
 
 ---
 

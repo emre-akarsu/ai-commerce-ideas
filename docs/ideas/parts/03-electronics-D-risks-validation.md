@@ -30,13 +30,13 @@
 
 ## 2. Legal Framework
 
-**Counterfeit liability:** No standardized liability allocation in B2B procurement yet (unlike consumer e-commerce). Define in terms of service: (a) agent searches only authorized distributors unless explicitly approved by buyer; (b) buyer assumes liability for broker/grey-market approvals; (c) agent logs all part sources and approvals. (judgement)
+**Counterfeit liability:** No standardized B2B allocation yet. Define in ToS: agent searches authorized distributors unless buyer-approved; buyer assumes broker/grey-market liability; agent logs all sources. (judgement)
 
-**Export controls & tariffs:** Buyer remains liable for final destination and end-use compliance. Agent must NOT make country-of-destination decisions; flag high-tariff lines for human review. Cite realized tariff rates at query time per trade sources ([Congress.gov](https://www.congress.gov/crs-product/LSB11409); [Morgan Lewis](https://www.morganlewis.com/pubs/2026/01/bis-revises-export-review-policy-for-advanced-ai-chips-destined-for-china-and-macau)).
+**Export controls:** Buyer liable for final destination/end-use. Agent flags high-tariff lines for review, does not make country decisions. Cite tariff rates ([Congress.gov](https://www.congress.gov/crs-product/LSB11409)).
 
-**API data terms:** Nexar and Mouser APIs restrict mass aggregation of pricing or predictive use without consent ([Nexar Legal](https://nexar.com/api/legal)). Agent can surface real-time pricing; cannot build proprietary pricing-trend models or sell cross-reference mappings.
+**API data terms:** Nexar/Mouser restrict mass aggregation without consent ([Nexar Legal](https://nexar.com/api/legal)). Agent can surface pricing; cannot build proprietary models.
 
-**E&O insurance:** Engage broker on agent-generated procurement errors (wrong-part orders, delivery delays). Coverage amount TBD pending buyer segment (est. $1-5M umbrella).
+**E&O insurance:** ~$1–5M umbrella for agent-generated errors (est.).
 
 ---
 
