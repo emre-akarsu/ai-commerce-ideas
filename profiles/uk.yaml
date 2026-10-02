@@ -1,0 +1,40 @@
+# United Kingdom deployment (England and Wales). Values come from research/uk/* (see docs/uk/).
+# Not legal advice: a UK solicitor must review legal.*, retention.* and the DPA before go-live.
+extends: base
+description: United Kingdom (GBP, ex-VAT B2B quotes, working-day lead times, UK GDPR/PECR)
+locale:
+  region: GB
+  language: en-GB
+  timezone: Europe/London
+  date_format: "%d/%m/%Y"
+  working_week: [0, 1, 2, 3, 4]
+  holidays: []        # TODO: load UK bank holidays from GOV.UK; empty means weekends only (unverified)
+money:
+  base_currency: GBP
+  accepted_currencies: [GBP, EUR, USD]
+  symbol_map: { "£": GBP, "€": EUR, "US$": USD }
+  bare_dollar_currency: null      # a bare "$" is ambiguous in UK quotes: never assumed
+  assumed_currency: flag_require_approval
+tax:
+  name: VAT
+  standard_rate: "0.20"           # UK standard rate; confirm before each tax year
+  quote_basis_default: ex_tax     # UK B2B trade quotes are normally ex-VAT (research/uk/02)
+  unknown_basis: assume_default_flag
+lead_time: { default_unit: working_days }   # trade norm: next working day, 15:00 cut-off (research/uk/02)
+legal:
+  jurisdiction: England and Wales (UK)
+  contact_data_regime: "UK GDPR, Data Protection Act 2018, PECR; consult a UK solicitor"
+  disclosure_footer: "Prepared with an AI assistant on behalf of {buyer}. It cannot accept terms or place orders; only a purchase order from {buyer} binds."
+  notices:
+    - "RFQs are transactional business requests. The product must not be used for marketing email (PECR)."
+    - "Quotes are treated as ex-VAT unless stated. The construction reverse charge is not determined by the product."
+    - "UKCA/CE and authenticity status are vendor-declared and not verified by the product."
+retention:
+  raw_email_days: 90
+  po_records_years: 6             # HMRC record-keeping horizon cited in research/uk/04; confirm with an adviser
+  audit_years: 6
+approvals: { threshold: "500" }   # placeholder in GBP, not derived from UK data; set per customer
+parts: { enabled_families: [deep_groove_ball_bearing, v_belt], standards: ["ISO 15"] }
+billing: { currency: GBP, prices_include_tax: false }
+ui: { language: en-GB }
+features: { photo_intake: false, phone_sms_scripts: true, down_now_mode: true }

@@ -179,6 +179,7 @@ class ExtractedQuote(_Frozen):
     offered_mpn: str | None = None
     condition: str | None = None  # new / remanufactured / surplus ...
     authenticity_claim: str | None = None
+    tax_text: str | None = None  # raw wording such as "+ VAT", "inc. VAT", "exclusive of tax"
 
 
 class Quote(_Frozen):
@@ -187,7 +188,10 @@ class Quote(_Frozen):
     rfq_id: str
     vendor_id: str
     version: int = 1
-    unit_price_each: Decimal | None = None  # normalised via UoM
+    unit_price_each: Decimal | None = None  # normalised via UoM; EX-TAX once basis is known
+    unit_price_quoted: Decimal | None = None  # as stated by the vendor (per each, before tax conversion)
+    tax_basis: str = "unknown"  # "ex_tax" | "inc_tax" | "unknown" (profile decides handling)
+    tax_rate: Decimal | None = None  # rate applied when converting inc_tax -> ex_tax
     currency: str | None = None
     uom_raw: str | None = None
     moq: int | None = None

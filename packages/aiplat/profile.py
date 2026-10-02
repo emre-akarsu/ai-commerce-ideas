@@ -5,7 +5,7 @@ Config can TIGHTEN or LOCALISE behaviour; it can never loosen the hard rules. Sa
 (R1-R12) have no config keys at all, and the validators below reject values that would weaken them
 (e.g. an empty AI-disclosure footer, enabling cold marketing email, auto-enabled follow-ups).
 
-Usage:  profile = load_profile("uk")            # ResolvedProfile (immutable, hashed, with provenance)
+Usage:  profile = load_profile("uk")   # ResolvedProfile (immutable, hashed, with provenance)
         python -m aiplat.profile validate uk | show uk | diff us uk
 """
 

@@ -40,11 +40,11 @@ Implication: Approval workflows, quote management, and parts ordering often live
 
 ### T6. UK AI adoption low for autonomous buying
 
-**54% of UK businesses using AI (2025 BCC):** Rise from 35% in 2024. B2B services lead (46%) vs manufacturers (26%). Only 11% use AI to automate operations "to great extent"; 42% "to some extent." 60% of usage is content creation; 49% research. Virtually no headcount impact (95% report no change). https://profiletree.com/ai-adoption-rates-in-uk-smes-2025-survey-insights/
+**54% using AI (2025 BCC):** Rise from 35% in 2024. B2B services 46% vs manufacturers 26%. Only 11% automate operations "to great extent"; 60% usage is content creation. No headcount impact (95% report no change). https://profiletree.com/ai-adoption-rates-in-uk-smes-2025-survey-insights/
 
-**Consumer AI trust dire; B2B trust unclear:** Only 19% of UK consumers trust AI for everyday purchasing; 60% abandon AI agent after one mistake. Only 9% comfortable with autonomous payment. Procurement-specific trust data not found in UK sources; US 47% comfortable with agent research + recommend + human decide likely applies. https://itbrief.co.uk/story/uk-shoppers-wary-of-ai-making-purchases-survey-finds
+**Consumer trust in AI agents: 19% only.** 60% abandon agent after one error; 9% comfortable with autonomous payment. https://itbrief.co.uk/story/uk-shoppers-wary-of-ai-making-purchases-survey-finds
 
-**Implication:** "Comparable quotes + human approval" model aligns with both consumer distrust of autonomy and actual low deployment (11% automating ops).
+**Implication:** "Quotes + human approval" aligns with low automation adoption (11%) and consumer distrust.
 
 ### T7. Vendor reviews — mixed UK experiences
 

@@ -35,3 +35,7 @@ Tables use primary key `(tenant_id, id)` so ids are not an existence oracle acro
   (id, version, fingerprint) from the `QUOTE_SELECTED` transition event and candidates from a
   `candidates.found` event. A typed `Selection`/`CandidateSet` record in `domain.py` would be
   simpler to query in SQL.
+
+
+## 2026-10-02 (lead): tax basis on quotes (deployment profiles)
+Additive, defaulted fields so stored data stays valid: `ExtractedQuote.tax_text`; `Quote.unit_price_quoted`, `Quote.tax_basis` ("ex_tax"|"inc_tax"|"unknown"), `Quote.tax_rate`. `Quote.unit_price_each` is the EX-TAX price once the basis is known, so comparison stays like-for-like. Reason: UK (and most non-US) B2B quotes are ex-VAT by norm and may state VAT inclusively; the active deployment profile (`aiplat.profile`) decides the default basis, rate and handling of unknown basis.
