@@ -307,7 +307,7 @@ def test_rule_match_without_a_published_source_is_tier_c_and_hidden_by_default()
 
 
 def test_tier_b_needs_both_a_source_and_a_date():
-    from components.parts.equivalence.catalogue import Catalogue, CatalogPart, CrossRef
+    from components.parts.equivalence.catalogue import CatalogPart, Catalogue, CrossRef
 
     def part(mpn: str, mfr: str) -> CatalogPart:
         return CatalogPart(

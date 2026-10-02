@@ -25,3 +25,18 @@ def upgrade(url: str, revision: str = "head") -> None:
 
 def downgrade(url: str, revision: str = "base") -> None:
     command.downgrade(alembic_config(url), revision)
+
+
+def create_tenant(admin_url: str, tenant_id: str, name: str = "") -> None:
+    """Provision a tenant. Admin/owner role only: app_user cannot insert into ``tenants``."""
+    from sqlalchemy import create_engine, text
+
+    engine = create_engine(to_sa_url(admin_url))
+    try:
+        with engine.begin() as conn:
+            conn.execute(
+                text("INSERT INTO tenants (id, name) VALUES (:i, :n) ON CONFLICT DO NOTHING"),
+                {"i": tenant_id, "n": name},
+            )
+    finally:
+        engine.dispose()
