@@ -26,6 +26,9 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any, Generic, TypeVar
 
+from sqlalchemy import Connection, Engine, Table, delete, insert, select, text, update
+from sqlalchemy.exc import DBAPIError, IntegrityError
+
 from components.core.domain import (
     RFQ,
     Approval,
@@ -53,8 +56,6 @@ from components.evidence.log import (
     _envelope,
     _to_jsonable,
 )
-from sqlalchemy import Connection, Engine, Table, delete, insert, select, text, update
-from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from . import models as m
 from .session import bound_tenant, tenant_session

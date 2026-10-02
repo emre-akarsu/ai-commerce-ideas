@@ -7,7 +7,7 @@ from sqlalchemy import create_engine, text
 from aidb import migrate
 from aidb.models import TABLES_BY_NAME, TENANT_TABLES
 from aidb.session import to_sa_url
-from tests.aidb.conftest import ADMIN_URL, _with_db
+from tests.aidb.conftest import ADMIN_URL, _with_db, ddl, root_engine
 
 
 def test_schema_matches_models_and_rls_forced_everywhere(admin_engine):
@@ -38,11 +38,10 @@ def test_app_user_is_not_privileged(admin_engine):
     assert not any(row)
 
 
-def test_upgrade_from_empty_and_downgrade():
+def test_upgrade_from_empty_and_downgrade(pg_db):
     name = f"aidb_mig_{uuid.uuid4().hex[:8]}"
-    root = create_engine(to_sa_url(ADMIN_URL), isolation_level="AUTOCOMMIT")
-    with root.connect() as c:
-        c.execute(text(f'CREATE DATABASE "{name}"'))
+    root = root_engine()
+    ddl(root, f'CREATE DATABASE "{name}"')
     url = _with_db(ADMIN_URL, name)
     try:
         migrate.upgrade(url)
@@ -62,6 +61,5 @@ def test_upgrade_from_empty_and_downgrade():
         migrate.upgrade(url)  # and back up again
         eng.dispose()
     finally:
-        with root.connect() as c:
-            c.execute(text(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)'))
+        ddl(root, f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)')
         root.dispose()

@@ -27,23 +27,31 @@ def _with_db(url: str, name: str, user: str | None = None) -> str:
     return f"{base}/{name}"
 
 
+def root_engine() -> Engine:
+    return create_engine(to_sa_url(ADMIN_URL))
+
+
+def ddl(root: Engine, sql: str) -> None:
+    """Run CREATE/DROP DATABASE (needs autocommit; set per connection, not on the engine)."""
+    with root.connect().execution_options(isolation_level="AUTOCOMMIT") as c:
+        c.execute(text(sql))
+
+
 @pytest.fixture(scope="session")
 def pg_db() -> Iterator[str]:
     try:
-        root = create_engine(to_sa_url(ADMIN_URL), isolation_level="AUTOCOMMIT")
+        root = root_engine()
         with root.connect() as c:
             c.execute(text("SELECT 1"))
     except Exception as exc:  # noqa: BLE001
         pytest.skip(f"Postgres unreachable at {ADMIN_URL} ({exc.__class__.__name__}); "
                     "run scripts/pg_dev.sh start or set AIDB_TEST_PG_URL")
     name = f"aidb_t_{uuid.uuid4().hex[:10]}"
-    with root.connect() as c:
-        c.execute(text(f'CREATE DATABASE "{name}"'))
+    ddl(root, f'CREATE DATABASE "{name}"')
     try:
         yield name
     finally:
-        with root.connect() as c:
-            c.execute(text(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)'))
+        ddl(root, f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)')
         root.dispose()
 
 

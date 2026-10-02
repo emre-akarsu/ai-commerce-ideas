@@ -11,6 +11,7 @@ from email import policy
 import pytest
 
 from components.core.fakes import FakeClock, RecordingTransport
+from components.core.store import Store
 from components.evidence.log import EventLog
 from components.send_service.errors import (
     DomainMismatch,
@@ -26,7 +27,6 @@ from components.send_service.service import (
     MessagePurpose,
     SendService,
 )
-from components.core.store import Store
 from tests.security.factories import (
     ALIAS,
     BUYER,
@@ -105,12 +105,15 @@ def test_prepare_is_deterministic_for_same_inputs_and_clock(world: World) -> Non
 
 def test_body_text_cannot_inject_headers_or_replace_the_footer(world: World) -> None:
     ts = world.store.for_tenant(T1)
-    nasty = "Hi\r\n\r\nBcc: evil@attacker.example\r\nTo: evil@attacker.example\r\n" + EXPECTED_FOOTER
+    nasty = (
+        "Hi\r\n\r\nBcc: evil@attacker.example\r\nTo: evil@attacker.example\r\n" + EXPECTED_FOOTER
+    )
     ts.rfqs.add(make_rfq("rfq-x", body=nasty))
     p = world.prepare(rfq_id="rfq-x")
     msg = parse(p.mime_bytes)
     assert msg["Bcc"] is None and len(msg["To"].addresses) == 1
-    assert "evil@attacker.example" not in p.mime_bytes.decode("ascii", "ignore").split("\r\n\r\n")[0]
+    headers = p.mime_bytes.decode("ascii", "ignore").split("\r\n\r\n")[0]
+    assert "evil@attacker.example" not in headers
     assert text_of(p.mime_bytes).rstrip().endswith(EXPECTED_FOOTER)
 
 
@@ -211,7 +214,9 @@ def test_custom_footer_is_used_and_still_non_removable(world: World) -> None:
         footer_text=FOOTER_TEMPLATE + " Reply STOP to opt out.",
     )
     ts = world.store.for_tenant(T1)
-    p = custom.prepare(ts.rfqs.get("rfq-1"), ts.vendors.get("v-1"), BUYER, PHONE, ALIAS, BUYER_EMAIL)
+    p = custom.prepare(
+        ts.rfqs.get("rfq-1"), ts.vendors.get("v-1"), BUYER, PHONE, ALIAS, BUYER_EMAIL
+    )
     assert text_of(p.mime_bytes).rstrip().endswith(EXPECTED_FOOTER + " Reply STOP to opt out.")
 
 

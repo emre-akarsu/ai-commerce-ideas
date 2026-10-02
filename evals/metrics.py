@@ -43,7 +43,7 @@ def zero_error_upper_bound(n: int, confidence: float = 0.95) -> float:
 
 
 def mcnemar_exact(b: int, c: int) -> float:
-    """Two-sided exact McNemar p-value from the discordant counts (b: A right/B wrong, c: reverse)."""
+    """Two-sided exact McNemar p-value from the discordant counts (b, c)."""
     if b < 0 or c < 0:
         raise ValueError("counts must be non-negative")
     n = b + c

@@ -306,7 +306,9 @@ class SendService:
             else {ApprovalKind.PER_MESSAGE, ApprovalKind.STANDING}
         )
         if approval.kind not in allowed:
-            raise WrongApprovalKind(f"{approval.kind.value} approval cannot send a {parsed.purpose}")
+            raise WrongApprovalKind(
+                f"{approval.kind.value} approval cannot send a {parsed.purpose.value}"
+            )
 
     def _resolve(self, parsed: ParsedMessage, tenant: str) -> _Context:
         ts = self._store.for_tenant(tenant)
@@ -404,7 +406,8 @@ class SendService:
             )
         except Exception as exc:
             self._log.append(tenant, ctx.request_id, "system", EVT_SEND_FAILED,
-                             {**base, "reason": "transport_error", "error_type": type(exc).__name__})
+                             {**base, "reason": "transport_error",
+                              "error_type": type(exc).__name__})
             raise TransportFailure("transport failed; delivery state unknown") from exc
         if not isinstance(message_id, str) or not message_id.strip():
             self._log.append(tenant, ctx.request_id, "system", EVT_SEND_FAILED,

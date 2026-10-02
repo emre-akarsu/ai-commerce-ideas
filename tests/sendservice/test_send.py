@@ -8,16 +8,16 @@ from decimal import Decimal
 
 import pytest
 
-from components.purchase_orders.approvals.service import (
-    ApprovalAction,
-    RuleLimitReached,
-    quote_fingerprint,
-)
 from components.evidence.log import (
     EVT_SEND_DELIVERED,
     EVT_SEND_FAILED,
     EVT_SEND_REFUSED,
     REDACTED,
+)
+from components.purchase_orders.approvals.service import (
+    ApprovalAction,
+    RuleLimitReached,
+    quote_fingerprint,
 )
 from components.send_service.errors import (
     DuplicateSend,

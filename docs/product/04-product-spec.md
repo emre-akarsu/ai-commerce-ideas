@@ -103,8 +103,8 @@ Families get added only with their own required-attribute table, source list wit
 ## 8. Evaluation requirements (statistically coherent)
 
 1. **Sets:** per family, a **dev** set (tuned against) and a **sealed test** set (≤ N runs/month, logged). Stratify by tier × missing-attribute × input type (typed text, photo, PO history) with near-miss pairs and a time split. Two blind experts, **κ ≥ 0.8**; disagreements adjudicated.
-2. **Sizes:** golden v0 (≥100 items) is a **smoke test only**. The release gate for a family needs **≥150 Tier-A/B items** (n≥298 to support <1%).
-3. **Gate metric:** the **upper 95% confidence bound of the critical-mismatch rate ≤ 2%** (Tier A/B); any single false Tier A is a release blocker and listed. Zero errors in n shows <5% only at n≈59 and <1% at n≈298.
+2. **Sizes:** golden v0 (≥100 items) is a **smoke test only**. The release gate for a family needs **≥150 Tier-A/B items** (n≥299 to support <1% (exact: ceil(ln 0.05 / ln 0.99) = 299)).
+3. **Gate metric:** the **upper 95% confidence bound of the critical-mismatch rate ≤ 2%** (Tier A/B); any single false Tier A is a release blocker and listed. Zero errors in n shows <5% only at n≈59 and <1% at n=299.
 4. **Calibration:** calibrated scores (ECE) rather than verbalised confidence; abstention precision/recall reported.
 5. **Extraction:** report **field-level and document-level** accuracy (three fields at 98% ≈ 94% per document); UoM, quantity breaks, currency, freight/tax separately; ≥300 quotes from ≥30 vendors including scans; field accuracy target ≥98% on price/qty/lead time, ungrounded values blanked.
 6. **Comparisons:** paired tests (McNemar) for model/prompt changes; no unexplained tolerance.

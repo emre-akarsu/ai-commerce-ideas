@@ -31,6 +31,9 @@ from typing import Any
 
 from itsdangerous import BadData, URLSafeSerializer
 
+from components.core.domain import Approval, ApprovalKind, Quote, StandingRule
+from components.core.ports import Clock
+from components.core.store import NotFoundError, Store
 from components.evidence.log import (
     EVT_APPROVAL_ISSUED,
     EVT_APPROVAL_TOKEN_CONSUMED,
@@ -40,9 +43,6 @@ from components.evidence.log import (
     EventLog,
     canonical_json,
 )
-from components.core.domain import Approval, ApprovalKind, Quote, StandingRule
-from components.core.ports import Clock
-from components.core.store import NotFoundError, Store
 
 _HEX64 = re.compile(r"^[0-9a-f]{64}$")
 _NON_HUMAN = frozenset({"agent", "system", "operator", "planner", "bot", "service"})

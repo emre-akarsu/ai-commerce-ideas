@@ -344,7 +344,7 @@ def test_unlocked_tiers_filter_offered_candidates():
     assert any(c.tier is Tier.D for c in only_a)  # D is always reported, never offered
 
 
-# ---------------------------------------------------------------- classify_offered on generic designations
+# ------------------------------------------------ classify_offered on generic designations
 
 
 def test_generic_offered_designation_with_all_attributes_is_tier_b():

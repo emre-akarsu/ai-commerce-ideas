@@ -90,6 +90,6 @@ class RecipientLimitExceeded(SendRefused):
 
 
 class TransportFailure(SendError):
-    """The transport was called and failed. Delivery state is unknown, so the approval stays used."""
+    """The transport was called and failed. Delivery is unknown, so the approval stays used."""
 
     code = "transport_failure"

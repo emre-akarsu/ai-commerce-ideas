@@ -6,13 +6,12 @@ from dataclasses import dataclass
 from datetime import timedelta
 from decimal import Decimal
 
-from components.purchase_orders.approvals.service import ApprovalService, CapPolicy
-from components.send_service.service import KillSwitch, PreparedMessage, SendService
-from components.core.store import Store
-
-from components.evidence.log import EventLog
 from components.core.domain import Approval
 from components.core.fakes import FakeClock, RecordingTransport
+from components.core.store import Store
+from components.evidence.log import EventLog
+from components.purchase_orders.approvals.service import ApprovalService, CapPolicy
+from components.send_service.service import KillSwitch, PreparedMessage, SendService
 
 from .factories import (
     ALIAS,

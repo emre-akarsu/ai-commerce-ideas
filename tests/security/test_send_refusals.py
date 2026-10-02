@@ -48,7 +48,9 @@ def refused(world: World, p: PreparedMessage, a: Approval, exc: type[SendRefused
     assert world.transport.delivered == []
 
 
-def raw_for(world: World, *, to: str, footer: str = FOOTER_TEMPLATE, rfq_id: str = "rfq-1") -> bytes:
+def raw_for(
+    world: World, *, to: str, footer: str = FOOTER_TEMPLATE, rfq_id: str = "rfq-1"
+) -> bytes:
     return build_message(
         subject="RFQ: 6205-2RS x4", body="Please quote.", to=to, buyer_name=BUYER,
         buyer_phone=PHONE, alias_address=ALIAS, reply_to=BUYER_EMAIL, rfq_id=rfq_id,
@@ -162,7 +164,8 @@ def test_registered_vendor_of_another_rfq_is_not_the_recipient(world: World) -> 
 
 def test_other_tenants_vendor_address_is_not_a_recipient(world: World) -> None:
     world.store.for_tenant(T2).vendors.add(
-        make_vendor("v-77", tenant=T2, email="only-t2@t2-vendor.example", domain="t2-vendor.example"))
+        make_vendor("v-77", tenant=T2, email="only-t2@t2-vendor.example",
+                    domain="t2-vendor.example"))
     p = prepared_from(raw_for(world, to="only-t2@t2-vendor.example"))
     refused(world, p, world.approve(p), RecipientNotVendor)
 

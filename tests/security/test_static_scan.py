@@ -1,4 +1,4 @@
-"""Static guard for R1: only send_service may touch the transport; only the workflow writes state."""
+"""Static guard: only send_service touches the transport (R1); only workflow writes state."""
 
 from __future__ import annotations
 
@@ -35,7 +35,9 @@ def test_only_the_send_service_calls_deliver_or_uses_mailtransport() -> None:
                 offenders.append(f"{path}:{node.lineno} .deliver")
             if isinstance(node, ast.Name) and node.id == "MailTransport":
                 offenders.append(f"{path}:{node.lineno} MailTransport")
-            if isinstance(node, ast.ImportFrom) and any(a.name == "MailTransport" for a in node.names):
+            if isinstance(node, ast.ImportFrom) and any(
+                a.name == "MailTransport" for a in node.names
+            ):
                 offenders.append(f"{path}:{node.lineno} import MailTransport")
             if isinstance(node, (ast.Import, ast.ImportFrom)):
                 mod = getattr(node, "module", None) or ""
