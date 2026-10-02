@@ -785,6 +785,9 @@ class PurchasingService:
         if quote.offered_mpn and request.family:
             tier = self._classify(request, quote.offered_mpn)
             quote = quote.model_copy(update={"offered_tier": tier})
+        if quote.unit_price_each is not None and quote.freight is None \
+                and "freight_unknown" not in quote.flags:
+            quote = quote.model_copy(update={"flags": (*quote.flags, "freight_unknown")})
         return quote
 
     def _quote_id_for(self, request: Request, rfq: RFQ) -> str:
@@ -841,19 +844,34 @@ class PurchasingService:
         qty = request.quantity or 1
         total = _total(quote, qty)
         substitution = quote.offered_tier is not Tier.A
-        needs_approval = substitution or total > self._settings.approval_threshold
+        forced = sorted(FORCE_APPROVAL_FLAGS & set(quote.flags))
+        daily = self._settings.daily_approval_threshold or self._settings.approval_threshold
+        over_daily = self._committed_today(request, exclude=True) + total > daily  # M5: no splitting
+        needs_approval = (substitution or total > self._settings.approval_threshold
+                          or over_daily or bool(forced))
         fp = quote_fingerprint(quote)
         self._move(request, S.QUOTE_SELECTED, ctx.actor, {
             "quote_id": quote.id, "quote_version": quote.version, "quote_hash": fp,
-            "approval_required": needs_approval, "substitution": substitution})
+            "approval_required": needs_approval, "substitution": substitution,
+            "approval_reasons": forced + (["daily_aggregate"] if over_daily else []),
+            "total": total})
+        self._committed[(request.tenant_id, request.id)] = (self._clock.now().date(), total)
         if needs_approval:
-            self._request_approval(request, quote, fp, total)
+            self._request_approval(request, quote, fp, total, force_separation=bool(forced) or over_daily)
         return self._detail(request)
+
+    def _committed_today(self, request: Request, *, exclude: bool) -> Decimal:
+        today = self._clock.now().date()
+        return sum((amt for (tid, rid), (day, amt) in self._committed.items()
+                    if tid == request.tenant_id and day == today and not (exclude and rid == request.id)),
+                   Decimal(0))
 
     def _check_selectable(self, request: Request, quote: Quote, ts: TenantStore) -> None:
         cmp = self._comparison(request, self._quotes(ts, request.id))
         if any(r.startswith(f"excluded:{quote.id}:") for r in cmp.reasons):
             raise Conflict("quote is excluded (flagged, quarantined or unusable)")
+        if REFUSE_FLAGS & set(quote.flags):
+            raise Conflict("quote validity has expired: ask the vendor for a current quote")
         if self._excluded_flags(quote):
             raise Conflict("quote is quarantined or flagged")
         if quote.offered_tier is Tier.D:
@@ -861,8 +879,9 @@ class PurchasingService:
         if quote.unit_price_each is None or quote.currency is None or not quote.offered_mpn:
             raise Conflict("quote lacks price, currency or offered part number")
 
-    def _request_approval(self, request: Request, quote: Quote, fp: str, total: Decimal) -> None:
-        above = total > self._settings.approval_threshold
+    def _request_approval(self, request: Request, quote: Quote, fp: str, total: Decimal,
+                          *, force_separation: bool = False) -> None:
+        above = force_separation or total > self._settings.approval_threshold
         eligible = [a for a in self._settings.approvers
                     if not (above and a.lower() == request.requester.lower())]
         if not eligible:
@@ -921,12 +940,24 @@ class PurchasingService:
             raise Conflict("no approval is pending")
         vendor: Vendor = self._get(self._ts(claims.tenant_id).vendors, quote.vendor_id)
         sel = self._selection(claims.tenant_id, request.id)
+        qty = request.quantity
+        total = quote.unit_price_each * Decimal(qty) if quote.unit_price_each is not None and qty else None
+        note = ("substitution_review" if sel.get("substitution")
+                else "quality_review" if sel.get("approval_reasons") else "")
         return ApprovalLinkView(
             request_id=request.id, quote_id=quote.id, vendor=self._ref(vendor),
             unit_price_each=quote.unit_price_each, currency=quote.currency,
-            lead_time_days=quote.lead_time_days, action_options=[claims.action.value],
-            expires_at=claims.expires_at,
-            note="substitution_review" if sel.get("substitution") else "")
+            lead_time_days=quote.lead_time_days, quantity=qty, total=total,
+            offered_mpn=clean_text(quote.offered_mpn, limit=80) if quote.offered_mpn else None,
+            offered_tier=quote.offered_tier.value, flags=list(quote.flags),
+            part_summary=self._part_summary(request), action_options=[claims.action.value],
+            expires_at=claims.expires_at, note=note)
+
+    @staticmethod
+    def _part_summary(request: Request) -> str:
+        """Templated over attribute ids (R3): `family; name=value; ...`."""
+        parts = [f"{k}={a.value}" for k, a in sorted(request.attributes.items())]
+        return clean_text("; ".join([request.family or "unknown family", *parts]), limit=300)
 
     def decide_approval_link(self, ctx: Ctx, token: str, action: str) -> DecisionResult:
         require(ctx, Role.BUYER)
@@ -943,14 +974,17 @@ class PurchasingService:
         if action == "approve":
             if sel.get("substitution"):
                 sub = self._approvals.issue_substitution_approval(
-                    ctx.tenant_id, ctx.actor, quote.offered_mpn or "", quote.version,
-                    self._settings.substitution_ttl)
+                    ctx.tenant_id, ctx.actor,
+                    self._canonical_mpn(ctx.tenant_id, request.id, quote.offered_mpn or ""),
+                    quote.version, self._settings.substitution_ttl,
+                    request_id=request.id, quote_id=quote.id)
                 self._emit(ctx.tenant_id, request.id, ctx.actor, "approval.substitution_recorded", {
                     "approval_id": sub.id, "candidate_mpn": sub.candidate_mpn,
                     "quote_id": quote.id, "quote_version": quote.version})
             self._move(request, S.APPROVED, ctx.actor, {"quote_id": quote.id, "jti": claims.jti})
             return DecisionResult(request_id=request.id, decision="approved", state=request.state)
         self._move(request, S.DECLINED, ctx.actor, {"quote_id": quote.id, "jti": claims.jti})
+        self._release(request)
         return DecisionResult(request_id=request.id, decision="declined", state=request.state)
 
     def _consume(self, ctx: Ctx, token: str, action: str, claims: TokenClaims, request: Request,
@@ -988,12 +1022,13 @@ class PurchasingService:
             raise Conflict("quantity is required")
         check_r2(quote.offered_mpn, quote.version, self._candidates(ctx.tenant_id, request.id),
                  ts.approvals.list(lambda a: a.kind is ApprovalKind.SUBSTITUTION),
-                 self._clock.now())
+                 self._clock.now(), request_id=request.id, quote_id=quote.id)
         total = _total(quote, qty)
-        self._check_caps(ctx.tenant_id, total, quote.currency)
+        self._reserve(request, total, quote.currency)  # M5: spend is booked at draft time
         draft = PurchaseOrderDraft(
             id=self._ids("po"), tenant_id=ctx.tenant_id, request_id=request.id, quote_id=quote.id,
-            quote_version=quote.version, vendor_id=quote.vendor_id, mpn=quote.offered_mpn,
+            quote_version=quote.version, vendor_id=quote.vendor_id,
+            mpn=self._canonical_mpn(ctx.tenant_id, request.id, quote.offered_mpn),
             quantity=qty, unit_price_each=quote.unit_price_each, currency=quote.currency,
             total=total)
         ts.po_drafts.add(draft)
@@ -1002,14 +1037,43 @@ class PurchasingService:
             "total": total, "currency": quote.currency})
         return draft
 
-    def _check_caps(self, tenant_id: str, total: Decimal, currency: str) -> None:
+    def _canonical_mpn(self, tenant_id: str, request_id: str, offered: str) -> str:
+        """The request's own candidate MPN when the offered part matches one (R2/L2), never the
+        vendor's literal spelling; otherwise the offered MPN, whitespace-collapsed."""
+        wanted = normalise_mpn(offered)
+        for c in self._candidates(tenant_id, request_id):
+            if wanted and normalise_mpn(c.mpn) == wanted:
+                return c.mpn
+        return " ".join(offered.split())
+
+    def _reserve(self, request: Request, total: Decimal, currency: str) -> None:
         caps: CapPolicy | None = self._approvals.caps
         if caps is None:
             raise Conflict("spend caps are not configured")
         try:
-            caps.check(tenant_id, total, currency=currency)
+            caps.reserve(request.tenant_id, total, currency=currency)
         except CapError as exc:
             raise Conflict(f"cap: {exc}") from exc
+        self._reserved[(request.tenant_id, request.id)] = (caps.today(), total, currency)
+
+    def _release(self, request: Request) -> None:
+        """Give back committed and reserved spend (declined / cancelled)."""
+        key = (request.tenant_id, request.id)
+        self._committed.pop(key, None)
+        held = self._reserved.pop(key, None)
+        caps = self._approvals.caps
+        if held is not None and caps is not None:
+            day, amount, currency = held
+            caps.release(request.tenant_id, amount, currency=currency, day=day)
+
+    def cancel_po_draft(self, ctx: Ctx, request_id: str) -> None:
+        """Cancel a drafted PO: the request is CANCELLED and its reserved spend released."""
+        require(ctx, Role.BUYER)
+        request = self._load_request(ctx, request_id)
+        if request.state is not S.PO_DRAFTED:
+            raise Conflict(f"no PO draft to cancel in state {request.state.value}")
+        self._move(request, S.CANCELLED, ctx.actor, {"reason": "po_draft_cancelled"})
+        self._release(request)
 
     def po_csv(self, ctx: Ctx, request_id: str) -> str:
         require(ctx, Role.BUYER)
@@ -1046,9 +1110,15 @@ class PurchasingService:
         if current is None:
             saved = repo.add(vendor)
         else:
-            if (current.contact_email, current.domain) != (vendor.contact_email, vendor.domain):
+            changed = (current.contact_email, current.domain) != (vendor.contact_email, vendor.domain)
+            if changed:
                 require(ctx, Role.ADMIN)  # R12: remit-to/contact changes are admin-only
             saved = repo.save(vendor)
+            if changed:  # ... and quarantine the vendor's quotes until a callback is confirmed
+                self._emit(ctx.tenant_id, None, ctx.actor, EVT_VENDOR_CONTACT_CHANGED, {
+                    "vendor_id": saved.id, "old_domain": current.domain, "new_domain": saved.domain,
+                    "pending_callback": True,
+                    "_pii": {"old_contact": current.contact_email, "new_contact": saved.contact_email}})
         self._emit(ctx.tenant_id, None, ctx.actor, EVT_VENDOR_UPSERTED, {
             "vendor_id": saved.id, "created": current is None, "opted_out": saved.opted_out,
             "preferred": saved.preferred})
@@ -1087,6 +1157,29 @@ class PurchasingService:
 # ---------------------------------------------------------------- factories
 
 
+def _is_production() -> bool:
+    return os.environ.get("ENV", "").strip().lower() in {"production", "prod"}
+
+
+def _secret_from_env(name: str) -> bytes:
+    value = os.environ.get(name, "")
+    if value:
+        if len(value) < 16:
+            raise ValueError(f"{name} must be at least 16 characters")
+        return value.encode("utf-8")
+    if _is_production():
+        raise RuntimeError(f"{name} is required when ENV is production")
+    return secrets.token_bytes(32)
+
+
+def _audit_log(clock: Clock, audit_key: bytes | None) -> EventLog:
+    """Audit chain and personal-data keys come from configuration, never random in production (M1)."""
+    chain = audit_key if audit_key is not None else _secret_from_env(CHAIN_KEY_ENV)
+    pii_env = os.environ.get(PII_KEY_ENV, "")
+    pii = pii_env.encode("utf-8") if pii_env else hmac.new(chain, b"pii-key", hashlib.sha256).digest()
+    return EventLog(clock, pii_key=pii, chain_key=chain)
+
+
 def build_in_memory_service(
     *,
     clock: Clock | None = None,
@@ -1102,10 +1195,14 @@ def build_in_memory_service(
     ids: IdGenerator = default_ids,
     token_gen: Callable[[], str] | None = None,
     approval_secret: bytes | None = None,
+    audit_key: bytes | None = None,
 ) -> PurchasingService:
     """Fully wired service on in-memory stores. The transport is handed to the send-service ONLY.
-    Defaults are dev-safe: a recording transport (nothing leaves the process), a fresh random
-    approval secret, caps from the manifest defaults. Pass fakes in tests."""
+    Defaults are dev-safe: a recording transport (nothing leaves the process), caps from the manifest
+    defaults. Keys: the audit chain/PII key comes from ``audit_key`` or env ``AUDIT_CHAIN_KEY`` and the
+    approval secret from ``approval_secret`` or env ``APPROVAL_SECRET``; when ENV=production a missing
+    key RAISES (never a per-process random one, which would make the audit chain fail to verify
+    across processes and restarts). Outside production a missing key falls back to an ephemeral one."""
     from datetime import UTC
 
     class _SystemClock:
@@ -1115,10 +1212,11 @@ def build_in_memory_service(
     cfg = settings or Settings()
     clk: Clock = clock or _SystemClock()
     st = store or Store()
-    log = event_log or EventLog(clk)
+    log = event_log or _audit_log(clk, audit_key)
+    secret = approval_secret or _secret_from_env("APPROVAL_SECRET")
     policy = caps or CapPolicy(Decimal("5000"), Decimal("15000"), clk)
     approvals = ApprovalService(
-        clk, approval_secret or secrets.token_bytes(32), store=st, event_log=log, caps=policy,
+        clk, secret, store=st, event_log=log, caps=policy,
         requester_threshold=cfg.approval_threshold)
     send = SendService(transport or RecordingTransport(), clk, st, log, caps=policy,
                        max_recipients=cfg.max_vendors)
@@ -1128,4 +1226,5 @@ def build_in_memory_service(
     kwargs: dict[str, Any] = {} if token_gen is None else {"token_gen": token_gen}
     return PurchasingService(
         store=st, event_log=log, clock=clk, send_service=send, approval_service=approvals,
-        extractor=extractor, settings=cfg, notifier=notifier, ids=ids, llm=llm, **kwargs)
+        extractor=extractor, settings=cfg, notifier=notifier, ids=ids, llm=llm,
+        reply_token_key=hmac.new(secret, b"reply-token-key", hashlib.sha256).digest(), **kwargs)
