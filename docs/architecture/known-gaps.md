@@ -36,3 +36,13 @@ needed.
 - **Web CSP** was verified by build and unit tests only, not in a browser. `APP_ENV` must be `dev|local|test` to build with mock data or a dev token.
 - **Normaliser behaviour.** A "$" price without an explicit currency word is treated as assumed-USD and forces an approval link; "4.20 USD each" avoids it.
 - **Re-review.** The fixes are covered by regression tests written by the same agents that made them. They have not been independently re-reviewed.
+
+## Profile / configurability gaps (added with deployment profiles)
+- The part-family clarification wording in `components/parts/families/registry.py` still names bearings and V-belts; new families need their own tables and questions.
+- The importers are profile-aware but the service does not call them yet (CSV import still only validates and counts).
+- No raw-email table or store exists in `aidb`; the retention purge task runs against a `RawEmailStore` protocol tested with a fake. A real store must be wired before the purge does anything in production.
+- `profile_for_tenant` (tenant overrides in the worker) is not wired in `worker_main`; tenant overrides have no admin UI or persistence yet.
+- The web `<html lang>` is static; comparison rows carry no currency, so the landed cost shows without a symbol.
+- UK `locale.holidays` is empty (weekends only); bank holidays must be loaded and tested (UK test U2).
+- Freight is not tax-adjusted; construction reverse-charge detection, customs/duty and UKCA/CE checks are not implemented.
+- `mypy` reports pre-existing type errors in `aidb`, `message.py` and `normalise.py`; it is not yet a CI gate.

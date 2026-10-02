@@ -5,6 +5,9 @@ Product: MRO parts identification and sourcing agent. Source of truth: `docs/pro
 ## Layout (AI Employees stack; see docs/architecture/ai-employees-stack-map.md)
 `packages/aiplat` (manifest, ctx, @tool) · `packages/aidb` (SQLAlchemy models, RLS, Alembic) · `packages/components/{core,parts,rfq,purchase_orders,send_service,evidence,doc_parse,imports}` · `apps/{api,worker,web}` · `employees/purchasing` (employee.yaml, graph, tools). Packs never import each other; components never import packs.
 
+## Configurable deployments
+Jurisdiction/market behaviour comes from a deployment profile (`profiles/<id>.yaml`, `packages/aiplat/profile.py`; design in `docs/architecture/configurability.md`, ADR-011). Never hard-code currency, tax, language, legal wording, retention or thresholds; read them from the resolved profile. Hard rules R1-R12 have no config keys and must not be made configurable. New market: use `docs/templates/new-deployment-checklist.md`; `pytest tests/profiles` runs conformance over every profile.
+
 ## Commands
 - `make test` · `make lint` · `make eval` · `make check` (uses the venv python automatically).
 - Tests must run offline and deterministically: no network, no real LLM, no real email.

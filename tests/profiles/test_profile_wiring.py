@@ -128,7 +128,9 @@ def test_openapi_public_profile_matches_web_type() -> None:
     ts = (root / "apps/web/lib/api.ts").read_text()
     assert "/v1/profile" in json.loads((root / "apps/api/openapi.json").read_text())["paths"]
     body = re.search(r"export interface PublicProfile \{(.*?)\n\}", ts, re.S)
-    assert body and set(schema["PublicProfile"]["properties"]) <= set(re.findall(r"^\s{2}(\w+):", body.group(1), re.M))
+    assert body
+    flat = re.sub(r"\{[^{}]*\}", "{}", body.group(1)).replace(";", ";\n")
+    assert set(schema["PublicProfile"]["properties"]) == set(re.findall(r"^\s*(\w+)\??:", flat, re.M))
 
 
 @pytest.mark.skipif(not profile_aware_normaliser, reason="profile-aware normaliser (W1) not available")
