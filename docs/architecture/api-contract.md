@@ -1,0 +1,44 @@
+# API Contract v1 (purchasing pack)
+
+Shared by `apps/api` (FastAPI) and `apps/web` (Next.js). JSON over HTTPS under `/v1`. Models referenced are in `packages/components/core/domain.py` (serialised with Pydantic `model_dump(mode="json")`; `Decimal` as strings, enums as their values, dates ISO-8601).
+
+## Auth and tenancy
+- `Authorization: Bearer <JWT>` (Supabase Auth). Claims used: `sub` (user id), `app_metadata.tenant_id`, `app_metadata.role` in `{requester, buyer, admin}`.
+- The server derives tenant and user from the verified token only; **no endpoint accepts a tenant id or user id in the body or query**.
+- Dev/test: HMAC-signed test tokens accepted only when `AUTH_MODE=test`.
+- Writes accept `Idempotency-Key`. Errors: `{"error": {"code": "string", "message": "string"}}` with 4xx/5xx.
+
+## Views
+- `RequestView`: `{id, state, family, attributes: {name: Attribute}, quantity, need_by, site, work_order_ref, criticality, down_now, open_questions: string[], questions_asked, created_at}`
+- `CandidateView`: Candidate fields + `tier` (A–D) + `basis`, `basis_source`, `basis_date`, `caveats`, `mismatches`, `synthetic`.
+- `PreparedRFQ`: `{rfq_id, vendor: {id, name}, to, subject, body_preview, mime_hash, footer}`
+- `QuoteView`: Quote fields + `source_snippets` (inert text) + `flags`.
+- `ComparisonView`: Comparison + rows enriched with vendor names.
+- `EventView`: Event fields (payload without PII fields).
+
+## Endpoints
+| Method | Path | Role | Purpose |
+|---|---|---|---|
+| GET | `/healthz` | none | Liveness |
+| POST | `/v1/requests` | requester+ | Create request from `{text, quantity?, need_by?, site?, work_order_ref?, down_now?, criticality?}`; runs intake + spec normalisation; returns `RequestDetail` |
+| GET | `/v1/requests` | requester+ | List (`?state=`) |
+| GET | `/v1/requests/{id}` | requester+ | `RequestDetail = {request, candidates, rfqs, quotes, comparison|null, events, pending_approvals}` |
+| POST | `/v1/requests/{id}/answers` | requester+ | `{answers: {attribute: value}}` to clarifying questions; returns `RequestDetail` |
+| POST | `/v1/requests/{id}/rfqs/prepare` | buyer+ | `{vendor_ids: string[], candidate_mpns?: string[]}` → `PreparedRFQ[]` (nothing is sent) |
+| POST | `/v1/rfqs/{rfq_id}/approve-send` | buyer+ | `{mime_hash}`; authenticated POST creates a per-message `Approval` bound to that hash and calls the send-service; returns `{message_id}` |
+| POST | `/v1/requests/{id}/quotes/inbound` | system or buyer | `{vendor_id, source_text, dmarc_aligned}` → `QuoteView` (quarantined extraction + grounding + normalisation) |
+| GET | `/v1/requests/{id}/comparison` | requester+ | `ComparisonView` |
+| POST | `/v1/requests/{id}/select-quote` | buyer+ | `{quote_id}`; creates approval request(s); returns `RequestDetail` |
+| GET | `/v1/approval-links/{token}` | none | Side-effect-free summary `{request, quote, action, expires_at}` (safe for email scanners) |
+| POST | `/v1/approval-links/{token}/decide` | authenticated approver | `{action: "approve"|"decline"}`; consumes token (single use, bound to approver + quote version + action) |
+| POST | `/v1/requests/{id}/po-draft` | buyer+ | Create `PurchaseOrderDraft` for the approved quote; enforces R2 and caps |
+| GET | `/v1/requests/{id}/po-draft.csv` | buyer+ | CSV with formula escaping |
+| GET | `/v1/vendors` · POST `/v1/vendors` · PATCH `/v1/vendors/{id}` | buyer+/admin | Vendor registry (`name, domain, contact_email, preferred, opted_out, phone`) |
+| POST | `/v1/imports/csv` | buyer+ | Multipart CSV of parts/PO history; returns import summary |
+| GET | `/v1/audit` | admin | `?request_id=` events + `chain_valid` |
+
+## Rules the API must uphold
+- No endpoint sends mail except through the send-service with a valid `Approval` (R1).
+- `GET` never changes state; approval links decide only via authenticated `POST` (R11).
+- Vendor-derived strings are returned inert (no HTML) and the UI must render them as text (R6).
+- Cross-tenant ids return 404, never 403 (no existence leak).
