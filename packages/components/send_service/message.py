@@ -21,7 +21,7 @@ from email.message import EmailMessage
 from email.utils import format_datetime
 from enum import StrEnum
 from types import MappingProxyType
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from .errors import MalformedMessage
 
@@ -223,9 +223,10 @@ def _identity_label(raw: object) -> str:
     return label
 
 
-def as_identity_pairs(identity: object) -> list[object]:
+def as_identity_pairs(identity: object) -> list[Any]:
     """Materialise the caller's pairs once. Any iterable of items is accepted (list, tuple,
-    ``dict.items()``, ...) except text, bytes and mappings, which are not a sequence of pairs."""
+    ``dict.items()``, ...) except text, bytes and mappings, which are not a sequence of pairs.
+    The items themselves are checked later, by ``build_message``."""
     if isinstance(identity, (str, bytes, Mapping)) or not isinstance(identity, Iterable):
         raise MalformedMessage("identity must be a sequence of (label, value) pairs")
     return list(identity)
@@ -249,6 +250,11 @@ def _identity_lines(identity: object) -> list[str]:
         seen.add(_label_key(label))
         lines.append(f"{label}: {value}")
     return lines
+
+
+def validate_identity_pairs(identity: object) -> None:
+    """Raise ``MalformedMessage`` unless ``build_message`` would accept these identity pairs."""
+    _identity_lines(identity)
 
 
 def validate_identity_labels(labels: object) -> tuple[str, ...]:

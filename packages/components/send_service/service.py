@@ -78,6 +78,7 @@ from .message import (
     sha256_hex,
     unfilled_identity_labels,
     validate_identity_labels,
+    validate_identity_pairs,
 )
 
 __all__ = [
@@ -187,7 +188,7 @@ class SendService:
         self._max_recipients = max_recipients
         self._footer = footer_text
         # Labels of the business-identity lines every message must carry (empty = none required).
-        # A deployment can only ADD to this; there is no way to remove the footer requirement.
+        # This is an extra requirement: it never replaces or relaxes the R8 footer check.
         self._identity_labels = validate_identity_labels(required_identity_labels)
         self._lock = threading.RLock()
         self._spent: set[str] = set()  # approval ids / nonces handed to the transport
@@ -530,7 +531,15 @@ class SendService:
             return None
         orig = plan.original
         seq = plan.done + 1
-        # The original's identity lines are carried over, so a follow-up never loses them.
+        identity = identity_pairs(orig)  # carried over, so a follow-up never loses the block
+        try:
+            validate_identity_pairs(identity)
+        except MalformedMessage as exc:
+            # Lines the sanitiser would never have produced (only possible for bytes built outside
+            # ``prepare``): cancel for good rather than raising on every run and stalling the loop.
+            plan.active = False
+            self._audit_refusal(plan.tenant_id, None, "", exc)
+            return None
         raw = build_message(
             subject="Re: " + orig.subject,
             body=FOLLOW_UP_BODY,
@@ -545,10 +554,10 @@ class SendService:
             footer_template=self._footer,
             in_reply_to=orig.message_id,
             followup_seq=seq,
-            identity=identity_pairs(orig),
+            identity=identity,
         )
         missing = missing_identity_labels(parse_message(raw), self._identity_labels)
-        if missing:  # fail closed: never send a follow-up without the block the deployment requires
+        if missing:  # fail closed: never send a follow-up lacking the block that is required
             plan.active = False
             self._audit_refusal(plan.tenant_id, None, sha256_hex(raw),
                                 self._identity_refusal(missing))

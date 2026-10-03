@@ -179,8 +179,6 @@ class Settings:
             f not in DEFAULT_IDENTITY_LABELS for f in self.identity_fields
         ):
             raise ValueError("identity_fields must be distinct, known identity fields")
-        if self.identity_required and not self.identity_fields:
-            raise ValueError("identity_required needs at least one identity field")
 
     def identity_label(self, name: str) -> str:
         """The line label for one identity field: the profile's wording, else the default."""

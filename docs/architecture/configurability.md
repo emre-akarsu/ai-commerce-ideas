@@ -31,6 +31,27 @@ A running deployment resolves **platform defaults → `base` → profile (→ pa
 | UI | `ui.language/copy_overrides` | Web app (plain text only) |
 | Features | `features.*` | Feature flags (photo intake, phone/SMS scripts, down-now) |
 
+### Business identity: where the values go
+
+The profile says WHICH company details outbound messages carry and under which labels; the deployment supplies each tenant's
+VALUES when it builds the service (never a request, a model output or a profile file):
+
+```python
+settings = Settings.from_profile(
+    load_profile("uk"),
+    business_identities={"<tenant-id>": {
+        "legal_name": "...", "registration_number": "...",
+        "registered_office": "one line, comma separated", "registered_in": "England and Wales"}},
+)
+```
+
+Each value is one line of at most 200 characters (the single-line sanitiser rejects line breaks, control and hidden
+characters). The lines are rendered `<label>: <value>` directly after the signature block, before the RFQ reference line and the
+footer, inside the bytes the approver hashes and sees. If the profile requires the block and a field is missing or blank,
+`prepare` is a 409 naming the missing fields; the send-service also refuses, at send time, bytes that lack a required line.
+Lookup is by the authenticated tenant only. Follow-ups copy the original's lines. Listing `fields` without `required: true`
+makes the block optional (the lines the tenant has are included, nothing is enforced).
+
 ## 3. What is deliberately NOT configurable (invariants)
 
 The hard rules R1–R12 have **no config keys**. The schema additionally rejects any value that would weaken them:

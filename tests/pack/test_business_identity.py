@@ -22,13 +22,15 @@ from employees.purchasing.service_port import Conflict, NotFound
 from aiplat.ctx import Ctx, Forbidden, Role
 from aiplat.profile import PROFILES_DIR, ResolvedProfile, load_profile
 from components.core.domain import RequestState as S
-from components.evidence.log import EVT_SEND_DELIVERED
+from components.evidence.log import EVT_SEND_DELIVERED, EVT_SEND_REFUSED
 from components.send_service.message import (
     DEFAULT_IDENTITY_LABELS,
+    PreparedMessage,
     has_footer,
     has_identity,
     identity_pairs,
     parse_message,
+    sha256_hex,
 )
 from tests.pack.conftest import (
     REQUEST_TEXT,
@@ -134,12 +136,17 @@ def test_explicit_settings_can_only_add_to_a_profile_requirement() -> None:
 
 @pytest.mark.parametrize(
     "kw",
-    [{"identity_fields": ("vat_number",)}, {"identity_fields": ("legal_name", "legal_name")},
-     {"identity_required": True}],
+    [{"identity_fields": ("vat_number",)}, {"identity_fields": ("legal_name", "legal_name")}],
 )
-def test_settings_reject_inconsistent_identity_configuration(kw: dict[str, Any]) -> None:
-    with pytest.raises(ValueError, match="identity"):
+def test_settings_reject_unknown_or_duplicate_identity_fields(kw: dict[str, Any]) -> None:
+    with pytest.raises(ValueError, match="identity_fields"):
         Settings(**kw)
+
+
+def test_a_required_flag_without_fields_takes_its_fields_from_the_profile() -> None:
+    filled = Settings(identity_required=True).with_profile_defaults(load_profile("uk"))
+    assert filled.identity_required is True and filled.identity_fields == FOUR
+    assert Settings(identity_required=True).identity_fields == ()  # alone it requires nothing
 
 
 def test_identity_labels_have_a_default_for_every_known_field() -> None:
@@ -208,6 +215,25 @@ def test_identity_values_never_enter_the_audit_trail() -> None:
     dumped = json.dumps([e.payload for e in events], default=str)
     assert not any(value in dumped for value in UK_IDENTITY.values())
     assert w.log.verify_chain(T1)
+
+
+def test_the_send_time_check_backstops_the_pack_if_the_prepared_message_lost_its_block() -> None:
+    w = uk_world(business_identities={T1: UK_IDENTITY})
+    (p,) = w.svc.prepare_rfqs(w.buyer, new_request(w), vendor_ids=["acme"])
+    cached = w.svc._prepared[(T1, p.rfq_id)]  # noqa: SLF001 - simulate a tampered/buggy cache entry
+    stripped = cached.mime_bytes
+    for label, value in zip(UK_LABELS, UK_IDENTITY.values(), strict=True):
+        stripped = stripped.replace(f"{label}: {value}\r\n".encode(), b"")
+    assert stripped != cached.mime_bytes
+    forged = PreparedMessage(stripped, sha256_hex(stripped), cached.to, T1, cached.rfq_id,
+                             cached.vendor_id, cached.subject, cached.purpose)
+    w.svc._prepared[(T1, p.rfq_id)] = forged  # noqa: SLF001
+    with pytest.raises(Conflict, match="send refused: identity_missing"):
+        w.svc.approve_send(w.buyer, p.rfq_id, mime_hash=forged.mime_hash)
+    assert w.transport.delivered == []
+    refusals = [e for e in w.log.events(T1) if e.type == EVT_SEND_REFUSED]
+    assert [e.payload["reason"] for e in refusals] == ["identity_missing"]
+    assert not any(v in json.dumps(refusals[0].payload, default=str) for v in UK_IDENTITY.values())
 
 
 def test_re_preparing_an_existing_draft_keeps_the_block() -> None:

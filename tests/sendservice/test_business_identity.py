@@ -639,6 +639,31 @@ def test_a_follow_up_whose_original_lost_the_block_is_not_sent(strict: World) ->
     assert strict.log.verify_chain(T1)
 
 
+def test_a_follow_up_that_cannot_be_built_safely_is_cancelled_not_retried_forever(
+    world: World,
+) -> None:
+    """Bytes built outside `prepare` can carry identity-like lines the sanitiser would never produce
+    (here a ninth line); once approved and sent, their follow-up is refused and audited, and it does
+    not stop the runner from serving the tenant's other plans."""
+    from components.send_service.service import PreparedMessage
+
+    many = tuple((f"Label {i}", "v") for i in range(MAX_IDENTITY_LINES))
+    raw = build(identity=many, follow_up=FollowUpSchedule(1, timedelta(hours=24)))
+    raw = raw.replace(b"Label 7: v\r\n", b"Label 7: v\r\nLabel 8: v\r\n")  # one line too many
+    foreign = PreparedMessage(raw, sha(raw), VENDOR_EMAIL)
+    world.send.send(foreign, world.approve(foreign))
+    other = world.prepare(rfq_id="rfq-2", vendor_id="v-2",
+                          follow_up=FollowUpSchedule(1, timedelta(hours=24)))
+    world.send.send(other, world.approve(other))
+    world.clock.advance(hours=24)
+    sent = world.send.run_due_follow_ups(T1)  # must not raise
+    assert len(sent) == 1 and len(world.transport.delivered) == 3  # only the sane plan followed up
+    refusals = [e for e in world.log.events(T1) if e.type == EVT_SEND_REFUSED]
+    assert [e.payload["reason"] for e in refusals] == ["malformed_message"]
+    world.clock.advance(days=10)
+    assert world.send.run_due_follow_ups(T1) == []  # cancelled for good
+
+
 # ---------------------------------------------------------------- errors never echo values
 
 
