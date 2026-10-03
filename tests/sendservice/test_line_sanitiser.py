@@ -315,9 +315,11 @@ def test_send_time_refuses_a_blank_looking_required_value_in_external_bytes(
     assert strict.transport.delivered == []  # nothing was delivered
 
 
-def test_a_value_with_real_text_beside_invisible_text_still_counts() -> None:
-    parsed = parse_message(build(identity=(("Company name", "Acme\u3164 Plant Ltd"),)))
-    assert has_identity(parsed, ("Company name",))
+def test_a_value_with_a_blank_filler_beside_real_text_is_refused_but_digits_still_count() -> None:
+    # The Hangul filler draws nothing; since the third review it is hidden text, refused outright
+    # (before, it was tolerated when real text stood beside it).
+    with pytest.raises(MalformedMessage):
+        build(identity=(("Company name", "Acme\u3164 Plant Ltd"),))
     for digits_only in ("0", "01234567", "\u0663\u0664"):  # a single digit, and Arabic-Indic digits
         assert unfilled_identity_labels([("Company number", digits_only)], ("Company number",)) == []
 

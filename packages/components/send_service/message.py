@@ -79,10 +79,19 @@ _FORBIDDEN_HEADERS = (
 # see the same lines, or a value could show a forged "--" and footer ahead of the real one. The body
 # may keep its own "\n" (and tabs); it refuses all the rest. Written with escapes: never a literal
 # invisible character in this source (tests/sendservice/test_line_sanitiser.py checks that).
-_CTRL_LINE = re.compile(r"[\x00-\x1f\x7f-\x9f\u2028\u2029]")
-_CTRL_BODY = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f\u2028\u2029]")
-# Zero-width and bidirectional formatting characters, the Arabic letter mark, the byte-order mark.
-_HIDDEN = re.compile(r"[\u061c\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u2069\ufeff]")
+# A lone surrogate (U+D800-U+DFFF) cannot be encoded as UTF-8: refused here, not by the encoder.
+_CTRL_LINE = re.compile(r"[\x00-\x1f\x7f-\x9f\u2028\u2029\ud800-\udfff]")
+_CTRL_BODY = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f\u2028\u2029\ud800-\udfff]")
+# Characters that draw nothing yet can carry text or hide it from the approver: zero-width and
+# bidirectional formatting characters, the Arabic letter mark, the byte-order mark, the Hangul and
+# Mongolian fillers, the braille blank, interlinear annotation marks, the Unicode tag block (it
+# spells ASCII invisibly) and the variation-selector supplement (it can encode bytes). A soft
+# hyphen, the combining grapheme joiner and U+FE00-U+FE0F stay allowed: pasted text and emoji use
+# them, and they hide nothing readable.
+_HIDDEN = re.compile(
+    r"[\u061c\u115f\u1160\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u2069\u2800\u3164"
+    r"\ufeff\uffa0\ufff9-\ufffb\U000e0000-\U000e007f\U000e0100-\U000e01ef]"
+)
 # Letters that draw nothing (Unicode Default_Ignorable_Code_Point) but still pass str.isalnum().
 _BLANK_LETTERS = frozenset("\u115f\u1160\u3164\uffa0")
 # Link-like text: a scheme, "www." or "mailto:". A company particular is never a link.
@@ -103,16 +112,22 @@ class ReadOnlyMap(Mapping[_K, _V]):
     ``TypeError``, and a spawn-based worker could not start), and this can.
 
     Nothing changes it: it has no mutator, item assignment and deletion raise ``TypeError``,
-    attributes cannot be set, and the dict inside is private. Its repr shows a count only, so
+    attributes cannot be set, it cannot be initialised twice, and the dict inside is private and
+    held behind a read-only view (writing to ``_data`` raises too). Its repr shows a count only, so
     holding values in it does not print them. Equality is by content, like a dict. The copy is
     one level deep: a value that is itself mutable is shared with the caller, so nest
     ``ReadOnlyMap`` for nested mappings."""
 
     __slots__ = ("_data",)
-    _data: dict[_K, _V]
+    _data: Mapping[_K, _V]
 
     def __init__(self, data: Mapping[_K, _V] | Iterable[tuple[_K, _V]] = ()) -> None:
-        object.__setattr__(self, "_data", dict(data))
+        try:
+            object.__getattribute__(self, "_data")
+        except AttributeError:
+            object.__setattr__(self, "_data", MappingProxyType(dict(data)))
+        else:
+            raise TypeError("ReadOnlyMap is already initialised")
 
     def __getitem__(self, key: _K) -> _V:
         return self._data[key]
@@ -459,12 +474,12 @@ def build_message(
     lines += ["", _FOOTER_SEPARATOR, render_footer(footer_template, buyer_c), ""]
     text = "\n".join(lines)
 
-    stamp = int(sent_at.timestamp())
-    digest = sha256_hex(f"{rfq_c}|{subject_c}|{body_c}|{followup_seq}".encode())[:10]
     # 998 = RFC 5322 hard limit: keeps ASCII text 7bit so the footer sentence stays verbatim in the
     # hashed bytes instead of being quoted-printable soft-wrapped.
     msg = EmailMessage(policy=policy.SMTP.clone(max_line_length=998))
     try:
+        stamp = int(sent_at.timestamp())
+        digest = sha256_hex(f"{rfq_c}|{subject_c}|{body_c}|{followup_seq}".encode())[:10]
         msg["From"] = Address(display_name=buyer_c, addr_spec=alias.addr_spec)
         msg["To"] = rcpt
         msg["Reply-To"] = Address(display_name=buyer_c, addr_spec=reply.addr_spec)
@@ -484,9 +499,9 @@ def build_message(
         if followup_seq is not None:
             msg[H_FOLLOW_UP_SEQ] = str(followup_seq)
         msg.set_content(text)
-    except (ValueError, TypeError) as exc:
+        return msg.as_bytes()
+    except (ValueError, TypeError, OverflowError) as exc:
         raise MalformedMessage("message could not be encoded safely") from exc
-    return msg.as_bytes()
 
 
 # ---------------------------------------------------------------- parse
@@ -518,8 +533,30 @@ def _one_address(msg: EmailMessage, name: str) -> Address:
     return address  # type: ignore[no-any-return]
 
 
+# The only headers an outbound message may carry: the ones ``build_message`` writes. The approver's
+# preview shows none of the others, so an extra header (``Sender:``, ``Return-Path:``,
+# ``Disposition-Notification-To:``, ``List-Unsubscribe:``, one split off by a bare carriage
+# return) must not reach the transport.
+_ALLOWED_HEADERS = frozenset({
+    "from", "to", "reply-to", "subject", "date", "message-id", "in-reply-to", "references",
+    "mime-version", "content-type", "content-transfer-encoding",
+    *(h.lower() for h in (H_RFQ, H_PURPOSE, H_AMOUNT, H_FOLLOW_UP, H_FOLLOW_UP_SEQ)),
+})
+
+
 def parse_message(raw: bytes) -> ParsedMessage:
-    """Re-read final bytes strictly. Anything unexpected is refused, never guessed."""
+    """Re-read final bytes strictly. Anything unexpected is refused, never guessed: the only thing
+    that comes out of here is a ``ParsedMessage`` or a ``MalformedMessage`` (a header that decodes
+    to a line break, a number that is not a number, an interval no ``timedelta`` can hold, ...)."""
+    try:
+        return _parse_message(raw)
+    except MalformedMessage:
+        raise
+    except (ValueError, IndexError, KeyError, TypeError, AttributeError, OverflowError) as exc:
+        raise MalformedMessage("message cannot be parsed") from exc
+
+
+def _parse_message(raw: bytes) -> ParsedMessage:
     if not isinstance(raw, bytes) or not raw:
         raise MalformedMessage("message bytes are required")
     try:
@@ -531,6 +568,8 @@ def parse_message(raw: bytes) -> ParsedMessage:
     for name in _FORBIDDEN_HEADERS:
         if name in msg:
             raise MalformedMessage(f"header {name} is not allowed")
+    if any(name.lower() not in _ALLOWED_HEADERS for name in msg):
+        raise MalformedMessage("message carries a header that is not on the allowlist")
     to = _one_address(msg, "To")
     sender = _one_address(msg, "From")
     reply = _one_address(msg, "Reply-To")
@@ -546,6 +585,7 @@ def parse_message(raw: bytes) -> ParsedMessage:
     amount, currency = _parse_amount(_one_header(msg, H_AMOUNT, required=False))
     follow_up = _parse_follow_up(_one_header(msg, H_FOLLOW_UP, required=False))
     seq_raw = _one_header(msg, H_FOLLOW_UP_SEQ, required=False)
+    follow_seq = int(seq_raw) if seq_raw and seq_raw.isascii() and seq_raw.isdecimal() else None
     try:
         text = msg.get_content().replace("\r\n", "\n")
     except Exception as exc:  # noqa: BLE001
@@ -565,7 +605,7 @@ def parse_message(raw: bytes) -> ParsedMessage:
         amount=amount,
         currency=currency,
         follow_up=follow_up,
-        followup_seq=int(seq_raw) if seq_raw and seq_raw.isdigit() else None,
+        followup_seq=follow_seq,
         in_reply_to=_one_header(msg, "In-Reply-To", required=False),
         buyer_phone=phone,
         reply_to_name=reply.display_name,
@@ -592,7 +632,7 @@ def _parse_follow_up(value: str | None) -> FollowUpSchedule:
         raise MalformedMessage("follow-up header is malformed")
     try:
         return FollowUpSchedule(int(match.group(1)), timedelta(hours=int(match.group(2))))
-    except ValueError as exc:
+    except (ValueError, OverflowError) as exc:
         raise MalformedMessage("follow-up schedule is invalid") from exc
 
 

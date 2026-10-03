@@ -38,7 +38,9 @@ import json
 import os
 import re
 import secrets
-from collections.abc import Callable, Iterable, Mapping
+import threading
+from collections.abc import Callable, Iterable, Iterator, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
 from decimal import Decimal
@@ -494,6 +496,11 @@ class PurchasingService:
         self.llm = llm  # for the planner/graph; the service itself makes no model calls
         self._wf = Workflow(event_log, clock)
         self._prepared: dict[tuple[str, str], Any] = {}
+        # prepare_rfqs reads the request's RFQ rows, checks every message and only then adds rows; two calls for
+        # one request (a double click) must not interleave, or each adds a row for the same vendor. One lock per
+        # request that is being prepared right now; the entry goes away with its last user.
+        self._prepare_guard = threading.Lock()
+        self._prepare_locks: dict[tuple[str, str], list[Any]] = {}
 
     def _check_wiring(self) -> None:
         """Refuse wiring that would lose what the settings or the profile call for. The settings may not
@@ -782,6 +789,32 @@ class PurchasingService:
         candidate_mpns: list[str] | None = None,
     ) -> list[PreparedRFQ]:
         require(ctx, Role.BUYER)
+        with self._one_prepare_at_a_time(ctx.tenant_id, request_id):  # in-process: see known-gaps.md
+            return self._prepare_rfqs(
+                ctx, request_id, vendor_ids=vendor_ids, candidate_mpns=candidate_mpns)
+
+    @contextmanager
+    def _one_prepare_at_a_time(self, tenant_id: str, request_id: str) -> Iterator[None]:
+        """Serialise ``prepare_rfqs`` per request: only calls for the SAME request wait for each other."""
+        key = (tenant_id, request_id)
+        with self._prepare_guard:
+            entry = self._prepare_locks.get(key)
+            if entry is None:
+                entry = self._prepare_locks[key] = [threading.Lock(), 0]
+            entry[1] += 1
+        try:
+            with entry[0]:
+                yield
+        finally:
+            with self._prepare_guard:
+                entry[1] -= 1
+                if entry[1] == 0:
+                    del self._prepare_locks[key]
+
+    def _prepare_rfqs(
+        self, ctx: Ctx, request_id: str, *, vendor_ids: list[str],
+        candidate_mpns: list[str] | None = None,
+    ) -> list[PreparedRFQ]:
         request = self._load_request(ctx, request_id)
         if request.state not in (S.SPEC_CONFIRMED, S.RFQ_DRAFTED):
             raise Conflict(f"cannot prepare RFQs in state {request.state.value}")

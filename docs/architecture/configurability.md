@@ -47,11 +47,15 @@ settings = Settings.from_profile(
 
 Each value is one line of at most 200 characters. The single-line sanitiser (shared with the subject, the names, the phone
 number and the addresses) rejects: C0 and C1 control characters (U+0000-U+001F and U+007F-U+009F, so a newline, a tab and
-U+0085 NEL too); the Unicode line and paragraph separators (U+2028, U+2029); and zero-width, bidirectional and byte-order-mark
-characters (U+200B-U+200F, U+202A-U+202E, U+2060-U+2064, U+2066-U+2069, U+061C, U+FEFF). An identity value must also show at
-least one letter or digit that is actually drawn (a value of spaces, punctuation or invisible letters such as U+3164 counts as
-missing, at `prepare` and again at send time) and may not contain link-like text (`://`, `www.`, `mailto:`; checked at `prepare`
-only). The message body is the only multi-line field: it keeps newlines and tabs but refuses the rest of that set. The effect,
+U+0085 NEL too); the Unicode line and paragraph separators (U+2028, U+2029); lone surrogates (U+D800-U+DFFF, which cannot be
+encoded); and hidden text: zero-width, bidirectional and byte-order-mark characters (U+200B-U+200F, U+202A-U+202E, U+2060-U+2064,
+U+2066-U+2069, U+061C, U+FEFF), the Hangul and Mongolian fillers (U+115F, U+1160, U+3164, U+FFA0, U+180E), the braille blank
+(U+2800), the interlinear annotation marks (U+FFF9-U+FFFB), the Unicode tag block (U+E0000-U+E007F, which spells ASCII
+invisibly) and the variation-selector supplement (U+E0100-U+E01EF, which can encode bytes). The hidden-text rule is an explicit
+list, not a Unicode category: the soft hyphen (U+00AD), the combining grapheme joiner (U+034F) and U+FE00-U+FE0F stay allowed
+because pasted text and emoji use them. An identity value must also show at least one letter or digit that is actually drawn (a
+value of spaces or punctuation counts as missing, at `prepare` and again at send time) and may not contain link-like text (`://`,
+`www.`, `mailto:`; checked at `prepare` only). The message body is the only multi-line field: it keeps newlines and tabs but refuses the rest of that set. The effect,
 for every one-line field (the subject, the names, the phone number, the addresses and each identity value), is that
 `str.splitlines()` (what a UAX #14 renderer or a mail client does) and `split("\n")` (what every check here does) return the
 same lines for every message the service builds. So a value cannot hide the real footer, and cannot add a line break that only
@@ -72,7 +76,11 @@ bytes as the approver and the send-time gate will, and a footer, a required iden
 names the kind of field, never a value; the pack turns it into a 409. And the send-time gate re-asserts the character rules on the
 bytes it is given: a control, line-break or hidden character in the body, the subject, the sender or reply-to name, an address or
 a reference is refused with the code `unsafe_text` (audited with the code, the hash and the approval id only, and the approval is
-not consumed, as for `identity_missing`). The mandated footer is configuration, not requester text, and is not scanned.
+not consumed, as for `identity_missing`). The mandated footer is configuration, not requester text, and is not scanned. The
+parse is strict in two more ways: the only things it returns are a parsed message or a `MalformedMessage` (a header that decodes
+to a line break, a malformed number or an interval too large for a `timedelta` are refusals, audited at send time, never raw
+exceptions), and it accepts only the headers `build_message` writes (an extra `Sender:`, `Return-Path:`,
+`Disposition-Notification-To:`, `List-Unsubscribe:` or `X-` header, or one split off by a bare carriage return, is refused).
 
 The lines are rendered `<label>: <value>` directly after the signature block, before the RFQ reference line and the
 footer, inside the bytes the approver hashes and sees. If the profile requires the block and a field is missing or blank,

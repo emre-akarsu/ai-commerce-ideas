@@ -52,11 +52,17 @@ needed.
   send-service's own down-now limit is the constant 2 (`DOWN_NOW_MAX_RECIPIENTS`, taken as a minimum with the recipient
   limit). A profile or tenant override of 3 or 4 lets the pack prepare vendors the send-time gate then refuses
   (`recipient_limit`); a value of 1 is enforced by the pack only.
-- The send-time gate has no header allowlist. Approved bytes that were built outside `prepare` and carry an extra header
-  (`Sender:`, `Return-Path:`, `Disposition-Notification-To:`, `List-Unsubscribe:`, an `X-` header) are delivered, and the
-  approver's preview does not show them; `_FORBIDDEN_HEADERS` lists only recipient-widening headers. Not reachable today
-  (`approve_send` only passes the bytes `prepare` cached, and the static scan forbids other callers); an allowlist at
-  send time is the natural next hardening.
+- `prepare_rfqs` is serialised per request inside one process only. With several API processes (or a database store with no
+  constraint) a double click can still add two RFQ rows for one vendor; each row has its own reply token and needs its own
+  human approval, so R1 holds. Backlog: a uniqueness constraint on unsent RFQs per (tenant, request, vendor).
+- The hidden-text rule is an explicit list of code points, not a Unicode category (see `configurability.md`): the soft hyphen,
+  the combining grapheme joiner and U+FE00-U+FE0F are allowed on purpose, and an invisible code point that is not on the list
+  could still pass. The approver's preview shows text as text; it does not mark invisible characters.
+- `cancel_follow_ups` runs on any reply that carries a valid reply token, including a quarantined (DMARC-failed) one, and its
+  `follow_up_cancelled` event records no trigger. Follow-ups are off by default.
+- The wiring check (`PurchasingService._check_wiring`) covers the identity labels, the footer wording and the recipient limit.
+  A hand-wired `SendService` can still differ from the profile in caps (`CapPolicy` against `profile.caps` and tenant caps
+  overrides), approval thresholds and expiry, and the down-now limit; `SendService.from_profile` maps what it can.
 
 ## Business identity (company particulars) gaps
 The UK profile requires a block of company details (name, registered number, registered office, where registered) on

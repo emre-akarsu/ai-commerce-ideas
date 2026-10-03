@@ -105,6 +105,14 @@ def _label_key(label: str) -> str:
     return " ".join(label.lower().split())
 
 
+def _draws_nothing(c: str) -> bool:
+    """Letters and marks that render as nothing although they are not in a control or format
+    category: the Hangul fillers, the braille blank and the variation-selector supplement. The
+    send-service refuses the same characters as hidden text (and the rest of its hidden set is in
+    category C, which the label check already rejects); tests/profiles keeps the two in step."""
+    return c in "\u115f\u1160\u2800\u3164\uffa0" or "\U000e0100" <= c <= "\U000e01ef"
+
+
 def _check_identity_label(field: str, label: str) -> None:
     where = f"business_identity label for {field!r}"
     if not 1 <= len(label) <= MAX_IDENTITY_LABEL_CHARS or label != label.strip():
@@ -113,7 +121,10 @@ def _check_identity_label(field: str, label: str) -> None:
         )
     if any(c in _LABEL_COLONS for c in label):
         raise ValueError(f"{where} must not contain a colon")
-    if any(unicodedata.category(c)[0] == "C" or (c.isspace() and c != " ") for c in label):
+    if any(
+        unicodedata.category(c)[0] == "C" or (c.isspace() and c != " ") or _draws_nothing(c)
+        for c in label
+    ):
         raise ValueError(f"{where} must be plain text (no control, hidden or bidi characters)")
     if _label_key(label) in {_label_key(r) for r in RESERVED_LINE_LABELS}:
         raise ValueError(f"{where} collides with a line the outbound message already uses")
