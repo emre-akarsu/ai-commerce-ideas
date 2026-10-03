@@ -5,9 +5,10 @@ Usage:
   python scripts/update_bank_holidays.py --fetch            # download, snapshot, rewrite profiles
   python scripts/update_bank_holidays.py                    # rewrite profiles from the snapshot
 
-The snapshot lives in profiles/data/gov-uk-bank-holidays.json so tests run offline. Each profile has a
-generated block delimited by `# BEGIN gov.uk bank holidays (<division>)` / `# END gov.uk bank holidays`.
-England and Wales, Scotland and Northern Ireland differ; GOV.UK is the primary source.
+The snapshot lives in profiles/data/gov-uk-bank-holidays.json so tests run offline. Each profile has
+a generated block delimited by `# BEGIN gov.uk bank holidays (<division>)` and
+`# END gov.uk bank holidays`. England and Wales, Scotland and Northern Ireland differ; GOV.UK is
+the primary source.
 """
 
 from __future__ import annotations
