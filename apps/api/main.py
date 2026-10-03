@@ -144,9 +144,19 @@ class PublicLeadTime(BaseModel):
     default_unit: str
 
 
+class PublicBusinessIdentity(BaseModel):
+    """Which company details outbound messages carry and under which labels. The VALUES are
+    per-tenant deployment settings and never appear here."""
+
+    required: bool
+    fields: list[str]
+    labels: dict[str, str]  # effective label per listed field (profile override, else default)
+
+
 class PublicLegal(BaseModel):
     jurisdiction: str
     notices: list[str]
+    business_identity: PublicBusinessIdentity
 
 
 class PublicParts(BaseModel):
@@ -164,7 +174,8 @@ class PublicUi(BaseModel):
 
 class PublicProfile(BaseModel):
     """The NON-SENSITIVE subset of the deployment profile the UI needs. Retention, caps,
-    approval thresholds, billing, provenance and anything tenant-specific are never exposed."""
+    approval thresholds, billing, the footer text, provenance and anything tenant-specific
+    (including business-identity values) are never exposed."""
 
     id: str
     digest: str
@@ -190,7 +201,14 @@ def public_profile(r: ResolvedProfile) -> PublicProfile:
         tax=PublicTax(name=p.tax.name, standard_rate=p.tax.standard_rate,
                       quote_basis_default=p.tax.quote_basis_default),
         lead_time=PublicLeadTime(default_unit=p.lead_time.default_unit),
-        legal=PublicLegal(jurisdiction=p.legal.jurisdiction, notices=list(p.legal.notices)),
+        legal=PublicLegal(
+            jurisdiction=p.legal.jurisdiction, notices=list(p.legal.notices),
+            business_identity=PublicBusinessIdentity(
+                required=p.legal.business_identity.required,
+                fields=list(p.legal.business_identity.fields),
+                labels=p.legal.business_identity.effective_labels(),
+            ),
+        ),
         parts=PublicParts(enabled_families=list(p.parts.enabled_families)),
         tiers=PublicTiers(enabled=list(p.tiers.enabled)),
         ui=PublicUi(language=p.ui.language, copy_overrides=dict(p.ui.copy_overrides)),

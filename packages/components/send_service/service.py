@@ -1,11 +1,12 @@
 """The send-service: the ONLY module that holds or calls the mail transport (R1, ADR-003).
 
-``prepare`` builds the final bytes (buyer identity, Reply-To, non-removable R8 footer) and hashes
-them. ``send`` accepts them only with an ``Approval`` that this process's approval service
-registered for exactly those bytes. Every check below happens BEFORE ``transport.deliver`` and any
-failure raises a specific ``SendRefused`` subclass without touching the transport. Refused sends
-do not consume the approval; once the transport has been called, the approval is spent for good
-(at-most-once: a failed delivery is ambiguous, so a human must approve again).
+``prepare`` builds the final bytes (buyer identity, Reply-To, optional business-identity lines,
+non-removable R8 footer) and hashes them. ``send`` accepts them only with an ``Approval`` that this
+process's approval service registered for exactly those bytes. Every check below happens BEFORE
+``transport.deliver`` and any failure raises a specific ``SendRefused`` subclass without touching
+the transport. Refused sends do not consume the approval; once the transport has been called, the
+approval is spent for good (at-most-once: a failed delivery is ambiguous, so a human must approve
+again).
 
 What is trusted: only the raw bytes and the registered Approval. The ``PreparedMessage`` metadata
 (``to``, ``tenant_id``, ...) is never used for a decision; everything is re-derived from the bytes
@@ -15,6 +16,7 @@ the human approved, and the tenant comes from the Approval (never from the calle
 from __future__ import annotations
 
 import threading
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
@@ -44,6 +46,7 @@ from .errors import (
     DuplicateSend,
     FooterMissing,
     HashMismatch,
+    IdentityMissing,
     KillSwitchEngaged,
     MalformedMessage,
     NonceReplayed,
@@ -58,6 +61,7 @@ from .errors import (
     WrongApprovalKind,
 )
 from .message import (
+    DEFAULT_IDENTITY_LABELS,
     FOOTER_TEMPLATE,
     NO_FOLLOW_UPS,
     REQUIRED_FOOTER_CLAUSES,
@@ -65,13 +69,19 @@ from .message import (
     MessagePurpose,
     ParsedMessage,
     PreparedMessage,
+    as_identity_pairs,
     build_message,
     has_footer,
+    identity_pairs,
+    missing_identity_labels,
     parse_message,
     sha256_hex,
+    unfilled_identity_labels,
+    validate_identity_labels,
 )
 
 __all__ = [
+    "DEFAULT_IDENTITY_LABELS",
     "FOOTER_TEMPLATE",
     "NO_FOLLOW_UPS",
     "FollowUpSchedule",
@@ -160,6 +170,7 @@ class SendService:
         caps: CapPolicy | None = None,
         max_recipients: int = DEFAULT_MAX_RECIPIENTS,
         footer_text: str = FOOTER_TEMPLATE,
+        required_identity_labels: tuple[str, ...] = (),
     ) -> None:
         if not isinstance(footer_text, str) or any(
             clause.lower() not in footer_text.lower() for clause in REQUIRED_FOOTER_CLAUSES
@@ -175,6 +186,9 @@ class SendService:
         self._caps = caps
         self._max_recipients = max_recipients
         self._footer = footer_text
+        # Labels of the business-identity lines every message must carry (empty = none required).
+        # A deployment can only ADD to this; there is no way to remove the footer requirement.
+        self._identity_labels = validate_identity_labels(required_identity_labels)
         self._lock = threading.RLock()
         self._spent: set[str] = set()  # approval ids / nonces handed to the transport
         self._plans: list[_FollowUpPlan] = []
@@ -183,6 +197,11 @@ class SendService:
     def footer_template(self) -> str:
         """The R8 disclosure footer template in force (default constant, or the profile's)."""
         return self._footer
+
+    @property
+    def required_identity_labels(self) -> tuple[str, ...]:
+        """Labels of the business-identity lines every message must carry (may be empty)."""
+        return self._identity_labels
 
     # ------------------------------------------------------------------ prepare
 
@@ -199,9 +218,12 @@ class SendService:
         amount: Decimal | None = None,
         currency: str | None = None,
         follow_up: FollowUpSchedule = NO_FOLLOW_UPS,
+        identity: Sequence[tuple[str, str]] = (),
     ) -> PreparedMessage:
         """Build the final bytes the human will approve. Recipient is always the vendor's
-        registered contact; it is never a caller-supplied address."""
+        registered contact; it is never a caller-supplied address. ``identity`` holds the
+        ``(label, value)`` business-identity lines; a required label that is absent or blank is
+        refused with ``IdentityMissing`` (which names labels, never values)."""
         if vendor.tenant_id != rfq.tenant_id:
             raise TenantMismatch("vendor and RFQ belong to different tenants")
         ts = self._store.for_tenant(rfq.tenant_id)
@@ -215,6 +237,8 @@ class SendService:
             raise MalformedMessage("an RFQ message carries no amount")
         if purpose is MessagePurpose.PO and follow_up.count:
             raise MalformedMessage("purchase orders have no follow-up schedule")
+        pairs = as_identity_pairs(identity)  # materialised once: both checks below read it
+        self._require_identity(unfilled_identity_labels(pairs, self._identity_labels))
         raw = build_message(
             subject=rfq.subject,
             body=rfq.body,
@@ -231,6 +255,7 @@ class SendService:
             amount=amount,
             currency=currency,
             follow_up=follow_up,
+            identity=pairs,
         )
         return PreparedMessage(
             mime_bytes=raw,
@@ -291,6 +316,7 @@ class SendService:
         parsed = parse_message(raw)
         if not has_footer(parsed, self._footer):
             raise FooterMissing("mandatory AI-disclosure footer is missing")
+        self._require_identity(missing_identity_labels(parsed, self._identity_labels))
         if parsed.followup_seq is not None or parsed.in_reply_to is not None:
             raise MalformedMessage("follow-ups are sent by the schedule, not by approval")
         self._check_kind(approval, parsed)
@@ -301,6 +327,15 @@ class SendService:
         if approval.kind is ApprovalKind.STANDING:
             self._check_standing(ctx, approval)
         return ctx
+
+    @staticmethod
+    def _identity_refusal(missing: list[str]) -> IdentityMissing:
+        """Names the missing labels only; never a value."""
+        return IdentityMissing("business identity missing: " + ", ".join(missing))
+
+    def _require_identity(self, missing: list[str]) -> None:
+        if missing:
+            raise self._identity_refusal(missing)
 
     @staticmethod
     def _check_kind(approval: Approval, parsed: ParsedMessage) -> None:
@@ -495,6 +530,7 @@ class SendService:
             return None
         orig = plan.original
         seq = plan.done + 1
+        # The original's identity lines are carried over, so a follow-up never loses them.
         raw = build_message(
             subject="Re: " + orig.subject,
             body=FOLLOW_UP_BODY,
@@ -509,7 +545,14 @@ class SendService:
             footer_template=self._footer,
             in_reply_to=orig.message_id,
             followup_seq=seq,
+            identity=identity_pairs(orig),
         )
+        missing = missing_identity_labels(parse_message(raw), self._identity_labels)
+        if missing:  # fail closed: never send a follow-up without the block the deployment requires
+            plan.active = False
+            self._audit_refusal(plan.tenant_id, None, sha256_hex(raw),
+                                self._identity_refusal(missing))
+            return None
         plan.done = seq  # at-most-once per slot
         if plan.done >= plan.schedule.count:
             plan.active = False

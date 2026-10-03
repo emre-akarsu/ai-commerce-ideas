@@ -46,3 +46,30 @@ needed.
 - UK `locale.holidays` is empty (weekends only); bank holidays must be loaded and tested (UK test U2).
 - Freight is not tax-adjusted; construction reverse-charge detection, customs/duty and UKCA/CE checks are not implemented.
 - `mypy` reports pre-existing type errors in `aidb`, `message.py` and `normalise.py`; it is not yet a CI gate.
+
+## Business identity (company particulars) gaps
+The UK profile requires a block of company details (name, registered number, registered office, where registered) on
+outbound RFQs (`legal.business_identity`). It is a generic, profile-driven mechanism; what it does NOT cover:
+- **Values come from deployment settings, not a database.** The tenant's details are `Settings.business_identities`
+  (tenant id -> field -> value), supplied by the deployment when the service is built. There is no per-tenant table, no
+  admin screen, no audit event for a change, and no check against Companies House or any register: wrong values are sent
+  as configured. Changing a tenant's details needs a restart (per-process, like the H2 items). The shipped dev entrypoint
+  (`apps/api/asgi.py`) builds the service from the profile only and reads no identity from the environment, so under
+  `DEPLOYMENT_PROFILE=uk` every RFQ `prepare` is a 409 until a deployment supplies the values.
+- **Sole traders and partnerships trading under a business name** have different disclosure rules (the UK research points
+  to Companies Act 2006 Part 41, Chapter 2). They are NOT modelled; the four fields assume a company registered in the UK.
+  Other particulars the UK regulations add for some company types (for example companies exempt from using "limited",
+  community interest companies, investment companies) and the paid-up share capital rule are not modelled either.
+- **Is an RFQ email a "business letter"?** The registered name is on its face required on other business correspondence in
+  electronic form, but the further particulars (number, registered office, where registered) apply to "business letters" and
+  "order forms", and no official source found says email is a business letter
+  (`research/uk2/verify/V6-contract-vat-disclosure-law.md`). The UK profile errs on the side of putting all four on every RFQ.
+  A solicitor must confirm; this is not legal advice. The profile can be narrowed by editing `fields`.
+- **PO documents are not sent in this slice.** The PO path produces a draft and a CSV; nothing sends a PO message. The
+  send-service applies the same identity requirement to PO-purpose messages (tested at that level), but the "order form"
+  case has no end-to-end path yet.
+- **One line per value, 200 characters.** Values pass through the single-line sanitiser, so a multi-line registered office
+  must be written on one line (comma separated). Labels are generic English defaults that a profile may override; a
+  non-English deployment must supply its own labels (and footer).
+- **Follow-ups** copy the identity lines of the original message. Follow-up plans are per-process (H2), so a restart still
+  loses them, with or without the block.

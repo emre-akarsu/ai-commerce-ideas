@@ -13,7 +13,7 @@ from fastapi.testclient import TestClient
 
 from aiplat.profile import load_profile
 from components.rfq.quotes.normalise import normalise_quote
-from tests.pack.conftest import REQUEST_TEXT, T1, build_world
+from tests.pack.conftest import REQUEST_TEXT, T1, UK_IDENTITY, build_world
 
 pytestmark = pytest.mark.skipif(
     "profile" not in inspect.signature(normalise_quote).parameters,
@@ -32,7 +32,7 @@ def tok(sub: str, role: str) -> dict[str, str]:
 
 def test_full_http_slice_under_uk_profile() -> None:
     prof = load_profile("uk")
-    w = build_world(profile=prof)
+    w = build_world(profile=prof, business_identities={T1: UK_IDENTITY})  # UK requires the block
     c = TestClient(create_app(w.svc, JwtAuthenticator(key=SECRET, algorithms=("HS256",)), profile=prof))
     req_h, buy_h, adm_h = tok("tech-1", "requester"), tok("buyer-1", "buyer"), tok("approver-1", "admin")
 

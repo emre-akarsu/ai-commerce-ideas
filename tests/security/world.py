@@ -70,6 +70,7 @@ def build_world(
     daily: str = "2000",
     threshold: str = "500",
     max_recipients: int = 4,
+    required_identity_labels: tuple[str, ...] = (),
 ) -> World:
     clock = FakeClock()
     store = Store()
@@ -82,7 +83,8 @@ def build_world(
         requester_threshold=Decimal(threshold),
     )
     send = SendService(
-        transport, clock, store, log, kill_switch=kill, caps=caps, max_recipients=max_recipients
+        transport, clock, store, log, kill_switch=kill, caps=caps, max_recipients=max_recipients,
+        required_identity_labels=required_identity_labels,
     )
     # tenant 1: one vendor, one request, one RFQ
     t1 = store.for_tenant(T1)

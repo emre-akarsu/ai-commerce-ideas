@@ -1,7 +1,8 @@
 """Send-service: the only module that may hold or call the mail transport (R1, ADR-003)."""
 
-from .errors import SendError, SendRefused
+from .errors import IdentityMissing, SendError, SendRefused
 from .service import (
+    DEFAULT_IDENTITY_LABELS,
     FOOTER_TEMPLATE,
     NO_FOLLOW_UPS,
     FollowUpSchedule,
@@ -12,9 +13,11 @@ from .service import (
 )
 
 __all__ = [
+    "DEFAULT_IDENTITY_LABELS",
     "FOOTER_TEMPLATE",
     "NO_FOLLOW_UPS",
     "FollowUpSchedule",
+    "IdentityMissing",
     "KillSwitch",
     "MessagePurpose",
     "PreparedMessage",

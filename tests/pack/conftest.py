@@ -24,6 +24,19 @@ from components.evidence.log import EventLog
 from components.purchase_orders.approvals import CapPolicy
 
 T1, T2 = "tenant-1", "tenant-2"
+# Synthetic, illustrative company particulars (not real companies) for profiles that require the block.
+UK_IDENTITY = {
+    "legal_name": "Acme Plant Ltd",
+    "registration_number": "01234567",
+    "registered_office": "1 Example Street, London, EC1A 1AA",
+    "registered_in": "England and Wales",
+}
+UK_IDENTITY_T2 = {
+    "legal_name": "Beta Works Limited",
+    "registration_number": "SC765432",
+    "registered_office": "2 Sample Road, Edinburgh, EH1 1AA",
+    "registered_in": "Scotland",
+}
 REQUEST_TEXT = (
     "Bearing 6205-2RS, normal clearance CN. Manufacturer: SynthCo Alpha MPN: AL6205-2RS. "
     "Need 10 pcs by 2026-10-20."

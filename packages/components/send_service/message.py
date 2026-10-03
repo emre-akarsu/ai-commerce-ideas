@@ -1,15 +1,17 @@
 """Building and parsing the outbound MIME message (R8, spec 4a).
 
-The message is a single ``text/plain`` part: body, buyer signature, then the non-removable
-AI-disclosure footer as the LAST block. There is no HTML part, so the footer cannot be bypassed by
-a client that prefers another alternative. Everything the send-service later trusts (recipient,
-RFQ reference, purpose, amount, follow-up schedule) lives in the hashed bytes the human approved.
+The message is a single ``text/plain`` part: body, buyer signature, optional business-identity lines
+(company particulars a deployment may require), then the non-removable AI-disclosure footer as the
+LAST block. There is no HTML part, so the footer cannot be bypassed by a client that prefers another
+alternative. Everything the send-service later trusts (recipient, RFQ reference, purpose, amount,
+follow-up schedule, identity lines) lives in the hashed bytes the human approved.
 """
 
 from __future__ import annotations
 
 import hashlib
 import re
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
@@ -18,6 +20,7 @@ from email.headerregistry import Address
 from email.message import EmailMessage
 from email.utils import format_datetime
 from enum import StrEnum
+from types import MappingProxyType
 from typing import ClassVar
 
 from .errors import MalformedMessage
@@ -32,6 +35,27 @@ REQUIRED_FOOTER_CLAUSES = ("AI assistant", "cannot accept terms", "{buyer}")
 MAX_BODY_CHARS = 20_000
 MAX_SUBJECT_CHARS = 200
 MAX_FOLLOW_UPS = 3
+
+# Business identity ("company particulars"): "<label>: <value>" lines placed directly after the
+# signature block. A deployment profile may require labels; this module only sees labels and values.
+# These constants mirror aiplat.profile (components never import aiplat); tests/profiles keeps the
+# two copies equal.
+DEFAULT_IDENTITY_LABELS: Mapping[str, str] = MappingProxyType(
+    {
+        "legal_name": "Company name",
+        "registration_number": "Company number",
+        "registered_office": "Registered office",
+        "registered_in": "Registered in",
+    }
+)
+MAX_IDENTITY_LABEL_CHARS = 40
+MAX_IDENTITY_VALUE_CHARS = 200
+MAX_IDENTITY_LINES = 8
+# Lines this module already owns; an identity label equal to one of them would be ambiguous.
+RESERVED_LINE_LABELS = ("Phone", "Reply to", "RFQ reference")
+_LABEL_COLONS = ":\uff1a"  # ASCII and fullwidth colon: a line is "<label>: <value>"
+_RFQ_REFERENCE_PREFIX = "RFQ reference: "
+_FOOTER_SEPARATOR = "--"
 
 H_RFQ = "X-Purchasing-Agent-RFQ"
 H_PURPOSE = "X-Purchasing-Agent-Purpose"
@@ -177,6 +201,88 @@ def _msg_id_part(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9._-]", "-", value)[:60] or "x"
 
 
+def _label_key(label: str) -> str:
+    return " ".join(label.lower().split())
+
+
+_RESERVED_KEYS = frozenset(_label_key(r) for r in RESERVED_LINE_LABELS)
+
+
+def _identity_label(raw: object) -> str:
+    """A label is plain single-line text: no surrounding spaces, no colon, not a reserved line."""
+    label = _line(raw, "identity label", MAX_IDENTITY_LABEL_CHARS)
+    if (
+        label != raw
+        or any(c in _LABEL_COLONS for c in label)
+        or _label_key(label) in _RESERVED_KEYS
+    ):
+        raise MalformedMessage(
+            "identity label must be plain text without surrounding spaces or a colon, "
+            "and not a reserved line label"
+        )
+    return label
+
+
+def as_identity_pairs(identity: object) -> list[object]:
+    """Materialise the caller's pairs once. Any iterable of items is accepted (list, tuple,
+    ``dict.items()``, ...) except text, bytes and mappings, which are not a sequence of pairs."""
+    if isinstance(identity, (str, bytes, Mapping)) or not isinstance(identity, Iterable):
+        raise MalformedMessage("identity must be a sequence of (label, value) pairs")
+    return list(identity)
+
+
+def _identity_lines(identity: object) -> list[str]:
+    """Render ``(label, value)`` pairs as ``"<label>: <value>"`` lines. Values pass through the same
+    single-line sanitiser as the other header-like text; errors name the label, never the value."""
+    pairs = as_identity_pairs(identity)
+    if len(pairs) > MAX_IDENTITY_LINES:
+        raise MalformedMessage(f"identity has more than {MAX_IDENTITY_LINES} lines")
+    lines: list[str] = []
+    seen: set[str] = set()
+    for item in pairs:
+        if not isinstance(item, (list, tuple)) or len(item) != 2:
+            raise MalformedMessage("identity entries must be (label, value) pairs")
+        label = _identity_label(item[0])
+        value = _line(item[1], f"identity value for {label!r}", MAX_IDENTITY_VALUE_CHARS)
+        if _label_key(label) in seen:
+            raise MalformedMessage("identity labels must be unique")
+        seen.add(_label_key(label))
+        lines.append(f"{label}: {value}")
+    return lines
+
+
+def validate_identity_labels(labels: object) -> tuple[str, ...]:
+    """The labels a deployment requires on every message. Raises ``ValueError`` (a configuration
+    error, like a bad footer) unless they are distinct plain-text labels."""
+    if not isinstance(labels, (list, tuple)):
+        raise ValueError("required_identity_labels must be a tuple of identity labels")
+    if len(labels) > MAX_IDENTITY_LINES:
+        raise ValueError(f"required_identity_labels allows at most {MAX_IDENTITY_LINES} labels")
+    seen: set[str] = set()
+    for label in labels:
+        try:
+            _identity_label(label)
+        except MalformedMessage as exc:
+            raise ValueError("required_identity_labels holds an invalid identity label") from exc
+        if _label_key(label) in seen:
+            raise ValueError("required_identity_labels must be distinct identity labels")
+        seen.add(_label_key(label))
+    return tuple(labels)
+
+
+def unfilled_identity_labels(identity: Iterable[object], labels: Sequence[str]) -> list[str]:
+    """The required labels that have no non-blank value among the given ``(label, value)`` pairs
+    (already materialised by ``as_identity_pairs``). Tolerant of bad entries, which
+    ``build_message`` reports; never returns a value."""
+    filled = {
+        item[0]
+        for item in identity
+        if isinstance(item, (list, tuple)) and len(item) == 2
+        and isinstance(item[0], str) and isinstance(item[1], str) and item[1].strip()
+    }
+    return [label for label in labels if label not in filled]
+
+
 # ---------------------------------------------------------------- build
 
 
@@ -203,8 +309,13 @@ def build_message(
     follow_up: FollowUpSchedule = NO_FOLLOW_UPS,
     in_reply_to: str | None = None,
     followup_seq: int | None = None,
+    identity: Sequence[tuple[str, str]] = (),
 ) -> bytes:
-    """Return the final MIME bytes (CRLF, 7-bit safe). Raises MalformedMessage on bad input."""
+    """Return the final MIME bytes (CRLF, 7-bit safe). Raises MalformedMessage on bad input.
+
+    ``identity`` is an ordered list of ``(label, value)`` pairs rendered one per line directly after
+    the signature block, before the RFQ reference line and the footer (which stays the last block).
+    """
     subject_c = _line(subject, "subject", MAX_SUBJECT_CHARS)
     buyer_c = _line(buyer_name, "buyer_name", 100)
     phone_c = _clean_phone(buyer_phone)
@@ -224,9 +335,10 @@ def build_message(
         amount_header = f"{amount:f} {currency}"
 
     lines = [body_c, "", signature_block(buyer_c, phone_c, reply.addr_spec)]
+    lines += _identity_lines(identity)
     if reply_token:
-        lines.append(f"RFQ reference: {_line(reply_token, 'reply_token', 200)}")
-    lines += ["", "--", render_footer(footer_template, buyer_c), ""]
+        lines.append(_RFQ_REFERENCE_PREFIX + _line(reply_token, "reply_token", 200))
+    lines += ["", _FOOTER_SEPARATOR, render_footer(footer_template, buyer_c), ""]
     text = "\n".join(lines)
 
     stamp = int(sent_at.timestamp())
@@ -372,3 +484,57 @@ def has_footer(parsed: ParsedMessage, footer_template: str) -> bool:
     footer = render_footer(footer_template, parsed.from_name)
     text = parsed.text.rstrip()
     return text == footer or text.endswith("\n" + footer)
+
+
+# ---------------------------------------------------------------- business identity (parse side)
+
+
+def _identity_run(parsed: ParsedMessage) -> list[str]:
+    """The ``"<label>: <value>"`` lines in the identity POSITION: directly after the signature
+    block, before the RFQ reference line and the footer separator. Body text that merely looks like
+    such a line is never in this run: the run is anchored on the LAST signature block before the
+    LAST ``--`` separator, and ends at the first blank line, RFQ reference line or non-label line.
+    """
+    lines = parsed.text.split("\n")
+    sep = next((i for i in range(len(lines) - 1, -1, -1) if lines[i] == _FOOTER_SEPARATOR), None)
+    if sep is None:
+        return []
+    reply_line = f"Reply to: {parsed.reply_to}"
+    start = next(
+        (k + 1 for k in range(sep - 1, 0, -1)
+         if lines[k] == reply_line and lines[k - 1].startswith("Phone: ")),
+        None,
+    )
+    if start is None:
+        return []
+    run: list[str] = []
+    for line in lines[start:sep]:
+        if not line or line.startswith(_RFQ_REFERENCE_PREFIX) or ": " not in line:
+            break
+        run.append(line)
+    return run
+
+
+def identity_pairs(parsed: ParsedMessage) -> list[tuple[str, str]]:
+    """The ``(label, value)`` pairs in the identity position of a parsed message, in order."""
+    out: list[tuple[str, str]] = []
+    for line in _identity_run(parsed):
+        label, _, value = line.partition(": ")
+        out.append((label, value))
+    return out
+
+
+def missing_identity_labels(parsed: ParsedMessage, labels: Sequence[str]) -> list[str]:
+    """Required labels without a ``"<label>: "`` line holding a non-empty value in the identity
+    position. Returns labels only, never values."""
+    run = _identity_run(parsed)
+    return [
+        label for label in labels
+        if not any(ln.startswith(f"{label}: ") and ln[len(label) + 2 :].strip() for ln in run)
+    ]
+
+
+def has_identity(parsed: ParsedMessage, labels: Sequence[str]) -> bool:
+    """True iff every required label appears as a line start ``"<label>: "`` with a non-empty value
+    in the identity position, before the footer separator. No required labels: always True."""
+    return not missing_identity_labels(parsed, labels)

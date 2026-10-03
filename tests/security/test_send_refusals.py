@@ -2,18 +2,22 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import replace
 from datetime import timedelta
+from decimal import Decimal
 
 import pytest
 
 from components.core.domain import Approval, ApprovalKind
 from components.evidence.log import EVT_SEND_REFUSED
+from components.purchase_orders.approvals.service import ApprovalAction, quote_fingerprint
 from components.send_service.errors import (
     ApprovalExpired,
     DomainMismatch,
     FooterMissing,
     HashMismatch,
+    IdentityMissing,
     KillSwitchEngaged,
     NonceReplayed,
     RecipientNotVendor,
@@ -33,11 +37,12 @@ from tests.security.factories import (
     T1,
     T2,
     make_approval,
+    make_quote,
     make_rfq,
     make_vendor,
     sha,
 )
-from tests.security.world import World
+from tests.security.world import World, build_world
 
 FOOTER = FOOTER_TEMPLATE.replace("{buyer}", BUYER)
 
@@ -233,3 +238,124 @@ def test_rfqs_for_unknown_ids_are_refused(world: World) -> None:
         world.send.send(p, world.approve(p))
     assert world.transport.delivered == []
     _ = sha
+
+
+# ------------------------------------------------------------------ business identity (R1 + R8 neighbours)
+
+ID_LABELS = ("Company name", "Company number", "Registered office", "Registered in")
+ID_LINES = (
+    ("Company name", "Acme Plant Ltd"),
+    ("Company number", "01234567"),
+    ("Registered office", "1 Example Street, London, EC1A 1AA"),
+    ("Registered in", "England and Wales"),
+)
+
+
+@pytest.fixture
+def strict() -> World:
+    """A world whose send-service requires the business-identity lines on every message."""
+    return build_world(required_identity_labels=ID_LABELS)
+
+
+def raw_with(
+    world: World, *, identity: tuple[tuple[str, str], ...] = (), body: str = "Please quote.",
+    purpose: MessagePurpose = MessagePurpose.RFQ, **kw: object,
+) -> bytes:
+    """Bytes built OUTSIDE ``SendService.prepare`` (what a buggy or hostile caller could hand over)."""
+    return build_message(
+        subject="RFQ: 6205-2RS x4", body=body, to="quotes@bearings-direct.example",
+        buyer_name=BUYER, buyer_phone=PHONE, alias_address=ALIAS, reply_to=BUYER_EMAIL,
+        rfq_id="rfq-1", purpose=purpose, sent_at=world.clock.now(),
+        footer_template=FOOTER_TEMPLATE, identity=identity, **kw,  # type: ignore[arg-type]
+    )
+
+
+def test_bytes_without_the_identity_block_are_refused_even_with_a_valid_approval(
+    strict: World,
+) -> None:
+    p = prepared_from(raw_with(strict))
+    refused(strict, p, strict.approve(p), IdentityMissing)
+    (event,) = [e for e in strict.log.events(T1) if e.type == EVT_SEND_REFUSED]
+    assert event.payload["reason"] == "identity_missing"
+    assert event.payload["mime_hash"] == p.mime_hash
+    dumped = json.dumps(event.payload, default=str)
+    assert "Company" not in dumped and "Acme" not in dumped  # code and hash only
+    assert strict.log.verify_chain(T1)
+
+
+def test_a_partial_block_is_refused_and_names_only_what_is_missing(strict: World) -> None:
+    p = prepared_from(raw_with(strict, identity=ID_LINES[:3]))
+    with pytest.raises(IdentityMissing) as exc:
+        strict.send.send(p, strict.approve(p))
+    assert "Registered in" in str(exc.value)
+    for present, value in ID_LINES[:3]:
+        assert present not in str(exc.value) and value not in str(exc.value)
+    assert strict.transport.delivered == []
+
+
+def test_an_empty_value_is_refused(strict: World) -> None:
+    good = strict.prepare(identity=ID_LINES)
+    blank = good.mime_bytes.replace(b"Company number: 01234567\r\n", b"Company number: \r\n")
+    assert blank != good.mime_bytes
+    p = prepared_from(blank)
+    refused(strict, p, strict.approve(p), IdentityMissing)
+
+
+def test_removing_the_block_after_approval_is_refused(strict: World) -> None:
+    p = strict.prepare(identity=ID_LINES)
+    a = strict.approve(p)
+    stripped = p.mime_bytes
+    for label, value in ID_LINES:
+        stripped = stripped.replace(f"{label}: {value}\r\n".encode(), b"")
+    assert stripped != p.mime_bytes and b"Company" not in stripped
+    refused(strict, replace(p, mime_bytes=stripped), a, HashMismatch)  # altered after hashing
+    refused(strict, prepared_from(stripped), a, HashMismatch)  # even with the hash recomputed
+    fresh = prepared_from(stripped)  # ... and a fresh approval for the stripped bytes is not enough
+    refused(strict, fresh, strict.approve(fresh), IdentityMissing)
+
+
+def test_label_lines_in_the_body_do_not_stand_in_for_the_block(strict: World) -> None:
+    body = "\n".join(f"{label}: {value}" for label, value in ID_LINES)
+    p = prepared_from(raw_with(strict, body=body))
+    refused(strict, p, strict.approve(p), IdentityMissing)
+
+
+def test_the_block_must_come_before_the_footer_not_after_it(strict: World) -> None:
+    after = FOOTER_TEMPLATE + "\n" + "\n".join(f"{label}: {value}" for label, value in ID_LINES)
+    raw = build_message(
+        subject="RFQ: 6205-2RS x4", body="Please quote.", to="quotes@bearings-direct.example",
+        buyer_name=BUYER, buyer_phone=PHONE, alias_address=ALIAS, reply_to=BUYER_EMAIL,
+        rfq_id="rfq-1", purpose=MessagePurpose.RFQ, sent_at=strict.clock.now(),
+        footer_template=after,
+    )
+    p = prepared_from(raw)
+    refused(strict, p, strict.approve(p), FooterMissing)  # the footer is no longer the last block
+
+
+def test_a_compliant_message_is_sent_once_as_exactly_the_approved_bytes(strict: World) -> None:
+    p = strict.prepare(identity=ID_LINES)
+    strict.send.send(p, strict.approve(p))
+    (sent,) = strict.transport.delivered
+    assert sent["raw_mime"] == p.mime_bytes
+    assert b"Registered in: England and Wales\r\n" in sent["raw_mime"]
+
+
+def test_a_purchase_order_without_the_block_is_refused_too(strict: World) -> None:
+    quote_hash = quote_fingerprint(make_quote())
+    link = dict(tenant_id=T1, approver="user:approver-1", action=ApprovalAction.APPROVE,
+                quote_version=1, quote_hash=quote_hash)
+    token = strict.approvals.issue_approval_token(
+        **link, requester="user:tech-1", amount=Decimal("300")  # type: ignore[arg-type]
+    )
+    claims = strict.approvals.consume_token(token, **link)  # type: ignore[arg-type]
+    po = {"purpose": MessagePurpose.PO, "amount": Decimal("300"), "currency": "USD"}
+    bare = prepared_from(raw_with(strict, **po))
+    refused(strict, bare, strict.approvals.issue_po_approval(claims, bare.mime_hash,
+                                                             timedelta(minutes=30)), IdentityMissing)
+    assert strict.caps.spent_today(T1) == Decimal("0")  # nothing was reserved by the refused send
+
+
+def test_no_required_labels_means_the_old_behaviour(world: World) -> None:
+    p = prepared_from(raw_for(world, to="quotes@bearings-direct.example"))
+    world.send.send(p, world.approve(p))  # no identity block, none required: still sends
+    assert len(world.transport.delivered) == 1

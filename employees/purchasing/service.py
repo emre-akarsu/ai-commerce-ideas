@@ -14,6 +14,9 @@ Everything the hard rules need is enforced here, in code:
   the audit log, so this service keeps no hidden state besides the prepared-message cache.
 - Tenant isolation: every object is reached through ``Store.for_tenant(ctx.tenant_id)``; foreign or
   unknown ids raise ``NotFound``. Tenant and user come from ``Ctx`` only.
+- Business identity (company particulars a profile may require on outbound mail): the values are a
+  deployment fact (``Settings.business_identities``), looked up ONLY by ``ctx.tenant_id``; an incomplete
+  identity under a profile that requires it is a ``Conflict`` before anything is stored or sent.
 """
 
 from __future__ import annotations
@@ -85,7 +88,7 @@ from components.rfq.quotes.grounding import INJECTION_FLAG, ground
 from components.rfq.quotes.normalise import is_quarantined, normalise_quote
 from components.rfq.workflow import Workflow, WorkflowError
 from components.send_service import SendError, SendService
-from components.send_service.message import render_footer
+from components.send_service.message import DEFAULT_IDENTITY_LABELS, render_footer
 
 from .service_port import Conflict, NotFound
 from .views import (
@@ -162,6 +165,26 @@ class Settings:
     tiers_enabled: tuple[str, ...] | None = None  # None = ("A", "B")
     base_currency: str = "USD"
     raw_email_days: int = 90
+    # Business identity ("company particulars") on outbound RFQs. The VALUES are a deployment fact:
+    # tenant_id -> field -> value, looked up ONLY by the authenticated tenant and never taken from a
+    # request or model output. Which fields, their labels and whether they are required come from the
+    # profile (`legal.business_identity`); `identity_labels` maps field -> label (defaults apply).
+    business_identities: Mapping[str, Mapping[str, str]] = field(default_factory=dict)
+    identity_fields: tuple[str, ...] = ()
+    identity_labels: Mapping[str, str] = field(default_factory=dict)
+    identity_required: bool = False
+
+    def __post_init__(self) -> None:
+        if len(set(self.identity_fields)) != len(self.identity_fields) or any(
+            f not in DEFAULT_IDENTITY_LABELS for f in self.identity_fields
+        ):
+            raise ValueError("identity_fields must be distinct, known identity fields")
+        if self.identity_required and not self.identity_fields:
+            raise ValueError("identity_required needs at least one identity field")
+
+    def identity_label(self, name: str) -> str:
+        """The line label for one identity field: the profile's wording, else the default."""
+        return self.identity_labels.get(name) or DEFAULT_IDENTITY_LABELS[name]
 
     @classmethod
     def from_profile(cls, profile: ResolvedProfile, **deployment_kwargs: Any) -> Settings:
@@ -181,12 +204,18 @@ class Settings:
             "tiers_enabled": tuple(p.tiers.enabled),
             "base_currency": p.money.base_currency,
             "raw_email_days": p.retention.raw_email_days,
+            "identity_fields": tuple(p.legal.business_identity.fields),
+            "identity_labels": p.legal.business_identity.effective_labels(),
+            "identity_required": p.legal.business_identity.required,
         }
         return cls(**{**derived, **deployment_kwargs})
 
     def with_profile_defaults(self, profile: ResolvedProfile) -> Settings:
-        """Fill only the unset profile-derived fields of explicitly given settings."""
+        """Fill only the unset profile-derived fields of explicitly given settings. The business
+        identity policy is merged, never replaced: explicit settings can ADD fields or a requirement
+        but cannot drop what the profile requires or reword the profile's labels."""
         p = profile.profile
+        bi = p.legal.business_identity
         return replace(
             self,
             profile_tag=self.profile_tag or profile.short(),
@@ -194,6 +223,9 @@ class Settings:
                               else tuple(p.parts.enabled_families)),
             tiers_enabled=(self.tiers_enabled if self.tiers_enabled is not None
                            else tuple(p.tiers.enabled)),
+            identity_fields=tuple(dict.fromkeys([*bi.fields, *self.identity_fields])),
+            identity_labels={**self.identity_labels, **bi.effective_labels()},
+            identity_required=self.identity_required or bi.required,
         )
 
 
@@ -615,7 +647,8 @@ class PurchasingService:
         mpns = self._rfq_mpns(request, candidate_mpns)
         ts = self._ts(ctx.tenant_id)
         vendors = self._rfq_vendors(ts, request, list(dict.fromkeys(vendor_ids)))
-        out = [self._prepare_one(ctx, request, v, mpns) for v in vendors]
+        identity = self._business_identity(ctx)  # last gate: nothing is stored if it refuses
+        out = [self._prepare_one(ctx, request, v, mpns, identity) for v in vendors]
         if request.state is S.SPEC_CONFIRMED:
             self._move(request, S.RFQ_DRAFTED, ctx.actor,
                        {"rfq_ids": [p.rfq_id for p in out], "candidate_mpns": mpns})
@@ -655,7 +688,30 @@ class PurchasingService:
             raise Conflict(f"at most {limit} vendors per request")
         return vendors
 
-    def _prepare_one(self, ctx: Ctx, request: Request, vendor: Vendor, mpns: list[str]) -> PreparedRFQ:
+    def _business_identity(self, ctx: Ctx) -> list[tuple[str, str]]:
+        """The ordered ``(label, value)`` company-particulars lines for the caller's tenant. The
+        tenant comes from ``ctx`` only. When the profile requires the block and any field is missing
+        or blank this raises ``Conflict`` naming the FIELDS (never values); otherwise the fields the
+        tenant has are returned (possibly none)."""
+        s = self._settings
+        values = (s.business_identities or {}).get(ctx.tenant_id)
+        if not isinstance(values, Mapping):
+            values = {}
+        pairs: list[tuple[str, str]] = []
+        missing: list[str] = []
+        for name in s.identity_fields:
+            raw = values.get(name)
+            value = raw.strip() if isinstance(raw, str) else ""
+            if value:
+                pairs.append((s.identity_label(name), value))
+            else:
+                missing.append(name)
+        if missing and s.identity_required:
+            raise Conflict("business identity incomplete: missing " + ", ".join(missing))
+        return pairs
+
+    def _prepare_one(self, ctx: Ctx, request: Request, vendor: Vendor, mpns: list[str],
+                     identity: list[tuple[str, str]]) -> PreparedRFQ:
         ts = self._ts(ctx.tenant_id)
         existing = next((r for r in self._rfqs(ts, request.id) if r.vendor_id == vendor.id), None)
         if existing is not None and existing.sent_message_id:
@@ -676,7 +732,8 @@ class PurchasingService:
         name, reply_to = self._buyer(ctx)
         try:
             prepared = self._send.prepare(
-                rfq, vendor, name, self._settings.buyer_phone, self._settings.alias_address, reply_to
+                rfq, vendor, name, self._settings.buyer_phone, self._settings.alias_address, reply_to,
+                identity=identity,
             )
         except SendError as exc:
             raise Conflict(f"cannot prepare message: {exc}") from exc
@@ -1276,6 +1333,14 @@ def _audit_log(clock: Clock, audit_key: bytes | None) -> EventLog:
     return EventLog(clock, pii_key=pii, chain_key=chain)
 
 
+def _required_identity_labels(cfg: Settings) -> tuple[str, ...]:
+    """Labels the send-service must find on every message (checked again at send time). Derived from
+    the settings AFTER the profile's policy was merged in, so they can only ever add to the profile."""
+    if not cfg.identity_required:
+        return ()
+    return tuple(cfg.identity_label(name) for name in cfg.identity_fields)
+
+
 def _caps_from_profile(prof: ResolvedProfile, clock: Clock) -> CapPolicy:
     """Spend caps in the profile's base currency; unset profile caps keep the shipped defaults."""
     c = prof.profile.caps
@@ -1327,7 +1392,8 @@ def build_in_memory_service(
         requester_threshold=cfg.approval_threshold)
     send = SendService(transport or RecordingTransport(), clk, st, log, caps=policy,
                        max_recipients=cfg.max_vendors,
-                       footer_text=prof.profile.legal.disclosure_footer)
+                       footer_text=prof.profile.legal.disclosure_footer,
+                       required_identity_labels=_required_identity_labels(cfg))
     if extractor is None:
         extractor = (LLMQuoteExtractor(llm) if use_llm_extractor and llm is not None
                      else RegexQuoteExtractor())

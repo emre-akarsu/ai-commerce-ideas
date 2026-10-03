@@ -67,6 +67,14 @@ class FooterMissing(SendRefused):
     code = "footer_missing"
 
 
+class IdentityMissing(SendRefused):
+    """A business-identity line the deployment requires (company particulars) is absent or empty.
+
+    The text names the missing labels only; it never echoes a value."""
+
+    code = "identity_missing"
+
+
 class MalformedMessage(SendRefused):
     code = "malformed_message"
 

@@ -3,6 +3,9 @@
 # Hard rules R1-R12 have no keys here by design; config can localise and tighten, never loosen.
 profile_version: 1
 description: Platform defaults
+# Company-particulars block on outbound messages: off by default. A profile whose law requires it
+# (see uk) switches it on; the values are per-tenant deployment settings, never profile data.
+legal: { business_identity: { required: false, fields: [] } }
 retention: { raw_email_days: 90, po_records_years: 7, audit_years: 7 }
 approvals: { threshold: "500", send_approval_ttl_minutes: 30, substitution_ttl_hours: 24 }
 comms: { max_vendors: 4, down_now_max_vendors: 2, reply_token_ttl_days: 90 }

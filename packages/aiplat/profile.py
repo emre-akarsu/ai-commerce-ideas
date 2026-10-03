@@ -14,11 +14,13 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
+import unicodedata
 from collections.abc import Mapping
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Literal
+from types import MappingProxyType
+from typing import Any, Literal, get_args
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -75,6 +77,74 @@ class LeadTimePolicy(_P):
 
 REQUIRED_FOOTER_CLAUSES = ("AI assistant", "cannot accept terms", "{buyer}")
 
+# Business identity ("company particulars"): company details some jurisdictions require on business
+# letters and order forms, including in electronic form. A profile may REQUIRE the block and choose
+# its labels; the VALUES are per-tenant deployment facts and never live in a profile. The setting
+# only ADDS a requirement: it has no key that can remove, move or reword the R8 footer.
+IdentityField = Literal["legal_name", "registration_number", "registered_office", "registered_in"]
+IDENTITY_FIELDS: tuple[str, ...] = get_args(IdentityField)
+# Generic English defaults; a profile overrides them via `labels`. The send-service carries a mirror
+# of these constants (components never import aiplat); tests/profiles keeps the two copies equal.
+DEFAULT_IDENTITY_LABELS: Mapping[str, str] = MappingProxyType(
+    {
+        "legal_name": "Company name",
+        "registration_number": "Company number",
+        "registered_office": "Registered office",
+        "registered_in": "Registered in",
+    }
+)
+MAX_IDENTITY_LABEL_CHARS = 40
+# Lines the outbound message format already owns; a label equal to one of them would be ambiguous.
+RESERVED_LINE_LABELS = ("Phone", "Reply to", "RFQ reference")
+_LABEL_COLONS = ":\uff1a"  # ASCII and fullwidth colon: the rendered line is "<label>: <value>"
+
+
+def _label_key(label: str) -> str:
+    return " ".join(label.lower().split())
+
+
+def _check_identity_label(field: str, label: str) -> None:
+    where = f"business_identity label for {field!r}"
+    if not 1 <= len(label) <= MAX_IDENTITY_LABEL_CHARS or label != label.strip():
+        raise ValueError(
+            f"{where} must be 1-{MAX_IDENTITY_LABEL_CHARS} characters without surrounding spaces"
+        )
+    if any(c in _LABEL_COLONS for c in label):
+        raise ValueError(f"{where} must not contain a colon")
+    if any(unicodedata.category(c)[0] == "C" or (c.isspace() and c != " ") for c in label):
+        raise ValueError(f"{where} must be plain text (no control, hidden or bidi characters)")
+    if _label_key(label) in {_label_key(r) for r in RESERVED_LINE_LABELS}:
+        raise ValueError(f"{where} collides with a line the outbound message already uses")
+
+
+class BusinessIdentityPolicy(_P):
+    required: bool = False
+    # Which company details go on the message, in this order. Listed without `required`, the lines
+    # are included when the tenant has values for them (optional block).
+    fields: tuple[IdentityField, ...] = ()
+    # Optional wording overrides per listed field; anything not listed uses DEFAULT_IDENTITY_LABELS.
+    labels: Mapping[str, str] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _consistent(self) -> BusinessIdentityPolicy:
+        if self.required and not self.fields:
+            raise ValueError("business_identity.required needs at least one field")
+        if len(set(self.fields)) != len(self.fields):
+            raise ValueError("business_identity.fields must be unique")
+        unlisted = sorted(set(self.labels) - set(self.fields))
+        if unlisted:
+            raise ValueError(f"business_identity.labels keys must be listed in fields: {unlisted}")
+        for field_name, label in self.labels.items():
+            _check_identity_label(field_name, label)
+        effective = [_label_key(label) for label in self.effective_labels().values()]
+        if len(set(effective)) != len(effective):
+            raise ValueError("business_identity labels must be distinct (ignoring case)")
+        return self
+
+    def effective_labels(self) -> dict[str, str]:
+        """Label per listed field, in field order: the profile's override, else the default."""
+        return {f: self.labels.get(f, DEFAULT_IDENTITY_LABELS[f]) for f in self.fields}
+
 
 class LegalPolicy(_P):
     jurisdiction: str
@@ -83,6 +153,9 @@ class LegalPolicy(_P):
     disclosure_footer: str
     marketing_email_allowed: Literal[False] = False  # invariant: the product sends no marketing
     notices: tuple[str, ...] = ()  # extra jurisdiction notices shown in the UI / DPA checklist
+    # Company-particulars block on outbound messages; default "not required". Not tenant-overridable
+    # (and so not in TENANT_OVERRIDABLE).
+    business_identity: BusinessIdentityPolicy = Field(default_factory=BusinessIdentityPolicy)
 
     @field_validator("disclosure_footer")
     @classmethod

@@ -21,6 +21,7 @@ A running deployment resolves **platform defaults → `base` → profile (→ pa
 | Tax | `tax.name/standard_rate/quote_basis_default/unknown_basis` | Quote normaliser (ex-tax comparison), approval link display |
 | Lead time | `lead_time.default_unit` | Normaliser ("3 days" = working vs calendar days) |
 | Legal | `legal.jurisdiction/contact_data_regime/disclosure_footer/notices` | Send-service footer (R8), UI notices, DPA checklist |
+| Business identity (company particulars) | `legal.business_identity.required/fields/labels` (labels and which fields only; the values are per-tenant deployment settings, never profile data) | Purchasing pack (looks up the tenant's values by authenticated tenant; 409 if a required field is missing), send-service (renders the lines after the signature and before the footer; refuses bytes that lack a required line at send time), `GET /v1/profile` |
 | Retention | `retention.raw_email_days/po_records_years/audit_years` | Worker purge task, audit retention docs |
 | Approvals and caps | `approvals.*`, `caps.*` | Service settings, approval service, cap policy |
 | Communications | `comms.max_vendors/down_now_max_vendors/reply_token_ttl_days` | RFQ preparation |
@@ -35,6 +36,7 @@ A running deployment resolves **platform defaults → `base` → profile (→ pa
 The hard rules R1–R12 have **no config keys**. The schema additionally rejects any value that would weaken them:
 
 - `legal.disclosure_footer` must contain "AI assistant", "cannot accept terms" and the `{buyer}` placeholder (R8). `legal.marketing_email_allowed` can only be `false`.
+- `legal.business_identity` can only **add** a requirement. It has no key that can remove, move or reword the R8 footer: the footer stays the last block and its check is unchanged. `required: true` needs at least one field; `fields` are drawn from `legal_name`, `registration_number`, `registered_office`, `registered_in` (unique, ordered); `labels` may override the wording only of listed fields and must be distinct plain text (1-40 characters, no colon, no control, hidden or bidirectional characters, not one of the lines the message already uses). It is not in the tenant whitelist, so a tenant cannot switch it off. The values are never in a profile: they come from the deployment's `Settings.business_identities` (tenant id -> field -> value), looked up only by the authenticated tenant.
 - `comms.followups_default_enabled` can only be `false`; `comms.alias_domain_required` can only be `true`.
 - `tiers.enabled` must contain `A`, may add `B`, cannot contain `D`; `tiers.safety_critical_forces_d` can only be `true`; `unlock_c_after_confirmed` cannot go below 50.
 - `parts.require_licensed_sources_in_production` can only be `true`.
@@ -47,7 +49,7 @@ Tests (`tests/profiles/`) assert each invariant is enforced and that the tenant 
 ## 4. Adding a new deployment (country, vertical, customer)
 
 1. **Research kit** (`docs/templates/research-kit.md`): run the six localised research passes (market, suppliers, competitors, legal, customer voice, trends/funding) and write `research/<id>/`.
-2. **Profile**: copy `profiles/_template.yaml` to `profiles/<id>.yaml`; fill every `REPLACE`; `python -m aiplat.profile validate <id>`; `python -m aiplat.profile diff us <id>`.
+2. **Profile**: copy `profiles/_template.yaml` to `profiles/<id>.yaml`; fill every `REPLACE`; `python -m aiplat.profile validate <id>`; `python -m aiplat.profile diff us <id>`. If local law requires company details on business correspondence, enable `legal.business_identity` (commented example in the template; the UK profile uses it) and supply each tenant's values through deployment settings.
 3. **Rationale doc**: record the source and confidence for each non-default value (see `docs/uk/02-uk-profile-rationale.md`); list placeholders and items needing local legal review.
 4. **Conformance**: `pytest tests/profiles` automatically runs invariants, wiring and money/tax golden cases over every profile in `profiles/`; add that country's golden cases to `evals/golden/money_cases.yaml`.
 5. **Data licensing**: confirm which reference-data sources may be used in that jurisdiction (per-source licence record) before any production data.
@@ -65,3 +67,4 @@ Tests (`tests/profiles/`) assert each invariant is enforced and that the tenant 
 - A profile does not translate model-extracted text; non-English vendor replies need separate extractor evaluation.
 - Tenant overrides are validated but stored by the application database, not yet by a UI; no admin screen exists.
 - Jurisdiction legal text in a profile is a starting point, never legal advice.
+- Business-identity values come from deployment settings, not from a per-tenant table or admin screen; see `known-gaps.md`.

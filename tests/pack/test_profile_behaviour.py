@@ -18,6 +18,7 @@ from tests.pack.conftest import (
     REQUEST_TEXT,
     T1,
     TIER_A_REPLY,
+    UK_IDENTITY,
     World,
     build_world,
 )
@@ -169,7 +170,7 @@ def test_assumption_flags_do_not_force_approval_but_are_shown_on_the_link(flag: 
 @needs_w1
 def test_every_event_carries_the_profile_id_and_digest() -> None:
     prof = load_profile("uk")
-    w = build_world(profile=prof)
+    w = build_world(profile=prof, business_identities={T1: UK_IDENTITY})  # UK requires the block
     rid = w.svc.create_request(w.requester, text=REQUEST_TEXT).request.id
     p = w.svc.prepare_rfqs(w.buyer, rid, vendor_ids=["acme"])[0]
     w.svc.approve_send(w.buyer, p.rfq_id, mime_hash=p.mime_hash)

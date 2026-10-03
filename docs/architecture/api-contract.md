@@ -11,7 +11,7 @@ Shared by `apps/api` (FastAPI) and `apps/web` (Next.js). JSON over HTTPS under `
 ## Views
 - `RequestView`: `{id, state, family, attributes: {name: Attribute}, quantity, need_by, site, work_order_ref, criticality, down_now, open_questions: string[], questions_asked, created_at}`
 - `CandidateView`: Candidate fields + `tier` (A–D) + `basis`, `basis_source`, `basis_date`, `caveats`, `mismatches`, `synthetic`.
-- `PreparedRFQ`: `{rfq_id, vendor: {id, name}, to, subject, body_preview, mime_hash, footer}`
+- `PreparedRFQ`: `{rfq_id, vendor: {id, name}, to, subject, body_preview, mime_hash, footer}`. `body_preview` is the exact text the human approves (hashed with the rest of the message), including any business-identity lines the active profile adds: one `<label>: <value>` line per field, after the signature block and before the RFQ reference line and the footer, which stays the last block.
 - `QuoteView`: Quote fields + `source_snippets` (inert text) + `flags`.
 - `ComparisonView`: Comparison + rows enriched with vendor names.
 - `EventView`: Event fields (payload without PII fields).
@@ -24,8 +24,8 @@ Shared by `apps/api` (FastAPI) and `apps/web` (Next.js). JSON over HTTPS under `
 | GET | `/v1/requests` | requester+ | List (`?state=`) |
 | GET | `/v1/requests/{id}` | requester+ | `RequestDetail = {request, candidates, rfqs, quotes, comparison|null, events, pending_approvals}` |
 | POST | `/v1/requests/{id}/answers` | requester+ | `{answers: {attribute: value}}` to clarifying questions; returns `RequestDetail` |
-| POST | `/v1/requests/{id}/rfqs/prepare` | buyer+ | `{vendor_ids: string[], candidate_mpns?: string[]}` → `PreparedRFQ[]` (nothing is sent) |
-| POST | `/v1/rfqs/{rfq_id}/approve-send` | buyer+ | `{mime_hash}`; authenticated POST creates a per-message `Approval` bound to that hash and calls the send-service; returns `{message_id}` |
+| POST | `/v1/requests/{id}/rfqs/prepare` | buyer+ | `{vendor_ids: string[], candidate_mpns?: string[]}` → `PreparedRFQ[]` (nothing is sent). **409** `conflict` with message `business identity incomplete: missing <field>, ...` when the active profile requires the business-identity block (`legal.business_identity.required`) and the caller's tenant has no, or only a partial, identity configured; nothing is stored, audited or sent. The message names profile fields, never values. No request field can supply the identity (unknown body fields are a 422) |
+| POST | `/v1/rfqs/{rfq_id}/approve-send` | buyer+ | `{mime_hash}`; authenticated POST creates a per-message `Approval` bound to that hash and calls the send-service; returns `{message_id}`. A send-service refusal is a **409** `send refused: <code>` (for example `hash_mismatch`, `footer_missing`, `identity_missing` when a required business-identity line is absent from the bytes), and nothing is delivered |
 | POST | `/v1/requests/{id}/quotes/inbound` | buyer+ | `{vendor_id, source_text}` buyer-entered quote → `QuoteView` (flag `buyer_entered`; **no `dmarc_aligned` accepted from the body**, R12) |
 | POST | `/v1/inbound/quotes` | system (HMAC `X-Inbound-Signature`) | Trusted inbound-mail webhook `{reply_token, from_domain, source_text, dmarc_aligned}`; tenant/request derived from the signed reply token; mismatch ⇒ quarantine |
 | POST | `/v1/admin/kill-switch` | admin | `{engaged: bool}` stops sends for the caller's tenant |
@@ -44,8 +44,12 @@ Shared by `apps/api` (FastAPI) and `apps/web` (Next.js). JSON over HTTPS under `
 `GET /v1/profile` (any authenticated role) returns the NON-SENSITIVE subset of the active deployment profile
 (`aiplat.profile`): `id`, `digest`, `locale {region, language, timezone, date_format}`, `money {base_currency,
 accepted_currencies}`, `tax {name, standard_rate, quote_basis_default}`, `lead_time.default_unit`, `legal {jurisdiction, notices}`,
-`parts.enabled_families`, `tiers.enabled`, `ui {language, copy_overrides}`, `features`. Never exposed: retention, approval
-thresholds, caps, billing, the footer text, provenance/layers, tenant overrides. The web app fetches it once and formats
+`parts.enabled_families`, `tiers.enabled`, `ui {language, copy_overrides}`, `features`. `legal` also carries
+`business_identity {required: bool, fields: string[], labels: {field: label}}`: which company details outbound messages carry
+(`legal_name`, `registration_number`, `registered_office`, `registered_in`, in message order) and the effective label for each
+listed field (the profile's override, else the default); empty and `required: false` where the profile does not use it. The
+values (company name, number, registered office) are per-tenant deployment settings and are never exposed here. Never exposed:
+retention, approval thresholds, caps, billing, the footer text, provenance/layers, tenant overrides. The web app fetches it once and formats
 money (`Intl.NumberFormat(locale.language, {style:'currency'})`), dates and lead-time units from it; `copy_overrides` are plain text only.
 
 Quote-flag policy at selection: `tax_basis_unknown` and `currency_ambiguous` force a human approval (like `condition_not_new`);
@@ -63,3 +67,4 @@ configuration governed any decision. The stamp is part of the hash-chained paylo
 - `GET` never changes state; approval links decide only via authenticated `POST` (R11).
 - Vendor-derived strings are returned inert (no HTML) and the UI must render them as text (R6).
 - Cross-tenant ids return 404, never 403 (no existence leak).
+- Business-identity values are looked up by the authenticated tenant only; a tenant never sees or sends another tenant's, and no request field can supply or change them.

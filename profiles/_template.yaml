@@ -26,6 +26,13 @@ legal:
   # Must keep: "AI assistant", "cannot accept terms", and the {buyer} placeholder.
   disclosure_footer: "Prepared with an AI assistant. It cannot accept terms or place orders; only a purchase order from {buyer} binds."
   notices: []
+  # Company details some jurisdictions require on business letters and order forms, including email
+  # (the UK profile uses this). Leave it off unless local counsel confirms. It can only ADD a requirement
+  # (the R8 footer is never changed) and holds labels only: the values are per-tenant deployment settings.
+  # business_identity:
+  #   required: true
+  #   fields: [legal_name, registration_number, registered_office, registered_in]   # order on the message
+  #   labels: { legal_name: "Company name" }   # optional wording overrides: 1-40 chars, no colon
 retention: { raw_email_days: 90, po_records_years: 7, audit_years: 7 }   # confirm against local record-keeping law
 approvals: { threshold: "REPLACE" }                                       # in base currency
 parts: { enabled_families: [deep_groove_ball_bearing, v_belt], standards: ["REPLACE"] }

@@ -29,8 +29,8 @@ from components.core.fakes import FakeClock, RecordingTransport
 from components.core.store import Store
 from components.evidence.log import EventLog
 from components.rfq.quotes.normalise import normalise_quote
-from components.send_service.message import render_footer
-from tests.pack.conftest import REQUEST_TEXT, TIER_A_REPLY
+from components.send_service.message import DEFAULT_IDENTITY_LABELS, render_footer
+from tests.pack.conftest import REQUEST_TEXT, TIER_A_REPLY, UK_IDENTITY
 
 LEAVES = sorted(p.stem for p in PROFILES_DIR.glob("*.yaml") if p.stem != "base" and not p.stem.startswith("_"))
 T = "tenant-p"
@@ -74,7 +74,9 @@ class Rig:
 @pytest.fixture(params=LEAVES)
 def rig(request: pytest.FixtureRequest) -> Rig:
     # approval_threshold override (a deployment fact, not a profile value) makes a 57-unit order need approval
-    return Rig(load_profile(request.param), approval_threshold=Decimal("50"))
+    # business_identities: the tenant's company particulars, needed by profiles that require the block
+    return Rig(load_profile(request.param), approval_threshold=Decimal("50"),
+               business_identities={T: UK_IDENTITY})
 
 
 def test_leaves_are_discovered() -> None:
@@ -102,6 +104,40 @@ def test_footer_comes_from_the_profile_and_is_in_the_sent_bytes(rig: Rig) -> Non
     assert expected in repr(rig.transport.delivered[0])
 
 
+def test_business_identity_block_follows_the_profile(rig: Rig) -> None:
+    """Conformance for every leaf: lines appear iff the profile lists fields, in the profile's order and
+    wording, after the signature and before the footer (which stays the last block)."""
+    bi = rig.profile.profile.legal.business_identity
+    rid = rig.svc.create_request(rig.requester, text=REQUEST_TEXT).request.id
+    prep = rig.svc.prepare_rfqs(rig.buyer, rid, vendor_ids=["acme"])[0]
+    text = prep.body_preview
+    expected = [f"{label}: {UK_IDENTITY[name]}" for name, label in bi.effective_labels().items()]
+    if not expected:
+        assert not any(label in text for label in DEFAULT_IDENTITY_LABELS.values())
+    positions = [text.index(line) for line in expected]
+    assert positions == sorted(positions)
+    if expected:
+        assert text.index("Reply to: ") < positions[0] and positions[-1] < text.index("\n--\n")
+    assert text.rstrip().endswith(prep.footer)
+    rig.svc.approve_send(rig.buyer, prep.rfq_id, mime_hash=prep.mime_hash)
+    assert all(line in rig.transport.delivered[0]["raw_mime"].decode() for line in expected)
+
+
+@pytest.mark.parametrize("pid", LEAVES)
+def test_a_profile_that_requires_the_block_refuses_to_prepare_without_it(pid: str) -> None:
+    prof = load_profile(pid)
+    bi = prof.profile.legal.business_identity
+    bare = Rig(prof, approval_threshold=Decimal("50"))  # no business_identities configured
+    rid = bare.svc.create_request(bare.requester, text=REQUEST_TEXT).request.id
+    if bi.required:
+        with pytest.raises(Conflict, match="^business identity incomplete: missing " + bi.fields[0]):
+            bare.svc.prepare_rfqs(bare.buyer, rid, vendor_ids=["acme"])
+        assert bare.transport.delivered == []
+        assert [e for e in bare.log.events(T, rid) if e.type == "rfq.prepared"] == []
+    else:
+        bare.svc.prepare_rfqs(bare.buyer, rid, vendor_ids=["acme"])  # nothing required: still works
+
+
 def test_enabled_families_refusal_follows_the_profile(rig: Rig) -> None:
     enabled = set(rig.profile.profile.parts.enabled_families)
     st = rig.svc.create_request(rig.requester, text=REQUEST_TEXT).request
@@ -118,8 +154,14 @@ def test_profile_endpoint_returns_only_the_allowed_subset(rig: Rig) -> None:
     assert body["money"]["base_currency"] == p.money.base_currency
     assert body["parts"]["enabled_families"] == list(p.parts.enabled_families)
     assert body["legal"]["notices"] == list(p.legal.notices)
+    bi = p.legal.business_identity
+    assert body["legal"]["business_identity"] == {
+        "required": bi.required, "fields": list(bi.fields), "labels": bi.effective_labels()}
     dumped = json.dumps(body)
     assert "raw_email_days" not in dumped and p.legal.disclosure_footer not in dumped
+    # the tenant's company particulars (values) are never part of the profile projection; "registered_in"
+    # is skipped because "England and Wales" is also public jurisdiction text
+    assert not any(v in dumped for k, v in UK_IDENTITY.items() if k != "registered_in")
 
 
 def test_openapi_public_profile_matches_web_type() -> None:

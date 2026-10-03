@@ -887,6 +887,36 @@
         "title": "PreparedRFQ",
         "type": "object"
       },
+      "PublicBusinessIdentity": {
+        "description": "Which company details outbound messages carry and under which labels. The VALUES are\nper-tenant deployment settings and never appear here.",
+        "properties": {
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fields",
+            "type": "array"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
+          "required": {
+            "title": "Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "required",
+          "fields",
+          "labels"
+        ],
+        "title": "PublicBusinessIdentity",
+        "type": "object"
+      },
       "PublicLeadTime": {
         "properties": {
           "default_unit": {
@@ -902,6 +932,9 @@
       },
       "PublicLegal": {
         "properties": {
+          "business_identity": {
+            "$ref": "#/components/schemas/PublicBusinessIdentity"
+          },
           "jurisdiction": {
             "title": "Jurisdiction",
             "type": "string"
@@ -916,7 +949,8 @@
         },
         "required": [
           "jurisdiction",
-          "notices"
+          "notices",
+          "business_identity"
         ],
         "title": "PublicLegal",
         "type": "object"
@@ -987,7 +1021,7 @@
         "type": "object"
       },
       "PublicProfile": {
-        "description": "The NON-SENSITIVE subset of the deployment profile the UI needs. Retention, caps,\napproval thresholds, billing, provenance and anything tenant-specific are never exposed.",
+        "description": "The NON-SENSITIVE subset of the deployment profile the UI needs. Retention, caps,\napproval thresholds, billing, the footer text, provenance and anything tenant-specific\n(including business-identity values) are never exposed.",
         "properties": {
           "digest": {
             "title": "Digest",

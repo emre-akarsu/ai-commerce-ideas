@@ -54,6 +54,18 @@ legal:
     - "RFQs are transactional business requests. The product must not be used for marketing email (PECR)."
     - "Quotes are treated as ex-VAT unless stated. The construction reverse charge is not determined by the product."
     - "UKCA/CE and authenticity status are vendor-declared and not verified by the product."
+  # Company particulars on business letters and order forms, including in electronic form (Companies Act
+  # 2006 s.82; SI 2015/17 regs 24-25 and 29; research/uk2/verify/V6). Whether an RFQ email counts as a
+  # business letter is a solicitor question (docs/architecture/known-gaps.md). The values are per-tenant
+  # deployment settings, never profile data. This only ADDS a requirement; the R8 footer is unchanged.
+  business_identity:
+    required: true
+    fields: [legal_name, registration_number, registered_office, registered_in]
+    labels:
+      legal_name: Company name
+      registration_number: Company number
+      registered_office: Registered office
+      registered_in: Registered in
 retention:
   raw_email_days: 90
   po_records_years: 6             # HMRC record-keeping horizon cited in research/uk/04; confirm with an adviser
