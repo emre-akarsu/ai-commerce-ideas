@@ -260,10 +260,15 @@ def test_the_property_test_really_exercises_accepted_messages() -> None:
 
 def test_the_sources_hold_no_literal_invisible_or_non_ascii_characters() -> None:
     """The sanitiser's own character classes are written as escapes: a literal zero-width or
-    line-separator character in the source of the module that bans them cannot be reviewed."""
-    for name in ("message.py", "service.py", "errors.py"):
-        text = (SRC / name).read_bytes().decode("utf-8")
-        assert [c for c in text if ord(c) > 0x7E] == [], name
+    line-separator character in the source of the module that bans them cannot be reviewed. The same
+    goes for the two other places that apply its rule: the pack service and the API."""
+    root = SRC.parents[2]
+    paths = [SRC / name for name in ("message.py", "service.py", "errors.py", "__init__.py")]
+    paths += [root / "employees/purchasing/service.py", root / "apps/api/main.py"]
+    for path in paths:
+        text = path.read_bytes().decode("utf-8")
+        odd = [c for c in text if ord(c) > 0x7E or (ord(c) < 0x20 and c not in "\n\r\t")]
+        assert odd == [], path.name
 
 
 # ---------------------------------------------------------------- L3: values that show nothing

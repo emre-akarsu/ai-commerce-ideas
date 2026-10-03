@@ -48,6 +48,15 @@ needed.
   UK test U2 still needs real quotes.
 - Freight is not tax-adjusted; construction reverse-charge detection, customs/duty and UKCA/CE checks are not implemented.
 - `mypy` reports pre-existing type errors in `aidb`, `message.py` and `normalise.py`; it is not yet a CI gate.
+- `comms.down_now_max_vendors` is applied by the pack at `prepare_rfqs`, but `SendService.from_profile` does not map it: the
+  send-service's own down-now limit is the constant 2 (`DOWN_NOW_MAX_RECIPIENTS`, taken as a minimum with the recipient
+  limit). A profile or tenant override of 3 or 4 lets the pack prepare vendors the send-time gate then refuses
+  (`recipient_limit`); a value of 1 is enforced by the pack only.
+- The send-time gate has no header allowlist. Approved bytes that were built outside `prepare` and carry an extra header
+  (`Sender:`, `Return-Path:`, `Disposition-Notification-To:`, `List-Unsubscribe:`, an `X-` header) are delivered, and the
+  approver's preview does not show them; `_FORBIDDEN_HEADERS` lists only recipient-widening headers. Not reachable today
+  (`approve_send` only passes the bytes `prepare` cached, and the static scan forbids other callers); an allowlist at
+  send time is the natural next hardening.
 
 ## Business identity (company particulars) gaps
 The UK profile requires a block of company details (name, registered number, registered office, where registered) on
@@ -82,11 +91,54 @@ outbound RFQs (`legal.business_identity`). It is a generic, profile-driven mecha
   `send_service_factory`, a hand-wired service) must use `SendService.from_profile(profile, transport, clock, store,
   event_log, ...)`. The bare constructor's `required_identity_labels` defaults to `()`, which requires nothing, so a
   service built that way has no send-time identity backstop and applies the generic footer instead of the profile's.
-  `PurchasingService` refuses (`ValueError`) a send-service that lacks a label its settings or profile call for, but it
-  can only check the one it is given: the worker factory is outside that check. See `apps/worker/README.md`.
+  `PurchasingService` refuses (`ValueError`) a send-service that lacks a label its settings or profile call for and, given a
+  profile, one whose footer wording differs from the profile's or whose recipient limit is higher than the profile's
+  (`legal.disclosure_footer`, `comms.max_vendors`; the message names the part, never a value). It can only check the one it is given: the worker
+  factory is outside that check. See `apps/worker/README.md`.
 - **Tenant scoping of the values is in-process.** The values are copied into read-only mappings when `Settings` is built
   and read through a tenant-scoped provider (`TenantIdentities.identity_for(tenant_id)`), but they still come from
   deployment settings, not from the tenant-scoped repositories (hard rule 7). When they move to a per-tenant table the
   provider should be backed by that repository (and RLS), and a change of details should be audited.
 - **Follow-ups** copy the identity lines of the original message. Follow-up plans are per-process (H2), so a restart still
-  loses them, with or without the block.
+  loses them, with or without the block. Every way a plan can end early is audited as a `send.refused` event with the
+  request id, RFQ id, vendor id, approval id and the slot that will not be sent (ids and a reason code only, never content):
+  `vendor_opted_out`, `domain_mismatch` or `recipient_not_vendor` (the contact moved), `vendor_missing`, `malformed_message`
+  or `identity_missing` (a follow-up that cannot be built safely) and `follow_up_cancelled` (stopped through
+  `cancel_follow_ups`). A plan that is only paused by the kill switch is not cancelled and not audited.
+- **The link-like rule applies at `prepare` only.** A value that looks like a link (`://`, `www.`, `mailto:`) is refused when
+  the message is built. The send-time gate re-checks the character rules, the footer and the required labels, but not this
+  rule, so bytes built outside `prepare` with a link-like value in an identity line are not refused for that.
+- **A C1 control is refused, so cp1252 mojibake is a 409.** A name or an identity value holding a character in
+  U+0080-U+009F (for example the U+0092 that a Windows-1252 apostrophe becomes when text is mis-decoded, as in "O<U+0092>Brien")
+  is refused, not repaired: `prepare` answers 409 and the configured text has to be corrected at its source (a `site` holding
+  one is refused up front: 422 at the API, a `Conflict` from the service).
+- **`SendService.identity_provider` is a public property.** Anyone who holds the send-service can call `identity_for(tenant_id)`
+  for any tenant and read that tenant's company particulars. The planner cannot reach the send-service (static scan, ADR-003)
+  and the pack hands it out to no one; the exposure is code that already holds the send-service, and so the transport.
+
+## Sender facts are deployment-wide
+Who a message is from is not tenant-scoped (hard rule 7 in `CLAUDE.md`; R10, tenant isolation, in the product spec). The
+sender's facts are `Settings.buyer_names`, keyed by user id alone, and `Settings.buyer_phone`, `Settings.alias_address` and
+`Settings.reply_to_domain`, which are process-wide (`PurchasingService._buyer` and `_sender` in
+`employees/purchasing/service.py`). Found by the second security review; documented here, not fixed.
+
+Repro: configure the sender facts of tenant 1's buyer, `Settings(buyer_names={"buyer-1": "Pat Acme-Buyer"})` with a
+`buyer_phone` of `+44 20 7946 0001` (the pack tests' `build_world` takes the same keywords), then let a tenant-2 user whose token
+`sub` is also `buyer-1` prepare and send an RFQ. The delivered message reads:
+
+```
+From: Pat Acme-Buyer     Phone: +44 20 7946 0001     Reply-To: buyer-1@buyer.example
+footer: "... only a purchase order from Pat Acme-Buyer binds."
+```
+
+So tenant 2's RFQ carries tenant 1's buyer name and phone, the R8 footer names a person who is not tenant 2's buyer, and the
+Reply-To address has no tenant in it (`<user id>@<shared reply_to_domain>`), so two tenants' users with the same id share one
+reply address. It needs two tenants whose user ids collide, or a deployment that maps users across tenants. The shipped slice is
+single-tenant at the deployment level (one set of sender facts for the whole deployment), so nothing reaches it today; it must
+be closed before a deployment serves more than one tenant.
+
+Fix sketch: key the sender facts by `(tenant_id, user_id)` behind a provider like `TenantIdentities` (frozen, tenant-scoped,
+exact lookup, no way to list, a repr that shows counts only), built from the deployment settings and asked with `ctx.tenant_id`
+and `ctx.user_id`; refuse with a 409 when the pair is unknown instead of falling back to the token's user id; make the phone, the
+alias and the reply domain per-tenant values in the same way; and put the tenant in the Reply-To local part (a short stable tag
+derived from the tenant id), so replies can be attributed to a tenant.

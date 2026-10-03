@@ -216,7 +216,11 @@ def test_purchasing_service_accepts_consistent_wiring() -> None:
     settings = Settings.from_profile(uk, business_identities={T1: UK_IDENTITY})
     send = SendService.from_profile(uk, w.transport, w.clock, w.store, w.log)
     assert purchasing(w, send, settings, uk) is not None
-    stricter = bare_send(w, (*UK_LABELS, "VAT number"))  # the send-service may require MORE
+    # The send-service may require MORE. (Built from the profile: given a profile, the footer wording and
+    # the recipient limit must be the profile's too, see tests/pack/test_send_wiring.py.)
+    stricter = SendService.from_profile(
+        uk, w.transport, w.clock, w.store, w.log, required_identity_labels=("VAT number",))
+    assert stricter.required_identity_labels == (*UK_LABELS, "VAT number")
     assert purchasing(w, stricter, settings, uk) is not None
     assert purchasing(w, bare_send(w), Settings()) is not None  # nothing required anywhere
     us = load_profile("us")

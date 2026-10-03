@@ -79,6 +79,15 @@ class MalformedMessage(SendRefused):
     code = "malformed_message"
 
 
+class UnsafeText(MalformedMessage):
+    """The bytes hold a control, line-break or hidden character where the sanitiser keeps it out (a
+    one-line header text, or the body). ``prepare`` never builds such bytes; this is the send-time
+    re-check for bytes that did not come from it. The text names the kinds of field, never their
+    text."""
+
+    code = "unsafe_text"
+
+
 class StandingRuleViolation(SendRefused):
     code = "standing_rule_violation"
 
@@ -95,6 +104,20 @@ class DuplicateSend(SendRefused):
 
 class RecipientLimitExceeded(SendRefused):
     code = "recipient_limit"
+
+
+class VendorMissing(SendRefused):
+    """The vendor a follow-up plan was made for no longer exists for its tenant. Audit only: the
+    plan is cancelled for good, nothing is sent."""
+
+    code = "vendor_missing"
+
+
+class FollowUpCancelled(SendRefused):
+    """A pending follow-up plan was stopped on request (for example because the vendor replied).
+    Audit only: it records that the next follow-up will not be sent."""
+
+    code = "follow_up_cancelled"
 
 
 class TransportFailure(SendError):

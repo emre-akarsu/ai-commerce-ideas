@@ -34,6 +34,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from aiplat.ctx import Ctx, Forbidden, Role, require
 from aiplat.profile import ResolvedProfile, load_profile
 from components.core.domain import Comparison, PurchaseOrderDraft, Vendor
+from components.send_service.message import is_plain_line
 
 from .auth import Authenticator, AuthError
 from .inbound import verify_inbound_signature
@@ -57,13 +58,6 @@ class _In(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
-def _is_one_line(text: str) -> bool:
-    """No C0 or C1 control character, no DEL and no Unicode line or paragraph separator."""
-    return not any(
-        ord(c) < 0x20 or 0x7F <= ord(c) <= 0x9F or ord(c) in (0x2028, 0x2029) for c in text
-    )
-
-
 class CreateRequestIn(_In):
     text: str = Field(min_length=1, max_length=4000)
     quantity: int | None = Field(default=None, gt=0)
@@ -77,8 +71,11 @@ class CreateRequestIn(_In):
     @classmethod
     def _site_is_one_line(cls, value: str | None) -> str | None:
         """The ship-to site goes into the RFQ body: a line break there could add lines (such as a
-        forged "Phone:") to the message. The service refuses it too; this is the HTTP-level 422."""
-        if value is not None and not _is_one_line(value):
+        forged "Phone:") to the message, and a hidden character would make the body refuse it late.
+        It is held to the message layer's own one-line rule (``is_plain_line``), the same predicate
+        the service uses, so both agree for every code point. The service refuses it too; this is
+        the HTTP-level 422."""
+        if value is not None and not is_plain_line(value):
             raise ValueError("site must be one line of plain text")
         return value
 

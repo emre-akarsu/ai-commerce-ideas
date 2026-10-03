@@ -12,7 +12,7 @@ from __future__ import annotations
 import hashlib
 import re
 import unicodedata
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
@@ -22,9 +22,12 @@ from email.message import EmailMessage
 from email.utils import format_datetime
 from enum import StrEnum
 from types import MappingProxyType
-from typing import Any, ClassVar
+from typing import Any, ClassVar, NoReturn, TypeVar
 
 from .errors import MalformedMessage
+
+_K = TypeVar("_K")
+_V = TypeVar("_V")
 
 # R8: mandated wording. {buyer} is the named buyer the message is sent in the name of.
 FOOTER_TEMPLATE = (
@@ -89,6 +92,54 @@ _AMOUNT = re.compile(r"^(\d+(?:\.\d{1,6})?) ([A-Z]{3})$")
 _FOLLOW = re.compile(r"^count=(\d+); interval_hours=(\d+)$")
 _PHONE_PREFIX = "Phone: "
 _REPLY_PREFIX = "Reply to: "
+
+
+class ReadOnlyMap(Mapping[_K, _V]):
+    """A small read-only mapping that owns a private copy of what it was given.
+
+    It replaces ``types.MappingProxyType`` wherever a configuration object keeps company
+    particulars: a mapping proxy cannot be pickled or deep-copied (so
+    ``pickle.dumps(settings)``, ``copy.deepcopy`` and ``dataclasses.asdict`` raised
+    ``TypeError``, and a spawn-based worker could not start), and this can.
+
+    Nothing changes it: it has no mutator, item assignment and deletion raise ``TypeError``,
+    attributes cannot be set, and the dict inside is private. Its repr shows a count only, so
+    holding values in it does not print them. Equality is by content, like a dict. The copy is
+    one level deep: a value that is itself mutable is shared with the caller, so nest
+    ``ReadOnlyMap`` for nested mappings."""
+
+    __slots__ = ("_data",)
+    _data: dict[_K, _V]
+
+    def __init__(self, data: Mapping[_K, _V] | Iterable[tuple[_K, _V]] = ()) -> None:
+        object.__setattr__(self, "_data", dict(data))
+
+    def __getitem__(self, key: _K) -> _V:
+        return self._data[key]
+
+    def __iter__(self) -> Iterator[_K]:
+        return iter(self._data)
+
+    def __len__(self) -> int:
+        return len(self._data)
+
+    def __setitem__(self, key: _K, value: _V) -> NoReturn:
+        raise TypeError("ReadOnlyMap is read-only")
+
+    def __delitem__(self, key: _K) -> NoReturn:
+        raise TypeError("ReadOnlyMap is read-only")
+
+    def __setattr__(self, name: str, value: object) -> NoReturn:
+        raise AttributeError("ReadOnlyMap is read-only")
+
+    def __delattr__(self, name: str) -> NoReturn:
+        raise AttributeError("ReadOnlyMap is read-only")
+
+    def __repr__(self) -> str:
+        return f"ReadOnlyMap(items={len(self._data)})"
+
+    def __reduce__(self) -> tuple[Any, ...]:
+        return (type(self), (dict(self._data),))  # pickling and copying rebuild it from a copy
 
 
 class MessagePurpose(StrEnum):
@@ -157,6 +208,7 @@ class ParsedMessage:
     followup_seq: int | None
     in_reply_to: str | None
     buyer_phone: str | None
+    reply_to_name: str = ""  # the Reply-To display name (a one-line text the recipient sees)
 
 
 def sha256_hex(data: bytes) -> str:
@@ -170,11 +222,23 @@ def render_footer(template: str, buyer_name: str) -> str:
 # ---------------------------------------------------------------- validation
 
 
+def is_plain_line(text: object) -> bool:
+    """True iff ``text`` is a string that is safe to place in a ONE-line field: no control character
+    (C0 or C1, DEL), no line or paragraph separator, and no zero-width, bidirectional or
+    byte-order-mark character. This is the single rule behind every one-line field (``_line``)
+    and behind the ship-to ``site``, which ends up in the body: the API (422) and the pack
+    (409) call it, so both agree with the message layer for every code point.
+
+    It is stricter than the body rule on exactly three characters, newline, carriage return
+    and tab, which a multi-line body may keep and a one-line field may not."""
+    return isinstance(text, str) and not _CTRL_LINE.search(text) and not _HIDDEN.search(text)
+
+
 def _line(value: object, name: str, max_len: int) -> str:
     if not isinstance(value, str) or not value.strip():
         raise MalformedMessage(f"{name} is required")
     cleaned = value.strip()
-    if len(cleaned) > max_len or _CTRL_LINE.search(cleaned) or _HIDDEN.search(cleaned):
+    if len(cleaned) > max_len or not is_plain_line(cleaned):
         raise MalformedMessage(f"{name} is too long or contains control/hidden characters")
     return cleaned
 
@@ -504,6 +568,7 @@ def parse_message(raw: bytes) -> ParsedMessage:
         followup_seq=int(seq_raw) if seq_raw and seq_raw.isdigit() else None,
         in_reply_to=_one_header(msg, "In-Reply-To", required=False),
         buyer_phone=phone,
+        reply_to_name=reply.display_name,
     )
 
 
@@ -538,6 +603,43 @@ def has_footer(parsed: ParsedMessage, footer_template: str) -> bool:
     footer = render_footer(footer_template, parsed.from_name)
     text = parsed.text.rstrip()
     return text == footer or text.endswith("\n" + footer)
+
+
+def _without_footer(parsed: ParsedMessage, footer_template: str) -> str:
+    """The text with the mandated footer taken off its end. The footer is wording the deployment
+    configures (``has_footer`` has already matched it exactly), not text a requester wrote."""
+    footer = render_footer(footer_template, parsed.from_name)
+    end = len(parsed.text.rstrip())
+    start = end - len(footer)
+    if parsed.from_name and start >= 0 and parsed.text[start:end] == footer:
+        return parsed.text[:start] + parsed.text[end:]
+    return parsed.text
+
+
+def unsafe_text_fields(parsed: ParsedMessage, footer_template: str) -> list[str]:
+    """The kinds of field in a parsed message that hold a character the single-line sanitiser
+    keeps out of them. ``prepare`` builds nothing of the kind; the send-time gate calls this
+    on bytes that may not have come from it, so that the invariant behind the footer check
+    (``str.splitlines()`` and ``split("\\n")`` see the same lines) holds for those bytes too.
+
+    ``"body"`` covers all text but the mandated footer: control and line-break characters (a
+    newline and a tab are fine, a carriage return left after the parse is not), and zero-width
+    or bidirectional characters. ``"subject"``, ``"sender name"`` and ``"reply-to name"`` are
+    the one-line header texts, ``"address"`` the three addresses and ``"reference"`` the RFQ
+    reference and message id. Returns kinds only, never text."""
+    found: list[str] = []
+    body = _without_footer(parsed, footer_template)
+    if _CTRL_BODY.search(body) or "\r" in body or _HIDDEN.search(body):
+        found.append("body")
+    one_line = (
+        ("subject", (parsed.subject,)),
+        ("sender name", (parsed.from_name,)),
+        ("reply-to name", (parsed.reply_to_name,)),
+        ("address", (parsed.to, parsed.from_addr, parsed.reply_to)),
+        ("reference", (parsed.rfq_id, parsed.message_id)),
+    )
+    found += [kind for kind, texts in one_line if not all(is_plain_line(t) for t in texts)]
+    return found
 
 
 # ---------------------------------------------------------------- the signature block (parse side)
@@ -587,6 +689,8 @@ def _identity_run(parsed: ParsedMessage) -> list[str]:
     reply, sep = spot
     run: list[str] = []
     for line in lines[reply + 1 : sep]:
+        # A blank line ends the run. (It has no ": " either, so the last test alone would end it
+        # too; the first one says what is meant.)
         if not line or line.startswith(_RFQ_REFERENCE_PREFIX) or ": " not in line:
             break
         run.append(line)

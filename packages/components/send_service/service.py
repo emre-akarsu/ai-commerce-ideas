@@ -10,7 +10,11 @@ again).
 
 What is trusted: only the raw bytes and the registered Approval. The ``PreparedMessage`` metadata
 (``to``, ``tenant_id``, ...) is never used for a decision; everything is re-derived from the bytes
-the human approved, and the tenant comes from the Approval (never from the caller).
+the human approved, and the tenant comes from the Approval (never from the caller). That includes
+the sanitiser's rules: ``prepare`` reads back what it built (a footer, a required identity line or
+a text that would not survive a parse is refused), and ``send`` re-asserts the character rules on
+the bytes it is given (``UnsafeText``), so bytes that did not come from ``prepare`` get the same
+treatment.
 
 Company particulars (business identity) belong to a tenant. A deployment hands the send-service an
 ``IdentityProvider`` (``TenantIdentities`` is the frozen, tenant-scoped implementation); ``prepare``
@@ -26,7 +30,6 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
-from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Protocol
 
 from components.core.domain import RFQ, Approval, ApprovalKind, Vendor
@@ -52,6 +55,7 @@ from .errors import (
     CapRefused,
     DomainMismatch,
     DuplicateSend,
+    FollowUpCancelled,
     FooterMissing,
     HashMismatch,
     IdentityMissing,
@@ -65,6 +69,8 @@ from .errors import (
     TenantMismatch,
     TransportFailure,
     UnknownApproval,
+    UnsafeText,
+    VendorMissing,
     VendorOptedOut,
     WrongApprovalKind,
 )
@@ -77,6 +83,7 @@ from .message import (
     MessagePurpose,
     ParsedMessage,
     PreparedMessage,
+    ReadOnlyMap,
     as_identity_pairs,
     build_message,
     clean_identity_pairs,
@@ -86,6 +93,7 @@ from .message import (
     parse_message,
     sha256_hex,
     unfilled_identity_labels,
+    unsafe_text_fields,
     validate_identity_labels,
     validate_identity_pairs,
 )
@@ -128,12 +136,15 @@ class IdentityProvider(Protocol):
 class TenantIdentities:
     """A frozen, tenant-scoped set of company-particulars lines (an ``IdentityProvider``).
 
-    Built once from ``tenant_id -> ordered (label, value) pairs``. Everything is copied into tuples
-    and a read-only mapping at construction, so changing what the caller passed in later (the outer
-    mapping, an inner list, a list two tenants happened to share) changes nothing, and two tenants
-    never share storage. Lookup is exact on ``tenant_id``. There is no way to list tenants or
-    values through it, and its repr shows a count only. Values are not validated here: ``prepare``
-    validates what it renders and refuses a malformed line, naming the label, never the value."""
+    Built once from ``tenant_id -> ordered (label, value) pairs``. Everything is copied into
+    tuples and a read-only mapping (``ReadOnlyMap``) at construction, so changing what the
+    caller passed in later (the outer mapping, an inner list, a list two tenants happened to
+    share) changes nothing, and two tenants never share storage. Lookup is exact on
+    ``tenant_id``. There is no way to list tenants or values through it, and its repr shows a
+    count only. It can be pickled and copied (a deployment that starts workers by spawning needs
+    that); the copy is rebuilt through the constructor. Values are not validated here:
+    ``prepare`` validates what it renders and refuses a malformed line, naming the label, never
+    the value."""
 
     __slots__ = ("_lines",)
 
@@ -145,7 +156,7 @@ class TenantIdentities:
             if isinstance(pairs, (str, bytes, Mapping)) or not isinstance(pairs, Iterable):
                 raise ValueError("a tenant's identity must be a sequence of (label, value) pairs")
             frozen[tenant_id] = tuple(self._pair(item) for item in pairs)
-        self._lines: Mapping[str, tuple[tuple[str, str], ...]] = MappingProxyType(frozen)
+        self._lines: Mapping[str, tuple[tuple[str, str], ...]] = ReadOnlyMap(frozen)
 
     @staticmethod
     def _pair(item: object) -> tuple[str, str]:
@@ -161,6 +172,9 @@ class TenantIdentities:
 
     def __repr__(self) -> str:
         return f"TenantIdentities(tenants={len(self._lines)})"
+
+    def __reduce__(self) -> tuple[Any, ...]:
+        return (TenantIdentities, (dict(self._lines),))  # rebuilt, and so re-validated, when loaded
 
 
 class KillSwitch:
@@ -310,6 +324,11 @@ class SendService:
         return self._identity_labels
 
     @property
+    def max_recipients(self) -> int:
+        """How many distinct vendors one request may be sent to (before the down-now limit)."""
+        return self._max_recipients
+
+    @property
     def identity_provider(self) -> IdentityProvider | None:
         """The tenant-scoped source of company particulars, if one is configured."""
         return self._identity_provider
@@ -337,15 +356,80 @@ class SendService:
         letter or digit is refused with ``IdentityMissing`` (which names labels, never values).
 
         With an ``identity_provider`` the lines are the RFQ's own tenant's, whatever the caller
-        passes: pairs that are not exactly those lines are refused with ``TenantMismatch``."""
+        passes: pairs that are not exactly those lines are refused with ``TenantMismatch``.
+
+        The last step reads the bytes back: they are parsed as the approver and the send-time
+        gate will parse them, and a footer, a required identity line or a text that would not
+        survive that is refused with a ``MalformedMessage`` (naming the kind of field, never a
+        value). So bytes ``prepare`` returns can pass the send-time content checks."""
+        ts = self._known_parties(rfq, vendor)
+        if ts.rfqs.find(rfq.id) is None:
+            raise MalformedMessage("RFQ is not stored for this tenant")
+        raw = self._build_checked(
+            rfq, vendor, buyer_name, buyer_phone, alias_address, reply_to, purpose=purpose,
+            amount=amount, currency=currency, follow_up=follow_up, identity=identity,
+        )
+        return PreparedMessage(
+            mime_bytes=raw,
+            mime_hash=sha256_hex(raw),
+            to=vendor.contact_email,
+            tenant_id=rfq.tenant_id,
+            rfq_id=rfq.id,
+            vendor_id=vendor.id,
+            subject=rfq.subject,
+            purpose=purpose,
+        )
+
+    def check_prepare(
+        self,
+        rfq: RFQ,
+        vendor: Vendor,
+        buyer_name: str,
+        buyer_phone: str,
+        alias_address: str,
+        reply_to: str,
+        *,
+        identity: Sequence[tuple[str, str]] = (),
+    ) -> None:
+        """Dry run of ``prepare`` for an RFQ that is NOT stored yet: the same checks, the same
+        build and the same read-back, and the same refusals, for the plain RFQ (no amount, no
+        follow-up). It stores, audits and sends nothing, keeps nothing and returns nothing, so
+        no caller can get bytes from it.
+
+        A caller that is about to store an RFQ runs this first, so a message that cannot be
+        built leaves no RFQ row behind. ``prepare`` itself still requires the RFQ to be stored."""
+        self._known_parties(rfq, vendor)
+        self._build_checked(
+            rfq, vendor, buyer_name, buyer_phone, alias_address, reply_to,
+            purpose=MessagePurpose.RFQ, amount=None, currency=None, follow_up=NO_FOLLOW_UPS,
+            identity=identity,
+        )
+
+    def _known_parties(self, rfq: RFQ, vendor: Vendor) -> TenantStore:
+        """Both belong to one tenant, and the vendor is the RFQ's registered vendor."""
         if vendor.tenant_id != rfq.tenant_id:
             raise TenantMismatch("vendor and RFQ belong to different tenants")
         ts = self._store.for_tenant(rfq.tenant_id)
         stored = ts.vendors.find(vendor.id)
         if rfq.vendor_id != vendor.id or stored is None or stored != vendor:
             raise RecipientNotVendor("recipient is not the RFQ's registered vendor")
-        if ts.rfqs.find(rfq.id) is None:
-            raise MalformedMessage("RFQ is not stored for this tenant")
+        return ts
+
+    def _build_checked(
+        self,
+        rfq: RFQ,
+        vendor: Vendor,
+        buyer_name: str,
+        buyer_phone: str,
+        alias_address: str,
+        reply_to: str,
+        *,
+        purpose: MessagePurpose,
+        amount: Decimal | None,
+        currency: str | None,
+        follow_up: FollowUpSchedule,
+        identity: Sequence[tuple[str, str]],
+    ) -> bytes:
         self._check_vendor(vendor, vendor.contact_email)
         if purpose is MessagePurpose.RFQ and amount is not None:
             raise MalformedMessage("an RFQ message carries no amount")
@@ -371,16 +455,31 @@ class SendService:
             follow_up=follow_up,
             identity=pairs,
         )
-        return PreparedMessage(
-            mime_bytes=raw,
-            mime_hash=sha256_hex(raw),
-            to=vendor.contact_email,
-            tenant_id=rfq.tenant_id,
-            rfq_id=rfq.id,
-            vendor_id=vendor.id,
-            subject=rfq.subject,
-            purpose=purpose,
-        )
+        self._read_back(raw)
+        return raw
+
+    def _read_back(self, raw: bytes) -> None:
+        """Parse the bytes just built, as the approver (``preview``) and the send-time gate will,
+        and refuse what would not come back. Names kinds of field only, never a value."""
+        try:
+            parsed = parse_message(raw)
+        except MalformedMessage as exc:
+            raise MalformedMessage(f"the message built here cannot be read back: {exc}") from exc
+        if not has_footer(parsed, self._footer):
+            raise MalformedMessage(
+                "the footer would not survive being read back from the message "
+                "(check the sender name and the footer wording)"
+            )
+        missing = missing_identity_labels(parsed, self._identity_labels)
+        if missing:
+            raise MalformedMessage(
+                "business identity lines would not survive being read back: " + ", ".join(missing)
+            )
+        kinds = unsafe_text_fields(parsed, self._footer)
+        if kinds:
+            raise MalformedMessage(
+                "the text would not pass the send-time text check, kinds: " + ", ".join(kinds)
+            )
 
     def _tenant_identity(self, tenant_id: str, supplied: object) -> list[Any]:
         """The identity lines for ONE tenant. Without a provider these are the caller's pairs (the
@@ -443,6 +542,7 @@ class SendService:
         if not has_footer(parsed, self._footer):
             raise FooterMissing("mandatory AI-disclosure footer is missing")
         self._require_identity(missing_identity_labels(parsed, self._identity_labels))
+        self._require_plain_text(unsafe_text_fields(parsed, self._footer))
         if parsed.followup_seq is not None or parsed.in_reply_to is not None:
             raise MalformedMessage("follow-ups are sent by the schedule, not by approval")
         self._check_kind(approval, parsed)
@@ -462,6 +562,15 @@ class SendService:
     def _require_identity(self, missing: list[str]) -> None:
         if missing:
             raise self._identity_refusal(missing)
+
+    @staticmethod
+    def _require_plain_text(kinds: list[str]) -> None:
+        """Bytes that did not come from ``prepare`` get the sanitiser's rules re-asserted here.
+        Names the kinds of field only; never their text."""
+        if kinds:
+            raise UnsafeText(
+                "text holds control, line-break or hidden characters in: " + ", ".join(kinds)
+            )
 
     @staticmethod
     def _check_kind(approval: Approval, parsed: ParsedMessage) -> None:
@@ -619,6 +728,18 @@ class SendService:
             tenant or UNATTRIBUTED_TENANT, request_id, "system", EVT_SEND_REFUSED, payload
         )
 
+    def _cancel_plan(
+        self, plan: _FollowUpPlan, seq: int, exc: SendRefused, mime_hash: str = ""
+    ) -> None:
+        """End a follow-up plan for good and say so in the audit trail. Every way a plan can end
+        goes through here (opt-out, contact change, missing vendor, a follow-up that cannot be
+        built or lost its identity block, a stop on request), so none is silent. It can only
+        reduce sending: the plan is switched off before anything else, and nothing here calls
+        the transport. ``seq`` is the slot that will not be sent; ``mime_hash`` is the follow-up
+        that was built and not sent, if any."""
+        plan.active = False
+        self._audit_plan_cancelled(plan, seq, mime_hash, exc)
+
     def _audit_plan_cancelled(
         self, plan: _FollowUpPlan, seq: int, mime_hash: str, exc: SendRefused
     ) -> None:
@@ -662,17 +783,21 @@ class SendService:
         return sent
 
     def _send_follow_up(self, plan: _FollowUpPlan) -> str | None:
+        seq = plan.done + 1
         try:
-            ts = self._store.for_tenant(plan.tenant_id)
-            vendor = ts.vendors.get(plan.vendor_id)
+            vendor = self._store.for_tenant(plan.tenant_id).vendors.get(plan.vendor_id)
+        except (NotFoundError, TenantIsolationError):
+            # deleted, or the id now belongs to another tenant: this tenant has no such vendor
+            self._cancel_plan(plan, seq, VendorMissing("the plan's vendor no longer exists"))
+            return None
+        try:
             self._check_vendor(vendor, plan.original.to)
             if vendor.contact_email.lower() != plan.original.to.lower():
                 raise RecipientNotVendor("vendor contact changed")
-        except (SendRefused, NotFoundError):
-            plan.active = False  # opted out or identity changed: cancelled for good
+        except SendRefused as exc:  # opted out, or the contact moved: cancelled for good
+            self._cancel_plan(plan, seq, exc)
             return None
         orig = plan.original
-        seq = plan.done + 1
         identity = identity_pairs(orig)  # carried over, so a follow-up never loses the block
         try:
             validate_identity_pairs(identity)
@@ -696,13 +821,11 @@ class SendService:
             # Lines the sanitiser would never have produced, or a signature without a phone (only
             # possible for bytes built outside ``prepare``): cancel for good rather than raising on
             # every run and stalling the loop.
-            plan.active = False
-            self._audit_plan_cancelled(plan, seq, "", exc)
+            self._cancel_plan(plan, seq, exc)
             return None
         missing = missing_identity_labels(parse_message(raw), self._identity_labels)
         if missing:  # fail closed: never send a follow-up lacking the block that is required
-            plan.active = False
-            self._audit_plan_cancelled(plan, seq, sha256_hex(raw), self._identity_refusal(missing))
+            self._cancel_plan(plan, seq, self._identity_refusal(missing), sha256_hex(raw))
             return None
         plan.done = seq  # at-most-once per slot
         if plan.done >= plan.schedule.count:
@@ -725,12 +848,14 @@ class SendService:
         return message_id
 
     def cancel_follow_ups(self, tenant_id: str, rfq_id: str) -> int:
-        """Stop pending follow-ups (e.g. a reply arrived). Tenant-scoped; returns plans stopped."""
+        """Stop pending follow-ups (e.g. a reply arrived). Tenant-scoped; returns plans stopped.
+        Each plan stopped is audited (``follow_up_cancelled``); asking again stops, and audits,
+        nothing."""
         with self._lock:
             count = 0
             for plan in self._plans:
                 if plan.active and plan.tenant_id == tenant_id and plan.rfq_id == rfq_id:
-                    plan.active = False
+                    self._cancel_plan(plan, plan.done + 1, FollowUpCancelled("stopped on request"))
                     count += 1
             return count
 

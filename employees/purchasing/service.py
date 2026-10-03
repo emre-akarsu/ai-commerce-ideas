@@ -19,7 +19,11 @@ Everything the hard rules need is enforced here, in code:
   into read-only mappings when ``Settings`` is built, never printed, and reach the send-service only as a
   tenant-scoped provider (``TenantIdentities``) that ``prepare`` consults for the RFQ's own tenant. An
   incomplete or invalid identity is a ``Conflict`` before anything is stored or sent. Construction refuses
-  wiring that would lose the requirement (see ``PurchasingService.__init__``).
+  wiring that would lose the requirement, that differs from the profile's footer wording, or that allows
+  more recipients than the profile's limit (see ``PurchasingService._check_wiring``).
+- ``prepare_rfqs`` builds and reads back the message for every selected vendor (``SendService.check_prepare``,
+  a dry run) before it adds the first RFQ row: a message that cannot be built is a ``Conflict`` that leaves
+  nothing behind (no orphan row, no event, no cache entry).
 """
 
 from __future__ import annotations
@@ -38,7 +42,6 @@ from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
 from decimal import Decimal
-from types import MappingProxyType
 from typing import Any, Protocol, TypeVar
 
 from aiplat.ctx import Ctx, Forbidden, Role, require
@@ -94,7 +97,9 @@ from components.rfq.workflow import Workflow, WorkflowError
 from components.send_service import SendError, SendService
 from components.send_service.message import (
     DEFAULT_IDENTITY_LABELS,
+    ReadOnlyMap,
     has_visible_text,
+    is_plain_line,
     render_footer,
     validate_identity_pairs,
 )
@@ -139,9 +144,6 @@ REFUSE_FLAGS = frozenset({"validity_expired"})  # cannot be selected at all
 QUARANTINE_EXTRA = frozenset({"vendor_pending_callback"})  # R12 callback not yet confirmed
 MAX_SOURCE_CHARS = 200_000
 MAX_ANSWER_CHARS = 80
-# C0 and C1 controls, DEL and the Unicode line and paragraph separators. The ship-to `site` goes into
-# the RFQ body: a line break there could add lines (such as a forged "Phone:") to the message.
-_NOT_ONE_LINE = re.compile(r"[\x00-\x1f\x7f-\x9f\u2028\u2029]")
 INGEST_STATES = frozenset({S.RFQ_SENT, S.QUOTES_COLLECTING, S.COMPARISON_READY, S.QUOTE_SELECTED})
 SENDABLE_STATES = frozenset({S.RFQ_DRAFTED, S.RFQ_APPROVED, S.RFQ_SENT, S.QUOTES_COLLECTING})
 
@@ -150,6 +152,18 @@ IdGenerator = Callable[[str], str]
 
 def default_ids(prefix: str) -> str:
     return f"{prefix}-{secrets.token_hex(6)}"
+
+
+def check_site(site: object) -> None:
+    """The ship-to ``site`` goes into the RFQ body, so it is held to the message layer's one-line rule
+    (``is_plain_line``): no control or line-break character (a line break could add lines such as a
+    forged "Phone:" to the message) and no zero-width or bidirectional one (the body refuses those, so
+    a site holding one would fail late, at ``prepare_rfqs``). ``None`` means no site. Raises
+    ``Conflict`` without echoing the value."""
+    if site is not None and not is_plain_line(site):
+        raise Conflict(
+            "site must be one line of plain text (no control, line-break, zero-width or "
+            "bidirectional characters)")
 
 
 # ---------------------------------------------------------------- configuration and ports
@@ -184,8 +198,9 @@ class Settings:
     # tenant_id -> field -> value, looked up ONLY by the authenticated tenant and never taken from a
     # request or model output. Which fields, their labels and whether they are required come from the
     # profile (`legal.business_identity`); `identity_labels` maps field -> label (defaults apply).
-    # The values are copied into read-only mappings at construction (a later change to the mapping the
-    # deployer passed in changes nothing) and are left out of the repr.
+    # The values are copied into read-only mappings (`ReadOnlyMap`: picklable, repr shows counts only) at
+    # construction (a later change to the mapping the deployer passed in changes nothing) and are left out
+    # of the repr.
     business_identities: Mapping[str, Mapping[str, str]] = field(default_factory=dict, repr=False)
     identity_fields: tuple[str, ...] = ()
     identity_labels: Mapping[str, str] = field(default_factory=dict)
@@ -201,7 +216,7 @@ class Settings:
         # Copies, so nothing the deployer still holds can change what is required or rendered later.
         object.__setattr__(self, "identity_fields", tuple(self.identity_fields))
         object.__setattr__(self, "business_identities", _freeze_identities(self.business_identities))
-        object.__setattr__(self, "identity_labels", MappingProxyType(dict(self.identity_labels)))
+        object.__setattr__(self, "identity_labels", ReadOnlyMap(self.identity_labels))
 
     def identity_label(self, name: str) -> str:
         """The line label for one identity field: the profile's wording, else the default."""
@@ -304,11 +319,11 @@ def _freeze_identities(values: object) -> Mapping[str, Mapping[str, str]]:
     frozen: dict[str, Mapping[str, str]] = {}
     for tenant_id, fields in values.items():
         if isinstance(tenant_id, str) and isinstance(fields, Mapping):
-            frozen[tenant_id] = MappingProxyType({
+            frozen[tenant_id] = ReadOnlyMap({
                 name: value for name, value in fields.items()
                 if name in DEFAULT_IDENTITY_LABELS and isinstance(value, str)
             })
-    return MappingProxyType(frozen)
+    return ReadOnlyMap(frozen)
 
 
 class ProfileStampedLog:
@@ -337,6 +352,16 @@ def _takes(fn: Callable[..., Any], name: str) -> bool:
 
 def _tiers_enabled(settings: Settings) -> frozenset[str]:
     return frozenset(settings.tiers_enabled if settings.tiers_enabled is not None else ("A", "B"))
+
+
+@dataclass(frozen=True)
+class _Draft:
+    """An RFQ ready to be stored but not stored yet. ``is_new`` says whether it is added or saved over
+    the vendor's existing draft."""
+
+    vendor: Vendor
+    rfq: RFQ
+    is_new: bool
 
 
 @dataclass(frozen=True)
@@ -458,7 +483,7 @@ class PurchasingService:
         self._extractor = extractor
         self._settings = settings or Settings()
         self._profile = profile
-        self._check_identity_wiring()
+        self._check_wiring()
         self._identities = self._settings.tenant_identities()  # frozen, tenant-scoped copy
         if self._settings.profile_tag and not isinstance(event_log, ProfileStampedLog):
             event_log = ProfileStampedLog(event_log, self._settings.profile_tag)
@@ -470,11 +495,14 @@ class PurchasingService:
         self._wf = Workflow(event_log, clock)
         self._prepared: dict[tuple[str, str], Any] = {}
 
-    def _check_identity_wiring(self) -> None:
-        """Refuse wiring that would lose the business-identity requirement. The settings may not be
-        weaker than the profile they were given with, and the send-service (whose send-time check is the
-        backstop) must require every label the settings call for. A send-service built with
-        ``SendService.from_profile`` always satisfies this."""
+    def _check_wiring(self) -> None:
+        """Refuse wiring that would lose what the settings or the profile call for. The settings may not
+        be weaker than the profile they were given with; the send-service (whose send-time check is the
+        backstop) must require every identity label the settings call for; and, given a profile, it must
+        carry that profile's footer wording and must not allow more recipients than ``comms.max_vendors`` (a
+        stricter limit is a legitimate local tightening, a looser one is refused). A send-service
+        built with ``SendService.from_profile`` always satisfies all of this. The messages name the part
+        that differs and never a value of company data."""
         if self._profile is not None:
             self._settings.ensure_identity_not_weaker_than(self._profile)
         absent = [label for label in _required_identity_labels(self._settings)
@@ -483,6 +511,22 @@ class PurchasingService:
             raise ValueError(
                 "the send-service does not require the business-identity lines these settings call "
                 f"for (labels missing: {', '.join(absent)}); build it with SendService.from_profile")
+        if self._profile is not None:
+            self._check_send_matches(self._profile)
+
+    def _check_send_matches(self, profile: ResolvedProfile) -> None:
+        p = profile.profile
+        differs: list[str] = []
+        if self._send.footer_template != p.legal.disclosure_footer:
+            differs.append("the footer wording differs from legal.disclosure_footer")
+        if self._send.max_recipients > p.comms.max_vendors:
+            differs.append(
+                f"the recipient limit {self._send.max_recipients} is higher than "
+                f"comms.max_vendors {p.comms.max_vendors}")
+        if differs:
+            raise ValueError(
+                "the send-service was not built from this profile (" + "; ".join(differs)
+                + "); build it with SendService.from_profile")
 
     # ------------------------------------------------------------ infrastructure
 
@@ -619,8 +663,7 @@ class PurchasingService:
         parsed = parse_request_text(text, now.date())
         if quantity is not None and quantity <= 0:
             raise Conflict("quantity must be positive")
-        if site is not None and (not isinstance(site, str) or _NOT_ONE_LINE.search(site)):
-            raise Conflict("site must be one line of plain text (no control or line-break characters)")
+        check_site(site)
         request = Request(
             id=self._ids("req"), tenant_id=ctx.tenant_id, requester=ctx.actor, raw_text=text,
             quantity=quantity if quantity is not None else parsed.quantity,
@@ -747,8 +790,10 @@ class PurchasingService:
         mpns = self._rfq_mpns(request, candidate_mpns)
         ts = self._ts(ctx.tenant_id)
         vendors = self._rfq_vendors(ts, request, list(dict.fromkeys(vendor_ids)))
-        identity = self._business_identity(ctx)  # last gate: nothing is stored if it refuses
-        out = [self._prepare_one(ctx, request, v, mpns, identity) for v in vendors]
+        identity = self._business_identity(ctx)  # gate: nothing is stored if it refuses
+        drafts = [self._draft_rfq(ctx, request, v, mpns) for v in vendors]
+        self._check_messages(ctx, drafts, identity)  # last gate: nor if a message cannot be built
+        out = [self._prepare_one(ctx, request, d, identity) for d in drafts]
         if request.state is S.SPEC_CONFIRMED:
             self._move(request, S.RFQ_DRAFTED, ctx.actor,
                        {"rfq_ids": [p.rfq_id for p in out], "candidate_mpns": mpns})
@@ -807,8 +852,9 @@ class PurchasingService:
             raise Conflict(f"cannot prepare message: {exc}") from exc
         return pairs
 
-    def _prepare_one(self, ctx: Ctx, request: Request, vendor: Vendor, mpns: list[str],
-                     identity: list[tuple[str, str]]) -> PreparedRFQ:
+    def _draft_rfq(self, ctx: Ctx, request: Request, vendor: Vendor, mpns: list[str]) -> _Draft:
+        """The RFQ to this vendor as it should be stored, NOT stored yet: a new one, or the existing
+        draft with the new body and reply token. Writes nothing."""
         ts = self._ts(ctx.tenant_id)
         existing = next((r for r in self._rfqs(ts, request.id) if r.vendor_id == vendor.id), None)
         if existing is not None and existing.sent_message_id:
@@ -819,19 +865,40 @@ class PurchasingService:
             rfq = RFQ(id=self._ids("rfq"), tenant_id=ctx.tenant_id, request_id=request.id,
                       vendor_id=vendor.id, subject=f"RFQ: {mpns[0]} x{request.quantity}",
                       body=body, candidate_mpns=tuple(mpns))
-            rfq = rfq.model_copy(update={"reply_token": self._issue_reply_token(rfq)})
+            return _Draft(vendor, rfq.model_copy(update={"reply_token": self._issue_reply_token(rfq)}), True)
+        return _Draft(vendor, existing.model_copy(update={
+            "body": body, "candidate_mpns": tuple(mpns),
+            "reply_token": self._issue_reply_token(existing)}), False)
+
+    def _sender(self, ctx: Ctx) -> tuple[str, str, str, str]:
+        """Who the message is from: (name, phone, alias address, reply-to address)."""
+        name, reply_to = self._buyer(ctx)
+        return name, self._settings.buyer_phone, self._settings.alias_address, reply_to
+
+    def _check_messages(self, ctx: Ctx, drafts: list[_Draft], identity: list[tuple[str, str]]) -> None:
+        """Build and read back every message (``SendService.check_prepare``, a dry run) BEFORE the first
+        RFQ row is added, so a message that cannot be built (a sender name that would not survive a
+        parse, a vendor name or a site the body refuses, ...) is a 409 that leaves nothing behind: no
+        orphan RFQ row, no event, no cache entry."""
+        sender = self._sender(ctx)
+        for d in drafts:
+            try:
+                self._send.check_prepare(d.rfq, d.vendor, *sender, identity=identity)
+            except SendError as exc:
+                raise Conflict(f"cannot prepare message: {exc}") from exc
+
+    def _prepare_one(self, ctx: Ctx, request: Request, draft: _Draft,
+                     identity: list[tuple[str, str]]) -> PreparedRFQ:
+        ts = self._ts(ctx.tenant_id)
+        rfq, vendor = draft.rfq, draft.vendor
+        if draft.is_new:
             ts.rfqs.add(rfq)
         else:
-            rfq = existing.model_copy(update={
-                "body": body, "candidate_mpns": tuple(mpns),
-                "reply_token": self._issue_reply_token(existing)})
             ts.rfqs.save(rfq)
-        name, reply_to = self._buyer(ctx)
+        name, phone, alias, reply_to = self._sender(ctx)
         try:
-            prepared = self._send.prepare(
-                rfq, vendor, name, self._settings.buyer_phone, self._settings.alias_address, reply_to,
-                identity=identity,
-            )
+            prepared = self._send.prepare(rfq, vendor, name, phone, alias, reply_to, identity=identity)
+            preview = self._send.preview(prepared)  # inside the try: a message that cannot be read is a 409
         except SendError as exc:
             raise Conflict(f"cannot prepare message: {exc}") from exc
         self._prepared[(ctx.tenant_id, rfq.id)] = prepared
@@ -839,7 +906,7 @@ class PurchasingService:
             "rfq_id": rfq.id, "vendor_id": vendor.id, "mime_hash": prepared.mime_hash})
         return PreparedRFQ(
             rfq_id=rfq.id, vendor=self._ref(vendor), to=prepared.to, subject=prepared.subject,
-            body_preview=self._send.preview(prepared).text, mime_hash=prepared.mime_hash,
+            body_preview=preview.text, mime_hash=prepared.mime_hash,
             footer=render_footer(self._send.footer_template, name),
         )
 

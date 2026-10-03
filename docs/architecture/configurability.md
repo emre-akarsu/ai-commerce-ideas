@@ -50,17 +50,36 @@ number and the addresses) rejects: C0 and C1 control characters (U+0000-U+001F a
 U+0085 NEL too); the Unicode line and paragraph separators (U+2028, U+2029); and zero-width, bidirectional and byte-order-mark
 characters (U+200B-U+200F, U+202A-U+202E, U+2060-U+2064, U+2066-U+2069, U+061C, U+FEFF). An identity value must also show at
 least one letter or digit that is actually drawn (a value of spaces, punctuation or invisible letters such as U+3164 counts as
-missing, at `prepare` and again at send time) and may not contain link-like text (`://`, `www.`, `mailto:`). The message body
-is the only multi-line field: it keeps newlines and tabs but refuses the rest of that set. The effect is that
+missing, at `prepare` and again at send time) and may not contain link-like text (`://`, `www.`, `mailto:`; checked at `prepare`
+only). The message body is the only multi-line field: it keeps newlines and tabs but refuses the rest of that set. The effect,
+for every one-line field (the subject, the names, the phone number, the addresses and each identity value), is that
 `str.splitlines()` (what a UAX #14 renderer or a mail client does) and `split("\n")` (what every check here does) return the
-same lines for every message the service builds, so nothing can show a second footer or a conflicting "Registered in" line
-ahead of the real one. A label goes through the same character rule as a profile's label (`tests/profiles` keeps the two
+same lines for every message the service builds. So a value cannot hide the real footer, and cannot add a line break that only
+some readers see. A label goes through the same character rule as a profile's label (`tests/profiles` keeps the two
 validators in step). Nothing checks the format of a company number: formats are jurisdiction-specific (see `known-gaps.md`).
+
+What this does NOT promise: the body is free text from the requester's side of the system (the pack builds it from the request,
+the part candidates and the vendor's name, and the message layer takes any text its caller hands it). It may carry `--`, the
+footer wording or label-like lines such as `Registered in: ...` on purpose (for example in a vendor name a buyer set), and
+nothing stops that; `tests/sendservice/test_line_sanitiser.py` pins that such text is accepted. What is guaranteed is narrower. The real
+footer is the last block of the bytes the approver sees (checked at send time on those bytes); the identity lines count only in
+their position, after the signature block (a look-alike line in the body, or after a blank line, does not satisfy a required
+label); and both ways of splitting the text agree.
+
+Two checks keep that true for bytes that did not come from the sanitiser. `prepare` reads back what it built: it parses its own
+bytes as the approver and the send-time gate will, and a footer, a required identity line or a text that would not survive that
+(for example a sender name with two spaces in a row, which the header folds together) is refused with a `MalformedMessage` that
+names the kind of field, never a value; the pack turns it into a 409. And the send-time gate re-asserts the character rules on the
+bytes it is given: a control, line-break or hidden character in the body, the subject, the sender or reply-to name, an address or
+a reference is refused with the code `unsafe_text` (audited with the code, the hash and the approval id only, and the approval is
+not consumed, as for `identity_missing`). The mandated footer is configuration, not requester text, and is not scanned.
 
 The lines are rendered `<label>: <value>` directly after the signature block, before the RFQ reference line and the
 footer, inside the bytes the approver hashes and sees. If the profile requires the block and a field is missing or blank,
 `prepare` is a 409 naming the missing fields; a value that is present but invalid is a 409 naming the label; both happen before
-anything is stored. The send-service also refuses, at send time, bytes that lack a required line.
+anything is stored, and so does the read-back: `prepare_rfqs` builds and reads back the message for every selected vendor
+(`SendService.check_prepare`, a dry run that stores nothing) before it adds the first RFQ row, so a message that cannot be built
+leaves no orphan row. The send-service also refuses, at send time, bytes that lack a required line.
 Lookup is by the authenticated tenant only. Follow-ups copy the original's lines. Listing `fields` without `required: true`
 makes the block optional (the lines the tenant has are included, nothing is enforced).
 
@@ -68,17 +87,23 @@ How the values are held (so one tenant's can never reach another's):
 
 - `Settings` copies `business_identities` into read-only mappings when it is built, keeps only text values of the four known
   fields, and leaves it out of `repr`: changing the dict you passed in afterwards changes nothing, and neither `repr(Settings)`
-  nor `repr(PurchasingService)` shows a value. Two tenants that share one inner dict get separate copies.
+  nor `repr(PurchasingService)` shows a value. Two tenants that share one inner dict get separate copies. The copies are
+  `ReadOnlyMap` objects (`components.send_service.message`), not `types.MappingProxyType`: no mutator, item assignment raises
+  `TypeError`, the repr shows a count only, and, unlike a mapping proxy, they can be pickled and deep-copied, so
+  `pickle.dumps(settings)`, `copy.deepcopy(settings)` and `dataclasses.asdict(settings)` work (a spawn-based worker needs that).
 - The send-service reads them through a tenant-scoped provider, `IdentityProvider.identity_for(tenant_id)`
-  (`TenantIdentities` is the frozen implementation: tuples and a read-only mapping, exact lookup, no way to list tenants or
-  values, a repr that shows a count only). `SendService.prepare` takes the lines of the RFQ's own tenant from it and refuses
-  (`TenantMismatch`) any other `identity=` pairs its caller passes; without a provider the argument works as before.
+  (`TenantIdentities` is the frozen implementation: tuples and a `ReadOnlyMap`, exact lookup, no way to list tenants or
+  values, a repr that shows a count only, picklable). `SendService.prepare` takes the lines of the RFQ's own tenant from it and
+  refuses (`TenantMismatch`) any other `identity=` pairs its caller passes; without a provider the argument works as before.
 - Wiring is checked when it is built. `Settings` refuses `identity_required` without fields. `Settings.from_profile` refuses a
   deployment override that would drop or reword what a profile that requires the block asks for (it can only add).
   `PurchasingService` refuses (`ValueError`) a send-service that does not require every label its settings, or the profile it
-  was given, call for. Build the send-service with `SendService.from_profile(profile, transport, clock, store, event_log, ...)`,
-  which takes the footer wording, the recipient limit and the required labels from the profile; the bare constructor requires
-  nothing by default.
+  was given, call for. Given a profile it also refuses one whose footer wording is not the profile's `legal.disclosure_footer`
+  or whose recipient limit (`SendService.max_recipients`) is higher than the profile's `comms.max_vendors`; the error names which part
+  differs and never a value of company data. A stricter limit than the profile's is allowed and a looser one is refused, so a different ceiling belongs in the profile (for example a tenant
+  override), not in the settings alone. Build the send-service with
+  `SendService.from_profile(profile, transport, clock, store, event_log, ...)`, which takes the footer wording, the recipient
+  limit and the required labels from the profile; the bare constructor requires nothing by default.
 
 ## 3. What is deliberately NOT configurable (invariants)
 

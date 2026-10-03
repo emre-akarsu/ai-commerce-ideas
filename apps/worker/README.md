@@ -33,6 +33,9 @@ send = SendService.from_profile(
 sets `legal.business_identity.required`, the required identity labels from the profile (`required_identity_labels` can
 only add to them). The constructor's `required_identity_labels` defaults to `()`, which requires nothing: a service built
 with `SendService(...)` has no send-time identity backstop and uses the generic footer, and nothing downstream notices.
+(The pack does notice for the service it is given: `PurchasingService` refuses it at construction when a profile is given
+and the send-service's footer wording is not the profile's `legal.disclosure_footer`, or its recipient limit is higher than the
+profile's `comms.max_vendors`, or it lacks a required identity label. The worker's own factory is outside that check.)
 Follow-ups copy the identity lines of the original message, so the worker never needs the tenants' values; the provider
 is for `prepare`. The API process builds its service the same way (`build_in_memory_service`).
 
