@@ -1,0 +1,8 @@
+# Refurb RFQ pack manifest (AI Employees stack). Illustrative limits, not a recommendation.
+id: refurb
+name: Refurb Quote Agent
+role: Sends approved, scoped RFQs to the buyer's own trades, reads replies, chases gaps and ranks quotes; a person approves every send and every order
+integrations: [email-mailbox, pdf-ocr]
+modules: [inbox, rfq, reports, approvals]
+autonomy: L1-L2            # drafts, then routine sends only after approval; never commits, pays or negotiates
+limits: { max_chasers_per_supplier: 2, default_sends_per_supplier_per_day: 10 }
