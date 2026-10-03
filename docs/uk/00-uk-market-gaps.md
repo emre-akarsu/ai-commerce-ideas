@@ -1,67 +1,267 @@
-# UK Market Gap Analysis (delta to the US research)
+# UK Market Gap Analysis v2
 
-As of 2026-10-02. UK version of `docs/00-market-gaps.md`. Inputs: `research/uk/01–06` (six small-model passes, ≤12 searches each) plus the US research. **Evidence quality is weaker than the headline numbers suggest**: see §6 before relying on any figure. Not legal or financial advice.
+As of 2026-10-03. Replaces v1 (2026-10-02), which came from six small-model passes with documented quality problems. v2 rests on eleven stage-1 research reports (`research/uk2/01` to `11`, each with a claim ledger) and twelve independent verification reports (`research/uk2/verify/V1a` to `V10`). The verifiers did not see the first researcher's reasoning and had to use a different source or recompute from raw data. Every figure below carries a claim ID; the consolidated table is `docs/uk/03-claims-ledger.md`. **Not legal, tax or financial advice. Product-market fit is unproven: nothing here shows a UK customer wants, or would pay for, this product.**
 
-## 1. What carries over unchanged from the US analysis
-- The agentic-commerce protocols are consumer/D2C-shaped; none covers B2B quoting, specs, approvals or disputes (`research/raw/01`).
-- The buyer-side RFQ-agent space is funded (Aron, Procure AI, Didero, Fairmarkit and others) but aimed at enterprises; the small/mid maintenance buyer with no procurement team is the open segment.
-- The moat question is unchanged: spec equivalence, supplier access and the equivalence data, not the LLM. Trust caps autonomy, so the design stays quotes plus human approval.
-- The product-market fit is **unproven**; the US red-team findings (frequency of non-catalog buys, ACV, A1 vendor reply) apply in the UK unchanged.
+Status legend: **V** verified by an independent route · **P** partly verified (one part holds, single primary source, or a caveat) · **S** single source, not independently checked · **X** round-1 claim contradicted · **U** unverified or not found · **A** assumption or judgement.
 
-## 2. UK facts that matter (confidence in brackets)
+## 1. Bottom line: what the second round changes
 
-| Topic | Finding | Source file | Confidence |
+1. **The reachable pool is about 33,000 enterprises** with 10-249 employees in manufacturing, machinery repair/installation, building-services installation and combined facilities support (ONS-26 33,075; DBT BPE-25 32,875; both recomputed from the raw workbooks). Only 17,290 have 20+ employees; 47.7% have 10-19. [V] UK-POP-01, 02
+2. **There is no defensible TAM.** The best anchor for UK industrial MRO distribution is about £14bn, a competitor's estimate quoted by the CMA in its 2025 Rubix/ERIKS decision (the merging parties said £10-20bn, another competitor £66bn and called the addressable market debated). Parts spend by 10-249-employee firms is not published anywhere we could reach. [P] UK-SPD-01
+3. **Per-request pricing gives small revenue ceilings:** £0.3m to £11m ARR across 1-5% penetration and halved/doubled volume; £2.0-3.4k per business-year at the base assumptions (10 and 30 non-catalogue requests a month, an unsourced assumption). Round 1's £6-35k ACV and £95-115bn TAM are rejected. [A/X] UK-SPD-07, 08
+4. **Parts delay is the best-evidenced pain, its frequency is unmeasured.** 83% of 199 UK manufacturers report maintenance delays from unavailable or long-lead parts, but only about one in five "regularly" (four capital-intensive sectors, vendor-commissioned, no question text). No source measures how often non-catalogue or urgent buying happens. Test T1 stays the kill test. [P] UK-VOC-01, 06
+5. **Still no UK-based AI RFQ agent aimed at 10-249-employee maintenance buyers** (absence of evidence from two sweeps). Adjacent: Prolo (construction materials), Joblogic (field-service software, Vista £100m+), Fiix (already emails RFQs), enterprise agents. Distributors are buying AI. [P] UK-CMP-01 to 09
+6. **Suppliers are large networks, not small shops** (Screwfix £2.7bn, Edmundson £1.9bn, Wolseley UK £1.8bn, CEF and City Plumbing £1.2bn each), several private-equity owned and changing hands. No terms read bar receiving an emailed RFQ; website and API scraping bans exist at Screwfix, Farnell, Bearing Boys and Amazon, and element14's partner API terms would conflict with a multi-supplier quote tool. Owners change often (Cromwell to AURELIUS on 17 Dec 2025; ERIKS UK&I into Rubix on 31 Oct 2025). [P] UK-SUP-*, UK-ACC-*
+7. **Law.** PECR probably does not catch non-promotional RFQs (inference; no authority either way). But UK company trading-disclosure rules very likely require registered name, UK part, number and registered office on RFQ emails and POs: round 1 missed this. DUAA 2025 is in force; the Information Commission replaced the Information Commissioner on 30 Sep 2026. [P/V] UK-DPL-*, UK-CTL-01
+8. **Product safety.** CE is recognised in Great Britain with no end date; 31 Dec 2027 is a UKCA-labelling date, not a CE deadline. [P] UK-PSL-01
+9. **Data licensing gates Tier B.** Current standards exist for bearings (ISO 15:2017, ISO 5753-1:2009 under revision, ISO 492:2023) and V-belts (ISO 4183:2026, ISO 4184:2025 replaced the 1995/1992 editions; BS 3790 withdrawn 22 May 2026), but BSI terms bar building a database from standards text and no manufacturer cross-reference data is licensed. [V/P] UK-PRT-01, 02, 06, 07
+10. **Funding, grants and price.** The 2025 seed market is selective (median £0.6m); Made Smarter Adoption covers English SME manufacturers only and no Innovate UK competition fits; stated willingness to pay for generic AI is low (12% of UK SMBs would pay £44-87 a month), well below the £167-283 a month implied by the base revenue model. No reliable UK sales-cycle or contract-value benchmark exists. [V/P] UK-FND-*
+
+## 2. Market size and revenue ceilings
+
+### 2.1 Reachable buyers (enterprises with 10-249 employees)
+
+| Segment | ONS-26 | BPE-25 | Note |
 |---|---|---|---|
-| Business population | ~5.7M UK private-sector businesses (2025); 38,435 medium (50–249), 8,335 large; manufacturing has 1,240 large businesses | `01` (GOV.UK business population estimates) | Medium-high for totals; manufacturing/SIC detail not extracted |
-| Maintenance spend | ~£86B (2022) ≈ 3.4% of GDP, *includes in-house labour*; IBISWorld: machinery repair ~£5.3B, fabricated metal repair ~£1.0B | `01` | Low-medium (vendor estimates; scope differs) |
-| Facilities management | ~£64B market, ~64% outsourced (≈£41B) | `01` (Mordor) | Low-medium (vendor estimate) |
-| Skills shortage | >75% of employers struggle to recruit engineers; multi-skilled maintenance engineers hardest to fill; shortages persist to 2030 (MAC) | `01`, `06` | Medium (the "52,000 vacancies" figure in `06` is weakly sourced) |
-| Suppliers | RS Group (£2.9B revenue FY25) is the dominant national distributor; punchout/cXML at RS, Farnell, Cromwell; Amazon Business UK has an ordering API and cXML/EDI; email RFQ is universal for the long tail (bearing specialists, regional electrical and plumbing merchants) | `02` | Medium; no published anti-agent terms found (absence of evidence) |
-| Trade norms | Trade account required; quotes **ex-VAT**; next-working-day delivery with ~15:00 cut-off on orders above ~£100–150; 30–60 day credit | `02` | Medium (several sources are blog-grade) |
-| Buying behaviour | Phone and trade counter remain strong; 55% of distributors rate field sales most effective, 5% e-commerce; typical PO approval tiers ~£1,000 / £10,000 / £50,000 | `05` | Low-medium |
-| UK-specific pains | Post-Brexit customs/duty (customs duties reported up 62% to £4.8B; 2–4 weeks added per import cycle), tariff uncertainty, long HVAC/construction lead times, inflation | `05` | Medium for direction; figures from trade/consultancy articles |
-| CMMS adoption | One survey: 20% use a CMMS, 44% spreadsheets, 36% nothing (medium enterprises least likely to have CAFM) | `05` | Low (single, older conference abstract) |
-| AI attitudes | 54% of SMEs use AI (BCC 2025) but only ~11% automate operations to a great extent; 19% consumer trust in AI agents | `05` | Low-medium; consumer figure is not B2B |
-| Funding | UK startups raised ~£18.9B in 2025; AI ≈33% of VC; Procure AI (London) raised $13M seed; SEIS/EIS reliefs available | `06` | Medium (aggregator sources) |
+| Manufacturing, divisions 12-32 | 21,110 | 21,385 | |
+| Food and drink, divisions 10-11 | 3,190 | 3,080 | |
+| Division 33 (repair and installation of machinery) | 1,400 | 1,380 | buys parts to repair customers' machines |
+| Electrical, plumbing/HVAC, other installation (43.21, 43.22, 43.29) | 6,835 | 6,540 | includes new-build work: an upper bound |
+| Combined facilities support (81.10) | 540 | 490 | narrow proxy for FM; probably a floor |
+| **Core** | **33,075** | **32,875** | spread 0.6%; quote "about 33,000" |
 
-## 3. UK competitive picture (verify before use)
-- **Enterprise/public-sector procurement suites:** Proactis (UK, enterprise and public sector), Basware (strong UK public-sector presence), plus global suites. They are not built for urgent one-off maintenance buys.
-- **Buyer-side AI agents:** Procure AI is London-headquartered and enterprise-focused. Aron, Waybill, Didero, Fairmarkit, Pivot and Oro have **no verified UK operations** in the research; that is a gap in the research, not evidence of absence.
-- **Distributor-owned digital channels:** RS (punchout, PurchasingManager) and Cromwell/Zoro. Ownership of Cromwell is stated inconsistently in the research and is unverified.
-- **CMMS/FM software:** MaintainX, Limble and UpKeep are available in the UK; MRI Evolution is the UK-born CAFM/CMMS. None found doing multi-supplier quote gathering.
-- **UK white space (judgement):** an independent, buyer-paid, email-native RFQ-to-approved-order agent for 20–250-employee maintenance teams and building-services contractors, working with **ex-VAT, working-day, trade-account** conventions, with equivalence tiers and an audit trail. Whether any funded player already targets exactly this in the UK is **unverified**.
+By band (ONS-26): 10-19 employees 15,785 (47.7%); 20-49 10,610 (32.1%); 50-99 4,315 (13.0%); 100-249 2,365 (7.2%). [V] UK-POP-01, 02 (V4a-4: recomputed; ONS-25 gives 33,055). Counts are enterprises, not sites or groups, and the ONS band is employment, not employees. The list omits micro firms, 250+, cleaning/landscaping, other construction and in-house teams in every other sector, so it is a floor for UK SME MRO buyers in those sectors and not a ceiling for all buyers. Shares of these firms that buy MRO parts directly (30/50/70%) and are not on e-procurement (50/70/90%) are unsourced assumptions; mid case 0.35 x 33,075 = 11,576. [A] UK-POP-07
 
-## 4. UK-specific gaps and opportunities
+Context checks (V4a): UK has 5,690,265 private-sector businesses, 1,417,730 employers, 38,435 medium and 8,335 large (BPE-25); manufacturing is 4.6% of businesses and 5.9% of employers, not 7-9%; manufacturing 10-249 is 25,700-25,845, not about 30k. [V] UK-POP-03 to 05
 
-| # | Gap | Evidence | Why it matters for the product |
-|---|---|---|---|
-| UK1 | **VAT/ex-VAT-aware comparison** (quotes ex-VAT by norm, some inc-VAT; construction reverse charge) | `02`, `04` | Comparing an inc-VAT and an ex-VAT quote wrongly is a classic error; this is a concrete accuracy feature, not just a legal footnote |
-| UK2 | **Working-day lead times and bank holidays; next-day cut-offs** | `02` | "3 days" means working days; need-by checks must respect the calendar |
-| UK3 | **Post-Brexit sourcing context** (origin, duty, customs-delay flags for EU-sourced parts) | `05` | Distinctive UK pain; likely a flag/warning, not an automation, in v1 |
-| UK4 | **Trade-account friction**: account numbers, credit terms, onboarding with each supplier | `02` | RFQs need the buyer's account number per vendor; vendor onboarding is a product step |
-| UK5 | **Low CMMS adoption** (spreadsheets and email) | `05` (weak) | A spreadsheet/CSV import and email-forward intake matter more than CMMS integrations in the UK |
-| UK6 | **Public-sector buyers** under the Procurement Act 2023 | `04` | Out of scope for the first product; do not sell to public bodies without legal review |
-| UK7 | **Funding and grants** (Made Smarter, Innovate UK, SEIS/EIS) | `06` | Co-funded pilots are a UK-specific go-to-market lever (verify eligibility per programme) |
+### 2.2 Spend pools: bounded, never added
 
-## 5. UK differences that change the plan (judgement)
-1. **Sales cycles and committees:** research suggests 4–9 months and larger buying committees (6–8 stakeholders, including IT/DPO/legal for SaaS). Treat as an assumption to test; do not bake into forecasts.
-2. **Unit economics:** the two UK research passes give **conflicting ACV** (£6–12k/yr in `01`; £15–35k in `06`). Neither is validated. Use the US-derived per-completed-request pricing (in GBP) as the test, and let Phase 0 decide.
-3. **Distributor concentration:** RS dominance means "neutral multi-supplier comparison" is more valuable but also that RS-owned/agent tooling is the biggest competitive risk (research notes Rubix building agent IP in-house).
-4. **Legal/regulatory:** UK GDPR/DPA 2018/PECR apply to contact data; the UK has no equivalent to EU AI Act Art. 50, but the disclosure footer stays (policy choice, R8). See `docs/uk/02-uk-profile-rationale.md`.
+| Pool | £bn | What it is | What it is not | Status |
+|---|---|---|---|---|
+| UK industrial MRO (CMA ME/2245/25) | about 14 (parties 10-20; one competitor 66) | competitor estimate quoted by the regulator; parties' figure from Grand View Research | a measured market; scope debated | P UK-SPD-01 |
+| Wholesale SIC 46.69 + 46.74 turnover (ONS ABS 2024) | 62.5 | wholesale of other machinery and equipment, hardware, plumbing and heating | MRO demand: includes capital goods, exports, intra-trade | V UK-SPD-02 |
+| Repair and installation of machinery, supply (ONS Supply and Use, 2023) | 33.7 (91% intermediate use) | services; manufacturing buys 28.2% (£8.7bn, incl. aircraft/ship repair), construction 0.7%, wholesale 2.3% | parts; has no size split | V UK-SPD-04 |
+| Industrial repair/installation firms' purchases (SIC 33 subset) | up to 8.2 | ceiling on what outsourced repairers buy | parts only | V UK-SPD-05 |
+| Non-labour inputs in building-services non-housing repair work | up to 7.3 | derived ceiling | parts: includes subcontractors, vehicles, overheads | A UK-SPD-05 |
+| UK facilities management | 18.5 (ONS SIC 81.10, narrow) to 30 (Frost and Sullivan via Mitie) | vendor reports differ 1.8x and are not averaged | parts | P UK-SPD-06 |
+| In-house manufacturer spares | 2.1-4.2 (10-249 staff), illustrative | 85% operating-cost share x 5-10% maintenance share x 27% spares x size share | any measured figure | A UK-SPD-10 |
 
-## 6. Research-quality issues found (do not rely on these figures as stated)
+Distributor revenues (UK legal entities) show the channel is large but mostly not MRO-parts-only: RS UK £678m audited (UK country of domicile, FY2025/26; about 4.8% of £14bn, consistent with RS's own "under 5%" UK share claim, which we could not open), Screwfix £2.66bn, Edmundson £1.88bn, Wolseley UK £1.78bn, CEF £1.21bn, City Plumbing £1.23bn, Toolstation £0.74bn, Rexel UK £0.59bn, Cromwell £0.24bn, Hayley Group £0.27bn, Würth UK £0.06bn (section 4.1 gives owners, perimeters and status; most entity figures have no second route).
 
-| Issue | Where | Handling |
+### 2.3 Revenue ceilings (arithmetic, not a forecast)
+
+Assumptions: A1 base 33,075; A2 non-catalogue requests per business per month 10 (10-49 staff) and 30 (50-249 staff), unsourced; A3 price £12/£16/£20 per completed request, or flat £1,800 and £4,800 a year; A4 adoption 1/3/5% (331/992/1,654 customers) from day one, no churn, no free tier.
+
+| Pricing | 100% | 1% | 3% | 5% |
+|---|---|---|---|---|
+| £12 per request | £66.9m | £0.67m | £2.01m | £3.34m |
+| £20 per request | £111.4m | £1.11m | £3.34m | £5.57m |
+| flat £1,800 / £4,800 | £79.6m | £0.80m | £2.39m | £3.98m |
+
+Volume halved (5 and 15 requests a month) gives £0.33-2.79m; doubled (20 and 60) gives £1.34-11.14m. Base volume is 168.5 requests per business-year, so £2.0-3.4k per business-year at £12-20. £1m ARR needs about 371 customers (1.1% of the base). [A] UK-SPD-07. Even 100% adoption at £16 is 0.14% of the £62.5bn wholesale ceiling. Volume (A2) is the dominant unsourced input: replace it with interview data before using any cell.
+
+What follows (judgement): at these assumptions the UK business is not venture-scale on per-request pricing alone, so Phase 0 must establish whether request volume per account is far higher than assumed, whether a seat or flat price is accepted, or whether the UK case is a regional wedge for a larger product. Reference prices: Joblogic from £45 per user per month (purchase orders sit in higher tiers), ServiceM8 £0-119 per month, Precoro $499-999 per month. [S] UK-CMP-03
+
+## 3. Pain and demand evidence
+
+| Topic | Finding | Status |
 |---|---|---|
-| **TAM double-counts**: manufacturing (£54–59B) + FM (£56B) = £110B exceeds the total UK maintenance spend (~£86–90B) it was derived from; the "2.3M customer-equivalents" figure is nonsensical | `01` §5 | Disregard the TAM/SAM figures. Only the arithmetic "2,300–4,600 customers × £8–12k ≈ £18–55M ARR" is internally consistent, and it rests on an unvalidated penetration assumption |
-| **Conflicting ACV** (£6–12k vs £15–35k) | `01` vs `06` | Treated as unvalidated; not used |
-| **Implausible supplier numbers**: Rexel UK "£72m" (cited to a data aggregator) looks far too low for a 200-branch network; RS scale line contains a stray "~1.2bn in GBP" | `02` | Not used |
-| **Ownership claims inconsistent**: Cromwell is described as Grainger-owned (`03`) and as a separate distributor (`02`); the cited source for Cromwell punchout is a Rubix page | `02`, `03` | Unverified; check on primary pages |
-| **Legal claims needing a solicitor**: the research says PECR requires an opt-out address and "Art. 50-equivalent" disclosure on RFQs (PECR is about marketing; RFQs are transactional), cites SGA/SGSA section numbers for agency without verification, attributes counterfeit criminal liability to the General Product Safety Regulations 2005 (the 10-year maximum is a Trade Marks Act matter in my understanding; unverified), and says CE marking is recognised only until 31 Dec 2027 (my understanding is that recognition was extended indefinitely for many products; verify) | `04` | Used only as a checklist of topics for counsel, not as statements of law |
-| **Weak sources**: aggregators, sourceflow/recruiter blogs, a conference abstract, fabricated-looking URL variants | all | Directional only |
-| **Missing**: ONS size-band tables by SIC; MRO spend split; UK-specific willingness to pay; whether Aron/Waybill/Didero/Fairmarkit sell in the UK | all | Phase 0 and a second research round |
+| Parts delay | Fluke/Censuswide (2 Sep 2026): 83% of 199 UK manufacturers report maintenance delays from unavailable or long-lead-time parts; about 1 in 5 regularly; 68% had unplanned downtime in 12 months; 22% of spares obsolete. Four sectors (food and drink, oil and gas, life sciences, automotive); no question text, reference period or fieldwork dates; sponsor sells test equipment | V with caveats, UK-VOC-01 |
+| Parts-driven downtime and off-book buying | ERIKS survey (reported 22 Mar 2024): over 50% had downtime driven by parts availability; 55% admit "rogue spending or secret stashes"; sample size and dates not found | P, UK-VOC-04 |
+| Delayed work orders | CBRE 2023 (40 corporations): 77% of delayed work orders due to unavailable materials | P (medium quality), UK-VOC-09 |
+| Buying channels | RS/CIPS 2025 (n=426): average 92 MRO suppliers, 82% have tier-1 contracts; 2026 (n=448): 83 suppliers. The channel split (eProcurement 47%, expenses 18%, cards 16%) was not found in any retrievable source | P, UK-VOC-05 |
+| **Share of purchases that are non-catalogue, urgent or off-contract** | **No high-quality UK or US statistic found.** "50% of downtime" claims have no primary source | U, UK-VOC-06 |
+| AI use | DSIT (n=3,500, Feb-May 2025): 16% use at least one AI technology (mid-sized 23%, large 36%); agentic AI is 7% of adopters; 84% of AI users apply human checking. ONS BICS June 2026: 29% of businesses (about 35% with 10+ employees). BCC March 2026: 54% (n=668, self-selected online sample: a ceiling) | V with caveats, UK-VOC-02, 03 |
+| CMMS adoption | "20% / 44% / 36%" is not in the cited abstract; no verified UK share | X/U, UK-VOC-08 |
+| PO approval tiers | No source for "typical" tiers | U |
 
-## 7. What to do next
-1. Treat the UK profile (`profiles/uk.yaml`) as **configured but unvalidated**; run the UK Phase 0 tests (`docs/uk/01-uk-pmf-lean-canvas.md` §6).
-2. Commission a **second, higher-effort UK research round** on the unverified items: ONS tables, supplier ownership/revenue, competitors' UK presence, and a solicitor's review of the legal checklist.
-3. Do not quote any UK market-size figure externally from this document.
+Reading (judgement): the pain exists and AI readiness is rising, with human checking the norm, which fits a human-approval design. Whether the pain recurs often enough, in firms small enough to lack a procurement team, to pay a per-request fee is the open question. A 30-day PO and email audit in 10-15 target firms (classify each purchase as catalogue, non-catalogue or needed within 24 hours, by count and value) is the cheapest way to answer it. [A]
+
+## 4. Suppliers: size, ownership and how they want to be contacted
+
+### 4.1 Size and ownership (UK legal entities unless stated)
+
+Entity figures come from Companies House accounts, mostly scanned images read by OCR; the independent verifier found a second route only where marked. Group perimeters differ from legal entities, so store group, legal entity and trading brands as separate fields.
+
+| Supplier | Owner | Latest turnover | Branches | Status |
+|---|---|---|---|---|
+| RS Group | listed plc | Group £2,881m (FY to 31 Mar 2026); UK (country of domicile) £677.8m; UK and Ireland 38% of EMEA £1,803m | online-first | V, UK-SPD-03 |
+| Rubix (incl. Brammer Buck & Hickman) | Advent International funds | Group €3,041.4m (2025); UK, Iceland and Ireland €539.4m; bought ERIKS UK&I (announced 24 Mar 2025, closed 31 Oct 2025; Advent's "in excess of €850m" is combined revenue, scope unstated; price undisclosed, provisional €346.6m cash with ERIKS Transportation GmbH) | 750 locations group-wide (trade press) | P, UK-SUP-04 |
+| Cromwell | Grainger until 17 Dec 2025; now AURELIUS (Zoro UK closed Q4 2025, not sold) | Cromwell Tools Ltd £239.8m (2025), pre-tax loss | 60+ and about 1,800 staff (trade press) vs 40 sites and about 1,500 staff (AURELIUS): conflicting | owner V; figures P, UK-SUP-03 |
+| Wolseley UK (incl. Plumb Center) | CD&R since 29 Jan 2021 (not Ferguson) | Wolseley UK Ltd £1,779m (YE Jul 2025); Wolseley Group Holdings (UK and Ireland) £2,261.4m | 522 (entity); 642 (group) | owner V; entity figures S; group V, UK-SUP-02 |
+| Screwfix | Kingfisher (a banner separate from B&Q) | Screwfix Direct Ltd £2,658.9m; Kingfisher reports Screwfix sales £2,755m (+4.5%) | 940 per its website (one snippet says 952) | P, UK-SUP-05 |
+| Edmundson Electrical | Blackfriars Corporation (US); not Rexel | £1,882.9m (2025) | "over 400" | S, UK-SUP-05 |
+| City Plumbing | H.I.G. Capital funds since 30 Sep 2021 (sold by Travis Perkins; about £325m per a snippet) | entity £1,228.8m (a trade-press table shows Highbourne Group at £1.4bn); 2026 ERP problems and an £80m cash injection are single-source | "350+" | S/P, UK-SUP-05 |
+| CEF | Mackie family via Jersey holding companies; not Sonepar | £1,211.0m (YE Apr 2025); trade press "record turnover of more than £1.2bn" | 395 stores (about 390 in press) | P, UK-SUP-05 |
+| Toolstation | Travis Perkins (UK not for sale; only Benelux in talks) | £744.6m (2025) | 590 UK | P, UK-SUP-05 |
+| Rexel UK (incl. dormant Newey & Eyre) | Rexel SA | Rexel UK Ltd £589.0m (2025, down 11.5%, operating loss £24.8m): second route missing; Rexel's own FY2025 release gives UK and Ireland €945.3m. Round 1's "£72m" is contradicted | "200+" | X for r1; P, UK-SUP-01 |
+| Würth UK | Adolf Würth GmbH & Co. KG | £58.0m, loss-making, closed 10 stores in 2025 | 17 (accounts) | S |
+| Hayley Group | Descours & Cabaud SA | £266.0m (2025) | "over 50" | S |
+| Farnell / element14 | Avnet | Farnell segment $1.78bn, global; the UK selling entity is unclear (a terms-page snippet names Premier Farnell UK Limited) | online | U |
+| Amazon Business UK | Amazon | no dated UK figure | n/a | U |
+| Small bearing shops (Bearing Mart, Simply Bearings, Ashley Bearings, UK Bearings) | individuals; Rollakin SAS (2024); Shell Bay (2020) | not filed (small and micro exemptions) | 1-2 sites | S |
+
+Ownership moves 2020-2026 (primary sources): Wolseley UK to CD&R (Jan 2021); City Plumbing out of Travis Perkins to H.I.G. (30 Sep 2021); Graham out of Saint-Gobain (Jul 2021; most branches to UK Plumbing Supplies, 31 Jul 2021 per snippets); Stark/CVC bought Saint-Gobain's UK merchants (Feb 2023); Simply Bearings to Rollakin (Jun 2024); ERIKS UK&I into Rubix (31 Oct 2025); Cromwell to AURELIUS (17 Dec 2025). An entity name can outlive its owner: the Cromwell holding company is still registered as GWW UK Holdings Ltd ten months after Grainger sold it.
+
+### 4.2 How they want to be contacted, and what their terms say (read by the verifier on 3 Oct 2026)
+
+| Supplier | RFQ channel | Account and credit | Notes |
+|---|---|---|---|
+| RS | login-only "My Quotes" (price fixed 30 days); email orders accepted; no RFQ mailbox | credit "subject to satisfactory references"; pay by the 20th of the following month | prices ex-VAT; free delivery over £50 ex-VAT for business accounts; order before 20:30; PunchOut with Ariba, Coupa; no bot or AI wording in 8 pages of terms |
+| Farnell | web "Request a Quote" form (aims to reply in 1 working day) and sales@ | form asks company number, VAT number, monthly spend; £1,000 interest-free credit up to 60 days | prices ex-VAT; free delivery from £40; API needs the buyer's trade account |
+| Cromwell | account "Your quotes"; email and live-chat contact; email orders accepted | pay within 30 days of invoice | PunchOut offered; delivery values not independently re-read (site blocked) |
+| Rexel | "Request a Quote" from cart; branch emails a link; customersupport@ | photo ID, proof of address, letterhead (limited companies) | order before 17:00; PunchOut, EDI; robots.txt explicitly allows named AI agents |
+| Würth | no RFQ mailbox found; prices only after login | 30 days from invoice | quotation is an "invitation to treat", valid 30 days; OCI/PunchOut via enquiry form |
+| Hayley, bearing shops | email (enquiries@, bearingsolutions@, sales@) | Hayley 30 days from invoice, otherwise proforma; Bearing Boys: first two orders prepaid, 7-10 working days to set up | Hayley quotation not valid unless signed; email-first |
+| City Plumbing, Toolstation Key Accounts | emailed material lists invited (customerservice@; key@) | Toolstation Trade Club Credit up to 60 days | Toolstation terms say prices include VAT |
+| Screwfix | no RFQ channel (Key Accounts contact form) | up to 60 days (last day of the following month) | EX/INC VAT toggle |
+| CEF, Edmundson, Travis Perkins, Wolseley/Plumb Center, Rubix | not verified (site blocked or JS-only; CEF T&C PDF only) | CEF default pay by the 28th of the following month | provisional email-first |
+
+**Automation terms (V9):** no term read restricts receiving an emailed RFQ, whoever drafts it. What exists bars extraction from sites and APIs: Screwfix 4.2 ("Reproduce, crawl, frame, link to or deep-link into this Website"), Bearing Boys 7(III), Amazon UK Conditions of Use (28 Nov 2025) and its Business integrator policy (26 Jul 2026), and Farnell's API terms (trade account required; no scraping or mass capture; cache limit; "Anyone with access to the API key can place legally binding orders"). element14's Partner Portal API terms (July 2019) are stricter than Farnell's UK API terms: no storing of Farnell content and apps whose principal purpose is marketing Farnell, so a multi-supplier quote tool would conflict. No distributor publishes an agent policy or agent-facing product (RS mentions only AI-enabled search and pricing). Status: V, UK-ACC-01, 07.
+
+**Trade norms corrected (V9):** the free-delivery threshold is £40-£75 at the seven suppliers re-read (not £100-£150), order cut-offs run 16:30-21:00 (no 15:00 norm), credit is month-end based, and VAT display varies. Status: P, UK-ACC-03 to 05.
+
+### 4.3 Design implications (judgement)
+
+- Keep "no scraping, no portal automation, no link fetching" as a design rule (R7): it matches what the terms allow.
+- Address the buyer's named account manager or branch at portal-quote majors; use published email routes elsewhere; put the buyer's account number in the RFQ (needs a vendor field: backlog).
+- Record quote validity, VAT basis and delivery basis on every quote; thresholds, cut-offs and credit terms are per-supplier data.
+- Supplier records need legal entity, group, trading brands and a last-verified date; deduplicate by legal entity before sending (Rexel UK covers Rexel and Newey & Eyre; Wolseley UK covers Plumb Center).
+- Supplier APIs are not drop-in for a multi-tenant agent (buyer's own trade account, keys that place binding orders, caching limits, 4-6 weeks of onboarding at Amazon).
+- Nothing points to a supplier that is an obvious partner; RS, Rubix and Amazon Business are the digital incumbents and whether they would treat a buyer-side agent as a competitor is untested.
+
+## 5. Competitors
+
+| Group | UK verdict | Notes |
+|---|---|---|
+| Enterprise AI procurement with UK entity or office | UK presence, enterprise price | Procure AI (London; $13m **seed**, Nov 2025; DACH enterprise, UK expansion stated), Magentic (London; $18m Series A 17 Sep 2026; large manufacturers), Omnea (London/NY; $50m Series B Sep 2025), Pivot ($40m Series B May 2026; London office), Oro Labs ($100m Series C Mar 2026; UK entity), Zip (London office). None has GBP pricing |
+| US/global agents with no UK entity or customer found | none found | Aron ($8m; launched Sep 2026; "mid-market to Fortune 500"; RFQ by email), Waybill (3 staff, Gurugram), Didero ($30m Series A Feb 2026), Lumari, Hexa, Traza, Tonkean, Procurify. Fairmarkit sells to one unnamed UK energy customer; Precoro has one UK case and USD prices |
+| Procurement suites | enterprise and public sector | Coupa (Thoma Bravo; bought Scoutbee Oct 2025), Jaggaer (Vista), SAP Ariba, Basware, Proactis (private since 2021), Tradeshift |
+| Maintenance and field-service software | **feature risk, not yet RFQ agents** | **Fiix already emails RFQs and POs to vendors** (no UK presence found); MaintainX (Autodesk, about $3.6bn, closed 3 Aug 2026), Limble, UpKeep have purchase-order management; **Joblogic** (Birmingham, 7,000+ UK businesses, from £45 per user per month, Vista £100m+ for an "AI-first roadmap", PartsArena integration) and Commusoft, ServiceM8, Fergus sit in the contractor segment |
+| UK startups | adjacent | **Prolo** (£4.2m seed 14 Jul 2026; AI-plus-human quotes for SME construction contractors; construction materials via its own supplier network, not MRO), Tyten (£750k; FM helpdesk), Intropy ($11m; sell-side spare parts) |
+| Discovery leads (snippet only) | adjacent | Trade Parts Finder (London; AI part identification and stock check across 3,000+ merchants), PartsHIRE (reseller), Mandel AI (YC; RFQ-to-invoice; no UK evidence) |
+
+Status: P UK-CMP-01 to 10. No competitor claim was contradicted; several were only partly confirmed (funding facts often rest on search snippets). Procure AI's round date differs by source (26 Nov 2025 in the investor release, 5 Nov 2025 on the company blog).
+
+White space (judgement): small and mid-size maintenance teams sending RFQs to their own suppliers, priced in GBP, with equivalence tiers and an audit trail. Likeliest entrants within 12 months: Joblogic or Commusoft (purchase orders, stock and supplier data already in product), Prolo (same quote-gathering pattern; would need a maintenance catalogue), Procure AI and Magentic (enterprise first), Fiix or MaintainX (feature), Aron (remote selling), and distributors: Fastenal bought Rampp.ai (Jun 2026) and Grainger paid about $210m for technology and talent (Aug 2026) per trade press. Joblogic is as likely a partner or acquirer as a rival.
+
+## 6. Law and compliance (summary; the questions for advisers are in `docs/uk/04-counsel-and-adviser-checklist.md`)
+
+| Topic | Finding | Effect on product or profile | Status |
+|---|---|---|---|
+| **Company details on business email and POs** | SI 2015/17 (the 2008 Regulations were revoked): reg 24(1)(g) puts the registered name on "all other forms of its business correspondence and documentation"; reg 25 requires the part of the UK of registration, registered number and registered office address on business letters, order forms and websites; reg 29(c) covers electronic form. Registrar guidance for LLPs and sole traders lists "business emails". No official text says an email must carry every reg 25 particular (a law-firm view does). Offence: reg 28, fine up to level 3 (£1,000) plus a daily default fine; CA 2006 s.83 can let a defendant have the company's own claim dismissed. Sole traders and partnerships: CA 2006 ss.1200-1206. Never print some directors' names without all (reg 26) | `legal.business_identity` required in the UK profile: four fields print before the AI footer, and sending is blocked if a tenant has not supplied them | P, UK-CTL-01, 02 |
+| **PECR** | Reg 22 covers unsolicited direct-marketing email to individual subscribers only (corporate subscribers are outside; English/NI partnerships and sole traders are individuals); reg 23 identity and opt-out apply to direct marketing of any subscriber type; reg 2(1) now defines direct marketing itself (DUAA s.110, 20 Aug 2025). That an RFQ is not direct marketing is **inference**: no ICO, court or law-firm text addresses RFQs; the ICO says plain branding is not marketing but "significant promotional material" is | Keep RFQs and the footer free of promotion; marketing email stays prohibited | P, UK-DPL-01 to 03 |
+| **Fines** | PECR maximum £17.5m or 4% of worldwide turnover for conduct on or after 5 Feb 2026; £500,000 before. Round 1's "£225,000" was two fines announced 20 Jan 2026 | none | V, UK-DPL-04 |
+| **DUAA 2025** | Binding, in force in stages: most of Part 5 on 5 Feb 2026 (SI 2026/82), complaints duty 19 Jun 2026, Information Commission 30 Sep 2026 (SI 2026/1015); no data-protection or PECR provision remains uncommenced. Automated decision-making rules bite only if suppliers are scored or excluded without meaningful human involvement | Notices name the regulator as "Information Commission (ICO)"; domain is still ico.org.uk | V, UK-DPL-05, 06 |
+| **International transfers** | UK-US data bridge in force (SI 2023/1028, saved by DUAA Sch 9 para 26): covers only US recipients on the DPF List that participate in the UK Extension. Risks: Latombe appeal C-703/25 P pending; the regulations name the FTC, and a June 2026 US ruling makes FTC commissioners removable at will. Fallback: IDTA or UK Addendum plus a transfer risk assessment. Transfer test is "not materially lower" from 5 Feb 2026 | LLM provider choice and region; backlog `llm.processing_region` and a transfer record | V with risk flags, UK-DPL-08, 09 |
+| **Roles, lawful basis, notices** | Named supplier contacts are personal data; legitimate interests is the natural basis; Art 14 notice within one month (the "disproportionate effort" exemption is now Art 14(5)(e)); AI processing is a DPIA trigger in ICO guidance; buyer is controller, platform is processor for RFQ data but controller for its own account data and any cross-tenant learning | privacy-notice link in the footer (backlog); counsel item A5 | P, UK-DPL-07 |
+| **ICO fee** | £52 / £78 / £3,763 (SI 2018/480 as amended 17 Feb 2025); £5 direct-debit discount; only controllers pay; payee is the Information Commission from 30 Sep 2026 | founder task | V, UK-DPL-10 |
+| **AI disclosure** | No UK statute in force requires disclosure that a B2B email was AI-written (negative finding across statute, Parliament, DSIT, ICO, CMA/ASA; scope-limited). The R8 footer is a policy choice | footer unchanged | V, UK-DPL-11 |
+| **Contract formation** | Battle of the forms: the last terms accepted can win (Tekdata v Amphenol [2009] EWCA Civ 1209, applying Butler v Ex-Cell-O); a supplier quote is an offer or an invitation to treat depending on intention; an RFQ is an invitation to treat; apparent authority needs a representation by the principal (Freeman & Lockyer). No UK statute or Law Commission proposal governs AI or electronic agents in contract (discussion paper 31 Jul 2025 proposes no reform); the UK Jurisdiction Taskforce statement of 16 Jul 2026 excludes contract formation | PO should say buyer terms prevail and state the VAT basis; acknowledgement check before goods-in (backlog; counsel A3) | V/P, UK-CTL-03, 10 |
+| **Implied terms** | SGA 1979 ss.13-14 apply to business sales; exclusions need to satisfy UCTA reasonableness (s.6(1A)); s.14(3) turns on the purpose stated in the RFQ | flag vendor exclusions and caps to the approver; the product never judges reasonableness | S, UK-CTL-11 |
+| **VAT basis of a silent price** | The contract-law default for a price that does not mention VAT is that it includes VAT (CLP Holding v Singh [2014] EWCA Civ 1103), the opposite of the old UK profile assumption. No authority on trade custom (suppliers' own terms usually say "exclusive of VAT": RS, Farnell, Würth, Hayley; Toolstation's say "include VAT"). The "addition of the VAT chargeable" wording is VATA s.19(2), not s.19(4) | UK profile now treats an unstated basis as **unknown** and forces human approval; the RFQ asks the supplier to state the basis; the PO should state it | P, UK-CTL-04 |
+| **VAT records, invoices, reverse charge** | VAT records for "at least 6 years" (Notice 700/21; no start date given); no text treats a quotation or PO as a VAT invoice. Construction domestic reverse charge (from 1 Mar 2021): components and materials supplied alone are outside it, supply-and-fix is inside, and an end-user exception exists | accountant items B2, B3; reverse-charge hint flags are backlog | V, UK-CTL-05, 06, 08 |
+| **Late payment** | Statutory interest 8% over the Bank of England official dealing rate on the 30 June or 31 December before interest starts (SI 2002/1675); Bank Rate 3.75% unchanged since 18 Dec 2025; a Commercial Payments Bill is pending, not law | informational | V, UK-CTL-12 |
+| **Public procurement** | Procurement Act 2023 thresholds from 1 Jan 2026: £135,018 (central government authorities) and £207,720 (sub-central), VAT-inclusive; a privately funded buyer is outside unless it is a public authority or, for utilities contracts, a private utility | public bodies are out of scope | P, UK-CTL-07 |
+| **CE and UKCA** | GB recognises CE "alongside or in place of" UKCA with no end date (SI 2024/696, in force 1 Oct 2024; GOV.UK updated 21 Aug 2026). 31 Dec 2027 is the end of the UKCA label-or-document concession and of the relaxed importer-details rule (SI 2022/1393 also uses it for an EU-route cut-off), not a CE deadline. Machinery SI 2026/867 (made 22 Jul 2026, in force 20 Jan 2027) extends CE-based recognition to the EU Machinery Regulation. Northern Ireland: CE, or UKNI and CE | UK notice: marks are supplier-declared, shown as stated; "not stated" never "non-compliant" | P, UK-PSL-01, 05 |
+| **Product safety framework** | Product Regulation and Metrology Act 2025 is mostly enabling powers; regulations exist for outdoor-equipment noise (SI 2025/1073) and machinery (SI 2026/867) but none for online marketplaces; GPSR 2005 remains the consumer-only core (reg 20: 12 months or £20,000 on indictment); the March-June 2026 consultation proposes extending duties to "business products", onward suppliers and marketplaces; no response by 3 Oct 2026 | the product must never take title, stock or import, or let vendors list items for sale; counsel item A9 | V/P, UK-PSL-02 to 04 |
+| **Counterfeit offences** | Trade Marks Act 1994 s.92(6)(b): up to 10 years on indictment (round 1 attributed this to the GPSR); offences need "a view to gain" or intent to cause loss. UK counterfeit-industrial-parts evidence is old or generic and there is no official buyer due-diligence guidance (DEF STAN 05-135 covers MOD suppliers) | authenticity tri-state (R5); no warranty | V, UK-IPL-01, 05 |
+| **Insurance and caps** | Affirmative AI cover exists as a wording enhancement in technology PI (Hiscox, 2025; "first in the UK" is contested by Armilla/Chaucer at Lloyd's, 30 Apr 2025). No reliable evidence that UK PI policies commonly carry AI exclusions; Chubb UK tells buyers to ask. Government model terms cap liability at 125% (G-Cloud 13, with a £500,000 floor) or 150-200% (Model Services Contract) of annual charges; no UK survey exists | broker item D1; counsel item A4 | V core, P, UK-IPL-02 to 04 |
+
+## 7. Parts, standards and data licensing
+
+| Item | Finding | Status |
+|---|---|---|
+| Tier B sources for deep-groove ball bearings | BS ISO 15:2017 (boundary dimensions), BS ISO 5753-1:2009 (radial internal clearance; BSI "Under Review", ISO names ISO/DIS 5753-1 as successor), BS ISO 492:2023 (tolerances). They fix envelope, clearance and tolerance only; seal, grease, cage and rating equivalence need a second named source | V, UK-PRT-01 |
+| V-belts | ISO 4183:2026 (Jan 2026) and ISO 4184:2025 (Oct 2025) replaced the 1995/1992 editions; BSI's "ISO 4183:1995 Current" listing is stale; BS 3790:2006 withdrawn 22 May 2026 and "not equivalent to" the ISO standards. Stage-1 said the 1995 edition was current: contradicted | P/X, UK-PRT-02 |
+| Dimensions | 6205 = bore 25, outside diameter 52, width 15 mm (SKF catalogue) | V, UK-PRT-03 |
+| Standards text as data | BSI: no reproduction or storage in a retrieval system without written permission; subscriber terms: copies "should not be copied in order to build a database". BSI licenses standards content into "online and software products". No BSI or ISO position on AI or machine use found; ISO's copyright page was blocked | P, UK-PRT-07 |
+| Manufacturer cross-reference tools | SKF Croesus and a Product cross-reference API (rival designation to SKF designation; "customers and non-customers"), NTN-SNR, Timken, NSK, Schaeffler, Gates, ContiTech exist. SKF general terms bar commercial reproduction, storage and download without written approval (its "scraping" wording is in chatbot terms only). Schaeffler's developer portal is for direct customers and silent on storage and AI. No reuse licence found | P, UK-PRT-06 |
+| UK law on bulk reuse | No commercial text-and-data-mining exception (CDPA s.29A is non-commercial research only); government report of 18 Mar 2026 says an opt-out exception "is no longer the government's preferred way forward"; nothing found since. Database right (SI 1997/3032): substantial investment; repeated and systematic extraction of insubstantial parts may amount to a substantial part; UK right for post-2020 databases is limited to UK persons, so overseas makers may rely on copyright and contract instead | V/P, UK-PRT-04, 05 |
+| ETIM | Free to use under Open Data Commons Attribution Licence (English master open to all; en-GB translation needs national membership). Bearing and belt classes not verified | P, UK-PRT-08 |
+| Part-family priority | No citable UK spend split by part family; bearings and V-belts were chosen because standards make them tractable, not because spend share is proven | U/A, UK-PRT-09 |
+
+Gate (judgement): until written permissions exist, use only standards-derived rules (after BSI/ISO confirmation) and buyer-confirmed data, and do not ingest manufacturer cross-reference tables. Five permissions to seek first: BSI/ISO for structured use of the five standards; SKF API licence; Schaeffler agreement; one UK distributor feed with equivalence-check rights; one V-belt maker (Gates, Optibelt, Fenner or ContiTech). The product spec lists "manufacturer cross-reference" under Tier B but a "competitor's marketing cross-reference" under Tier C; decide per source.
+
+## 8. Funding, grants and go-to-market
+
+| Item | Finding | Status |
+|---|---|---|
+| Macro | S&P Global UK Manufacturing PMI 51.9 in September 2026 (51.7 in August; above 50 for 11 months), but small manufacturers' output and new business "contract sharply" while medium and large firms grow; supplier delivery times lengthening. ONS vacancies Jun-Aug 2026: 702k all industries, manufacturing 48k (50k a year earlier), construction 29k (31k). Round 1's "52,000 maintenance/trades vacancies" was the all-manufacturing total | V, UK-FND-01, 09 |
+| Seed norms (2025) | British Business Bank/Beauhurst: 704 seed deals (-27%), median seed deal £0.6m, median pre-money £3.2m, 14.4 months between seed rounds; venture-stage median £1.1m; AI companies took 44% of smaller-business equity value (£12.3bn base; whole market £17.0bn). Round 1's "seed £500k-£1m, Series A £3-10m" and "£18.9bn, +35%" are unsupported | V (single publisher PDF), UK-FND-04 |
+| Tax-advantaged funding (from 6 Apr 2026) | SEIS: up to £250,000, gross assets at most £350,000, under 25 FTE, trade at most 3 years old, 50% relief on £200,000 a year, and SEIS must come before EIS or VCT money. EIS: under 250 FTE, up to £10m in 12 months and £24m lifetime, within 7 years of first commercial sale, 30% relief on £1m (£2m if at least £1m is knowledge-intensive). VCT relief 20%. Round 1's "under 2 years" and "£5M" are wrong | V, UK-FND-03 |
+| Made Smarter Adoption | England only (nine regions); SME manufacturing and engineering businesses with manufacturing premises in England; grants "up to £20K" for hardware and software in five regions, hardware only in the South East, none listed in the North East; £16m for 2025-26; no 2026-27 budget found. The 2026 DBT/Ipsos evaluation found no statistically significant effect on turnover, jobs or productivity, which the evaluators call under-powered (grants are small against firm investment). Building-services and FM contractors are probably ineligible (inference); sourcing software is not mentioned. The "£4.5bn" in round 1 is a different programme | P, UK-FND-02 |
+| Innovate UK | All 28 live competitions read on 3 Oct 2026: none for procurement or MRO software. Long shots: Frontier AI SME Champions Phase 1 (to 11 Nov 2026), Innovation Loans EoI (to 9 Oct), KTP Round 3 (to 14 Oct). A £100m BridgeAI grant fund was announced on 8 Jun 2026 but is not yet open | V, UK-FND-05 |
+| British Industrial Competitiveness Scheme | Electricity-levy exemptions (up to 25% off bills; Renewables Obligation and Feed-in Tariff from Apr 2027, Capacity Market from Oct 2027), applications 1 Oct to 30 Nov 2026, at least 33 MWh a year per site, and only 84 four-digit SIC codes qualify. Not a general energy cut | V, UK-FND-06 |
+| Comparable deals | Autodesk-MaintainX about $3.6bn (announced 28 May 2026, closed 3 Aug 2026); Rubix-ERIKS UK&I (closed 31 Oct 2025; price undisclosed); Vista put over £100m into Joblogic (11 Sep 2025); Procure AI $13m seed; Omnea $50m Series B; Zip $190m Series D (2024); Grainger paid $210m in cash (26 Aug 2026; the release does not call it AI) | V/P, UK-CMP-08, 09 |
+| **Pricing evidence** | **No reliable UK sales-cycle or annual-contract-value benchmark exists** (round 1's 4-9 months and ACV bands came from agency blogs). Stated willingness to pay for generic AI is low: IONOS/YouGov-fieldwork survey (n=1,001 UK decision-makers, up to 250 staff, May 2026): 25% would use only free AI tools, 24% would pay up to £43 for tools that save at least five hours a week, 12% £44-87 a month. Enterprise Nation/Strand (n=1,320, May 2026): 73% of 50-249-staff firms would pay more than £100 a year for a digital-advice service. List prices: ServiceM8 £0-269 per business per month; Joblogic from £45 per user per month. All are stated preferences for generic AI or advice, none for a per-request sourcing tool | P (sponsor surveys, stated preference), UK-FND-07 |
+| Channels | Smart Manufacturing Week (Maintec co-located) 9-10 Jun 2027, NEC Birmingham; Informa retired The Facilities Show; IWFM more than 12,000 members (corporate £1,573 small, £2,595 large); IMechE over 110,000; Make UK, BESA, ECA and FSB publish no member counts we could open | V, UK-FND-08 |
+
+Go-to-market hypotheses (judgement, not evidence):
+- **Segment:** start with manufacturers of roughly 50-249 staff, not micro and small: small manufacturers are contracting, and 50-249-staff firms adopt AI more (DSIT mid-sized 23%) and say they would pay more. Treat building-services and FM contractors as a second wedge reached through field-service software partners (Joblogic, Simpro/BigChange) and trade bodies.
+- **Price:** the base revenue model implies £167-283 per business per month (section 2.3), two to six times the £44-87 band that only 12% of UK SMBs say they would pay for generic AI. Test seat or flat tiers of about £45-120 a month alongside £12-20 per request (T5).
+- **Subsidy:** do not build the plan on grants. Ask a regional Made Smarter adviser whether a 50% match could fund a purchase (upside only); watch BridgeAI.
+- **Funding:** the 2025 seed market is selective (median £0.6m, 14.4 months between rounds, AI 44% of value). Plan a small seed with runway for slow rounds; SEIS then EIS is the tax-advantaged angel route if eligibility holds. A Knowledge Transfer Partnership is the one structural public route found; fit untested.
+- **Channels:** Smart Manufacturing Week/Maintec (June 2027), IWFM and trade-body newsletters, field-service software partners.
+
+## 9. UK gaps and opportunities
+
+| # | Gap | Evidence | Why it matters |
+|---|---|---|---|
+| UK1 | **Quote-basis-aware comparison** (ex-VAT trade pricing, but Toolstation quotes include VAT, Screwfix and Travis Perkins toggle, City Plumbing mixes) | UK-ACC-05 | Wrong-basis comparison is a classic error; the product normalises the basis, and an unstated basis is treated as unknown and sent to a human, because the contract-law default for a price that does not mention VAT is that it includes VAT (UK-CTL-04) |
+| UK2 | **Working-day lead times and per-supplier cut-offs** (cut-offs run 15:30-21:00; free-delivery thresholds £40-£75, not £100-£150) | UK-ACC-03 | Need-by checks must use the calendar; thresholds and cut-offs are per-supplier data, not constants |
+| UK3 | **Trade-account friction.** Prices and credit sit behind the buyer's own account; portal-quote majors (RS, Rexel, Farnell) publish no RFQ mailbox | UK-ACC-02, 08 | Add the buyer's account number per vendor to RFQs (backlog: needs a vendor field) and address the named account manager or branch |
+| UK4 | **Quotes are weak commitments** (invitation to treat; 30-day validity at Würth, Hayley, Edmundson) | UK-ACC-04 | Record validity, VAT basis and delivery basis on every quote |
+| UK5 | **Supplier churn and consolidation** (Cromwell sold Dec 2025, ERIKS UK&I into Rubix Oct 2025, Rexel UK restructuring, City Plumbing ERP problems) | UK-SUP-03 to 06 | Supplier records need legal entity, trading brands and a last-verified date; deduplicate by legal entity |
+| UK6 | **Company-details compliance on outbound business email** (new) | UK-CTL-01 | Built as a configurable business-identity block; blocks sending if a tenant has not supplied it |
+| UK7 | **Licensing of equivalence data** is the moat and the blocker (section 7) | UK-PRT-* | Phase 0 test U5 |
+| UK8 | **Public-sector buyers** (Procurement Act 2023) | UK-CTL-07 | Out of scope until reviewed |
+| UK9 | **Grants and tax-advantaged funding** | UK-FND-* | Upside only: Made Smarter is England-only and manufacturers-only, nothing in Innovate UK fits today, SEIS/EIS apply to the company |
+
+## 10. Round-1 corrections
+
+Round 1 (`research/uk/01-06`) was built by small models with documented quality problems. The second round contradicted or corrected these claims; none of them should be quoted.
+
+| Round-1 claim | Round-2 finding | Ledger |
+|---|---|---|
+| TAM £95-115bn, SAM £28-42bn | Components exceed the £86-90bn base they draw on, mix labour and services with parts, and exceed primary totals (£62.5bn wholesale, £85.3bn construction repair and maintenance). Rejected | UK-SPD-08 |
+| ACV £6-12k (one pass) and £15-35k (another) | Neither supported. Base model gives £2.0-3.4k per business-year at assumed volume | UK-SPD-07 |
+| "2,300-4,600 customers = 2-4% penetration" | 2,300-4,600 is 7.0-13.9% of the 33,075 reachable base | UK-POP-01 |
+| "7-9% of businesses are manufacturing"; "manufacturing SME about 30k" | 4.6% of businesses and 5.9% of employers; 25,700-25,845 with 10-249 employees | UK-POP-04, 05 |
+| "FM and building services: 50-70k enterprises" | No definition matches (168,110 registered enterprises in 43.2 + 81; 7,375 at 10-249 in 43.2 + 81.10) | UK-POP-01 |
+| "Maintenance spend £86.1bn, 3.4% of GDP (IBISWorld)" | Not on the cited page; ONS construction repair and maintenance of £85.3bn is a different measure (includes housing and labour) | UK-SPD-09 |
+| "RS is 10-14% of UK MRO" | Divided global revenue by a UK estimate; RS UK is £0.68bn, about 4.8% of £14bn | UK-SPD-03 |
+| Rexel UK £72m; Wolseley UK £1.5bn, 450+ branches, Ferguson-owned; Würth UK £100-200m | £589.0m (Rexel's own UK and Ireland figure is €945.3m); £1,779m and 522 branches, CD&R-owned since 2021 (group £2.26bn, 642); £58.0m | UK-SUP-01, 02 |
+| "CEF, Edmundson, Newey & Eyre: mid-tier, 50-150 branches" | 395 and 400+ branches, £1.2bn and £1.9bn; Newey & Eyre is a dormant company inside Rexel UK | UK-SUP-05 |
+| Cromwell "Grainger-owned" vs "independent", "now Zoro.co.uk"; platform list cited to a Rubix page | Grainger sold to AURELIUS on 17 Dec 2025; Zoro UK closed; the punch-out platform list was Rubix's page | UK-SUP-03 |
+| "Rubix acquired ERIKS UK&I for about €850M" | €850m is Advent's combined-revenue figure; the price was not disclosed; closed 31 Oct 2025 | UK-SUP-04 |
+| Toolstation independent; Screwfix a B&Q subsidiary | Toolstation is Travis Perkins'; Screwfix is a Kingfisher banner | UK-SUP-05 |
+| "No published terms prohibit agent or bot access" | Crawl and scrape bans exist at Screwfix, Farnell, Bearing Boys, Amazon; none bars receiving an emailed RFQ | UK-ACC-01 |
+| "Next-day delivery above £100-150 ex-VAT; 15:00 cut-off; prices quoted ex-VAT" | Thresholds £40-£75; cut-offs 16:30-21:00; VAT display varies | UK-ACC-03, 05 |
+| Procure AI "€11.2M Series A, 5 Nov"; Proactis "£74.9M, Aug 2023, $150M+ revenue"; Waybill "Bengaluru, 5 people" | $13m **seed** (investor release dated 26 Nov 2025); take-private in Jul 2021 at 75p a share, last public revenue £49.6m; Gurugram, 3 staff | UK-CMP-05, 10 |
+| "CMMS tools stop at purchase requests" | Fiix emails RFQs and POs to vendors; others have PO management | UK-CMP-04 |
+| Customs duties "£4.8bn vs £2.9bn, +62% last year" | That is FY2021-22 vs FY2020-21; FY2025-26 is £4,972m (+1.6%) | UK-VOC-07 |
+| BCC "54% (2025), 35% (2024)"; "46% B2B vs 26% manufacturers; 11% automate to a great extent" | 54% is March 2026 (35% was 2025); the other figures are not in the report | UK-VOC-02 |
+| "20% use CMMS, 44% spreadsheets, 36% nothing" | Not in the cited conference abstract; no verified UK share | UK-VOC-08 |
+| Trustpilot RS 4/5, Screwfix 271 reviews | RS 3.7; Screwfix 6,138 reviews | UK-VOC-07 |
+| "52,000 maintenance/trades vacancies" | The all-manufacturing total (now 48k) | UK-FND-09 |
+| Made Smarter "£4.5bn", "UK-wide from 2026-27"; "energy costs cut 25%"; SEIS "under 2 years", EIS "£5M"; "£18.9bn, +35%" UK funding; seed £500k-1m, Series A £3-10m | £16m for 2025-26, England only; electricity levies only for 84 SIC codes; 3 years and £10m; £17.0bn (-3%), seed median £0.6m, venture median £1.1m | UK-FND-02 to 06 |
+| PECR requires an opt-out address and "Art. 50-equivalent" AI disclosure on RFQs; "£225,000 for nuisance marketing" as the penalty | Regs 22-23 cover direct marketing only; Art 50 is EU law and no UK equivalent exists; £225,000 was two fines announced 20 Jan 2026; the cap is £17.5m or 4% for conduct from 5 Feb 2026 | UK-DPL-02, 04, 11 |
+| DUAA "opt-in, not mandatory"; contacts "retained plus 6 years"; consent needed for cross-tenant comparison | DUAA is binding and in force in stages; the ICO sets no fixed period and wants a justification; no source supports a consent rule (a purpose and controller question) | UK-DPL-05, 12 |
+| "SGA s.26 and SGSA s.13 govern agency"; "UCTA s.8 governs battle of the forms"; ETDA covers RFQs; "use cryptographic signatures on all PO confirmations" | s.26 defines "mercantile agent" for ss.24-25 and SGSA s.13 is care and skill (the SGA hook is s.62(2)); UCTA s.8 is misrepresentation; ETDA 2023 covers listed trade documents (not RFQs, quotes or POs); ECA s.7 is admissibility only and no qualified signature is needed | UK-CTL-09, 10, 11 |
+| Procurement thresholds £138,760 and £213,477; private buyers must follow the Act | £135,018 and £207,720 from 1 Jan 2026 (VAT-inclusive); private buyers are outside unless public authorities or utilities | UK-CTL-07 |
+| Late payment "base plus 8%"; VAT records "6 years from invoice date"; "reverse-charge quotes must state it" | 8% over the official dealing rate on 30 June or 31 December; "at least 6 years" with no start date; no source requires quote wording | UK-CTL-05, 08, 12 |
+| Company trading disclosure (not covered); the 2008 Regulations cited | SI 2008/495 was revoked on 31 Jan 2015; SI 2015/17 applies | UK-CTL-01 |
+| "CE recognised until 31 Dec 2027"; "UKCA preferred"; counterfeit offence under the GPSR with "up to 10 years" | CE has no end date; the guidance treats CE and UKCA as alternatives; the 10-year maximum is Trade Marks Act 1994 s.92(6)(b); GPSR reg 20 allows 12 months | UK-PSL-01, UK-IPL-01 |
+| "First UK affirmative AI liability policy covering bias and chatbots"; "standard CGL policies exclude generative-AI errors" | Hiscox's cover is an enhancement inside technology PI; Armilla/Chaucer launched earlier; the exclusion forms are US ISO general-liability forms | UK-IPL-02, 03 |
+| (Stage-1 of round 2, corrected by its verifier) V-belt reference "ISO 4183:1995" taken as the live edition | BS 3790:2006 withdrawn 22 May 2026; ISO 4183:2026 and ISO 4184:2025 replaced the older editions; BSI's listing is stale | UK-PRT-02 |
+
+Context note (single source, unreviewed): search results report that a new Prime Minister took office on 20 Jul 2026, and GOV.UK pages now carry a "2024 to 2026 Starmer Labour government" banner. Policy timetables cited here (the overdue product-safety consultation response, copyright and AI policy, the 28 Oct Autumn Budget) may move.
+
+## 11. What to do next
+
+1. Run the UK Phase 0 tests in `docs/uk/01-uk-pmf-lean-canvas.md`, T1 first: the frequency of non-catalogue and urgent purchases is the one number the research could not find.
+2. Take `docs/uk/04-counsel-and-adviser-checklist.md` to a solicitor, an accountant, an IP solicitor and an insurance broker in one round.
+3. Open the licensing conversations in section 7 before ingesting any manufacturer or standards data.
+4. Re-run the ONS and DBT counts when BPE 2026 publishes (due autumn 2026) and re-check the items marked P or U.
+5. Do not quote any UK market-size figure externally from this document.
