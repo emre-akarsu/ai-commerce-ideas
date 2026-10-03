@@ -29,11 +29,11 @@ cases:
     start: 2026-10-02
     text: "Unit price: €3.90 each ex VAT"
     expect: { currency: EUR, tax_basis: ex_tax, unit_price_each: "3.90", flags: [], absent_flags: [currency_unrecognised] }
-  - id: uk_no_tax_statement_assumes_ex_tax
+  - id: uk_no_tax_statement_is_unknown
     profile: uk
     start: 2026-10-02
     text: "Unit price: £4.20 each"
-    expect: { currency: GBP, tax_basis: ex_tax, unit_price_each: "4.20", flags: [tax_basis_assumed] }
+    expect: { currency: GBP, tax_basis: unknown, unit_price_each: "4.20", flags: [tax_basis_unknown], absent_flags: [tax_basis_assumed, tax_inc_converted] }
   - id: uk_excl_vat_sentence
     profile: uk
     start: 2026-10-02

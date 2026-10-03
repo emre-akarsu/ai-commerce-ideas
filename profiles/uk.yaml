@@ -1,7 +1,8 @@
-# United Kingdom deployment (England and Wales). Values come from research/uk/* (see docs/uk/).
+# United Kingdom deployment (England and Wales). Values come from research/uk2/* and its verification
+# reports; rationale and claim IDs: docs/uk/02-uk-profile-rationale.md and docs/uk/03-claims-ledger.md.
 # Not legal advice: a UK solicitor must review legal.*, retention.* and the DPA before go-live.
 extends: base
-description: United Kingdom (GBP, ex-VAT B2B quotes, working-day lead times, UK GDPR/PECR)
+description: United Kingdom (GBP, VAT-basis aware quotes, working-day lead times, company details on outbound email, UK GDPR/PECR)
 locale:
   region: GB
   language: en-GB
@@ -43,17 +44,20 @@ money:
 tax:
   name: VAT
   standard_rate: "0.20"           # UK standard rate; confirm before each tax year
-  quote_basis_default: ex_tax     # UK B2B trade quotes are normally ex-VAT (research/uk/02)
-  unknown_basis: assume_default_flag
-lead_time: { default_unit: working_days }   # trade norm: next working day, 15:00 cut-off (research/uk/02)
+  quote_basis_default: ex_tax     # market norm for display: suppliers' own terms say ex-VAT (RS, Farnell, Wurth, Hayley), but Toolstation includes VAT (UK-ACC-05)
+  unknown_basis: flag_require_approval   # a price silent on VAT is normally VAT-inclusive in contract law (UK-CTL-04): never assumed
+  ask_basis_in_rfq: true          # the RFQ asks the supplier to state whether its price includes VAT
+lead_time: { default_unit: working_days }   # bare "days" are read as working days and flagged; supplier cut-offs vary 16:30-21:00 (UK-ACC-03)
 legal:
   jurisdiction: England and Wales (UK)
-  contact_data_regime: "UK GDPR, Data Protection Act 2018, PECR; consult a UK solicitor"
+  contact_data_regime: "UK GDPR (as amended by the Data (Use and Access) Act 2025), Data Protection Act 2018, PECR; regulator: Information Commission (ICO); consult a UK solicitor"
   disclosure_footer: "Prepared with an AI assistant on behalf of {buyer}. It cannot accept terms or place orders; only a purchase order from {buyer} binds."
   notices:
-    - "RFQs are transactional business requests. The product must not be used for marketing email (PECR)."
-    - "Quotes are treated as ex-VAT unless stated. The construction reverse charge is not determined by the product."
-    - "UKCA/CE and authenticity status are vendor-declared and not verified by the product."
+    - "RFQs are transactional business requests and carry no promotion. The product must not be used for marketing email (PECR); a solicitor should confirm that RFQs fall outside the PECR marketing rules."
+    - "A quote that does not state whether VAT is included is treated as unknown and needs human approval: in contract law a price silent on VAT is normally VAT-inclusive. The construction reverse charge is not determined by the product."
+    - "CE, UKCA and authenticity status are supplier-declared and not verified by the product; a missing mark means \"not stated\", not \"non-compliant\"."
+    - "A UK company's business emails and order documents should show its registered name, number, registered office and UK part of registration (SI 2015/17). The company-details lines carry them, and sending stops if a tenant has not supplied them."
+    - "Supplier-contact data sent to a processor outside the UK needs a transfer mechanism (a UK-US data bridge participant, or the IDTA or UK Addendum with a transfer risk assessment). The regulator is the Information Commission (ICO)."
   # Company particulars on business letters and order forms, including in electronic form (Companies Act
   # 2006 s.82; SI 2015/17 regs 24-25 and 29; research/uk2/verify/V6). Whether an RFQ email counts as a
   # business letter is a solicitor question (docs/architecture/known-gaps.md). The values are per-tenant
@@ -68,7 +72,7 @@ legal:
       registered_in: Registered in
 retention:
   raw_email_days: 90
-  po_records_years: 6             # HMRC record-keeping horizon cited in research/uk/04; confirm with an adviser
+  po_records_years: 6             # VAT records: at least 6 years (VAT Notice 700/21, UK-CTL-05); confirm with an accountant
   audit_years: 6
 approvals: { threshold: "500" }   # placeholder in GBP, not derived from UK data; set per customer
 parts: { enabled_families: [deep_groove_ball_bearing, v_belt], standards: ["ISO 15"] }

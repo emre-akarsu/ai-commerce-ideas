@@ -69,6 +69,8 @@ class TaxPolicy(_P):
     quote_basis_default: Literal["ex_tax", "inc_tax", "unknown"] = "unknown"
     # What to do when a quote does not state whether tax is included.
     unknown_basis: Literal["flag_require_approval", "assume_default_flag"] = "flag_require_approval"
+    # Ask the supplier, in the RFQ, to say whether its price includes the tax (fewer silent quotes).
+    ask_basis_in_rfq: bool = False
 
 
 class LeadTimePolicy(_P):

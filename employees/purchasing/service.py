@@ -165,6 +165,8 @@ class Settings:
     tiers_enabled: tuple[str, ...] | None = None  # None = ("A", "B")
     base_currency: str = "USD"
     raw_email_days: int = 90
+    tax_name: str | None = None  # None = taken from the profile (RFQ wording)
+    rfq_ask_tax_basis: bool = False  # the RFQ asks the supplier to state the tax basis
     # Business identity ("company particulars") on outbound RFQs. The VALUES are a deployment fact:
     # tenant_id -> field -> value, looked up ONLY by the authenticated tenant and never taken from a
     # request or model output. Which fields, their labels and whether they are required come from the
@@ -202,6 +204,8 @@ class Settings:
             "tiers_enabled": tuple(p.tiers.enabled),
             "base_currency": p.money.base_currency,
             "raw_email_days": p.retention.raw_email_days,
+            "tax_name": p.tax.name,
+            "rfq_ask_tax_basis": p.tax.ask_basis_in_rfq,
             "identity_fields": tuple(p.legal.business_identity.fields),
             "identity_labels": p.legal.business_identity.effective_labels(),
             "identity_required": p.legal.business_identity.required,
@@ -224,6 +228,8 @@ class Settings:
             identity_fields=tuple(dict.fromkeys([*bi.fields, *self.identity_fields])),
             identity_labels={**self.identity_labels, **bi.effective_labels()},
             identity_required=self.identity_required or bi.required,
+            tax_name=self.tax_name or p.tax.name,
+            rfq_ask_tax_basis=self.rfq_ask_tax_basis or p.tax.ask_basis_in_rfq,
         )
 
 
@@ -715,7 +721,7 @@ class PurchasingService:
         if existing is not None and existing.sent_message_id:
             raise Conflict(f"RFQ to {vendor.id} was already sent")
         cands = {c.mpn: c for c in self._candidates(request.tenant_id, request.id)}
-        body = self._rfq_body(request, vendor, [cands[m] for m in mpns])
+        body = self._rfq_body(request, vendor, [cands[m] for m in mpns], self._settings)
         if existing is None:
             rfq = RFQ(id=self._ids("rfq"), tenant_id=ctx.tenant_id, request_id=request.id,
                       vendor_id=vendor.id, subject=f"RFQ: {mpns[0]} x{request.quantity}",
@@ -745,7 +751,8 @@ class PurchasingService:
         )
 
     @staticmethod
-    def _rfq_body(request: Request, vendor: Vendor, cands: list[Candidate]) -> str:
+    def _rfq_body(request: Request, vendor: Vendor, cands: list[Candidate],
+                  settings: Settings | None = None) -> str:
         lines = [f"Hello {vendor.name},", "", "Please quote the following part(s):"]
         lines += [f"- {c.mpn} ({c.manufacturer})" for c in cands]
         lines += ["", f"Quantity: {request.quantity}"]
@@ -753,10 +760,16 @@ class PurchasingService:
             lines.append(f"Need by: {request.need_by.isoformat()}")
         if request.site:
             lines.append(f"Ship to: {request.site}")
+        ask = ("unit price and unit of measure, currency, lead time, freight, "
+               "quote validity, condition, and the exact manufacturer and part number you quote.")
+        if settings is not None and settings.rfq_ask_tax_basis:
+            tax = settings.tax_name or "tax"
+            ask = ("unit price and unit of measure, currency, whether the price is exclusive or "
+                   f"inclusive of {tax}, lead time, freight, quote validity, condition, "
+                   "and the exact manufacturer and part number you quote.")
         lines += [
             "",
-            "Please reply with unit price and unit of measure, currency, lead time, freight, "
-            "quote validity, condition, and the exact manufacturer and part number you quote.",
+            f"Please reply with {ask}",
             "If you offer a different part, say so explicitly with its manufacturer and number.",
         ]
         return "\n".join(lines)
