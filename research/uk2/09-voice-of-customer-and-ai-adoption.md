@@ -2,7 +2,7 @@
 
 Prepared 2026-10-03. Supersedes the statistics in `research/uk/05-uk-voice-of-customer.md`. Every number has a ledger ID (section 7). Source types: primary = I opened the publisher's own document or data; secondary = trade press or a vendor page quoting it; aggregator = statistics site or vendor roundup; anecdote = review or forum post. Confidence: H = primary read directly, sample known; M = primary but sponsor-run or self-selected, or secondary quoting a primary I could not open; L = aggregator, vendor blog or anecdote. Nothing here shows that buyers would pay for the product. Downloads and parse output are in the session scratchpad `/tmp/claude-0/-home-user-ai-commerce-ideas/8a4ab967-aee2-5285-a889-9780b621444f/scratchpad/uk2/09/` (not in the repo).
 
-Method: 33 WebSearch and Bash calls plus 5 headless-browser calls for pages that blocked curl. Bot walls stopped curl on CBRE, The Engineer, Trustpilot and three forum sites. Trustpilot and one forum thread were read through the browser tool; CBRE stayed blocked. Gaps are listed in section 6.
+Method: 34 WebSearch and Bash calls (most Bash calls were local parsing of downloaded files; the last was a word count) plus 5 headless-browser calls for pages that blocked curl. Bot walls stopped curl on CBRE, The Engineer, Trustpilot and three forum sites. Trustpilot and one forum thread were read through the browser tool; CBRE stayed blocked. Gaps are listed in section 6.
 
 ## 1. Headlines
 
@@ -86,7 +86,7 @@ What this supports: off-book and parts-driven urgent buying occur among a large 
 
 ## 7. Claim ledger
 
-| ID | Claim | Value/quote | Source URL | Source type | Fetched | Source date | Conf. | Notes |
+| ID | Claim | Value/quote | Source URL | Source type | Fetched | Source date | Confidence | Notes |
 |---|---|---|---|---|---|---|---|---|
 | RS-01 | RS/CIPS 2025 survey design | n=426 UK and Ireland respondents; online survey 24 Jun-24 Jul 2024 | https://uk.rs-online.com/web/content/m/2024-indirect-procurement-report | primary (sponsor) | yes (landing page) | report Jan 2025 | H | Landing page has no statistics; full report is form-gated and not obtained. RS sells MRO and VMI. Same URL was round 1's source for the 65%/10% claim |
 | RS-02 | Challenges, next 12 months | Inflation and higher costs 62%; managing supply-chain risk 47%; global political uncertainty 37% | https://themanufacturer-cdn-1.s3.eu-west-2.amazonaws.com/wp-content/uploads/2025/01/10145314/2025-RS-CIPS-Indirect-Procurement-Report-PR-Summary.pdf | primary (sponsor summary) | yes | 2025-01 | H | Trade press: inflation was 31% in the 2024 report (secondary) |
@@ -126,7 +126,7 @@ What this supports: off-book and parts-driven urgent buying occur among a large 
 | MK-01 | Make UK skills | 36% of manufacturing vacancies hard to fill due to skills, qualifications or experience vs 24% across all industries | https://www.makeuk.org/insights/blogs/the-labour-shortage-challenge-for-uk-manufacturers | secondary (trade-body blog) | yes | 2023-03-13 | L | Stale; underlying dataset not named; no maintenance-specific figure |
 | HM-01 | HMRC customs duties receipts, cash, £m | FY2019-20 3,287; 2020-21 2,962; 2021-22 4,791; 2022-23 5,526; 2023-24 4,804; 2024-25 4,896; 2025-26 4,972 | https://assets.publishing.service.gov.uk/media/6aa923f20420ac660805f7f2/NS_Table.ods (sheet Receipts_Annually, column Customs Duties); https://www.gov.uk/government/statistics/hmrc-tax-and-nics-receipts-for-the-uk | primary | yes | 2026-09-22 | H | Total collected on all imports, businesses and consumers; not MRO-specific |
 | HM-02 | UHY Hacker Young claim | "£4.8bn in customs duties on imported goods in the last year, a new record, up from £2.9bn in the same period last year" | https://taxjournal.com/articles/62-jump-in-customs-duties-for-uk-businesses-consumers-/ | secondary (accountancy firm press release) | yes | 2022-04-26 | H as a statement | Says 62% more; attributes most of the rise to Brexit rules-of-origin tariffs |
-| HM-03 | Derived checks | FY2021-22 vs 2020-21 +61.7%; FY2025-26 vs 2024-25 +1.6%; FY2025-26 vs 2022-23 peak -10.0% | computed from HM-01 | derived | n/a | 2026-10-03 | H | |
+| HM-03 | Derived checks | FY2021-22 vs 2020-21 +61.7%; FY2025-26 vs 2024-25 +1.6%; FY2025-26 vs 2022-23 peak -10.0% | computed from HM-01 | primary (derived) | n/a | 2026-10-03 | H | My arithmetic on HMRC figures |
 | HM-04 | Statista restatement | £4.8bn in 2023/24 vs £5.53bn in 2022/23 | https://www.statista.com/statistics/284363/customs-duty-united-kingdom-hmrc-tax-receipts/ | aggregator | no | n/a | L | Seen only in a search summary; matches HM-01 (4,804 and 5,526). URL rebuilt from an ezproxy mirror in the result |
 | TP-01 | Trustpilot RS UK & Ireland | TrustScore 3.7 (3.5 stars); 3,412 reviews; 1-star 381, 2 148, 3 193, 4 269, 5-star 2,421 | https://uk.trustpilot.com/review/uk.rs-online.com | anecdote (review platform) | yes (browser; curl 403) | accessed 2026-10-03 | M | Themes in Appendix A; invitation and self-selection bias |
 | TP-02 | Trustpilot Rubix | rubix.com profile has 0 reviews; no business unit at uk.rubix.com or rubix.co.uk | https://uk.trustpilot.com/review/rubix.com | anecdote | yes | accessed 2026-10-03 | H that none exists | No rating available |
