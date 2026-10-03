@@ -1,70 +1,69 @@
 # UK supplier access, terms and trade norms (round 2)
 
-Accessed 2026-10-03. Scope: how UK MRO suppliers want to be contacted for quotes, what their own terms say about automated access/AI/bots, and trade-account norms. Replaces the blog-sourced norms in `research/uk/02-uk-suppliers.md`. Not legal advice.
+Accessed 2026-10-03. How UK MRO suppliers want to be contacted for quotes, what their own terms say about automated access/AI/bots, and trade-account norms. Replaces the blog-sourced norms in `research/uk/02-uk-suppliers.md`. Not legal advice.
 
-**Method.** Supplier pages fetched with scripted GETs (honest user-agent, no browser spoofing); JS-only pages (Travis Perkins, Edmundson) rendered in a headless browser. Each terms page was searched for automated/bot/scrape/crawl/data-mining/AI/systematic/unauthorised-use wording and every hit read in context. "None found" means none on the pages listed in the ledger (section 2). **Blocked on every route tried** (scripted GET, headless browser, anti-bot scraper for CEF, WebFetch; Wayback rate-limited): CEF website, Rubix, Wolseley/Plumb Center, Amazon UK help pages, Würth e-shop, Zoro UK. No further bypass attempted. 34 of 35 allowed calls used (some scripted calls fetched page batches).
+**Method.** Scripted GETs with an honest user-agent (no browser spoofing); JS-only pages (Travis Perkins, Edmundson) rendered in a headless browser. Terms pages were searched for automated/bot/scrape/crawl/data-mining/AI/systematic wording and each hit read in context. "None found" = none on the pages listed in the ledger (section 2). **Blocked on every route tried** (GET, headless browser, anti-bot scraper for CEF, WebFetch; Wayback rate-limited): CEF website, Rubix, Wolseley/Plumb Center, Amazon UK help pages, Würth e-shop, Zoro UK. No further bypass attempted. 35 of 35 calls used (some scripted calls fetched page batches).
 
 ## 1. Per-supplier table
 
-IDs in brackets point to the ledger. Handling class = suggested treatment (judgement).
+IDs in brackets point to the ledger. Handling class is a suggestion (judgement).
 
-### 1a. RFQ channel, account, delivery, VAT display (items a-d)
+### 1a. RFQ channel, account, delivery, price display (items a-d)
 
-| Supplier | (a) RFQ channel | (b) Trade account / credit | (c) Delivery | (d) Price display |
+| Supplier | (a) RFQ channel | (b) Account / credit | (c) Delivery | (d) Price display |
 |---|---|---|---|---|
-| RS Components | Login-only "My Quotes" (price fixed 30 days); no RFQ mailbox published; email orders accepted; 03457 201201 [RS-05, RS-08] | Credit "subject to satisfactory references"; pay by 20th of month after despatch [RS-06] | Free over £50 ex VAT, else £8.50; order before 20:30 for next working day [RS-04] | Ex VAT [RS-07] |
-| Farnell | Web form "Request a Quote" (aims to reply in 1 working day); sales@farnell.com; 03447 11 11 11 [FA-06, FA-07] | Form asks company reg. no., VAT no., monthly spend; "£1,000 INTEREST FREE credit up to 60 days"; CoS: 20th of month after despatch [FA-08, FA-09] | Free £40+ (standard), else £8.99; same-day despatch if ordered before 18:00 [FA-10] | Ex VAT in CoS; ex/inc VAT shown on quote pages [FA-09] |
-| Rubix | Not verified (blocked) [RU-01] | - | - | - |
-| Cromwell | Account "Your quotes"; contactus@cromwell.co.uk; live chat; email orders accepted [CR-03, CR-05] | Pay within 30 days of invoice [CR-02]; application form unreadable [CR-07] | Free over £50 ex VAT, else £7.95; online by 17:00, phone/email by 16:00 Mon-Thu, 15:30 Fri [CR-03] | Ex VAT |
-| Screwfix | None; Key Accounts = contact form [SX-05] | "Up to 60 days" (last day of following month); credit checks [SX-02] | Free standard next-day £50+, else £5; order by 21:00 weekdays [SX-03] | EX/INC VAT toggle [SX-04] |
-| Toolstation | Key Accounts "Quotes"; key@toolstation.com [TS-04] | Trade Club Credit: up to 60 days, due end of month + 30 days from invoice, 5% off; main T&Cs still say payment with order [TS-01, TS-02] | Free £40+, else £5; order by 21:00 Mon-Thu [TS-03] | T&Cs: prices "include VAT" [TS-01] |
-| Würth UK | No RFQ mailbox found; customer.services@wurth.co.uk; quotation valid 30 days, "invitation to treat" [WU-02, WU-06] | Trade only; invoice due in 30 days [WU-02] | Free online, no threshold; order before 16:30 [WU-03] | Ex VAT; prices shown only after login [WU-02, WU-05] |
-| CEF | Quotes via login; customerservices@cef.co.uk; 01763 272 717; "Writing includes emails" [CE-02, CE-04] | Credit checks; default pay by 28th of month after invoice; guarantee form [CE-03] | Not verified | Not verified |
-| Rexel UK | "Request a Quote" from cart, branch emails link; customersupport@rexel.co.uk; 0330 0450 606 [RX-03, RX-04] | Photo ID, proof of address, letterhead (Ltd), business details; default pay last working day of following month; 30/60-day EOM if agreed [RX-05, RX-06] | Order before 17:00 weekdays; same-day before 12:00 in cities; no threshold stated [RX-07] | "VAT shall be charged as applicable" [RX-09] |
-| Edmundson | Not found; downloadable account form [ED-02] | Form only | Not found | Not found |
+| RS Components | Login-only "My Quotes" (prices fixed 30 days); email orders accepted; no RFQ mailbox [RS-05, RS-08] | Credit "subject to satisfactory references"; due 20th of month after despatch [RS-06] | Free over £50 ex VAT, else £8.50; order before 20:30 [RS-04] | Ex VAT [RS-07] |
+| Farnell | "Request a Quote" web form (reply aim 1 working day); sales@farnell.com [FA-06, FA-07] | Asks company reg. no., VAT no., monthly spend; "up to 60 days"; due 20th of month after despatch [FA-08, FA-09] | Free £40+, else £8.99; same-day despatch before 18:00 [FA-10] | Ex VAT [FA-09] |
+| Rubix | Not verified [RU-01] | - | - | - |
+| Cromwell | Account "Your quotes"; contactus@cromwell.co.uk; email orders accepted [CR-03, CR-05] | 30 days from invoice [CR-02] | Free over £50 ex VAT, else £7.95; online by 17:00, phone/email by 16:00 (Fri 15:30) [CR-03] | Ex VAT |
+| Screwfix | None; Key Accounts contact form [SX-05] | "Up to 60 days" (month end + 1); credit checks [SX-02] | Free £50+, else £5; order by 21:00 [SX-03] | EX/INC toggle [SX-04] |
+| Toolstation | Key Accounts; key@toolstation.com [TS-04] | Trade Club Credit up to 60 days, 5% off; main T&Cs still say pay with order [TS-01, TS-02] | Free £40+, else £5; order by 21:00 Mon-Thu [TS-03] | T&Cs: prices "include VAT" [TS-01] |
+| Würth UK | customer.services@wurth.co.uk; quotes valid 30 days, "invitation to treat" [WU-02, WU-06] | Trade only; 30 days from invoice [WU-02] | Free online; order before 16:30 [WU-03] | Ex VAT; prices visible after login only [WU-02, WU-05] |
+| CEF | Quotes via login; customerservices@cef.co.uk; "Writing includes emails" [CE-02, CE-04] | Credit checks; due 28th of month after invoice; guarantee form [CE-03] | Not verified | Not verified |
+| Rexel UK | Cart "Request a Quote", branch emails link; customersupport@rexel.co.uk [RX-03, RX-04] | ID, proof of address, letterhead (Ltd); due end of following month; 30/60-day EOM if agreed [RX-05, RX-06] | Order before 17:00; no threshold stated [RX-07] | VAT "as applicable" [RX-09] |
+| Edmundson | Not found; account form to download [ED-02] | Form only | Not found | Not found |
 | Wolseley / Plumb Center | Unverified (blocked) [WP-01] | - | - | - |
-| City Plumbing | Email material lists to customerservice@cityplumbing.co.uk; web quote list goes to branch [CP-03] | Cash vs credit; "30 days credit subject to T&Cs"; PDF credit form [CP-02] | Free over £75 ex VAT, else £9; order by 17:00 [CP-01] | Mixed: promo "Inc VAT", thresholds "Ex VAT" |
-| Travis Perkins | Site "Quote List" (not read); branches [TP-02] | "Subject to credit checks"; days not found [TP-03] | Free £100 inc VAT (logged in), £150 (guest) [TP-02] | EX/INC VAT toggle [TP-02] |
-| Amazon Business UK | No RFQ; ordering UI or API [AM-01] | Not read | Not checked | Not checked |
-| Hayley Group | enquiries@ / bearingsolutions@hayley-group.co.uk; email orders OK, subject to written acceptance [HY-01, HY-02] | 30 days from invoice; no agreed terms = proforma [HY-01] | Quote price includes one mainland UK address [HY-01] | VAT added to quote [HY-01] |
+| City Plumbing | Email material lists to customerservice@cityplumbing.co.uk [CP-03] | "30 days credit subject to T&Cs"; PDF form [CP-02] | Free over £75 ex VAT, else £9; order by 17:00 [CP-01] | Mixed inc/ex VAT |
+| Travis Perkins | Site "Quote List" (unread); branches [TP-02] | Credit checks; days not found [TP-03] | Free £100 inc VAT (£150 guest) [TP-02] | EX/INC toggle [TP-02] |
+| Amazon Business UK | No RFQ; UI or API [AM-01] | Not read | Not checked | Not checked |
+| Hayley Group | enquiries@ or bearingsolutions@hayley-group.co.uk; email orders OK, subject to written acceptance [HY-01, HY-02] | 30 days from invoice; else proforma [HY-01] | Quote includes one mainland address [HY-01] | VAT added [HY-01] |
 | Bearing Mart | sales@bearingmart.co.uk; 0161 236 2300 [BM-01] | Not found | Not found | Not found |
-| Simply Bearings | Contact page/phone; FAQ lists "formal quote" question (answer not captured) [SB-01] | Credit form needs login [SB-01] | 48h parcel free over £50; next-day £9.50; dispatch same day before 16:00 [SB-01] | Ex VAT in delivery table |
-| Bearing Boys | Contact form; 01603 720713 [BB-03] | 30-day net; first two orders prepaid; 7-10 working days to set up [BB-02] | Free £100+ ex VAT (1-3 days); next-day £8.95, order before 16:00 [BB-03] | Ex VAT |
+| Simply Bearings | Contact page; "formal quote" FAQ (answer not captured) [SB-01] | Credit form needs login [SB-01] | Next-day £9.50; dispatch before 16:00; 48h parcel free over £50 [SB-01] | Ex VAT |
+| Bearing Boys | Contact form; 01603 720713 [BB-03] | 30-day net; first two orders prepaid [BB-02] | Free £100+ ex VAT; next-day £8.95, order before 16:00 [BB-03] | Ex VAT |
 
 ### 1b. Automation terms, eProcurement, API (items e-g)
 
 | Supplier | (e) eProcurement | (f) Automation/AI terms | (g) API / MCP / agent | Handling class |
 |---|---|---|---|---|
-| RS Components | PunchOut, eOrdering, eInvoicing; Ariba, Coupa [RS-09] | None found; robots has no AI rules [RS-01..03] | No public API found (absence unproven) [RS-11] | Punchout possible |
-| Farnell | Punchout, EDI, XML; Ariba, SAP, Jaggaer, Ivalua, Coupa, OneAdvanced, Proactis [FA-05] | "You may not mirror, scrape, or frame this website" [FA-01]; API terms ban scraping and mass capture [FA-03] | Partner/Product Search and Order API, self-serve key; community MCP wrapper only [FA-03, FA-04, FA-12] | Punchout possible; API conditional |
-| Rubix | Punchout, EDI, OCI/cXML (search summary only) [RU-01] | Unread | - | Unverified |
+| RS Components | PunchOut, eOrdering, eInvoicing; Ariba, Coupa [RS-09] | None found [RS-01..03] | No public API found [RS-11] | Punchout possible |
+| Farnell | Punchout, EDI, XML; Ariba, SAP, Jaggaer, Ivalua, Coupa [FA-05] | "You may not mirror, scrape, or frame this website" [FA-01]; API terms ban scraping and mass capture [FA-03] | Partner Search/Order API; community MCP only [FA-03, FA-04, FA-12] | Punchout possible; API conditional |
+| Rubix | Punchout, EDI, OCI/cXML (search summary) [RU-01] | Unread | - | Unverified |
 | Cromwell | "Punchout, Round Trip & eInvoicing" [CR-04] | None found [CR-01] | None found | Punchout possible |
-| Screwfix | None found | "Reproduce, crawl, frame, link to or deep-link into this Website" barred [SX-01] | None found | Catalogue only |
-| Toolstation | None found | None found; robots blocks named scraper UAs [TS-01, TS-05] | None found | Email-first (Key Accounts) |
-| Würth UK | OCI/PunchOut, EDI via enquiry form [WU-04] | None found on UK site terms or CoS; e-shop terms unread [WU-01] | None found | Punchout possible |
+| Screwfix | None found | "Reproduce, crawl, frame, link to or deep-link" barred [SX-01] | None found | Catalogue only (no RFQ) |
+| Toolstation | None found | None found; robots blocks scraper UAs [TS-01, TS-05] | None found | Email-first |
+| Würth UK | OCI/PunchOut, EDI via enquiry form [WU-04] | None found; e-shop terms unread [WU-01] | None found | Punchout possible |
 | CEF | Not verified | T&C PDF: none; website terms unread [CE-01, CE-02] | - | Email-first (provisional) |
-| Rexel UK | Punchout, EDI, e-catalogues [RX-08] | None found (spam clause only); robots explicitly allows AI user agents [RX-01, RX-02] | None found | Punchout possible |
+| Rexel UK | Punchout, EDI, e-catalogues [RX-08] | None found; robots allows AI agents [RX-01, RX-02] | None found | Punchout possible |
 | Edmundson | Not found | None found [ED-01] | - | Email-first (provisional) |
 | Wolseley / Plumb Center | Unverified | Unverified | - | Unverified; default email |
-| City Plumbing | Not found | None found in T&Cs of sale; no website terms page found [CP-04] | - | Email-first |
+| City Plumbing | Not found | None found [CP-04] | - | Email-first |
 | Travis Perkins | Not found | None found [TP-01] | - | Email-first (provisional) |
-| Amazon Business UK | Punchout (cXML), Ordering API [AM-01, AM-03] | Integrators "must prevent automated scraping" [AM-03]; Conditions of Use bar data mining/robots (search summary) [AM-04]; robots block AI agents [AM-05] | Ordering API (4-6 weeks onboarding); docs-only MCP in preview [AM-01, AM-02] | API/punchout, not RFQ |
+| Amazon Business UK | Punchout (cXML), Ordering API [AM-01, AM-03] | Integrators "must prevent automated scraping" [AM-03]; Conditions of Use bar data mining (search summary) [AM-04]; robots block AI agents [AM-05] | Ordering API (4-6 weeks onboarding); docs-only MCP, preview [AM-01, AM-02] | API/punchout, not RFQ |
 | Hayley Group | smartSHOP login (unread) [HY-02] | None found [HY-03] | - | Email-first |
-| Bearing Mart | None | No terms pages found [BM-01] | - | Email-first |
-| Simply Bearings | None | None found (link policy only) [SB-01] | - | Email-first |
-| Bearing Boys | None | "You must not conduct any systematic or automated data collection activities (including… scraping, data mining…)" [BB-01] | - | Email-first |
+| Bearing Mart | None | No terms pages [BM-01] | - | Email-first |
+| Simply Bearings | None | None found [SB-01] | - | Email-first |
+| Bearing Boys | None | "must not conduct any systematic or automated data collection activities (including… scraping, data mining…)" [BB-01] | - | Email-first |
 
 ### 1c. What this means for an email-RFQ agent (JUDGEMENT, not sourced fact)
 
-- **No blocker found for AI-drafted RFQ emails.** No term read restricts receiving an emailed RFQ, whoever drafts it. The clauses found (Screwfix, Farnell, Bearing Boys, Amazon) bar website/API extraction; they would bite only if the agent scraped prices or drove portals with bots. Keep "no scraping, no portal automation" as a design rule.
+- **No blocker found for AI-drafted RFQ emails.** No term read restricts receiving an emailed RFQ, whoever drafts it. The clauses found (Screwfix, Farnell, Bearing Boys, Amazon) bar website/API extraction; they bite only if the agent scrapes prices or drives portals with bots. Keep "no scraping, no portal automation" as a design rule. Untested: deliverability and account matching for mail from an alias domain; the terms are silent.
 - **Farnell and Amazon APIs are not drop-in for a multi-tenant agent.** Farnell needs the buyer's own trade account and key ("Anyone with access to the API key can place legally binding orders"), caps caching at 48 hours, and binds third-party software to equal terms [FA-03]. Amazon needs 4-6 weeks of developer onboarding and "Platform Provider" security compliance [AM-01, AM-03].
-- **Quotes are weak commitments.** Würth: "invitation to treat"; Hayley: not valid unless signed; default validity 30 days (Würth, Hayley, Edmundson). Record validity, VAT basis and delivery basis per quote. Email orders are accepted at RS, Cromwell and Hayley; CEF's terms treat emails as "writing"; Rexel's "Order" lists website, telephone or store only [RX-06].
+- **Quotes are weak commitments.** Würth: "invitation to treat"; Hayley: not valid unless signed; default validity 30 days (Würth, Hayley, Edmundson). Record validity, VAT basis and delivery basis per quote. Email orders are accepted at RS, Cromwell and Hayley; CEF treats emails as "writing"; Rexel's "Order" lists website, telephone or store only [RX-06].
 - **Do not hard-code round-1 norms.** Free-delivery thresholds run £40-£100, cut-offs 15:30-21:00, VAT basis varies: per-supplier data, not constants.
-- **Most pricing and credit sits behind the buyer's own account** (Würth shows prices only after login; Farnell quotes only buy against the billing account). Put the buyer's account number in the RFQ.
-- **Email-first:** City Plumbing (invites emailed material lists), Hayley, Bearing Mart, Simply Bearings, Bearing Boys, Toolstation Key Accounts; provisional: CEF, Edmundson, Travis Perkins, Wolseley/Plumb Center; Screwfix has no RFQ at all.
+- **Pricing and credit mostly sit behind the buyer's own account** (Würth shows prices only after login; Farnell quotes only buy against the billing account). Put the buyer's account number in the RFQ.
+- **Email-first:** City Plumbing (invites emailed material lists), Hayley, Bearing Mart, Simply Bearings, Bearing Boys, Toolstation Key Accounts; provisional: CEF, Edmundson, Travis Perkins, Wolseley/Plumb Center. Screwfix has no RFQ at all.
 - **Punchout possible** (needs the buyer's ERP/e-procurement platform and set-up via account manager or enquiry form, so not an SME default): RS, Farnell, Cromwell, Rexel, Würth, Rubix (unverified), Amazon Business.
-- **Portal-quote majors** (RS, Farnell, Rexel) publish no RFQ mailbox; address the buyer's named account manager or branch.
-- Rexel's robots.txt explicitly allows AI user agents; Amazon's blocks them. A crawling signal only.
+- **Portal-quote majors** (RS, Farnell, Rexel) publish no RFQ mailbox; address the buyer's named account manager or branch. Rexel's robots.txt explicitly allows AI user agents; Amazon's blocks them (a crawling signal only).
 
 ## 2. CLAIM LEDGER
 
@@ -78,7 +77,7 @@ All rows accessed 2026-10-03. "Fetched" = the page itself was retrieved (not a s
 | RS-04 | (c) Delivery | "For business account customers, delivery is free on all orders over £50 ex VAT. For all orders under £50 ex VAT, a £8.50 delivery charge will be applied." "Please place your order before 8.30pm (8.00pm in Northern Ireland) Monday – Friday for next working day delivery." | https://uk.rs-online.com/web/content/support/all-articles/delivery | primary | yes | 2026-10-03 | H | |
 | RS-05 | (a) Email orders accepted | "Offline orders (telephone, email or fax) For business account customers, delivery is free on all orders over £50 ex VAT." | https://uk.rs-online.com/web/content/support/all-articles/delivery | primary | yes | 2026-10-03 | H | |
 | RS-06 | (b) Credit terms | "If RS has not granted credit to the Customer, payment terms are cash with order." "Credit terms (subject to satisfactory references and at RS's absolute discretion) are available." "The Customer shall pay the price of the product by the 20th day of the month following the month in which the products are despatched." | https://uk.rs-online.com/web/content/about-rs/articles/terms-and-conditions-of-sale-products | primary | yes | 2026-10-03 | H | Clauses 7.1, 7.2. |
-| RS-07 | (d) Prices ex VAT | "prices exclude VAT and other applicable local sales taxes, which RS will add at the rate applicable at the date of order acceptance." | same as RS-06 | primary | yes | 2026-10-03 | H | |
+| RS-07 | (d) Prices ex VAT | "prices exclude VAT and other applicable local sales taxes, which RS will add at the rate applicable at the date of order acceptance." | https://uk.rs-online.com/web/content/about-rs/articles/terms-and-conditions-of-sale-products | primary | yes | 2026-10-03 | H | |
 | RS-08 | (a) Quote tool | "Create and manage quotes against our range of over 750,000 products." "Fix prices on any quote for 30 days" "Negotiate a better price for larger orders" "Note: You need to be registered to access your basket" | https://uk.rs-online.com/web/content/support/all-articles/quotes | primary | yes | 2026-10-03 | H | Footer phone 03457 201201. No RFQ email published on pages checked. |
 | RS-09 | (e) eProcurement | "Integration with SAP Ariba, Coupa and other ERP systems, RS eProcurement simplifies and automates the process of purchasing with us with PunchOut, eOrdering and eInvoicing." | https://uk.rs-online.com/web/content/services/procurement-solutions | primary | yes | 2026-10-03 | H | Sub-page https://uk.rs-online.com/web/content/services/procurement-solutions/rs-eprocurement: "PunchOut … Configures with SAP Ariba, Coupa and other ERP systems". |
 | RS-10 | (b) Credit-account help | "Our RS Customer Service team is here to help between 8am and 5pm Monday to Friday 03457 201 201 WelcomeToRS@rs-components.com" | https://uk.rs-online.com/web/content/support/all-articles/rs-credit | primary | yes | 2026-10-03 | H | |
@@ -91,7 +90,7 @@ All rows accessed 2026-10-03. "Fetched" = the page itself was retrieved (not a s
 | FA-06 | (a) RFQ form | "We aim to respond to all requests within 1 working day." "…please indicate your market driven, desired target price." | https://uk.farnell.com/request-a-quote | primary | yes | 2026-10-03 | H | `bccquoting@farnell.com` appears in page source; role unclear (L). |
 | FA-07 | (a)/(b) Email and phone | "Yes, email sales@farnell.com or call us at 03447 11 11 11 to open a trade account" | https://uk.farnell.com/help/faqs | primary | yes | 2026-10-03 | H | |
 | FA-08 | (b) Trade account | "Apply for a free trade account today £1,000 INTEREST FREE credit up to 60 days Subject to acceptable credit rating." Form fields: Company Registration Number, VAT Number, Anticipated average monthly spend, Legal Trading Entity. | https://uk.farnell.com/trade-account-my-account | primary | yes | 2026-10-03 | H | |
-| FA-09 | (b)/(d) Conditions of Sale | "Prices for Supplies are in pounds sterling and are exclusive of VAT"; "payment is due not later than the 20th of the month following the month of despatch" | https://uk.farnell.com/conditions-of-sale | primary | yes | 2026-10-03 | H | |
+| FA-09 | (b)/(d) Conditions of Sale | "Prices for Supplies are in pounds sterling and are exclusive of VAT"; "payment is due not later than the 20th of the month following the month of despatch" | https://uk.farnell.com/conditions-of-sale | primary | yes | 2026-10-03 | H | Quote pages also show "(ex VAT)" / "(inc VAT)" toggles. |
 | FA-10 | (c) Delivery | "Free Delivery FREE For Orders of £40 and above"; "Delivery Cost £8.99 For Orders Under £40 £11.99"; "Next Business Day - arrives by 1PM** … **Applies up to 90% of post codes"; FAQ: "To get the same day despatch, order must placed before 18:00" | https://uk.farnell.com/help/delivery-information ; https://uk.farnell.com/help/faqs | primary | yes | 2026-10-03 | M | Two-column table (standard/express) mapped by inference; VAT basis of £40 not stated. |
 | FA-11 | (f) robots.txt | Baidu, seplinkbot, Yandex: Disallow /. Default group present. No AI-bot rules. | https://uk.farnell.com/robots.txt | primary | yes | 2026-10-03 | H | |
 | FA-12 | (g) MCP for Farnell | "MCP server … searching the Farnell Electronics catalog and managing orders via the Farnell Partner API" (search-tool summary of MCP directory listings) | https://lobehub.com/mcp?q=newark | aggregator | no (search summary) | 2026-10-03 | L | Third-party wrapper, not Farnell-published; individual listing page not opened, so attribution to this directory is approximate. FA-03 third-party clause would apply. |
@@ -149,7 +148,7 @@ All rows accessed 2026-10-03. "Fetched" = the page itself was retrieved (not a s
 | AM-03 | (f) Integration security policy | "Integrators must prevent automated scraping, extraction, or replication of Amazon Business Information by implementing controls such as bot detection and prevention mechanisms."; "OAuth 2.0 for API integrations and cXML authentication or client certificate authentication (mTLS) for e-procurement integrations"; defines "Platform Provider" (serves other customers) vs "Direct Integrator" (own internal use) | https://docs.business.amazon.com/page/amazon-business-data-protection-and-security-policy-for-integrations | primary | yes | 2026-10-03 | H | Covers e-Invoicing, Punchout, Punch-in and the Ordering/Product Search APIs. |
 | AM-04 | (f) Conditions of Use | "any data mining, robots, or similar data gathering and extraction tools to extract (whether once or many times) for re-utilisation any substantial parts of the content of any Amazon Service, without our express written consent." | https://www.amazon.co.uk/gp/help/customer/display.html?nodeId=GLSBYFE9MGKKQXXM | secondary (search summary) | no (403/503) | 2026-10-03 | M | Wording quoted by the search tool from the page. |
 | AM-05 | (f) robots.txt | `Disallow: /` for GPTBot, CCBot, PerplexityBot, Google-Extended, ClaudeBot, Claude-User, Claude-SearchBot and others | https://www.amazon.co.uk/robots.txt | primary | yes | 2026-10-03 | H | docs.business.amazon.com robots allows `*`. |
-| HY-01 | (a)/(b) T&C of Sale (Aug 2026 V2.0) | 2.1 "Orders … may be placed in person, in writing, by telephone or by email, or via the Company’s website, but in all cases will be subject to the Company’s written acceptance." 3.1 "No Quotation or tender issued by the Company shall be valid unless it is signed by an authorised representative"; 3.2 valid 30 days if no period; 5.1 "all invoices are payable within 30 days of the invoice date"; "if no such terms are agreed, then goods and services are supplied on a proforma basis"; "VAT will be charged in addition" | https://hayley-group.co.uk/wp-content/uploads/2026/08/Terms-Conditions-of-Sale-August-2026-V2.0.pdf | primary | yes | 2026-10-03 | H | |
+| HY-01 | (a)/(b) T&C of Sale (Aug 2026 V2.0) | 2.1 "Orders … may be placed in person, in writing, by telephone or by email, or via the Company’s website, but in all cases will be subject to the Company’s written acceptance." 3.1 "No Quotation or tender issued by the Company shall be valid unless it is signed by an authorised representative"; 3.2 valid 30 days if no period; 5.1 "all invoices are payable within 30 days of the invoice date"; "if no such terms are agreed, then goods and services are supplied on a proforma basis"; 4.1 "the price quoted includes delivery to one mainland address in the United Kingdom unless otherwise agreed in writing. VAT will be charged in addition" | https://hayley-group.co.uk/wp-content/uploads/2026/08/Terms-Conditions-of-Sale-August-2026-V2.0.pdf | primary | yes | 2026-10-03 | H | |
 | HY-02 | (a) Contact | enquiries@hayley-group.co.uk; bearingsolutions@hayley-group.co.uk; accounts@hayley-group.co.uk; "over 50 branches"; links to smartSHOP and online catalogue | https://hayley-group.co.uk/contact-us/ | primary | yes | 2026-10-03 | H | smartSHOP https://www.hayleysmartshop.co.uk/customerlogin.aspx is a login page (808 chars). |
 | HY-03 | (f) None found | No automation wording in T&C of Sale or terms page | https://hayley-group.co.uk/terms-conditions/ | primary | yes | 2026-10-03 | H | Pages checked: terms-conditions, T&C of Sale PDF, contact-us, robots.txt (single group). |
 | BM-01 | (a) Contact | "For all enquiries, please call us on 0161 236 2300"; "e: sales@bearingmart.co.uk" | https://www.bearingmart.co.uk/contact/ | primary | yes | 2026-10-03 | H | Site is brochure-only; home and contact pages are the only pages found; no terms, delivery or account pages. |
@@ -161,7 +160,7 @@ All rows accessed 2026-10-03. "Fetched" = the page itself was retrieved (not a s
 ## 3. Round-1 claims: confirmed / contradicted / unverifiable
 
 **Confirmed (with nuance)**
-- Credit "30-60 days": a real range, but month-end based. 30 days from invoice: Cromwell, Würth, Hayley. "Up to 60 days": Screwfix, Toolstation, Farnell. 20th/28th of following month: RS, Farnell CoS, CEF. Rexel 30/60-day EOM [CR-02, WU-02, HY-01, SX-02, TS-02, FA-08, RS-06, FA-09, CE-03, RX-06].
+- Credit "30-60 days": a real range, but month-end based (30 days from invoice, "up to 60 days", or the 20th/28th of the following month; see table 1a).
 - Prices ex VAT at industrial distributors (RS, Farnell, Würth, Cromwell, Hayley, bearing shops).
 - Punchout/EDI/API at RS, Farnell, Cromwell, Rexel, Würth [RS-09, FA-05, CR-04, RX-08, WU-04]; Farnell's platform list is right, but "cXML" is not on its page.
 - Toolstation "up to 60 days; 5% discount" [TS-02]; Screwfix has no RFQ channel [SX-05]; Rexel "200 branches" is "200+" [RX-04]; bearing specialists email/phone-first [HY-02, BM-01].
@@ -188,5 +187,4 @@ All rows accessed 2026-10-03. "Fetched" = the page itself was retrieved (not a s
 - **Amazon UK:** Conditions of Use and Amazon Business account terms (403/503); data-mining clause known only via search summary [AM-04]; Business Services Agreement and API licence terms not located.
 - **Würth:** e-shop (eshop.wurth.co.uk) terms; RFQ mailbox. **Zoro UK:** current status [ZO-01].
 - **Cromwell:** trade-account form fields; separate website terms (none found). **Edmundson:** RFQ channel, delivery, credit days, eProcurement. **Travis Perkins:** credit days, Quote List behaviour.
-- **No RFQ mailbox published** at RS, Rexel, Cromwell, Würth (generic support addresses only); Farnell has a form plus sales@.
 - **eProcurement/API** at Screwfix, Toolstation, Travis Perkins, City Plumbing, Edmundson, Hayley and the bearing shops: "not found on the pages listed in the ledger", not proof of absence. Hayley smartSHOP terms unread; Simply Bearings FAQ answers (collapsed) not captured.
