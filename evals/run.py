@@ -16,12 +16,18 @@ from pathlib import Path
 from components.core.domain import GoldenItem, Tier
 from components.parts.equivalence.engine import classify_offered
 from components.parts.spec.normaliser import normalise
-from evals.metrics import critical_mismatch_upper_bound, required_n_for_zero_error_bound
+from evals.metrics import (
+    critical_mismatch_upper_bound,
+    required_n_for_wilson_bound,
+    required_n_for_zero_error_bound,
+)
 
 BANNER = "SYNTHETIC SMOKE SET - proves the pipeline, not product accuracy"
 GOLDEN_DIR = Path(__file__).resolve().parent / "golden"
 GATE_BOUND = 0.02
-MIN_AB_ITEMS = 150  # spec §8: >=150 Tier A/B items per family (n>=298 for <1%)
+# Smallest Tier A/B sample at which zero errors can pass the gate (189 at a 2% Wilson bound).
+# Fewer items cannot pass even with no errors, so they are INSUFFICIENT_N, not FAIL.
+MIN_AB_ITEMS = required_n_for_wilson_bound(GATE_BOUND)
 _RANK = {Tier.A: 0, Tier.B: 1, Tier.C: 2, Tier.D: 3}
 
 PASS, FAIL, INSUFFICIENT_N = "PASS", "FAIL", "INSUFFICIENT_N"
@@ -61,7 +67,7 @@ def evaluate(items: Iterable[GoldenItem]) -> list[Result]:
 
 
 def decide_verdict(n_ab: int, false_ab: int) -> str:
-    """FAIL on any false A/B or a Wilson upper bound over 2%; INSUFFICIENT_N below 150 A/B."""
+    """FAIL on any false A/B or a Wilson upper bound over 2%; INSUFFICIENT_N below MIN_AB_ITEMS."""
     if false_ab > 0:
         return FAIL
     if n_ab < MIN_AB_ITEMS:
@@ -90,7 +96,8 @@ def render(results: list[Result]) -> tuple[str, str]:
             for r in false
         ),
         f"Wilson 95% upper bound on critical-mismatch rate: {bound:.4f} (gate <= {GATE_BOUND})",
-        f"needed for the gate: >= {MIN_AB_ITEMS} A/B items; zero errors in n shows <1% only at "
+        f"needed for the gate: >= {MIN_AB_ITEMS} A/B items with zero errors (one error would need "
+        f"{required_n_for_wilson_bound(GATE_BOUND, errors=1)}); zero errors in n shows <1% only at "
         f"n={required_n_for_zero_error_bound(0.01)}",
         f"VERDICT: {verdict}",
         BANNER,

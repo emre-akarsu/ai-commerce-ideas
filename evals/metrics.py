@@ -25,10 +25,24 @@ def critical_mismatch_upper_bound(errors: int, n: int, z: float = 1.96) -> float
     return wilson_interval(errors, n, z)[1]
 
 
+def required_n_for_wilson_bound(bound: float, errors: int = 0, z: float = 1.96) -> int:
+    """Smallest n whose Wilson upper bound with ``errors`` errors is <= ``bound``.
+
+    With z=1.96: n=189 for a 2% bound at zero errors, 280 at one error, 361 at two. For a fixed
+    number of errors the bound falls as n grows, so the first n that passes is the minimum.
+    """
+    if not 0 < bound < 1 or errors < 0:
+        raise ValueError("bound must be in (0, 1) and errors non-negative")
+    n = max(errors, 1)
+    while critical_mismatch_upper_bound(errors, n, z) > bound:
+        n += 1
+    return n
+
+
 def required_n_for_zero_error_bound(bound: float, confidence: float = 0.95) -> int:
     """Smallest n with zero errors such that the one-sided exact upper bound is <= ``bound``.
 
-    Solves (1 - bound) ** n <= 1 - confidence: n=59 for 5%, n=298 for 1% at 95%.
+    Solves (1 - bound) ** n <= 1 - confidence: n=59 for 5%, n=299 for 1% at 95%.
     """
     if not 0 < bound < 1 or not 0 < confidence < 1:
         raise ValueError("bound and confidence must be in (0, 1)")

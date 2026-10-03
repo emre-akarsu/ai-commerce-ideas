@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from evals.metrics import critical_mismatch_upper_bound
 from evals.run import FAIL, INSUFFICIENT_N, PASS, Result, decide_verdict
 
 from components.core.domain import GoldenItem, Tier
@@ -11,11 +12,19 @@ GOLDEN = Path(run.__file__).parent / "golden" / "bearings_dev.jsonl"
 
 def test_verdict_logic():
     assert decide_verdict(22, 0) == INSUFFICIENT_N
-    assert decide_verdict(149, 0) == INSUFFICIENT_N
+    assert decide_verdict(150, 0) == INSUFFICIENT_N  # the old minimum: its bound (2.5%) is above 2%
+    assert decide_verdict(188, 0) == INSUFFICIENT_N
     assert decide_verdict(22, 1) == FAIL  # any false A/B fails regardless of n
-    assert decide_verdict(150, 0) == FAIL  # Wilson bound at n=150 is above 2%
+    assert decide_verdict(189, 0) == PASS  # smallest sample whose zero-error bound is <= 2%
     assert decide_verdict(298, 0) == PASS
     assert decide_verdict(298, 3) == FAIL
+
+
+def test_minimum_sample_is_the_smallest_one_that_can_pass():
+    # a minimum below this would let a family reach FAIL by arithmetic alone, with zero errors
+    assert critical_mismatch_upper_bound(0, run.MIN_AB_ITEMS) <= run.GATE_BOUND
+    assert critical_mismatch_upper_bound(0, run.MIN_AB_ITEMS - 1) > run.GATE_BOUND
+    assert run.MIN_AB_ITEMS == 189
 
 
 def test_golden_dev_set_shape():

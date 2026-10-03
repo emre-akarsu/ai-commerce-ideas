@@ -86,7 +86,7 @@ Decision key: **ADOPT** (changed), **ADOPT-PARTIAL**, **TEST** (becomes a Phase 
 | S-L4 | Contract pricing often NDA-bound; "price vs peers" leaks it | **ADOPT** | Buyer warrants authority; **no cross-tenant price data**; F14 internal only |
 | S-L5 | Counterfeit: "verified/claimed/unknown", no authenticity warranty; "~25%/yr" figure unsupported | **ADOPT** | Tri-state; no authenticity warranty; unsupported statistic removed from my notes |
 | S-L6 | Privacy: GDPR covers business contacts; CCPA B2B exemption lapsed; cross-ref IP risk (EU database right, site ToS, standards text); competitor cross-refs are marketing | **ADOPT** | Privacy by design (retention, DPA, minimisation); per-record source + licence; competitor cross-refs → candidate tier only; **licence decision before R0** |
-| S-ML1 | Gate incoherent ("≥95% precision" vs "any false Tier 1 blocks"); 38/40 CI 83.5–98.6% | **ADOPT** | Gate on the **upper confidence bound of the critical-mismatch rate** (≤2%, ≥150 items per family and tier); golden v0 (≥100) is a smoke test only |
+| S-ML1 | Gate incoherent ("≥95% precision" vs "any false Tier 1 blocks"); 38/40 CI 83.5–98.6% | **ADOPT** | Gate on the **upper confidence bound of the critical-mismatch rate** (≤2%, ≥150 items per family and tier; amended 2026-10-03 to ≥189 Tier A/B items, see spec §8.2); golden v0 (≥100) is a smoke test only |
 | S-ML2 | Tier 1 includes cross-references, contradicting "identical" | **ADOPT** | Tier split (spec §3 v0.2): A identical; B documented equivalent; C candidate; D needs review |
 | S-ML3 | Set design: stratification, near-miss pairs, time split, two blind experts κ ≥ 0.8 | **ADOPT** | Added to eval plan |
 | S-ML4 | Leakage: F9 corrections feed the set that CI tunes against | **ADOPT** | Dev set vs **sealed test set** with capped runs; paired significance tests (McNemar) |
@@ -110,7 +110,7 @@ Decision key: **ADOPT** (changed), **ADOPT-PARTIAL**, **TEST** (becomes a Phase 
 | T1b | **TAM:** count reachable sites meeting the T1 profile | A plausible path to ≥5k sites (≈$40M ARR at ≈$8k ACV) | Obviously <1k ⇒ niche/acquihire thesis only |
 | T2 | **Vendor reply:** ≥100 real RFQs across ≥5 sites, AI disclosure on | ≥70% reply in 24h | <50% in 48h |
 | T3 | **Head-to-head bake-off:** 20+ real requests vs a general LLM and Aron-class tools | Win ≥20 where they fail | <10 ⇒ wrapper, no moat |
-| T4 | **Accuracy:** blind 2-expert labelled set per family (≥150 items per tier/family for the gate; κ ≥ 0.8) | Upper bound of critical-mismatch rate ≤2% | Fails after two iterations ⇒ narrow families |
+| T4 | **Accuracy:** blind 2-expert labelled set per family (≥189 Tier A/B items per family for the gate, amended 2026-10-03 from ≥150; κ ≥ 0.8) | Upper bound of critical-mismatch rate ≤2% | Fails after two iterations ⇒ narrow families |
 | T5 | **WTP:** paid pilot offers in one unit: $15–25 per completed request (first 10 free), or ≥$500/mo for ≥25 requests/month | ≥3 of 5 accounts accept and ≥2 requests/week by week 6 | <2 accept |
 | T6 | **Liability:** counsel-reviewed contract + E&O quote | Premium ≤ ~10% of expected pilot revenue and a cap buyers accept | Uninsurable/too costly |
 | T7 | **Unit cost:** operator minutes and LLM cost per request at real wages | ≤5 min and ≤$0.50 | >$5 total/request |

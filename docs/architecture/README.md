@@ -175,7 +175,7 @@ Expected load in the pilot is tiny (tens of requests/day). Targets: intake→que
 
 ## 12. Evaluation architecture (ADR-009)
 
-Per family: **dev** set (tuned against) and **sealed** test set (capped runs, logged); stratified by tier × missing-attribute × input type with near-miss pairs; two blind experts with κ ≥ 0.8; gate on the upper 95% Wilson bound of the critical-mismatch rate ≤ 2% with ≥150 Tier A/B items per family; any false Tier A is a release blocker; paired McNemar tests for changes; extraction reported at field and document level (≥300 quotes, ≥30 vendors, scans included). The synthetic R0 dev set proves the pipeline only. Corrections flow to dev, not sealed, data.
+Per family: **dev** set (tuned against) and **sealed** test set (capped runs, logged); stratified by tier × missing-attribute × input type with near-miss pairs; two blind experts with κ ≥ 0.8; gate on the upper 95% Wilson bound of the critical-mismatch rate ≤ 2% with ≥189 Tier A/B items per family (the smallest sample whose zero-error Wilson bound is ≤ 2%); any false Tier A is a release blocker; paired McNemar tests for changes; extraction reported at field and document level (≥300 quotes, ≥30 vendors, scans included). The synthetic R0 dev set proves the pipeline only. Corrections flow to dev, not sealed, data.
 
 ## 13. Technology stack (summary; rationale in ADRs)
 

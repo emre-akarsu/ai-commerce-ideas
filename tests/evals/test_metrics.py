@@ -2,6 +2,7 @@ import pytest
 from evals.metrics import (
     critical_mismatch_upper_bound,
     mcnemar_exact,
+    required_n_for_wilson_bound,
     required_n_for_zero_error_bound,
     wilson_interval,
     zero_error_upper_bound,
@@ -32,9 +33,22 @@ def test_zero_error_bounds_match_spec():
 def test_critical_mismatch_bound_is_wilson_upper():
     assert critical_mismatch_upper_bound(0, 298) == wilson_interval(0, 298)[1]
     assert critical_mismatch_upper_bound(0, 0) == 1.0
-    assert (
-        critical_mismatch_upper_bound(0, 150) > 0.02 > critical_mismatch_upper_bound(0, 298) - 0.01
-    )
+    assert critical_mismatch_upper_bound(0, 188) > 0.02 >= critical_mismatch_upper_bound(0, 189)
+
+
+def test_required_n_for_wilson_bound_is_the_smallest_passing_sample():
+    # zero errors need 189 items for a Wilson 95% upper bound of 2%; one error 280; two 361
+    assert required_n_for_wilson_bound(0.02) == 189
+    assert required_n_for_wilson_bound(0.02, errors=1) == 280
+    assert required_n_for_wilson_bound(0.02, errors=2) == 361
+    for errors in (0, 1, 2):
+        n = required_n_for_wilson_bound(0.02, errors=errors)
+        assert critical_mismatch_upper_bound(errors, n) <= 0.02
+        assert critical_mismatch_upper_bound(errors, n - 1) > 0.02
+    with pytest.raises(ValueError):
+        required_n_for_wilson_bound(0.0)
+    with pytest.raises(ValueError):
+        required_n_for_wilson_bound(0.02, errors=-1)
 
 
 def test_mcnemar_exact():
