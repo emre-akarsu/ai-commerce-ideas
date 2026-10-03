@@ -34,7 +34,7 @@ No UK-based AI RFQ agent aimed at 10-249-employee maintenance buyers was found i
 ## 5. Pricing hypothesis (assumption; GBP)
 
 - **Per completed request £12-20, first 10 free** (carried from the US test) with **flat monthly tiers** as the alternative.
-- **Arithmetic (UK-SPD-07):** at the unsourced base volumes (10 and 30 non-catalogue requests a month) a business generates £2.0-3.4k of revenue a year, about £167-283 a month. ARR ceiling across 1-5% of the 33,075 base: £0.67-5.57m (halved/doubled volume: £0.33-11.1m); £1m ARR needs about 371 customers.
+- **Arithmetic (UK-SPD-07):** at the unsourced base volumes (10 and 30 non-catalogue requests a month) a business generates £2.0-3.4k of revenue a year, about £167-283 a month. ARR ceiling across 1-5% of the 33,075 base: £0.67-5.57m (halved/doubled volume: £0.33-11.1m); £1m ARR needs about 371 customers at £16 per request.
 - **Stated willingness to pay is lower than that.** Among UK SMBs, 25% would use only free AI tools and just 12% would pay £44-87 a month for AI that saves five hours a week; 50-249-staff firms are more willing. Reference list prices: ServiceM8 £0-269 per business per month, Joblogic from £45 per user per month. These are stated preferences for generic AI, not tests of this product. (UK-FND-07)
 - **Implication:** per-request pricing only works if non-catalogue volume per account is far higher than measured anywhere; otherwise test a £45-120 monthly tier. The US red-team arithmetic still applies: at about 4 requests a month, anything above about £60-80 a month is hard to justify from time saved. Measure frequency first (T1).
 - Invoices show prices ex-VAT with VAT added (`billing.prices_include_tax: false`).
