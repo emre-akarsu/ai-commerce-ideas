@@ -71,7 +71,22 @@ outbound RFQs (`legal.business_identity`). It is a generic, profile-driven mecha
   send-service applies the same identity requirement to PO-purpose messages (tested at that level), but the "order form"
   case has no end-to-end path yet.
 - **One line per value, 200 characters.** Values pass through the single-line sanitiser, so a multi-line registered office
-  must be written on one line (comma separated). Labels are generic English defaults that a profile may override; a
+  must be written on one line (comma separated). Control characters (C0 and C1), line and paragraph separators, hidden and
+  bidirectional characters, link-like text and values with no visible letter or digit are refused; see
+  `configurability.md` for the exact set. Labels are generic English defaults that a profile may override; a
   non-English deployment must supply its own labels (and footer).
+- **No format check on the values.** Nothing validates a company number, a registered office or a register entry, and
+  formats are jurisdiction-specific, so none is hard-coded. Backlog: an optional per-field pattern in the profile
+  (for example for the company number), checked at `prepare` and at send time.
+- **Build the send-service from the profile.** A deployment that constructs its own `SendService` (the worker's
+  `send_service_factory`, a hand-wired service) must use `SendService.from_profile(profile, transport, clock, store,
+  event_log, ...)`. The bare constructor's `required_identity_labels` defaults to `()`, which requires nothing, so a
+  service built that way has no send-time identity backstop and applies the generic footer instead of the profile's.
+  `PurchasingService` refuses (`ValueError`) a send-service that lacks a label its settings or profile call for, but it
+  can only check the one it is given: the worker factory is outside that check. See `apps/worker/README.md`.
+- **Tenant scoping of the values is in-process.** The values are copied into read-only mappings when `Settings` is built
+  and read through a tenant-scoped provider (`TenantIdentities.identity_for(tenant_id)`), but they still come from
+  deployment settings, not from the tenant-scoped repositories (hard rule 7). When they move to a per-tenant table the
+  provider should be backed by that repository (and RLS), and a change of details should be audited.
 - **Follow-ups** copy the identity lines of the original message. Follow-up plans are per-process (H2), so a restart still
   loses them, with or without the block.

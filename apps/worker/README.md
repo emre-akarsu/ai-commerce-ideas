@@ -13,6 +13,29 @@ Procrastinate (Postgres-backed) background worker. Documentation only for deploy
   scoped to that tenant (or the service must gain a tenant filter).
 - Document content is parsed by `components.doc_parse` (inert text only); audit payloads carry hashes/flags/counts, never text.
 
+## Building the send-service for `send_service_factory`
+`send_service_factory(tenant_id)` must return a `SendService` built **from the deployment profile**, not with the bare
+constructor. (The send-service is the only holder of the transport, as everywhere else; the worker's own code never
+touches it.)
+
+```python
+from components.send_service import SendService
+from components.send_service.service import TenantIdentities
+
+send = SendService.from_profile(
+    profile, transport, clock, store, event_log,        # the deployment's own objects (same store and log as the API)
+    caps=caps, kill_switch=kill_switch,
+    identity_provider=TenantIdentities({...}),          # only when the profile lists business-identity fields
+)
+```
+
+`SendService.from_profile` takes the R8 footer wording, the recipient limit (`comms.max_vendors`) and, when the profile
+sets `legal.business_identity.required`, the required identity labels from the profile (`required_identity_labels` can
+only add to them). The constructor's `required_identity_labels` defaults to `()`, which requires nothing: a service built
+with `SendService(...)` has no send-time identity backstop and uses the generic footer, and nothing downstream notices.
+Follow-ups copy the identity lines of the original message, so the worker never needs the tenants' values; the provider
+is for `prepare`. The API process builds its service the same way (`build_in_memory_service`).
+
 ## Tasks (`tasks.py`)
 | task | schedule (UTC) |
 |---|---|

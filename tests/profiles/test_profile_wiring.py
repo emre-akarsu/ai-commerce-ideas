@@ -9,6 +9,7 @@ import json
 import re
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 import pytest
 from apps.api.auth import JwtAuthenticator, make_test_token
@@ -164,15 +165,92 @@ def test_profile_endpoint_returns_only_the_allowed_subset(rig: Rig) -> None:
     assert not any(v in dumped for k, v in UK_IDENTITY.items() if k != "registered_in")
 
 
-def test_openapi_public_profile_matches_web_type() -> None:
-    root = Path(__file__).resolve().parents[2]
-    schema = json.loads((root / "apps/api/openapi.json").read_text())["components"]["schemas"]
-    ts = (root / "apps/web/lib/api.ts").read_text()
-    assert "/v1/profile" in json.loads((root / "apps/api/openapi.json").read_text())["paths"]
-    body = re.search(r"export interface PublicProfile \{(.*?)\n\}", ts, re.S)
-    assert body
-    flat = re.sub(r"\{[^{}]*\}", "{}", body.group(1)).replace(";", ";\n")
-    assert set(schema["PublicProfile"]["properties"]) == set(re.findall(r"^\s*(\w+)\??:", flat, re.M))
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def _balanced(text: str, open_at: int) -> str:
+    """The text between the brace at ``open_at`` and its match."""
+    depth = 0
+    for i in range(open_at, len(text)):
+        depth += {"{": 1, "}": -1}.get(text[i], 0)
+        if depth == 0:
+            return text[open_at + 1 : i]
+    raise AssertionError("unbalanced braces in the TypeScript type")
+
+
+def _ts_shape(body: str) -> dict[str, Any]:
+    """Property names of a TypeScript object-type body, nested: ``{name: {...} | None}``. A property
+    whose type is itself an object literal is parsed; ``Record<..>``, arrays and scalars are leaves."""
+    body = re.sub(r"//[^\n]*", "", body)  # drop line comments
+    parts: list[str] = []
+    depth = start = 0
+    for i, ch in enumerate(body):
+        depth += 1 if ch in "{<[(" else -1 if ch in "}>])" else 0
+        if ch in ";," and depth == 0:
+            parts.append(body[start:i])
+            start = i + 1
+    parts.append(body[start:])
+    shape: dict[str, Any] = {}
+    for part in (p.strip() for p in parts if p.strip()):
+        found = re.match(r"(\w+)\??\s*:\s*(.*)$", part, re.S)
+        assert found, part
+        key, kind = found.group(1), found.group(2).strip()
+        shape[key] = _ts_shape(_balanced(kind, 0)) if kind.startswith("{") else None
+    return shape
+
+
+def _schema_shape(schemas: dict[str, Any], name: str) -> dict[str, Any]:
+    """The same nested shape from the OpenAPI component: ``$ref`` properties recurse; a free-form
+    ``object`` (a dynamic map such as ``labels``), arrays and scalars are leaves."""
+    out: dict[str, Any] = {}
+    for key, prop in schemas[name]["properties"].items():
+        ref = prop.get("$ref")
+        out[key] = _schema_shape(schemas, ref.rsplit("/", 1)[1]) if ref else None
+    return out
+
+
+def _payload_matches(payload: Any, shape: dict[str, Any] | None, path: str = "") -> list[str]:
+    """Where the live JSON has other keys than the typed shape (dynamic maps are leaves)."""
+    if shape is None:
+        return []
+    problems = [] if set(payload) == set(shape) else [f"{path or '.'}: {sorted(payload)} != {sorted(shape)}"]
+    for key, nested in shape.items():
+        if key in payload:
+            problems += _payload_matches(payload[key], nested, f"{path}.{key}")
+    return problems
+
+
+def test_public_profile_shape_matches_openapi_and_web_type_at_every_level() -> None:
+    openapi = json.loads((ROOT / "apps/api/openapi.json").read_text())
+    assert "/v1/profile" in openapi["paths"]
+    ts = (ROOT / "apps/web/lib/api.ts").read_text()
+    declared = re.search(r"export interface PublicProfile \{", ts)
+    assert declared
+    web = _ts_shape(_balanced(ts, declared.end() - 1))
+    api = _schema_shape(openapi["components"]["schemas"], "PublicProfile")
+    assert web == api  # every nested key, not just the top level
+    assert set(web["legal"]) == {"jurisdiction", "notices", "business_identity"}  # the finding
+    assert web["legal"]["business_identity"] == {"required": None, "fields": None, "labels": None}
+
+
+def test_the_ts_shape_parser_sees_nesting_comments_and_generics() -> None:
+    source = (
+        "export interface X { a: string; b: { c: number[]; d?: { e: Record<string, string> } }; "
+        "// note: ignored; really\n  f: Record<string, boolean>; g: { h: string } }"
+    )
+    assert _ts_shape(_balanced(source, source.index("{"))) == {
+        "a": None, "b": {"c": None, "d": {"e": None}}, "f": None, "g": {"h": None}}
+
+
+def test_profile_endpoint_payload_has_exactly_the_keys_of_the_web_type(rig: Rig) -> None:
+    app = create_app(rig.svc, JwtAuthenticator(key=SECRET, algorithms=("HS256",)), profile=rig.profile)
+    tok = make_test_token(SECRET, sub="tech-1", tenant_id=T, role="requester")
+    body = TestClient(app).get("/v1/profile", headers={"Authorization": f"Bearer {tok}"}).json()
+    ts = (ROOT / "apps/web/lib/api.ts").read_text()
+    declared = re.search(r"export interface PublicProfile \{", ts)
+    assert declared
+    assert _payload_matches(body, _ts_shape(_balanced(ts, declared.end() - 1))) == []
+    assert set(body["legal"]["business_identity"]) == {"required", "fields", "labels"}
 
 
 @pytest.mark.skipif(not profile_aware_normaliser, reason="profile-aware normaliser (W1) not available")

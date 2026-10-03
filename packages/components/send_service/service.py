@@ -11,15 +11,23 @@ again).
 What is trusted: only the raw bytes and the registered Approval. The ``PreparedMessage`` metadata
 (``to``, ``tenant_id``, ...) is never used for a decision; everything is re-derived from the bytes
 the human approved, and the tenant comes from the Approval (never from the caller).
+
+Company particulars (business identity) belong to a tenant. A deployment hands the send-service an
+``IdentityProvider`` (``TenantIdentities`` is the frozen, tenant-scoped implementation); ``prepare``
+then derives the lines from the RFQ's own tenant and refuses any other pairs its caller passes.
+Build the service with ``SendService.from_profile`` so the profile's footer and required labels
+cannot be forgotten.
 """
 
 from __future__ import annotations
 
 import threading
-from collections.abc import Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
+from types import MappingProxyType
+from typing import TYPE_CHECKING, Any, Protocol
 
 from components.core.domain import RFQ, Approval, ApprovalKind, Vendor
 from components.core.ports import Clock, MailTransport
@@ -71,6 +79,7 @@ from .message import (
     PreparedMessage,
     as_identity_pairs,
     build_message,
+    clean_identity_pairs,
     has_footer,
     identity_pairs,
     missing_identity_labels,
@@ -81,16 +90,21 @@ from .message import (
     validate_identity_pairs,
 )
 
+if TYPE_CHECKING:  # type-only: the send-service has no run-time dependency on the profile package
+    from aiplat.profile import ResolvedProfile
+
 __all__ = [
     "DEFAULT_IDENTITY_LABELS",
     "FOOTER_TEMPLATE",
     "NO_FOLLOW_UPS",
     "FollowUpSchedule",
+    "IdentityProvider",
     "KillSwitch",
     "MessagePurpose",
     "ParsedMessage",
     "PreparedMessage",
     "SendService",
+    "TenantIdentities",
 ]
 
 DEFAULT_MAX_RECIPIENTS = 4  # spec 4a
@@ -99,6 +113,54 @@ FOLLOW_UP_BODY = (
     "Following up on my earlier request below. Please send your quote or let us know if you "
     "cannot supply this item."
 )
+
+
+class IdentityProvider(Protocol):
+    """Where the send-service reads a tenant's company particulars (an optional collaborator).
+
+    ``identity_for(tenant_id)`` must return ONLY that tenant's ordered ``(label, value)`` lines, and
+    nothing for a tenant it does not know. When configured, it is the only source of lines for
+    ``prepare``."""
+
+    def identity_for(self, tenant_id: str) -> Sequence[tuple[str, str]]: ...
+
+
+class TenantIdentities:
+    """A frozen, tenant-scoped set of company-particulars lines (an ``IdentityProvider``).
+
+    Built once from ``tenant_id -> ordered (label, value) pairs``. Everything is copied into tuples
+    and a read-only mapping at construction, so changing what the caller passed in later (the outer
+    mapping, an inner list, a list two tenants happened to share) changes nothing, and two tenants
+    never share storage. Lookup is exact on ``tenant_id``. There is no way to list tenants or
+    values through it, and its repr shows a count only. Values are not validated here: ``prepare``
+    validates what it renders and refuses a malformed line, naming the label, never the value."""
+
+    __slots__ = ("_lines",)
+
+    def __init__(self, lines: Mapping[str, Iterable[tuple[str, str]]]) -> None:
+        frozen: dict[str, tuple[tuple[str, str], ...]] = {}
+        for tenant_id, pairs in lines.items():
+            if not isinstance(tenant_id, str) or not tenant_id.strip():
+                raise ValueError("tenant ids must be non-empty text")
+            if isinstance(pairs, (str, bytes, Mapping)) or not isinstance(pairs, Iterable):
+                raise ValueError("a tenant's identity must be a sequence of (label, value) pairs")
+            frozen[tenant_id] = tuple(self._pair(item) for item in pairs)
+        self._lines: Mapping[str, tuple[tuple[str, str], ...]] = MappingProxyType(frozen)
+
+    @staticmethod
+    def _pair(item: object) -> tuple[str, str]:
+        if (
+            not isinstance(item, (list, tuple)) or len(item) != 2
+            or not all(isinstance(part, str) for part in item)
+        ):
+            raise ValueError("identity lines must be (label, value) pairs of text")
+        return (item[0], item[1])
+
+    def identity_for(self, tenant_id: str) -> tuple[tuple[str, str], ...]:
+        return self._lines.get(tenant_id, ()) if isinstance(tenant_id, str) else ()
+
+    def __repr__(self) -> str:
+        return f"TenantIdentities(tenants={len(self._lines)})"
 
 
 class KillSwitch:
@@ -172,6 +234,7 @@ class SendService:
         max_recipients: int = DEFAULT_MAX_RECIPIENTS,
         footer_text: str = FOOTER_TEMPLATE,
         required_identity_labels: tuple[str, ...] = (),
+        identity_provider: IdentityProvider | None = None,
     ) -> None:
         if not isinstance(footer_text, str) or any(
             clause.lower() not in footer_text.lower() for clause in REQUIRED_FOOTER_CLAUSES
@@ -179,6 +242,10 @@ class SendService:
             raise ValueError("footer must keep the mandated R8 clauses naming the buyer")
         if max_recipients < 1:
             raise ValueError("max_recipients must be >= 1")
+        if identity_provider is not None and not callable(
+            getattr(identity_provider, "identity_for", None)
+        ):
+            raise ValueError("identity_provider must offer identity_for(tenant_id)")
         self._transport = transport
         self._clock = clock
         self._store = store
@@ -190,9 +257,47 @@ class SendService:
         # Labels of the business-identity lines every message must carry (empty = none required).
         # This is an extra requirement: it never replaces or relaxes the R8 footer check.
         self._identity_labels = validate_identity_labels(required_identity_labels)
+        self._identity_provider = identity_provider
         self._lock = threading.RLock()
         self._spent: set[str] = set()  # approval ids / nonces handed to the transport
         self._plans: list[_FollowUpPlan] = []
+
+    @classmethod
+    def from_profile(
+        cls,
+        profile: ResolvedProfile,
+        transport: MailTransport,
+        clock: Clock,
+        store: Store,
+        event_log: EventLog,
+        *,
+        kill_switch: KillSwitch | None = None,
+        caps: CapPolicy | None = None,
+        max_recipients: int | None = None,
+        required_identity_labels: Sequence[str] = (),
+        identity_provider: IdentityProvider | None = None,
+    ) -> SendService:
+        """The send-service a deployment profile calls for: its R8 footer wording, its recipient
+        limit (``comms.max_vendors`` unless ``max_recipients`` is given) and, when the profile
+        requires the business-identity block, the effective label of every listed field.
+
+        ``required_identity_labels`` can only ADD to the profile's labels, never replace or drop
+        them. Every deployment that builds its own send-service (for example the worker's
+        ``send_service_factory``) should use this instead of the constructor, so the send-time
+        backstop cannot be lost by forgetting a keyword."""
+        legal = profile.profile.legal
+        identity = legal.business_identity
+        profile_labels = tuple(identity.effective_labels().values()) if identity.required else ()
+        extra = validate_identity_labels(required_identity_labels)  # a list/tuple of valid labels
+        labels = tuple(dict.fromkeys([*profile_labels, *extra]))
+        return cls(
+            transport, clock, store, event_log, kill_switch=kill_switch, caps=caps,
+            max_recipients=(
+                profile.profile.comms.max_vendors if max_recipients is None else max_recipients
+            ),
+            footer_text=legal.disclosure_footer, required_identity_labels=labels,
+            identity_provider=identity_provider,
+        )
 
     @property
     def footer_template(self) -> str:
@@ -203,6 +308,11 @@ class SendService:
     def required_identity_labels(self) -> tuple[str, ...]:
         """Labels of the business-identity lines every message must carry (may be empty)."""
         return self._identity_labels
+
+    @property
+    def identity_provider(self) -> IdentityProvider | None:
+        """The tenant-scoped source of company particulars, if one is configured."""
+        return self._identity_provider
 
     # ------------------------------------------------------------------ prepare
 
@@ -223,8 +333,11 @@ class SendService:
     ) -> PreparedMessage:
         """Build the final bytes the human will approve. Recipient is always the vendor's
         registered contact; it is never a caller-supplied address. ``identity`` holds the
-        ``(label, value)`` business-identity lines; a required label that is absent or blank is
-        refused with ``IdentityMissing`` (which names labels, never values)."""
+        ``(label, value)`` business-identity lines; a required label that is absent or shows no
+        letter or digit is refused with ``IdentityMissing`` (which names labels, never values).
+
+        With an ``identity_provider`` the lines are the RFQ's own tenant's, whatever the caller
+        passes: pairs that are not exactly those lines are refused with ``TenantMismatch``."""
         if vendor.tenant_id != rfq.tenant_id:
             raise TenantMismatch("vendor and RFQ belong to different tenants")
         ts = self._store.for_tenant(rfq.tenant_id)
@@ -238,7 +351,7 @@ class SendService:
             raise MalformedMessage("an RFQ message carries no amount")
         if purpose is MessagePurpose.PO and follow_up.count:
             raise MalformedMessage("purchase orders have no follow-up schedule")
-        pairs = as_identity_pairs(identity)  # materialised once: both checks below read it
+        pairs = self._tenant_identity(rfq.tenant_id, identity)  # read once; the checks below use it
         self._require_identity(unfilled_identity_labels(pairs, self._identity_labels))
         raw = build_message(
             subject=rfq.subject,
@@ -268,6 +381,18 @@ class SendService:
             subject=rfq.subject,
             purpose=purpose,
         )
+
+    def _tenant_identity(self, tenant_id: str, supplied: object) -> list[Any]:
+        """The identity lines for ONE tenant. Without a provider these are the caller's pairs (the
+        direct-caller and test path). With one they are the provider's lines for ``tenant_id``, and
+        caller-supplied pairs are accepted only if, once cleaned, they are exactly those lines."""
+        given = as_identity_pairs(supplied)
+        if self._identity_provider is None:
+            return given
+        own = as_identity_pairs(self._identity_provider.identity_for(tenant_id))
+        if given and clean_identity_pairs(given) != clean_identity_pairs(own):
+            raise TenantMismatch("identity differs from the one configured for the RFQ's tenant")
+        return own
 
     def preview(self, prepared: PreparedMessage) -> ParsedMessage:
         """What the approver sees: re-parsed from the exact bytes that will be hashed and sent."""
@@ -483,12 +608,29 @@ class SendService:
         return payload
 
     def _audit_refusal(
-        self, tenant: str | None, approval: object, mime_hash: str, exc: SendRefused
+        self, tenant: str | None, approval: object, mime_hash: str, exc: SendRefused,
+        *, request_id: str | None = None, extra: Mapping[str, object] | None = None,
     ) -> None:
         payload: dict[str, object] = {"reason": exc.code, "mime_hash": mime_hash}
         if isinstance(approval, Approval):
             payload["approval_id"] = approval.id
-        self._log.append(tenant or UNATTRIBUTED_TENANT, None, "system", EVT_SEND_REFUSED, payload)
+        payload.update(extra or {})
+        self._log.append(
+            tenant or UNATTRIBUTED_TENANT, request_id, "system", EVT_SEND_REFUSED, payload
+        )
+
+    def _audit_plan_cancelled(
+        self, plan: _FollowUpPlan, seq: int, mime_hash: str, exc: SendRefused
+    ) -> None:
+        """A follow-up plan was cancelled for good. Ids and codes only (never content), enough
+        for an auditor to tell WHICH plan and slot: request, RFQ, vendor, approval, sequence."""
+        ids: dict[str, object] = {
+            "request_id": plan.request_id, "rfq_id": plan.rfq_id,
+            "vendor_id": plan.vendor_id, "approval_id": plan.approval_id, "seq": seq,
+        }
+        self._audit_refusal(
+            plan.tenant_id, None, mime_hash, exc, request_id=plan.request_id, extra=ids
+        )
 
     # ------------------------------------------------------------------ follow-ups (F4)
 
@@ -534,33 +676,33 @@ class SendService:
         identity = identity_pairs(orig)  # carried over, so a follow-up never loses the block
         try:
             validate_identity_pairs(identity)
+            raw = build_message(
+                subject="Re: " + orig.subject,
+                body=FOLLOW_UP_BODY,
+                to=orig.to,
+                buyer_name=orig.from_name,
+                buyer_phone=orig.buyer_phone or "",
+                alias_address=orig.from_addr,
+                reply_to=orig.reply_to,
+                rfq_id=orig.rfq_id,
+                purpose=MessagePurpose.RFQ,
+                sent_at=self._clock.now(),
+                footer_template=self._footer,
+                in_reply_to=orig.message_id,
+                followup_seq=seq,
+                identity=identity,
+            )
         except MalformedMessage as exc:
-            # Lines the sanitiser would never have produced (only possible for bytes built outside
-            # ``prepare``): cancel for good rather than raising on every run and stalling the loop.
+            # Lines the sanitiser would never have produced, or a signature without a phone (only
+            # possible for bytes built outside ``prepare``): cancel for good rather than raising on
+            # every run and stalling the loop.
             plan.active = False
-            self._audit_refusal(plan.tenant_id, None, "", exc)
+            self._audit_plan_cancelled(plan, seq, "", exc)
             return None
-        raw = build_message(
-            subject="Re: " + orig.subject,
-            body=FOLLOW_UP_BODY,
-            to=orig.to,
-            buyer_name=orig.from_name,
-            buyer_phone=orig.buyer_phone or "",
-            alias_address=orig.from_addr,
-            reply_to=orig.reply_to,
-            rfq_id=orig.rfq_id,
-            purpose=MessagePurpose.RFQ,
-            sent_at=self._clock.now(),
-            footer_template=self._footer,
-            in_reply_to=orig.message_id,
-            followup_seq=seq,
-            identity=identity,
-        )
         missing = missing_identity_labels(parse_message(raw), self._identity_labels)
         if missing:  # fail closed: never send a follow-up lacking the block that is required
             plan.active = False
-            self._audit_refusal(plan.tenant_id, None, sha256_hex(raw),
-                                self._identity_refusal(missing))
+            self._audit_plan_cancelled(plan, seq, sha256_hex(raw), self._identity_refusal(missing))
             return None
         plan.done = seq  # at-most-once per slot
         if plan.done >= plan.schedule.count:

@@ -1,7 +1,8 @@
 """UK profile: an unstated VAT basis is unknown and needs a human; the RFQ asks for the basis.
 
-Why: a price that does not mention VAT is normally VAT-inclusive in contract law (docs/uk/03-claims-ledger.md
-UK-CTL-04), the opposite of the old "assume ex-VAT" default, so the product never assumes it.
+Why: the legal position for a price that does not mention VAT is unsettled (docs/uk/03-claims-ledger.md
+UK-CTL-04), so the product assumes neither basis: the old "assume ex-VAT" default is gone, the basis is
+treated as unknown, a human approves, and the RFQ asks the supplier to say which it is.
 """
 
 from __future__ import annotations

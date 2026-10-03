@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import unicodedata
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -38,8 +39,8 @@ MAX_FOLLOW_UPS = 3
 
 # Business identity ("company particulars"): "<label>: <value>" lines placed directly after the
 # signature block. A deployment profile may require labels; this module only sees labels and values.
-# These constants mirror aiplat.profile (components never import aiplat); tests/profiles keeps the
-# two copies equal.
+# These constants mirror aiplat.profile (the message layer has no run-time dependency on the profile
+# package); tests/profiles keeps the two copies, and the two label validators, in step.
 DEFAULT_IDENTITY_LABELS: Mapping[str, str] = MappingProxyType(
     {
         "legal_name": "Company name",
@@ -69,13 +70,25 @@ _FORBIDDEN_HEADERS = (
     "resent-date", "resent-message-id", "apparently-to", "delivered-to", "x-original-to",
     "envelope-to",
 )
-_CTRL_LINE = re.compile(r"[\x00-\x1f\x7f]")
-_CTRL_BODY = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
-_HIDDEN = re.compile("[​-‏‪-‮⁠-⁤⁦-⁩﻿]")
+# Everything that ends a "line" for SOME reader must stay out of a one-line field: C0 and C1
+# controls (U+0085 NEL is in C1), DEL and the Unicode line and paragraph separators. Every check in
+# this module splits on a literal "\n"; a renderer that splits like str.splitlines() (UAX #14) must
+# see the same lines, or a value could show a forged "--" and footer ahead of the real one. The body
+# may keep its own "\n" (and tabs); it refuses all the rest. Written with escapes: never a literal
+# invisible character in this source (tests/sendservice/test_line_sanitiser.py checks that).
+_CTRL_LINE = re.compile(r"[\x00-\x1f\x7f-\x9f\u2028\u2029]")
+_CTRL_BODY = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f\u2028\u2029]")
+# Zero-width and bidirectional formatting characters, the Arabic letter mark, the byte-order mark.
+_HIDDEN = re.compile(r"[\u061c\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u2069\ufeff]")
+# Letters that draw nothing (Unicode Default_Ignorable_Code_Point) but still pass str.isalnum().
+_BLANK_LETTERS = frozenset("\u115f\u1160\u3164\uffa0")
+# Link-like text: a scheme, "www." or "mailto:". A company particular is never a link.
+_LINK_LIKE = re.compile(r"://|www\.|mailto:", re.IGNORECASE)
 _PHONE = re.compile(r"^[0-9+()\-.\sx#]{3,40}$")
 _AMOUNT = re.compile(r"^(\d+(?:\.\d{1,6})?) ([A-Z]{3})$")
 _FOLLOW = re.compile(r"^count=(\d+); interval_hours=(\d+)$")
-_PHONE_LINE = re.compile(r"^Phone: (.+)$", re.MULTILINE)
+_PHONE_PREFIX = "Phone: "
+_REPLY_PREFIX = "Reply to: "
 
 
 class MessagePurpose(StrEnum):
@@ -208,12 +221,22 @@ def _label_key(label: str) -> str:
 _RESERVED_KEYS = frozenset(_label_key(r) for r in RESERVED_LINE_LABELS)
 
 
+def _is_plain_label_text(label: str) -> bool:
+    """No control, format, private-use or unassigned character and no space but the ASCII one. The
+    same rule ``aiplat.profile`` applies to a profile's labels (tests/profiles keeps them equal)."""
+    return not any(
+        unicodedata.category(c)[0] == "C" or (c.isspace() and c != " ") for c in label
+    )
+
+
 def _identity_label(raw: object) -> str:
-    """A label is plain single-line text: no surrounding spaces, no colon, not a reserved line."""
+    """A label is plain single-line text: no surrounding spaces, no colon, no control or hidden
+    character, not a reserved line."""
     label = _line(raw, "identity label", MAX_IDENTITY_LABEL_CHARS)
     if (
         label != raw
         or any(c in _LABEL_COLONS for c in label)
+        or not _is_plain_label_text(label)
         or _label_key(label) in _RESERVED_KEYS
     ):
         raise MalformedMessage(
@@ -221,6 +244,25 @@ def _identity_label(raw: object) -> str:
             "and not a reserved line label"
         )
     return label
+
+
+def has_visible_text(value: object) -> bool:
+    """True iff ``value`` is text with at least one letter or digit that is actually drawn.
+    Whitespace, punctuation, format characters and letters that render as nothing (the Hangul
+    fillers) do not count: a required company particular made only of those is not there."""
+    return isinstance(value, str) and any(c.isalnum() and c not in _BLANK_LETTERS for c in value)
+
+
+def _identity_value(label: str, raw: object) -> str:
+    """One line of company particulars: single-line text with a visible letter or digit that is not
+    link-like. Errors name the label, never the value."""
+    name = f"identity value for {label!r}"
+    value = _line(raw, name, MAX_IDENTITY_VALUE_CHARS)
+    if not has_visible_text(value):
+        raise MalformedMessage(f"{name} must contain a letter or digit")
+    if _LINK_LIKE.search(value):
+        raise MalformedMessage(f"{name} must not look like a link")
+    return value
 
 
 def as_identity_pairs(identity: object) -> list[Any]:
@@ -232,29 +274,35 @@ def as_identity_pairs(identity: object) -> list[Any]:
     return list(identity)
 
 
-def _identity_lines(identity: object) -> list[str]:
-    """Render ``(label, value)`` pairs as ``"<label>: <value>"`` lines. Values pass through the same
-    single-line sanitiser as the other header-like text; errors name the label, never the value."""
+def clean_identity_pairs(identity: object) -> list[tuple[str, str]]:
+    """The validated, trimmed ``(label, value)`` pairs ``build_message`` would render, in order.
+    Values pass through the same single-line sanitiser as the other header-like text; errors name
+    the label, never the value."""
     pairs = as_identity_pairs(identity)
     if len(pairs) > MAX_IDENTITY_LINES:
         raise MalformedMessage(f"identity has more than {MAX_IDENTITY_LINES} lines")
-    lines: list[str] = []
+    cleaned: list[tuple[str, str]] = []
     seen: set[str] = set()
     for item in pairs:
         if not isinstance(item, (list, tuple)) or len(item) != 2:
             raise MalformedMessage("identity entries must be (label, value) pairs")
         label = _identity_label(item[0])
-        value = _line(item[1], f"identity value for {label!r}", MAX_IDENTITY_VALUE_CHARS)
+        value = _identity_value(label, item[1])
         if _label_key(label) in seen:
             raise MalformedMessage("identity labels must be unique")
         seen.add(_label_key(label))
-        lines.append(f"{label}: {value}")
-    return lines
+        cleaned.append((label, value))
+    return cleaned
+
+
+def _identity_lines(identity: object) -> list[str]:
+    """Render ``(label, value)`` pairs as ``"<label>: <value>"`` lines."""
+    return [f"{label}: {value}" for label, value in clean_identity_pairs(identity)]
 
 
 def validate_identity_pairs(identity: object) -> None:
     """Raise ``MalformedMessage`` unless ``build_message`` would accept these identity pairs."""
-    _identity_lines(identity)
+    clean_identity_pairs(identity)
 
 
 def validate_identity_labels(labels: object) -> tuple[str, ...]:
@@ -277,14 +325,14 @@ def validate_identity_labels(labels: object) -> tuple[str, ...]:
 
 
 def unfilled_identity_labels(identity: Iterable[object], labels: Sequence[str]) -> list[str]:
-    """The required labels that have no non-blank value among the given ``(label, value)`` pairs
-    (already materialised by ``as_identity_pairs``). Tolerant of bad entries, which
-    ``build_message`` reports; never returns a value."""
+    """The required labels that have no value showing a letter or digit among the given
+    ``(label, value)`` pairs (already materialised by ``as_identity_pairs``). Tolerant of bad
+    entries, which ``build_message`` reports; never returns a value."""
     filled = {
         item[0]
         for item in identity
         if isinstance(item, (list, tuple)) and len(item) == 2
-        and isinstance(item[0], str) and isinstance(item[1], str) and item[1].strip()
+        and isinstance(item[0], str) and has_visible_text(item[1])
     }
     return [label for label in labels if label not in filled]
 
@@ -293,7 +341,7 @@ def unfilled_identity_labels(identity: Iterable[object], labels: Sequence[str]) 
 
 
 def signature_block(buyer_name: str, buyer_phone: str, reply_to: str) -> str:
-    return f"{buyer_name}\nPhone: {buyer_phone}\nReply to: {reply_to}"
+    return f"{buyer_name}\n{_PHONE_PREFIX}{buyer_phone}\n{_REPLY_PREFIX}{reply_to}"
 
 
 def build_message(
@@ -438,7 +486,7 @@ def parse_message(raw: bytes) -> ParsedMessage:
         text = msg.get_content().replace("\r\n", "\n")
     except Exception as exc:  # noqa: BLE001
         raise MalformedMessage("message body cannot be decoded") from exc
-    phone = _PHONE_LINE.search(text)
+    phone = _signature_phone(text, reply.addr_spec)
     return ParsedMessage(
         to=to.addr_spec,
         to_domain=to.domain,
@@ -455,7 +503,7 @@ def parse_message(raw: bytes) -> ParsedMessage:
         follow_up=follow_up,
         followup_seq=int(seq_raw) if seq_raw and seq_raw.isdigit() else None,
         in_reply_to=_one_header(msg, "In-Reply-To", required=False),
-        buyer_phone=phone.group(1) if phone else None,
+        buyer_phone=phone,
     )
 
 
@@ -492,6 +540,37 @@ def has_footer(parsed: ParsedMessage, footer_template: str) -> bool:
     return text == footer or text.endswith("\n" + footer)
 
 
+# ---------------------------------------------------------------- the signature block (parse side)
+
+
+def _signature_positions(lines: list[str], reply_to: str) -> tuple[int, int] | None:
+    """Where the signature block sits: ``(index of its "Reply to:" line, index of the footer
+    separator)``. Anchored from the END of the text: the LAST ``--`` line, then the LAST
+    ``Phone:`` / ``Reply to: <this message's reply address>`` pair before it. Text in the body that
+    merely looks like a signature comes earlier, so it is never the one selected. ``None`` when the
+    text has no such block."""
+    sep = next((i for i in range(len(lines) - 1, -1, -1) if lines[i] == _FOOTER_SEPARATOR), None)
+    if sep is None:
+        return None
+    reply_line = _REPLY_PREFIX + reply_to
+    reply = next(
+        (k for k in range(sep - 1, 0, -1)
+         if lines[k] == reply_line and lines[k - 1].startswith(_PHONE_PREFIX)),
+        None,
+    )
+    return None if reply is None else (reply, sep)
+
+
+def _signature_phone(text: str, reply_to: str) -> str | None:
+    """The buyer's phone number as printed in the signature block, never a ``Phone:`` line that the
+    body happens to contain (a follow-up reuses this value)."""
+    lines = text.split("\n")
+    spot = _signature_positions(lines, reply_to)
+    if spot is None:
+        return None
+    return lines[spot[0] - 1][len(_PHONE_PREFIX):] or None
+
+
 # ---------------------------------------------------------------- business identity (parse side)
 
 
@@ -502,19 +581,12 @@ def _identity_run(parsed: ParsedMessage) -> list[str]:
     LAST ``--`` separator, and ends at the first blank line, RFQ reference line or non-label line.
     """
     lines = parsed.text.split("\n")
-    sep = next((i for i in range(len(lines) - 1, -1, -1) if lines[i] == _FOOTER_SEPARATOR), None)
-    if sep is None:
+    spot = _signature_positions(lines, parsed.reply_to)
+    if spot is None:
         return []
-    reply_line = f"Reply to: {parsed.reply_to}"
-    start = next(
-        (k + 1 for k in range(sep - 1, 0, -1)
-         if lines[k] == reply_line and lines[k - 1].startswith("Phone: ")),
-        None,
-    )
-    if start is None:
-        return []
+    reply, sep = spot
     run: list[str] = []
-    for line in lines[start:sep]:
+    for line in lines[reply + 1 : sep]:
         if not line or line.startswith(_RFQ_REFERENCE_PREFIX) or ": " not in line:
             break
         run.append(line)
@@ -531,16 +603,20 @@ def identity_pairs(parsed: ParsedMessage) -> list[tuple[str, str]]:
 
 
 def missing_identity_labels(parsed: ParsedMessage, labels: Sequence[str]) -> list[str]:
-    """Required labels without a ``"<label>: "`` line holding a non-empty value in the identity
-    position. Returns labels only, never values."""
+    """Required labels without a ``"<label>: "`` line whose value shows a letter or digit, in the
+    identity position. A value made only of spaces, punctuation or invisible characters counts as
+    missing. Returns labels only, never values."""
     run = _identity_run(parsed)
-    return [
-        label for label in labels
-        if not any(ln.startswith(f"{label}: ") and ln[len(label) + 2 :].strip() for ln in run)
-    ]
+
+    def filled(label: str) -> bool:
+        prefix = f"{label}: "
+        return any(ln.startswith(prefix) and has_visible_text(ln[len(prefix):]) for ln in run)
+
+    return [label for label in labels if not filled(label)]
 
 
 def has_identity(parsed: ParsedMessage, labels: Sequence[str]) -> bool:
-    """True iff every required label appears as a line start ``"<label>: "`` with a non-empty value
-    in the identity position, before the footer separator. No required labels: always True."""
+    """True iff every required label appears as a line start ``"<label>: "`` with a value that shows
+    a letter or digit, in the identity position, before the footer separator. No required labels:
+    always True."""
     return not missing_identity_labels(parsed, labels)

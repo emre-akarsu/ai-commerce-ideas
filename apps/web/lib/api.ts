@@ -70,7 +70,13 @@ export interface PublicProfile {
   money: { base_currency: string; accepted_currencies: string[] };
   tax: { name: string; standard_rate: string; quote_basis_default: string };
   lead_time: { default_unit: string };
-  legal: { jurisdiction: string; notices: string[] };
+  legal: {
+    jurisdiction: string; notices: string[];
+    // Which company details outbound mail carries and under which labels; never the values (those are
+    // per-tenant deployment settings). The server always sends it; it is optional here only so fixtures
+    // written before the field existed still type-check.
+    business_identity?: { required: boolean; fields: string[]; labels: Record<string, string> };
+  };
   parts: { enabled_families: string[] };
   tiers: { enabled: string[] };
   ui: { language: string; copy_overrides: Record<string, string> };

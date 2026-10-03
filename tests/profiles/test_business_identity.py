@@ -12,6 +12,8 @@ from typing import Any
 
 import pytest
 import yaml
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 from pydantic import ValidationError
 
 from aiplat.profile import (
@@ -29,6 +31,7 @@ from aiplat.profile import (
     main,
 )
 from components.send_service import message as send_message
+from components.send_service.errors import MalformedMessage
 
 FOUR = ("legal_name", "registration_number", "registered_office", "registered_in")
 UK_LABELS = {
@@ -192,7 +195,9 @@ def test_identity_cannot_relax_the_footer_invariant() -> None:
 
 
 def test_constants_mirror_the_send_service_module() -> None:
-    """Components never import aiplat, so the two modules carry copies that must stay equal."""
+    """The message layer has no run-time dependency on aiplat, so the two modules carry copies that
+    must stay equal. (Dropping the message-layer copy of the default labels would also mean editing
+    the package exports and removing tests of the exported constant, so it was left as is.)"""
     assert dict(DEFAULT_IDENTITY_LABELS) == dict(send_message.DEFAULT_IDENTITY_LABELS)
     assert tuple(IDENTITY_FIELDS) == tuple(send_message.DEFAULT_IDENTITY_LABELS)
     assert tuple(IDENTITY_FIELDS) == FOUR
@@ -200,6 +205,85 @@ def test_constants_mirror_the_send_service_module() -> None:
     assert {x.lower() for x in RESERVED_LINE_LABELS} == {
         x.lower() for x in send_message.RESERVED_LINE_LABELS
     }
+
+
+# The two validators (the profile's, and the one the message layer applies to the labels it renders) are
+# separate code because components never import aiplat. They must give the same verdict on any label.
+def _cp(*codes: int) -> str:
+    return "".join(chr(code) for code in codes)
+
+
+LABEL_PROBES = [
+    # plain labels both must accept
+    "Company name", "x", "A" * MAX_IDENTITY_LABEL_CHARS, "Sitz der Gesellschaft", "Reg. no.",
+    "Registered in (nation)", "Handelsregisternummer", "Soci" + _cp(0xE9) + "t" + _cp(0xE9),
+    _cp(0x516C, 0x53F8, 0x540D, 0x79F0),
+    # shape rules
+    "", " ", "  ", " Company name", "Company name ", "A" * (MAX_IDENTITY_LABEL_CHARS + 1),
+    "Company: name", "Company name:", ":", "Company" + _cp(0xFF1A) + "name",
+    # reserved line labels, any case or spacing
+    "Phone", "phone", "PHONE", "Reply to", "reply  TO", "RFQ reference", "rfq   REFERENCE",
+    # control, line-breaking, hidden and bidirectional characters
+    "Company\nname", "Company\rname", "Company\tname", "Company\x00name", "Company\x7fname",
+    "Company\x0bname", "Company\x0cname", "Company\x1cname",
+    *[f"Comp{chr(c)}any" for c in range(0x80, 0xA0)],  # all of C1, NEL included
+    "Comp" + _cp(0x2028) + "any", "Comp" + _cp(0x2029) + "any", "Comp" + _cp(0x61C) + "any",
+    "Comp" + _cp(0x200B) + "any", "Comp" + _cp(0x200D) + "any", "Comp" + _cp(0x202E) + "any",
+    "Comp" + _cp(0x2066) + "any", "Comp" + _cp(0xFEFF) + "any", "Comp" + _cp(0x2060) + "any",
+    # format, private-use and unassigned characters, and spaces other than the ASCII one
+    "Comp" + _cp(0xAD) + "any", "Comp" + _cp(0x180E) + "any", "Comp" + _cp(0xE000) + "any",
+    "Comp" + _cp(0x378) + "any", "Comp" + _cp(0xFFFE) + "any", "Comp" + _cp(0xE0020) + "any",
+    "Company" + _cp(0xA0) + "name", "Company" + _cp(0x3000) + "name", "Company" + _cp(0x2003) + "name",
+    "Company" + _cp(0x202F) + "name", "Company" + _cp(0x1680) + "name",
+]
+
+
+def _profile_accepts(label: str) -> bool:
+    try:
+        BusinessIdentityPolicy(required=True, fields=["legal_name"], labels={"legal_name": label})
+    except ValidationError:
+        return False
+    return True
+
+
+def _message_accepts(label: str) -> bool:
+    try:
+        send_message.validate_identity_pairs([(label, "Acme Plant Ltd")])
+    except MalformedMessage:
+        return False
+    return True
+
+
+def _required_label_accepts(label: str) -> bool:
+    try:
+        send_message.validate_identity_labels((label,))
+    except ValueError:
+        return False
+    return True
+
+
+@pytest.mark.parametrize("label", LABEL_PROBES, ids=lambda label: ascii(label)[:48])
+def test_profile_and_message_label_validation_agree(label: str) -> None:
+    verdicts = (_profile_accepts(label), _message_accepts(label), _required_label_accepts(label))
+    assert len(set(verdicts)) == 1, (ascii(label), verdicts)
+
+
+def test_the_label_probe_set_has_both_accepted_and_rejected_labels() -> None:
+    verdicts = [_profile_accepts(label) for label in LABEL_PROBES]
+    assert sum(verdicts) >= 8 and sum(not v for v in verdicts) >= 50
+
+
+_SAFE_LABEL = st.text(alphabet="abcXYZ09 .()'-", min_size=1, max_size=20).map(str.strip).filter(bool)
+_ODD = [chr(c) for c in (0x0B, 0x1C, 0x85, 0x9F, 0xA0, 0xAD, 0x2003, 0x2028, 0x2029, 0x61C, 0x200B, 0x202E,
+                         0x3164, 0x2800, 0xE000, 0x378, 0xFF1A)] + [":", "\n", "\t", " ", "Phone"]
+
+
+@settings(max_examples=400, deadline=None, derandomize=True, suppress_health_check=list(HealthCheck))
+@given(base=_SAFE_LABEL, odd=st.lists(st.sampled_from(_ODD), max_size=2), at=st.integers(0, 20))
+def test_label_validators_agree_on_generated_labels(base: str, odd: list[str], at: int) -> None:
+    label = base[:at] + "".join(odd) + base[at:]
+    verdicts = (_profile_accepts(label), _message_accepts(label), _required_label_accepts(label))
+    assert len(set(verdicts)) == 1, (ascii(label), verdicts)
 
 
 # ---------------------------------------------------------------- shipped profiles

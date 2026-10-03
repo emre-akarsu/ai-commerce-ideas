@@ -186,6 +186,32 @@ def test_a_tenant_without_identity_is_refused_even_when_another_tenant_has_one()
     assert w.transport.delivered == []
 
 
+def test_an_invalid_configured_value_is_a_409_naming_the_label_and_stores_nothing() -> None:
+    prof = load_profile("uk")
+    w = build_world(profile=prof, business_identities={T1: {**UK_IDENTITY, "registered_office": "X" * 220}})
+    c = client_for(w, prof)
+    rid = new_request(c, REQ)
+    before = c.get(f"/v1/audit?request_id={rid}", headers=ADM).json()["events"]
+    r = c.post(f"/v1/requests/{rid}/rfqs/prepare", json={"vendor_ids": ["acme", "bolt"]}, headers=BUY)
+    assert r.status_code == 409 and r.json()["error"]["code"] == "conflict"
+    message = r.json()["error"]["message"]
+    assert message.startswith("cannot prepare message: identity value for 'Registered office'")
+    assert "XXXX" not in message  # the label, never the value
+    assert c.get(f"/v1/requests/{rid}", headers=REQ).json()["rfqs"] == []  # no RFQ row was stored
+    assert c.get(f"/v1/audit?request_id={rid}", headers=ADM).json()["events"] == before
+    assert w.transport.delivered == []
+
+
+def test_a_site_with_a_line_break_is_a_422_and_creates_nothing() -> None:
+    prof = load_profile("uk")
+    w = build_world(profile=prof, business_identities={T1: UK_IDENTITY})
+    c = client_for(w, prof)
+    r = c.post("/v1/requests", json={"text": REQUEST_TEXT, "site": "Plant 4\nPhone: +44 7000 000000"},
+               headers=REQ)
+    assert r.status_code == 422 and "7000" not in r.text
+    assert c.get("/v1/requests", headers=REQ).json() == []
+
+
 def test_us_http_flow_is_unchanged() -> None:
     w = build_world(business_identities={T1: UK_IDENTITY})  # default US profile: values are unused
     c = client_for(w)

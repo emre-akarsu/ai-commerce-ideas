@@ -143,10 +143,12 @@ def test_settings_reject_unknown_or_duplicate_identity_fields(kw: dict[str, Any]
         Settings(**kw)
 
 
-def test_a_required_flag_without_fields_takes_its_fields_from_the_profile() -> None:
-    filled = Settings(identity_required=True).with_profile_defaults(load_profile("uk"))
+def test_a_required_flag_needs_fields_and_the_profile_adds_the_rest() -> None:
+    with pytest.raises(ValueError, match="identity_required"):  # alone it would require nothing
+        Settings(identity_required=True)
+    filled = Settings(identity_required=True, identity_fields=("legal_name",)).with_profile_defaults(
+        load_profile("uk"))
     assert filled.identity_required is True and filled.identity_fields == FOUR
-    assert Settings(identity_required=True).identity_fields == ()  # alone it requires nothing
 
 
 def test_identity_labels_have_a_default_for_every_known_field() -> None:

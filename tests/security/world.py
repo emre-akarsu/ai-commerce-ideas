@@ -11,7 +11,12 @@ from components.core.fakes import FakeClock, RecordingTransport
 from components.core.store import Store
 from components.evidence.log import EventLog
 from components.purchase_orders.approvals.service import ApprovalService, CapPolicy
-from components.send_service.service import KillSwitch, PreparedMessage, SendService
+from components.send_service.service import (
+    IdentityProvider,
+    KillSwitch,
+    PreparedMessage,
+    SendService,
+)
 
 from .factories import (
     ALIAS,
@@ -71,6 +76,7 @@ def build_world(
     threshold: str = "500",
     max_recipients: int = 4,
     required_identity_labels: tuple[str, ...] = (),
+    identity_provider: IdentityProvider | None = None,
 ) -> World:
     clock = FakeClock()
     store = Store()
@@ -84,7 +90,7 @@ def build_world(
     )
     send = SendService(
         transport, clock, store, log, kill_switch=kill, caps=caps, max_recipients=max_recipients,
-        required_identity_labels=required_identity_labels,
+        required_identity_labels=required_identity_labels, identity_provider=identity_provider,
     )
     # tenant 1: one vendor, one request, one RFQ
     t1 = store.for_tenant(T1)

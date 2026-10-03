@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from aiplat.profile import load_profile
@@ -37,9 +39,49 @@ def test_uk_regulator_is_named_correctly_and_notices_cover_the_research() -> Non
     assert "Information Commission" in UK.legal.contact_data_regime
     assert "Data (Use and Access) Act 2025" in UK.legal.contact_data_regime
     text = " ".join(UK.legal.notices)
-    for needle in ("PECR", "VAT-inclusive", "supplier-declared", "SI 2015/17", "transfer mechanism"):
+    for needle in ("PECR", "treated as unknown", "supplier-declared", "SI 2015/17", "transfer mechanism"):
         assert needle in text, needle
     assert "ex-VAT unless stated" not in text  # the old wording assumed ex-VAT
+
+
+def _vat_notice(profile) -> str:  # type: ignore[no-untyped-def]
+    (notice,) = [n for n in profile.legal.notices if "whether VAT is included" in n]
+    return str(notice)
+
+
+@pytest.mark.parametrize("profile", [UK, SCOTLAND, NI], ids=["uk", "scotland", "ni"])
+def test_the_vat_notice_leaves_the_legal_position_open(profile) -> None:  # type: ignore[no-untyped-def]
+    """A red-team review found the old claim ("in contract law a price silent on VAT is normally
+    VAT-inclusive") overstated: the one authority found is a land-sale case about conflicting
+    conditions, and nothing found covers B2B parts quotations. The notice now says only what the product
+    does (unknown, sent to a human) and that the law is unsettled."""
+    notice = _vat_notice(profile)
+    assert "treated as unknown and sent to a human" in notice
+    assert "unsettled" in notice and "confirm the basis with the supplier" in notice
+    for claim in ("VAT-inclusive", "VAT-exclusive", "normally", "contract law", "presum", "default"):
+        assert claim not in notice, claim
+    assert "construction reverse charge is not determined by the product" in notice
+
+
+def test_no_profile_comment_or_architecture_doc_states_the_contract_default_as_settled() -> None:
+    root = Path(__file__).resolve().parents[2]
+    claims = ("normally VAT-inclusive", "VAT-inclusive in contract law", "CLP Holding",
+              "contract-law default", "legal default for a price")
+    paths = [*(root / "profiles").glob("*.yaml"), *(root / "docs/architecture").glob("*.md"),
+             *(root / "packages").rglob("*.py"), *(root / "employees").rglob("*.py"),
+             *(root / "apps").rglob("*.py"), *(root / "tests").rglob("test_*.py")]
+    for path in paths:
+        if path == Path(__file__).resolve():
+            continue
+        text = path.read_text(encoding="utf-8")
+        assert not [c for c in claims if c in text], (path.name, [c for c in claims if c in text])
+
+
+def test_the_unknown_basis_behaviour_is_unchanged() -> None:
+    """Wording only: the flags and keys that make an unstated basis go to a human did not move."""
+    assert UK.tax.unknown_basis == "flag_require_approval" and UK.tax.ask_basis_in_rfq is True
+    assert UK.tax.quote_basis_default == "ex_tax"
+    assert SCOTLAND.tax == UK.tax == NI.tax
 
 
 def test_marketing_email_remains_off_everywhere() -> None:

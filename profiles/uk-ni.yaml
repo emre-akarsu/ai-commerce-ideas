@@ -40,7 +40,7 @@ legal:
   jurisdiction: Northern Ireland (UK)
   notices:
     - "RFQs are transactional business requests and carry no promotion. The product must not be used for marketing email (PECR); a solicitor should confirm that RFQs fall outside the PECR marketing rules."
-    - "A quote that does not state whether VAT is included is treated as unknown and needs human approval: in contract law a price silent on VAT is normally VAT-inclusive. The construction reverse charge is not determined by the product."
+    - "A quote that does not state whether VAT is included is treated as unknown and sent to a human for approval. The legal position for a price that is silent on VAT is unsettled, so confirm the basis with the supplier. The construction reverse charge is not determined by the product."
     - "CE, UKCA and authenticity status are supplier-declared and not verified by the product; a missing mark means \"not stated\", not \"non-compliant\"."
     - "A UK company's business emails and order documents should show its registered name, number, registered office and UK part of registration (SI 2015/17). The company-details lines carry them, and sending stops if a tenant has not supplied them."
     - "Supplier-contact data sent to a processor outside the UK needs a transfer mechanism (a UK-US data bridge participant, or the IDTA or UK Addendum with a transfer risk assessment). The regulator is the Information Commission (ICO)."
