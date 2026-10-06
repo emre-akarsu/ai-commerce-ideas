@@ -83,7 +83,9 @@ export interface PublicProfile {
   ui: { language: string; copy_overrides: Record<string, string> };
   features: Record<string, boolean>;
 }
-export interface DecisionResult { request_id: string; decision: string; state: string }
+export interface DecisionResult {
+  request_id: string; decision: string; state: string;
+}
 export type VendorInput = Pick<Vendor, "name" | "domain" | "contact_email" | "preferred" | "opted_out"> & { phone?: string | null };
 export interface VendorProfile {
   account_number: string | null; account_type: "cash" | "credit" | null; credit_days: number | null;
