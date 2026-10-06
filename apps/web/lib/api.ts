@@ -49,7 +49,7 @@ export interface PendingApproval { id: string; kind: string; quote_id?: string |
 export interface RequestDetail {
   request: RequestView; candidates: CandidateView[]; rfqs: RfqSummary[]; quotes: QuoteView[];
   comparison: ComparisonView | null; events: EventView[]; pending_approvals: PendingApproval[];
-  chain_valid?: boolean;
+  assumptions?: AssumptionView[]; chain_valid?: boolean;
 }
 export interface NewRequestInput {
   text: string; quantity?: number; need_by?: string; site?: string; work_order_ref?: string;
@@ -84,6 +84,26 @@ export interface PublicProfile {
 }
 export interface DecisionResult { request_id: string; decision: string; state: string }
 export type VendorInput = Pick<Vendor, "name" | "domain" | "contact_email" | "preferred" | "opted_out"> & { phone?: string | null };
+export interface VendorProfile {
+  account_number: string | null; account_type: "cash" | "credit" | null; credit_days: number | null;
+  delivery_threshold: { amount: string; currency: string } | null; quote_validity_days: number | null;
+  contact_kind: "company" | "individual" | "unknown";
+  verification: { state: "unverified" | "attested"; attested_by: string | null; attested_at: string | null; note: string | null };
+  suppressed: boolean;
+}
+export interface VendorViewExtended extends Vendor {
+  profile?: VendorProfile;
+}
+export interface AssumptionView {
+  id: string; request_id: string; statement: string; source: "user_said" | "default_template" | "model_inference" | "public_source";
+  confidence: "high" | "medium" | "low"; status: "open" | "confirmed" | "invalidated"; critical: boolean;
+  gate: string | null; created_at: string; resolved_by: string | null; resolved_at: string | null;
+}
+export interface SetupItem { id: string; label: string; status: "done" | "todo" | "blocked"; detail: string }
+export interface SetupReadiness { ready: boolean; live: boolean; items: SetupItem[] }
+export interface AuditExport {
+  tenant: string; generated_at: string; profile: string; chain_valid: boolean; head_hash: string; events: EventView[];
+}
 
 export class ApiError extends Error {
   constructor(public status: number, public code: string, message: string) {
@@ -163,4 +183,39 @@ export const api = {
     request<Vendor>(`/v1/vendors/${enc(id)}`, { method: "PATCH", body: v }),
   audit: (request_id: string) =>
     request<{ events: EventView[]; chain_valid: boolean }>(`/v1/audit?request_id=${enc(request_id)}`),
+  // MVP endpoints for assumptions
+  listAssumptions: (id: string) => request<AssumptionView[]>(`/v1/requests/${enc(id)}/assumptions`),
+  confirmAssumption: (id: string, aid: string) =>
+    request<AssumptionView>(`/v1/requests/${enc(id)}/assumptions/${enc(aid)}/confirm`, { method: "POST", body: {} }),
+  invalidateAssumption: (id: string, aid: string) =>
+    request<AssumptionView>(`/v1/requests/${enc(id)}/assumptions/${enc(aid)}/invalidate`, { method: "POST", body: {} }),
+  // MVP endpoints for vendor profile and attest
+  updateVendorProfile: (id: string, profile: Partial<VendorProfile>) =>
+    request<VendorViewExtended>(`/v1/vendors/${enc(id)}/profile`, { method: "PUT", body: profile }),
+  attestVendor: (id: string, note?: string) =>
+    request<VendorViewExtended>(`/v1/vendors/${enc(id)}/attest`, { method: "POST", body: { note } }),
+  suppressVendor: (id: string) =>
+    request<VendorViewExtended>(`/v1/vendors/${enc(id)}/suppress`, { method: "POST", body: {} }),
+  unsuppressVendor: (id: string) =>
+    request<VendorViewExtended>(`/v1/vendors/${enc(id)}/unsuppress`, { method: "POST", body: {} }),
+  // MVP endpoints for vendor import
+  importVendors: async (file: File) => {
+    if (isMock()) return { created: 1, updated: 0, rejected: [] };
+    const form = new FormData();
+    form.append("file", file);
+    const method = "POST";
+    const headers: Record<string, string> = { Accept: "application/json" };
+    const t = await tokenProvider();
+    if (t) headers.Authorization = `Bearer ${t}`;
+    headers["Idempotency-Key"] = newIdempotencyKey();
+    const res = await fetch(`${baseUrl()}/v1/vendors/import`, { method, headers, body: form, cache: "no-store" });
+    if (!res.ok) throw await parseError(res);
+    return (await res.json()) as { created: number; updated: number; rejected: Array<{ row: number; reason: string }> };
+  },
+  // MVP endpoints for setup
+  getSetup: () => request<SetupReadiness>("/v1/setup"),
+  goLive: () => request<SetupReadiness>("/v1/setup/go-live", { method: "POST", body: {} }),
+  // MVP endpoints for audit export
+  exportAudit: (request_id?: string) =>
+    request<AuditExport>(`/v1/audit/export${request_id ? `?request_id=${enc(request_id)}` : ""}`),
 };

@@ -1,7 +1,7 @@
 // EXAMPLE DATA ONLY. Synthetic, illustrative; not real parts, vendors, prices or cross-references.
 // Used when NEXT_PUBLIC_API_MOCK=1 so the UI renders without the backend.
 import type {
-  ApprovalLinkView, ComparisonView, EventView, PreparedRFQ, PublicProfile, QuoteView, RequestDetail, RequestView, Vendor,
+  ApprovalLinkView, AssumptionView, ComparisonView, EventView, PreparedRFQ, PublicProfile, QuoteView, RequestDetail, RequestView, SetupReadiness, Vendor, VendorViewExtended,
 } from "./api";
 
 export const MOCK_LABEL = "Example data (synthetic, not real parts, prices or vendors)";
@@ -50,9 +50,14 @@ const detail = (): RequestDetail => ({
   quotes: [quote()], comparison: comparison(), events: events(), pending_approvals: [], chain_valid: true,
 });
 
-const vendors: Vendor[] = [
-  { id: "v1", name: "Example Supply Co", domain: "example-supply.test", contact_email: "sales@example-supply.test", preferred: true, phone: null, opted_out: false },
-  { id: "v2", name: "Sample Bearings Ltd", domain: "sample-bearings.test", contact_email: "quotes@sample-bearings.test", preferred: false, phone: null, opted_out: false },
+const assumptions: AssumptionView[] = [
+  { id: "a1", request_id: "req-example-1", statement: "Shaft tolerance is H7", source: "user_said", confidence: "high", status: "confirmed", critical: false, gate: null, created_at: "2026-10-01T09:00:00Z", resolved_by: "user:example", resolved_at: "2026-10-01T09:05:00Z" },
+  { id: "a2", request_id: "req-example-1", statement: "Bearing life is at least 1000 hours", source: "default_template", confidence: "medium", status: "open", critical: true, gate: null, created_at: "2026-10-01T09:00:00Z", resolved_by: null, resolved_at: null },
+];
+
+const vendors: VendorViewExtended[] = [
+  { id: "v1", name: "Example Supply Co", domain: "example-supply.test", contact_email: "sales@example-supply.test", preferred: true, phone: null, opted_out: false, profile: { account_number: "ACC-001", account_type: "credit", credit_days: 30, delivery_threshold: { amount: "100.00", currency: "USD" }, quote_validity_days: 30, contact_kind: "company", verification: { state: "attested", attested_by: "user:admin", attested_at: "2026-09-01T00:00:00Z", note: "Verified supplier" }, suppressed: false } },
+  { id: "v2", name: "Sample Bearings Ltd", domain: "sample-bearings.test", contact_email: "quotes@sample-bearings.test", preferred: false, phone: null, opted_out: false, profile: { account_number: null, account_type: null, credit_days: null, delivery_threshold: null, quote_validity_days: null, contact_kind: "unknown", verification: { state: "unverified", attested_by: null, attested_at: null, note: null }, suppressed: false } },
 ];
 const requests: RequestView[] = [baseRequest()];
 
@@ -122,6 +127,61 @@ export function mockHandle(method: string, path: string, body?: unknown): unknow
     if (i >= 0) vendors[i] = { ...vendors[i], ...(b as object) };
     return vendors[i];
   }
+  // MVP endpoints
+  m = p.match(/^\/v1\/requests\/([^/]+)\/assumptions$/);
+  if (method === "GET" && m) return assumptions.filter((a) => a.request_id === decodeURIComponent(m![1]));
+  m = p.match(/^\/v1\/requests\/([^/]+)\/assumptions\/([^/]+)\/(confirm|invalidate)$/);
+  if (method === "POST" && m) {
+    const rid = decodeURIComponent(m![1]);
+    const aid = decodeURIComponent(m![2]);
+    const action = m![3];
+    const a = assumptions.find((x) => x.id === aid && x.request_id === rid);
+    if (a) {
+      a.status = action === "confirm" ? "confirmed" : "invalidated";
+      a.resolved_at = new Date().toISOString();
+      a.resolved_by = "user:example";
+    }
+    return a || {};
+  }
+  m = p.match(/^\/v1\/vendors\/([^/]+)\/profile$/);
+  if (method === "PUT" && m) {
+    const i = vendors.findIndex((v) => v.id === decodeURIComponent(m![1]));
+    if (i >= 0 && vendors[i].profile) vendors[i].profile! = { ...vendors[i].profile!, ...(b as object) };
+    return vendors[i];
+  }
+  m = p.match(/^\/v1\/vendors\/([^/]+)\/(attest|suppress|unsuppress)$/);
+  if (method === "POST" && m) {
+    const i = vendors.findIndex((v) => v.id === decodeURIComponent(m![1]));
+    const action = m![2];
+    if (i >= 0) {
+      if (!vendors[i].profile) vendors[i].profile = { account_number: null, account_type: null, credit_days: null, delivery_threshold: null, quote_validity_days: null, contact_kind: "unknown", verification: { state: "unverified", attested_by: null, attested_at: null, note: null }, suppressed: false };
+      if (action === "attest") {
+        vendors[i].profile!.verification = { state: "attested", attested_by: "user:admin", attested_at: new Date().toISOString(), note: (b as any)?.note ?? null };
+      } else if (action === "suppress") {
+        vendors[i].profile!.suppressed = true;
+      } else if (action === "unsuppress") {
+        vendors[i].profile!.suppressed = false;
+      }
+    }
+    return vendors[i];
+  }
+  if (method === "POST" && p === "/v1/vendors/import") return { created: 1, updated: 0, rejected: [] };
+  if (method === "GET" && p === "/v1/setup") {
+    const setup: SetupReadiness = {
+      ready: true, live: false,
+      items: [
+        { id: "profile", label: "Profile", status: "done", detail: "us@0000000000000000000000000000000000000000000000000000000000000000" },
+        { id: "business_identity", label: "Business identity", status: "done", detail: "all required fields present" },
+        { id: "suppliers", label: "Suppliers", status: "done", detail: "1 attested supplier" },
+        { id: "kill_switch", label: "Kill switch", status: "done", detail: "not engaged" },
+        { id: "dry_run", label: "Dry run", status: "done", detail: "at least one request prepared" },
+        { id: "sending_domain", label: "Sending domain", status: "todo", detail: "confirm SPF, DKIM and DMARC for the alias domain" },
+      ],
+    };
+    return setup;
+  }
+  if (method === "POST" && p === "/v1/setup/go-live") return { ready: true, live: true, items: [] };
+  if (method === "GET" && p === "/v1/audit/export") return { tenant: "tenant-hash", generated_at: new Date().toISOString(), profile: "us@0000000000000000", chain_valid: true, head_hash: "2".repeat(64), events: events() };
   if (method === "GET" && p === "/v1/audit") return { events: events(), chain_valid: true };
   throw new Error(`mock: unhandled ${method} ${p}`);
 }
