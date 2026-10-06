@@ -1,0 +1,628 @@
+# UK job-kit parameters
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Generated content is plain data: edit it directly. Schema and licensing policy:
+# profiles/data/job_kits/README.md. Checked by tests/profiles/test_job_kits.py.
+# Line wording is our own. Brand names appear only in example_note fields. Provenance URLs are
+# sources read in research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.job_kit_parameters
+version: 0.1.0
+market: uk
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+description: Market-specific constants used by the UK job-kit formulas. Templates reference these by name;
+  nothing here is hard-coded in a formula. Values are Decimal strings with explicit units.
+parameters:
+  tile_waste_factor:
+    value: '0.10'
+    unit: ratio
+    description: Cutting and breakage allowance added to tile area. Retailer advice only; no manufacturer
+      source found, so it is a configurable parameter, not a cited constant.
+    provenance:
+    - source_title: 'Wickes how-to guide: tiling a wall'
+      url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+  adhesive_kg_per_m2_per_mm:
+    value: '1.2'
+    unit: kg/m2/mm
+    description: 'Cementitious tile adhesive consumption per mm of bed thickness for one product (secondary
+      source quoting the TDS). Product-specific: replace with the chosen product''s own figure.'
+    provenance:
+    - source_title: Mapei Keraflex Maxi S1 listing quoting the TDS consumption (retailer, secondary)
+      url: https://www.skroutz.gr/s/12196759/Mapei-Keraflex-Maxi-S1-Klebstoff-Kacheln-23kg.html
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  adhesive_bed_to_notch_ratio:
+    value: '0.5'
+    unit: ratio
+    description: Compressed bed thickness as a fraction of trowel notch depth.
+    provenance:
+    - source_title: Mapei Keraflex Maxi S1 listing quoting the TDS consumption (retailer, secondary)
+      url: https://www.skroutz.gr/s/12196759/Mapei-Keraflex-Maxi-S1-Klebstoff-Kacheln-23kg.html
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: 'Research note on the adhesive row (software_formats_ratios.md): a combed bed is about
+        half the notch depth after compression; check the product TDS.'
+  grout_formula_constant:
+    value: '0.18'
+    unit: kg/m2 per (mm*mm*cm/cm2)
+    description: Constant in C = k x joint width (mm) x tile thickness (mm) x (L+W)/(L x W) (L, W in cm);
+      bundles grout density of about 1.8.
+    provenance:
+    - source_title: 'TilersForums: grout calculation formula attributed to the Weber TDS'
+      url: https://tilersforums.com/threads/how-to-calculate-your-grout-requirements.39223
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
+    - source_title: Weber weberjoint technical data sheet
+      url: https://www.middleeast.weber/files/sodamco/2025-11/TDS_weberjoint-weberjoint_thick.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  primer_coverage_m2_per_l:
+    value: '6'
+    unit: m2/l
+    description: Tile primer coverage (one product, New Zealand datasheet; UK product may differ).
+    provenance:
+    - source_title: Ardex Multiprime datasheet (New Zealand edition)
+      url: https://ardex.co.nz/products/Tiling/Multiprime/Multiprime%20Datasheet%2012.10.20.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  sealant_cartridge_ml:
+    value: '310'
+    unit: ml
+    description: Sealant cartridge volume used for yield.
+    provenance:
+    - source_title: 'Truly PVC: estimating silicone cartridge yield'
+      url: https://www.trulypvc.com/blogs/how-to-guides/how-to-estimate-silicone-cartridge-yield
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  sealant_joint_width_mm:
+    value: '10'
+    unit: mm
+    description: Assumed sealant bead width for yield (worked example in source; conservative).
+    provenance:
+    - source_title: 'Truly PVC: estimating silicone cartridge yield'
+      url: https://www.trulypvc.com/blogs/how-to-guides/how-to-estimate-silicone-cartridge-yield
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  sealant_joint_depth_mm:
+    value: '10'
+    unit: mm
+    description: Assumed sealant bead depth for yield.
+    provenance:
+    - source_title: 'Truly PVC: estimating silicone cartridge yield'
+      url: https://www.trulypvc.com/blogs/how-to-guides/how-to-estimate-silicone-cartridge-yield
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  stud_centres_mm:
+    value: '600'
+    unit: mm
+    description: Stud centres (source gives 400 or 600 mm).
+    provenance:
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  plasterboard_screw_centres_mm:
+    value: '300'
+    unit: mm
+    description: Plasterboard screw centres on partitions (200 mm at external angles).
+    provenance:
+    - source_title: 'British Gypsum FAQ: screw fixing centres (search snippet; page 403 when fetched)'
+      url: https://www.british-gypsum.com/technical-support/self-help-tools/faqs/what-are-screw-fixing-centres-partitions-ceilings-encasements
+      licence: manufacturer-doc-facts-only
+      evidence_quality: search_snippet
+  plasterboard_sheet_width_mm:
+    value: '1200'
+    unit: mm
+    description: Board width (one board per 1.2 m of wall).
+    provenance:
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  plasterboard_sheet_height_mm:
+    value: '2400'
+    unit: mm
+    description: Board height.
+    provenance:
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: Research-note arithmetic (software_formats_ratios.md) on a 2400 x 1200 board; the
+        guide gives the 1.2 m width only.
+  plasterboard_sheet_area_m2:
+    value: '2.88'
+    unit: m2
+    description: Area of one 2400 x 1200 board.
+    provenance:
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: 2.4 m x 1.2 m; research-note arithmetic (software_formats_ratios.md).
+  board_joint_m_per_board:
+    value: '3.6'
+    unit: m
+    description: Joint length per board, about half the board perimeter.
+    provenance:
+    - source_title: 'British Gypsum White Book: jointing (search snippet)'
+      url: https://www.british-gypsum.com/documents/white-book/british-gypsum-wb-jointing-1.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: derived
+      derived_from: Research-note rule 'joint length is about board perimeter / 2 per board' applied to
+        2.4 x 1.2 m (software_formats_ratios.md).
+  jointing_compound_kg_per_m:
+    value: '0.14'
+    unit: kg/m
+    description: 'Hand jointing compound for a tapered flat joint: 9 kg taping coat + 5 kg first finish
+      per 100 linear metres.'
+    provenance:
+    - source_title: 'British Gypsum White Book: jointing (search snippet)'
+      url: https://www.british-gypsum.com/documents/white-book/british-gypsum-wb-jointing-1.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: search_snippet
+  timber_screws_per_stud:
+    value: '4'
+    unit: nr
+    description: Timber screws to fix each stud to head and sole plate.
+    provenance:
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: The guide lists 75-100 mm timber screws but no count; 2 per stud end is an assumption
+        for tradesperson review.
+  noggin_rows:
+    value: '1'
+    unit: nr
+    description: Rows of noggins in a partition.
+    provenance:
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: 'Research-note rule: one noggin row per horizontal board joint or fixing line (software_formats_ratios.md);
+        one row assumed for a single-board-height wall.'
+  backer_board_area_m2:
+    value: '0.96'
+    unit: m2
+    description: One 1200 x 800 cement backer board.
+    provenance:
+    - source_title: TilersForums thread quoting Hardiebacker fixing guidance
+      url: https://www.tilersforums.com/threads/hardie-backer-board-info.48531
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
+  backer_screws_per_board:
+    value: '12'
+    unit: nr
+    description: Minimum corrosion-resistant screws per 1200 x 800 backer board (forum quoting the installation
+      guide; not verified against the manufacturer).
+    provenance:
+    - source_title: TilersForums thread quoting Hardiebacker fixing guidance
+      url: https://www.tilersforums.com/threads/hardie-backer-board-info.48531
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
+  tanking_kit_coverage_m2:
+    value: '4'
+    unit: m2
+    description: Area one liquid-membrane shower kit covers (one product; retailer listing).
+    provenance:
+    - source_title: Shower waterproofing kit listing (Toolstation; Mapei kit contents and coverage)
+      url: https://www.toolstation.com/mapei-shower-waterproofing-kit/p71005
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  emulsion_coverage_m2_per_l:
+    value: '17'
+    unit: m2/l
+    description: Emulsion spreading rate ('up to' figure).
+    provenance:
+    - source_title: Dulux Trade Vinyl Matt product page (spreading rate)
+      url: https://www.duluxtradepaintexpert.co.uk/en/products/dulux-trade-vinyl-matt
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  emulsion_finish_coats:
+    value: '2'
+    unit: nr
+    description: Finish coats of emulsion.
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  emulsion_mist_coats:
+    value: '1'
+    unit: nr
+    description: Mist coat on new plaster or board.
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Canterbury City Council Void Lettable Standard v1.0 (2026)
+      url: https://www.canterbury.gov.uk/sites/default/files/2026-06/Void%20Lettable%20Standard%20policy.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  bathroom_extract_l_s:
+    value: '15'
+    unit: l/s
+    description: Minimum intermittent extract rate, bathroom.
+    provenance:
+    - source_title: Approved Document F Vol 1, 2021 edition (ventilation), Table 1.1
+      url: https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf
+      licence: OGL-3.0-unconfirmed
+      evidence_quality: standard
+  sanitary_extract_l_s:
+    value: '6'
+    unit: l/s
+    description: Minimum intermittent extract rate, sanitary accommodation (separate WC).
+    provenance:
+    - source_title: Approved Document F Vol 1, 2021 edition (ventilation), Table 1.1
+      url: https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf
+      licence: OGL-3.0-unconfirmed
+      evidence_quality: standard
+  extract_overrun_min:
+    value: '15'
+    unit: min
+    description: Run-on after the room is vacated where there is no openable window.
+    provenance:
+    - source_title: Approved Document F Vol 1, 2021 edition (ventilation), Table 1.1
+      url: https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf
+      licence: OGL-3.0-unconfirmed
+      evidence_quality: standard
+    - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+      url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  extract_duct_diameter_mm:
+    value: '100'
+    unit: mm
+    description: Duct diameter for the fan type cited.
+    provenance:
+    - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+      url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  electric_shower_isolator_a:
+    value: '45'
+    unit: A
+    description: Double-pole isolating switch rating.
+    provenance:
+    - source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  isolator_contact_gap_mm:
+    value: '3'
+    unit: mm
+    description: Minimum contact gap in both poles (shower isolator and fan isolator).
+    provenance:
+    - source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+      url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  electric_shower_rcd_ma:
+    value: '30'
+    unit: mA
+    description: RCD protection for electric shower circuits.
+    provenance:
+    - source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  electric_shower_cable_min_mm2:
+    value: '10'
+    unit: mm2
+    description: Manufacturer's strongly recommended minimum cable size; final size is the electrician's
+      design.
+    provenance:
+    - source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  basin_trap_mm:
+    value: '32'
+    unit: mm
+    description: Washbasin trap size.
+    provenance:
+    - source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+      url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: McAlpine A10 bottle trap 32 mm x 75 mm (Travis Perkins listing)
+      url: https://www.travisperkins.co.uk/mcalpine-a10-seal-bottle-trap-32mm-x-75mm/p/960845
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  basin_trap_seal_mm:
+    value: '75'
+    unit: mm
+    description: Washbasin trap water seal.
+    provenance:
+    - source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+      url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: McAlpine A10 bottle trap 32 mm x 75 mm (Travis Perkins listing)
+      url: https://www.travisperkins.co.uk/mcalpine-a10-seal-bottle-trap-32mm-x-75mm/p/960845
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  bath_shower_trap_mm:
+    value: '40'
+    unit: mm
+    description: Bath and shower trap size (not verified from a manufacturer source).
+    provenance:
+    - source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+      url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  wc_soil_mm:
+    value: '110'
+    unit: mm
+    description: Soil connection size for WC pans.
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet;
+        page 404 when fetched)
+      url: https://catalog.geberit.co.uk/en-GB/product/PRO_100926
+      licence: manufacturer-doc-facts-only
+      evidence_quality: search_snippet
+  shower_tray_waste_mm:
+    value: '90'
+    unit: mm
+    description: Shower tray outlet size (stone resin trays).
+    provenance:
+    - source_title: 'Stone resin shower tray listing: waste not included (ManoMano; search summary)'
+      url: https://www.manomano.co.uk/p/mx-minerals-quadrant-shower-tray-900mm-x-900mm-ash-grey-79610490
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  shower_valve_inlet_centres_mm:
+    value: '150'
+    unit: mm
+    description: Bar valve inlet centres.
+    provenance:
+    - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+      url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Mira Discovery bar mixer installation guide
+      url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  bath_sealant_gap_mm:
+    value: '4'
+    unit: mm
+    description: Upper end of the 3-4 mm sealant gap at bath edges.
+    provenance:
+    - source_title: Ideal Standard i.life Idealform bath fitting instructions
+      url: https://heatandplumb.com/media/ideal-standard/fitting-instructions/file-512508.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Ideal Standard Idealcast bath installation guide (2009)
+      url: https://images.victorianplumbing.co.uk/products/ideal-standard-white-1700-x-800mm-0th-double-ended-idealcast-bath/instructions/is_idealcast_e002301_iguide_en.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  wall_reinforcement_kn_m2:
+    value: '1.5'
+    unit: kN/m2
+    description: Walls, ducts and boxings must carry grab rails and seats up to this load.
+    provenance:
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+  accessible_wc_pan_min_height_mm:
+    value: '400'
+    unit: mm
+    description: Minimum WC pan height, M4(3).
+    provenance:
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+  accessible_basin_rim_min_mm:
+    value: '770'
+    unit: mm
+    description: Wall-hung basin rim height, lower bound, M4(3).
+    provenance:
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+  accessible_basin_rim_max_mm:
+    value: '850'
+    unit: mm
+    description: Wall-hung basin rim height, upper bound, M4(3).
+    provenance:
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+  level_shower_area_min_mm:
+    value: '1000'
+    unit: mm
+    description: Avoid a level-access shower area smaller than this square size.
+    provenance:
+    - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+      url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  level_shower_area_preferred_mm:
+    value: '1100'
+    unit: mm
+    description: Preferred minimum square shower area.
+    provenance:
+    - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+      url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  shower_control_height_mm:
+    value: '1000'
+    unit: mm
+    description: Approximate shower control height, usable standing or seated.
+    provenance:
+    - source_title: Nottinghamshire County Council level access shower factsheet
+      url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  grab_rail_diameter_mm:
+    value: '32'
+    unit: mm
+    description: Grab rail diameter in one council DFG spec.
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  grab_rail_length_mm:
+    value: '600'
+    unit: mm
+    description: Grab rail length in one council DFG spec.
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  basin_blend_max_c:
+    value: '38'
+    unit: degC
+    description: Basin hot outlet limit by blending valve (one council's own requirement, not a standard).
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  safety_vinyl_thickness_mm:
+    value: '2.0'
+    unit: mm
+    description: Slip-resistant safety vinyl sheet thickness.
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  splashback_height_mm:
+    value: '270'
+    unit: mm
+    description: Tiled splashback height above a washbasin (one landlord specification).
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+lookups:
+  electric_shower_circuit:
+    key_variant: shower_kw
+    description: Protective device and minimum cable size by electric shower rating. MCB options are as
+      printed by the manufacturer; the cable column picks the smallest size in the capacity table that
+      meets the manufacturer minimum and carries the largest MCB option. The final cable size is the electrician's
+      BS 7671 design (length, grouping, insulation).
+    columns:
+      mcb_a_options: A
+      cable_mm2_by_method: mm2 twin and earth
+    rows:
+      '7.0':
+        mcb_a_options:
+        - '30'
+        - '32'
+        cable_mm2_by_method:
+          insulated_wall: '10'
+          conduit: '10'
+          clipped_direct: '10'
+      '7.5':
+        mcb_a_options:
+        - '32'
+        cable_mm2_by_method:
+          insulated_wall: '10'
+          conduit: '10'
+          clipped_direct: '10'
+      '8.0':
+        mcb_a_options:
+        - '40'
+        cable_mm2_by_method:
+          insulated_wall: '10'
+          conduit: '10'
+          clipped_direct: '10'
+      '8.5':
+        mcb_a_options:
+        - '40'
+        cable_mm2_by_method:
+          insulated_wall: '10'
+          conduit: '10'
+          clipped_direct: '10'
+      '9.0':
+        mcb_a_options:
+        - '40'
+        cable_mm2_by_method:
+          insulated_wall: '10'
+          conduit: '10'
+          clipped_direct: '10'
+      '9.5':
+        mcb_a_options:
+        - '40'
+        - '45'
+        cable_mm2_by_method:
+          insulated_wall: '16'
+          conduit: '10'
+          clipped_direct: '10'
+      '10.5':
+        mcb_a_options:
+        - '45'
+        cable_mm2_by_method:
+          insulated_wall: '16'
+          conduit: '10'
+          clipped_direct: '10'
+    provenance:
+    - source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Triton Omnicare installation and operating instructions 2181515H
+      url: https://www.independent4life.co.uk/media/mageworx/downloads/attachment/file/2/5/25327%20triton%20omnicare%20installation%20and%20operating%20instructions%202181515h.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: derived
+      derived_from: Cable column computed from the T70Z cable current capacity table and the 10 mm2 recommended
+        minimum; subject to the electrician's design.
+  twin_earth_current_capacity_a:
+    key_variant: null
+    description: Twin-and-earth current capacity (A) by size (mm2) and installation method as printed
+      in one manufacturer's guide; used only to derive the cable column above.
+    columns:
+      insulated_wall: A
+      conduit: A
+      clipped_direct: A
+    rows:
+      '6':
+        insulated_wall: '32'
+        conduit: '38'
+        clipped_direct: '46'
+      '10':
+        insulated_wall: '43'
+        conduit: '52'
+        clipped_direct: '63'
+      '16':
+        insulated_wall: '57'
+        conduit: '69'
+        clipped_direct: '85'
+    provenance:
+    - source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc

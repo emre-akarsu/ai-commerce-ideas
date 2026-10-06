@@ -1,0 +1,2346 @@
+# Wet room / level-access shower conversion
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Generated content is plain data: edit it directly. Schema and licensing policy:
+# profiles/data/job_kits/README.md. Checked by tests/profiles/test_job_kits.py.
+# Line wording is our own. Brand names appear only in example_note fields. Provenance URLs are
+# sources read in research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.wet_room
+version: 0.1.0
+market: uk
+title: Wet room / level-access shower conversion
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+review:
+  owner: null
+  reviewed_by: null
+  reviewed_on: null
+  note: Not reviewed. A named owner and a UK tradesperson must review every line, quantity and rule before
+    any customer use.
+description: 'Replace a bath with a level-access shower in a wet room: former and gully laid to falls,
+  tanked floor and shower walls, slip-resistant floor, grab rails, WC and wall-hung basin. Structure follows
+  one council DFG level-access specification; requirement items follow Approved Document M (M4(3) where
+  it applies) and council OT guidance.'
+assumption_source: default_template
+parameters_file: parameters.yaml
+classification_attribution:
+  uniclass: Uniclass 2015 © NBS, CC BY-ND 4.0 (https://uniclass.thenbs.com/download). Pr and Ss tables
+    v1.43 (July 2026). Codes and titles are stored verbatim as checked live in the research notes; nothing
+    is modified or extended.
+  etim: ETIM 10.1, ETIM International, Open Data Commons Attribution Licence (ODC-By 1.0, http://opendatacommons.org/licenses/by/1.0/).
+    Class codes and English titles via the buildingSMART Data Dictionary.
+uniclass_ss:
+- code: Ss_40_15_75_78
+  title: Shower area systems
+  version: Ss v1.43 (July 2026)
+- code: Ss_40_15_75_02
+  title: Accessible WC package systems
+  version: Ss v1.43 (July 2026)
+job_provenance:
+- source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+  url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+  licence: unknown-copyright-facts-only
+  evidence_quality: public_spec
+- source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+  url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+  licence: OGL-3.0
+  evidence_quality: standard
+- source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+  url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+  licence: unknown-copyright-facts-only
+  evidence_quality: public_spec
+- source_title: Nottinghamshire County Council level access shower factsheet
+  url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
+  licence: unknown-copyright-facts-only
+  evidence_quality: public_spec
+variants:
+  layout_change:
+    type: bool
+    question: Is the layout changing (new stud partition, moved fittings)?
+    default: false
+  wc_type:
+    type: enum
+    question: WC type?
+    values:
+    - close_coupled
+    - wall_hung
+    default: close_coupled
+  shower_type:
+    type: enum
+    question: Shower type?
+    values:
+    - electric
+    - mixer
+    default: electric
+  shower_kw:
+    type: enum
+    question: Electric shower rating in kW (selects the circuit lookup row; ignored for a mixer shower)?
+    values:
+    - '7.0'
+    - '7.5'
+    - '8.0'
+    - '8.5'
+    - '9.0'
+    - '9.5'
+    - '10.5'
+    default: '9.5'
+  wall_type:
+    type: enum
+    question: Main wall construction where fittings are fixed?
+    values:
+    - stud
+    - solid
+    default: solid
+  joint_system:
+    type: enum
+    question: Pipe joint system for new pipework?
+    values:
+    - compression
+    - push_fit
+    - solder
+    default: compression
+  floor_construction:
+    type: enum
+    question: Floor construction under the shower?
+    values:
+    - timber
+    - concrete
+    default: timber
+  drainage:
+    type: enum
+    question: Can the gully drain by gravity, or is a pump needed?
+    values:
+    - gravity
+    - pumped
+    default: gravity
+  floor_finish:
+    type: enum
+    question: Floor finish?
+    values:
+    - sheet_vinyl
+    - tiled
+    default: sheet_vinyl
+  shower_seat:
+    type: bool
+    question: Fit a wall-mounted fold-down shower seat?
+    default: false
+  replace_radiator:
+    type: bool
+    question: Replace the radiator with a low surface temperature one?
+    default: false
+inputs:
+  floor_m2:
+    unit: m2
+    description: Wet room floor area.
+    sample: '4'
+  floor_perimeter_m:
+    unit: m
+    description: Floor perimeter for vinyl trim or coving.
+    sample: '8'
+  wall_tiled_m2:
+    unit: m2
+    description: Wall area to tile.
+    sample: '10'
+  tanked_m2:
+    unit: m2
+    description: 'Area to tank: whole floor plus shower walls.'
+    sample: '10'
+  backer_board_m2:
+    unit: m2
+    description: Wall area to line with tile backer board.
+    sample: '6'
+  sealant_joint_m:
+    unit: m
+    description: Total sealant joint length.
+    sample: '6'
+  pipe_15mm_m:
+    unit: m
+    description: New 15 mm supply pipe run.
+    sample: '10'
+  waste_32mm_m:
+    unit: m
+    description: New 32 mm basin waste run.
+    sample: '2'
+  waste_gully_m:
+    unit: m
+    description: Waste run from the gully to the stack or pump.
+    sample: '3'
+  shower_cable_run_m:
+    unit: m
+    description: Shower circuit cable run (electric shower only).
+    sample: '12'
+  fan_cable_run_m:
+    unit: m
+    description: Fan cable run.
+    sample: '6'
+  fan_duct_run_m:
+    unit: m
+    description: Fan duct run.
+    sample: '3'
+  partition_length_m:
+    unit: m
+    description: Length of new stud partition (0 if none).
+    sample: '1.8'
+  partition_height_m:
+    unit: m
+    description: Height of new stud partition.
+    sample: '2.4'
+  partition_faces:
+    unit: nr
+    description: Faces of the partition to board (1 or 2).
+    sample: '2'
+  tile_length_cm:
+    unit: cm
+    description: Tile length.
+    sample: '30'
+  tile_width_cm:
+    unit: cm
+    description: Tile width.
+    sample: '60'
+  tile_thickness_mm:
+    unit: mm
+    description: Tile thickness.
+    sample: '9'
+  grout_joint_mm:
+    unit: mm
+    description: Grout joint width.
+    sample: '3'
+  adhesive_notch_mm:
+    unit: mm
+    description: Trowel notch depth.
+    sample: '6'
+  tile_trim_m:
+    unit: m
+    description: Length of exposed tile edges needing trim.
+    sample: '5'
+  paint_wall_m2:
+    unit: m2
+    description: Wall area to paint (untiled).
+    sample: '14'
+  paint_ceiling_m2:
+    unit: m2
+    description: Ceiling area to paint.
+    sample: '4.5'
+derived:
+  partition_area_m2:
+    formula: partition_length_m * partition_height_m * partition_faces
+    unit: m2
+    description: Board area of the new partition.
+  partition_boards:
+    formula: ceil(partition_area_m2 / plasterboard_sheet_area_m2)
+    unit: nr
+    description: Plasterboard sheets for the partition.
+  partition_studs:
+    formula: ceil(partition_length_m * 1000 / stud_centres_mm) + 1
+    unit: nr
+    description: 'Studs: length over centres plus one (openings and ends extra).'
+  screws_per_board:
+    formula: (ceil(plasterboard_sheet_width_mm / stud_centres_mm) + 1) * (ceil(plasterboard_sheet_height_mm
+      / plasterboard_screw_centres_mm) + 1)
+    unit: nr
+    description: 'Screws per board: stud lines x fixings per stud line.'
+  partition_joint_m:
+    formula: partition_boards * board_joint_m_per_board
+    unit: m
+    description: Board joint length to tape and fill.
+  adhesive_kg_per_m2:
+    formula: adhesive_kg_per_m2_per_mm * adhesive_notch_mm * adhesive_bed_to_notch_ratio
+    unit: kg/m2
+    description: Adhesive consumption.
+  grout_kg_per_m2:
+    formula: grout_formula_constant * grout_joint_mm * tile_thickness_mm * (tile_length_cm + tile_width_cm)
+      / (tile_length_cm * tile_width_cm)
+    unit: kg/m2
+    description: Grout consumption from the joint formula.
+  sealant_m_per_cartridge:
+    formula: sealant_cartridge_ml / (sealant_joint_width_mm * sealant_joint_depth_mm)
+    unit: m
+    description: Bead length per cartridge (ml / mm2 gives metres).
+  paint_litres:
+    formula: (paint_wall_m2 + paint_ceiling_m2) * (emulsion_finish_coats + emulsion_mist_coats) / emulsion_coverage_m2_per_l
+    unit: l
+    description: Emulsion litres (area x coats / spreading rate).
+  backer_boards:
+    formula: ceil(backer_board_m2 / backer_board_area_m2)
+    unit: nr
+    description: Tile backer boards.
+groups:
+- id: strip_out
+  label: Strip-out
+  lines:
+  - id: so_cap_feeds
+    description: Temporary caps for hot and cold feeds after the old fittings come out
+    spec: 15 mm stop ends to suit the joint system
+    unit: nr
+    quantity: '4'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: 'Walsall strip-out item: isolate, disconnect, remove fittings and cart away. One cap
+        per disconnected feed (count assumed).'
+    - source_title: Toolstation plumbing category tree
+      url: https://www.toolstation.com/plumbing/c3
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: so_protection
+    description: Dust sheets and floor protection for an occupied home
+    spec: Dust sheets and self-adhesive floor protection film
+    unit: pack
+    quantity: '1'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: Walsall occupied-property protection clause; material is assumed.
+  - id: so_remove_fittings
+    description: Disconnect and remove the existing bath or tray, basin, WC, radiator and fittings
+    spec: Labour item; removed fittings go to waste
+    unit: item
+    quantity: '1'
+    kind: service
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: 'A Decent Home: definition and guidance (DCLG, June 2006)'
+      url: https://assets.publishing.service.gov.uk/media/5a7968b740f0b63d72fc5926/138355.pdf
+      licence: OGL-3.0
+      evidence_quality: public_spec
+- id: new_wall
+  label: New stud partition
+  when: layout_change
+  lines:
+  - id: nw_studs
+    description: Timber studs for the new partition
+    spec: Studwork timber 38 x 63 mm or 38 x 89 mm, cut to partition height
+    unit: nr
+    quantity: partition_studs
+    uniclass_pr:
+      code: Pr_20_76_88
+      title: Timber sections
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: nw_plates
+    description: Head and sole plates
+    spec: Timber to match studs, head and sole plates
+    unit: m
+    quantity: 2 * partition_length_m
+    uniclass_pr:
+      code: Pr_20_76_88
+      title: Timber sections
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: Head plus sole plate = 2 x partition length.
+  - id: nw_noggins
+    description: Noggins between studs
+    spec: Timber to match studs, one run per noggin row
+    unit: m
+    quantity: partition_length_m * noggin_rows
+    uniclass_pr:
+      code: Pr_20_76_88
+      title: Timber sections
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: One noggin row along the partition length.
+  - id: nw_timber_screws
+    description: Screws to fix the stud frame
+    spec: Timber screws 75-100 mm
+    unit: nr
+    quantity: partition_studs * timber_screws_per_stud
+    uniclass_pr:
+      code: Pr_20_29_76_98
+      title: Wood screws
+      version: Pr v1.43 (July 2026)
+    etim_class:
+      code: EC002385
+      title: Wood/timber screw
+      version: ETIM 10.1
+    provenance:
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: nw_board
+    description: Moisture-resistant plasterboard for the partition
+    spec: Moisture-resistant gypsum plasterboard 12.5 mm, 2400 x 1200
+    unit: nr
+    quantity: partition_boards
+    uniclass_pr:
+      code: Pr_25_71_35_52
+      title: Moisture-resistant gypsum plasterboards
+      version: Pr v1.43 (July 2026)
+    etim_class:
+      code: EC003143
+      title: Gypsum board
+      version: ETIM 10.1
+    provenance:
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: 'British Gypsum FAQ: screw fixing centres (search snippet; page 403 when fetched)'
+      url: https://www.british-gypsum.com/technical-support/self-help-tools/faqs/what-are-screw-fixing-centres-partitions-ceilings-encasements
+      licence: manufacturer-doc-facts-only
+      evidence_quality: search_snippet
+  - id: nw_board_screws
+    description: Plasterboard screws
+    spec: Drywall screws 25-38 mm for timber studs
+    unit: nr
+    quantity: partition_boards * screws_per_board
+    uniclass_pr:
+      code: Pr_20_29_76_65
+      title: Plasterboard screws
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: 'British Gypsum FAQ: screw fixing centres (search snippet; page 403 when fetched)'
+      url: https://www.british-gypsum.com/technical-support/self-help-tools/faqs/what-are-screw-fixing-centres-partitions-ceilings-encasements
+      licence: manufacturer-doc-facts-only
+      evidence_quality: search_snippet
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: nw_insulation
+    description: Acoustic insulation between studs
+    spec: Mineral wool partition roll to suit stud depth
+    unit: m
+    quantity: ceil(partition_length_m)
+    provenance:
+    - source_title: 'Screwfix guide: how to build a stud wall'
+      url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: nw_joint_tape
+    description: Joint tape for board joints
+    spec: Paper joint tape about 50 mm wide
+    unit: m
+    quantity: partition_joint_m
+    provenance:
+    - source_title: Gyproc joint tape product data sheet
+      url: https://www.okarno.com/documents/product-datasheet/british-gypsum-pds-gyproc-joint-tape.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: nw_jointing_compound
+    description: Jointing compound for taped joints
+    spec: Ready-mixed or powder jointing compound for hand application
+    unit: kg
+    quantity: ceil(partition_joint_m * jointing_compound_kg_per_m)
+    etim_class:
+      code: EC002722
+      title: Jointing compound
+      version: ETIM 10.1
+    provenance:
+    - source_title: 'British Gypsum White Book: jointing (search snippet)'
+      url: https://www.british-gypsum.com/documents/white-book/british-gypsum-wb-jointing-1.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: search_snippet
+- id: drainage
+  label: Wet-room floor and drainage
+  lines:
+  - id: dr_former
+    description: Wet-room floor former laid to falls with gully outlet
+    spec: Pre-formed wet-room floor former with integral gully outlet, falls to the gully as the former
+      maker specifies; shower area at least {level_shower_area_min_mm} mm square, {level_shower_area_preferred_mm}
+      mm preferred
+    unit: nr
+    quantity: '1'
+    uniclass_pr:
+      code: Pr_40_20_60_96
+      title: Wet room floor formers
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+      url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: dr_gully_trap
+    description: Floor gully trap connected to the drainage
+    spec: Gully trap and outlet to suit the former
+    unit: nr
+    quantity: '1'
+    provenance:
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+  - id: dr_waste_pipe
+    description: Waste pipe from the gully
+    spec: Waste pipe and fittings to suit the gully outlet size
+    unit: m
+    quantity: waste_gully_m
+    provenance:
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+    - source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+      url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: dr_timber_support
+    description: Support for the former in a timber floor
+    spec: Joist noggins and exterior-grade plywood deck to carry the former
+    unit: item
+    quantity: '1'
+    when: floor_construction == 'timber'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: Walsall requires floor levels corrected so water does not run out of the shower area;
+        timber-floor details are not in the notes and need tradesperson input.
+  - id: dr_screed
+    description: Screed or recess for the former in a concrete floor
+    spec: Sand-cement screed or levelling compound to set the former level
+    unit: item
+    quantity: '1'
+    when: floor_construction == 'concrete'
+    provenance:
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: derived
+      derived_from: ADM's 'potential level access shower' mentions removing screed or solid flooring;
+        method and quantity need tradesperson input.
+  - id: dr_pump
+    description: Pumped shower waste where the falls are not enough
+    spec: Pumped gully or shower waste pump sized for the shower flow
+    unit: nr
+    quantity: '1'
+    when: drainage == 'pumped'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+      url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: dr_pump_supply
+    description: Electrical supply for the waste pump
+    spec: Fused connection for the pump, outside the shower zone
+    unit: nr
+    quantity: '1'
+    when: drainage == 'pumped'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: Walsall option 8a adds a pumped waste; its electrical supply is assumed.
+- id: first_fix_plumbing
+  label: First-fix plumbing
+  lines:
+  - id: ff_pipe_15
+    description: Hot and cold supply pipe
+    spec: 15 mm copper or plastic supply pipe
+    unit: m
+    quantity: pipe_15mm_m
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)
+      url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: ff_pipe_clips
+    description: Pipe clips for new runs
+    spec: 15 mm pipe clips
+    unit: pack
+    quantity: '1'
+    provenance:
+    - source_title: Toolstation plumbing category tree
+      url: https://www.toolstation.com/plumbing/c3
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: ff_fittings_compression
+    description: Compression fittings allowance (elbows, tees, couplers)
+    spec: 15 mm compression fittings with olives
+    unit: pack
+    quantity: '1'
+    when: joint_system == 'compression'
+    provenance:
+    - source_title: Toolstation plumbing category tree
+      url: https://www.toolstation.com/plumbing/c3
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: ff_fittings_push_fit
+    description: Push-fit fittings allowance (elbows, tees, couplers)
+    spec: 15 mm push-fit fittings, with pipe inserts where the pipe maker requires them
+    unit: pack
+    quantity: '1'
+    when: joint_system == 'push_fit'
+    provenance:
+    - source_title: Toolstation plumbing category tree
+      url: https://www.toolstation.com/plumbing/c3
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: ff_fittings_solder
+    description: Solder-ring fittings allowance (elbows, tees, couplers)
+    spec: 15 mm solder-ring fittings
+    unit: pack
+    quantity: '1'
+    when: joint_system == 'solder'
+    provenance:
+    - source_title: Toolstation plumbing category tree
+      url: https://www.toolstation.com/plumbing/c3
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: ff_flux
+    description: Flux for soldered joints
+    spec: Plumbing flux suited to potable water
+    unit: item
+    quantity: '1'
+    when: joint_system == 'solder'
+    uniclass_pr:
+      code: Pr_65_52_62_32
+      title: Flux
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Toolstation plumbing category tree
+      url: https://www.toolstation.com/plumbing/c3
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: Solder-ring fittings need flux; Uniclass lists flux as a pipe jointing consumable
+        (Pr_65_52_62_32).
+  - id: ff_iv_basin
+    description: Isolating valves on the basin feed(s)
+    spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+    unit: nr
+    quantity: '2'
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Bristan Melba tap fitting instructions
+      url: https://www.bristan.com/product-files/576949/fitting-instructions.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: ff_iv_wc
+    description: Isolating valves on the WC cistern feed(s)
+    spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+    unit: nr
+    quantity: '1'
+    when: wc_type == 'close_coupled'
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: ff_iv_shower_mixer
+    description: Isolating valves on the shower mixer feed(s)
+    spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+    unit: nr
+    quantity: '2'
+    when: shower_type == 'mixer'
+    provenance:
+    - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+      url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)
+      url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: ff_iv_shower_electric
+    description: Isolating valves on the electric shower feed(s)
+    spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+    unit: nr
+    quantity: '1'
+    when: shower_type == 'electric'
+    provenance:
+    - source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: derived
+      derived_from: 'Notes inference from the electric shower rule: 15 mm mains cold feed plus an isolating
+        valve.'
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: ff_waste_32
+    description: Basin waste pipe
+    spec: 32 mm waste pipe and fittings
+    unit: m
+    quantity: waste_32mm_m
+    uniclass_pr:
+      code: Pr_65_52_03_66
+      title: Polypropylene (PP) above-ground wastewater pipes and fittings
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+      url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: ff_waste_fittings
+    description: Waste fittings allowance (bends, couplers, clips)
+    spec: Waste fittings to match the waste pipe system
+    unit: pack
+    quantity: '1'
+    provenance:
+    - source_title: Toolstation plumbing category tree
+      url: https://www.toolstation.com/plumbing/c3
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+- id: electrics
+  label: Electrics
+  lines:
+  - id: el_light
+    description: Bathroom ceiling light
+    spec: Sealed ceiling luminaire rated for the bathroom zone (dust and splash proof), LED
+    unit: nr
+    quantity: '1'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: el_fan_isolator
+    description: Isolator for the extractor fan
+    spec: Local isolator switching all poles, contact gap at least {isolator_contact_gap_mm} mm (fused
+      where the fan maker requires)
+    unit: nr
+    quantity: '1'
+    provenance:
+    - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+      url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: el_fan_cable
+    description: Cable for the fan circuit
+    spec: Cable to suit the fan wiring (permanent and switched live for overrun models)
+    unit: m
+    quantity: fan_cable_run_m
+    provenance:
+    - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+      url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: derived
+      derived_from: Timer overrun fans take a permanent and a switched supply; cable type is the electrician's
+        choice.
+  - id: el_shower_isolator
+    description: Shower isolating switch
+    spec: '{electric_shower_isolator_a} A double-pole isolating switch, contact gap at least {isolator_contact_gap_mm}
+      mm in both poles, mechanical OFF indicator, wired without plug or socket (pull-cord with neon is
+      common)'
+    unit: nr
+    quantity: '1'
+    when: shower_type == 'electric'
+    provenance:
+    - source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Triton Omnicare installation and operating instructions 2181515H
+      url: https://www.independent4life.co.uk/media/mageworx/downloads/attachment/file/2/5/25327%20triton%20omnicare%20installation%20and%20operating%20instructions%202181515h.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: el_shower_rcbo
+    description: Shower circuit protective device
+    spec: '{electric_shower_rcd_ma} mA RCD protection with an MCB rated per the lookup row (an RCBO does
+      both)'
+    unit: nr
+    quantity: '1'
+    when: shower_type == 'electric'
+    spec_lookup:
+      table: electric_shower_circuit
+      key: shower_kw
+    provenance:
+    - source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Triton Omnicare installation and operating instructions 2181515H
+      url: https://www.independent4life.co.uk/media/mageworx/downloads/attachment/file/2/5/25327%20triton%20omnicare%20installation%20and%20operating%20instructions%202181515h.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: el_shower_cable
+    description: Shower circuit cable
+    spec: Twin and earth sized per the lookup row for the installation method; not below {electric_shower_cable_min_mm2}
+      mm2
+    unit: m
+    quantity: shower_cable_run_m
+    when: shower_type == 'electric'
+    spec_lookup:
+      table: electric_shower_circuit
+      key: shower_kw
+    provenance:
+    - source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: el_part_p_notification
+    description: Notification and certificate for the new shower circuit
+    spec: Electrical Installation Certificate and building control notification (new circuit in a special
+      location), by a registered electrician
+    unit: item
+    quantity: '1'
+    when: shower_type == 'electric'
+    kind: service
+    provenance:
+    - source_title: Approved Document P 2013 (electrical safety, dwellings)
+      url: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/441872/BR_PDF_AD_P_2013.pdf
+      licence: OGL-3.0-unconfirmed
+      evidence_quality: standard
+    - source_title: 'City of York Council: rewiring council homes'
+      url: https://www.york.gov.uk/council-homes/rewiring-council-homes
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+- id: waterproofing
+  label: Tanking and tile backer
+  lines:
+  - id: wp_backer_board
+    description: Tile backer board on wet walls
+    spec: Cement or insulated tile backer board, 1200 x 800
+    unit: nr
+    quantity: backer_boards
+    uniclass_pr:
+      code: Pr_25_71_11
+      title: Cement boards and sheets
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: 'Wickes how-to guide: tiling a wall'
+      url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+    - source_title: TilersForums thread quoting Hardiebacker fixing guidance
+      url: https://www.tilersforums.com/threads/hardie-backer-board-info.48531
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
+  - id: wp_backer_screws
+    description: Backer board screws and washers
+    spec: Corrosion-resistant screws with board washers
+    unit: nr
+    quantity: backer_boards * backer_screws_per_board
+    provenance:
+    - source_title: TilersForums thread quoting Hardiebacker fixing guidance
+      url: https://www.tilersforums.com/threads/hardie-backer-board-info.48531
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
+    - source_title: TilersForums thread quoting Marmox fixing guidance
+      url: https://tilersforums.com/threads/marmox-information.48611
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
+  - id: wp_backer_joint_tape
+    description: Joint tape for backer board
+    spec: Alkali-resistant glass-fibre mesh tape
+    unit: roll
+    quantity: '1'
+    provenance:
+    - source_title: TilersForums thread quoting Marmox fixing guidance
+      url: https://tilersforums.com/threads/marmox-information.48611
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
+  - id: wp_tanking_kit
+    description: Liquid tanking kit for shower walls (and floor in a wet room)
+    spec: Liquid waterproofing membrane kit with primer and reinforcing tape, tested to BS EN 14891
+    unit: kit
+    quantity: ceil(tanked_m2 / tanking_kit_coverage_m2)
+    provenance:
+    - source_title: Shower waterproofing kit listing (Toolstation; Mapei kit contents and coverage)
+      url: https://www.toolstation.com/mapei-shower-waterproofing-kit/p71005
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Camden Council DFG schedule of works (search snippet only)
+      url: https://camdocs.camden.gov.uk/CMWebDrawer/Record/10781649/file/document
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+- id: tiling
+  label: Tiling
+  lines:
+  - id: tl_wall_tiles
+    description: Wall tiles
+    spec: Ceramic or porcelain wall tiles, size per tile inputs
+    unit: m2
+    quantity: wall_tiled_m2 * (1 + tile_waste_factor)
+    uniclass_pr:
+      code: Pr_35_93_96_19
+      title: Ceramic tiles
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: 'Wickes how-to guide: tiling a wall'
+      url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: tl_wall_adhesive
+    description: Wall tile adhesive
+    spec: Cementitious tile adhesive for walls
+    unit: kg
+    quantity: ceil(wall_tiled_m2 * adhesive_kg_per_m2)
+    uniclass_pr:
+      code: Pr_20_31_02_89
+      title: Tile adhesives
+      version: Pr v1.43 (July 2026)
+    etim_class:
+      code: EC011707
+      title: Tile adhesive
+      version: ETIM 10.1
+    provenance:
+    - source_title: Mapei Keraflex Maxi S1 listing quoting the TDS consumption (retailer, secondary)
+      url: https://www.skroutz.gr/s/12196759/Mapei-Keraflex-Maxi-S1-Klebstoff-Kacheln-23kg.html
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: 'Wickes how-to guide: tiling a wall'
+      url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+  - id: tl_wall_grout
+    description: Wall grout
+    spec: Water-resistant cementitious grout
+    unit: kg
+    quantity: ceil(wall_tiled_m2 * grout_kg_per_m2)
+    uniclass_pr:
+      code: Pr_20_31_53_16
+      title: Cementitious tiling grouts
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: 'TilersForums: grout calculation formula attributed to the Weber TDS'
+      url: https://tilersforums.com/threads/how-to-calculate-your-grout-requirements.39223
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
+    - source_title: Weber weberjoint technical data sheet
+      url: https://www.middleeast.weber/files/sodamco/2025-11/TDS_weberjoint-weberjoint_thick.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: tl_spacers
+    description: Tile spacers
+    spec: Tile spacers to suit the grout joint
+    unit: pack
+    quantity: '1'
+    uniclass_pr:
+      code: Pr_35_93_96_92
+      title: Tile spacers
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: 'Wickes how-to guide: tiling a wall'
+      url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+  - id: tl_trim
+    description: Tile trim for exposed edges
+    spec: Plastic or metal tile trim to suit tile thickness
+    unit: m
+    quantity: tile_trim_m
+    uniclass_pr:
+      code: Pr_35_93_96_12
+      title: Ceramic tile angle beads
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Broadland Housing Association affordable housing specification, March 2023
+      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: tl_wall_primer
+    description: Primer for the tiled wall substrate
+    spec: Tile primer suited to the substrate
+    unit: l
+    quantity: ceil(wall_tiled_m2 / primer_coverage_m2_per_l)
+    provenance:
+    - source_title: 'Wickes how-to guide: tiling a wall'
+      url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+    - source_title: Ardex Multiprime datasheet (New Zealand edition)
+      url: https://ardex.co.nz/products/Tiling/Multiprime/Multiprime%20Datasheet%2012.10.20.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: tl_floor_tiles
+    description: Floor tiles
+    spec: Slip-resistant floor tiles suited to a wet-room floor laid to falls; slip rating set by the
+      specifier
+    unit: m2
+    quantity: floor_m2 * (1 + tile_waste_factor)
+    when: floor_finish == 'tiled'
+    uniclass_pr:
+      code: Pr_35_93_96_63
+      title: Porcelain tiles
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: 'Wickes how-to guide: tiling a wall'
+      url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+    - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+      url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: tl_floor_adhesive
+    description: Floor tile adhesive
+    spec: Cementitious floor tile adhesive
+    unit: kg
+    quantity: ceil(floor_m2 * adhesive_kg_per_m2)
+    when: floor_finish == 'tiled'
+    uniclass_pr:
+      code: Pr_20_31_02_89
+      title: Tile adhesives
+      version: Pr v1.43 (July 2026)
+    etim_class:
+      code: EC011707
+      title: Tile adhesive
+      version: ETIM 10.1
+    provenance:
+    - source_title: Mapei Keraflex Maxi S1 listing quoting the TDS consumption (retailer, secondary)
+      url: https://www.skroutz.gr/s/12196759/Mapei-Keraflex-Maxi-S1-Klebstoff-Kacheln-23kg.html
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: tl_floor_grout
+    description: Floor grout
+    spec: Cementitious floor grout
+    unit: kg
+    quantity: ceil(floor_m2 * grout_kg_per_m2)
+    when: floor_finish == 'tiled'
+    uniclass_pr:
+      code: Pr_20_31_53_16
+      title: Cementitious tiling grouts
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: 'TilersForums: grout calculation formula attributed to the Weber TDS'
+      url: https://tilersforums.com/threads/how-to-calculate-your-grout-requirements.39223
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
+    - source_title: Weber weberjoint technical data sheet
+      url: https://www.middleeast.weber/files/sodamco/2025-11/TDS_weberjoint-weberjoint_thick.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+- id: flooring
+  label: Slip-resistant floor finish
+  lines:
+  - id: fl_overlay
+    description: Floor overlay board where the existing floor is not sound or flat
+    spec: 18 mm tongue-and-groove moisture-resistant chipboard or marine plywood
+    unit: m2
+    quantity: floor_m2
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: fl_levelling
+    description: Levelling compound
+    spec: Latex or cement-based smoothing and levelling compound
+    unit: pack
+    quantity: '1'
+    uniclass_pr:
+      code: Pr_35_31_06_80
+      title: Smoothing and levelling underlay compounds
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: fl_safety_vinyl
+    description: Slip-resistant safety vinyl sheet
+    spec: Safety vinyl sheet {safety_vinyl_thickness_mm} mm, slip-resistant (R10 or better), laid by a
+      specialist to BS 8203 with welded seams, sealed to sanitaryware
+    unit: m2
+    quantity: floor_m2
+    when: floor_finish == 'sheet_vinyl'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Broadland Housing Association affordable housing specification, March 2023
+      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: fl_weld_rod
+    description: Weld rod for vinyl seams
+    spec: Colour-matched weld rod
+    unit: item
+    quantity: '1'
+    when: floor_finish == 'sheet_vinyl'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: Walsall and the Welsh spec require welded seams; weld rod is the assumed consumable.
+  - id: fl_vinyl_trim
+    description: Trim or coved edge for the vinyl
+    spec: PVC capping trim or coved skirting to seal the vinyl edge
+    unit: m
+    quantity: floor_perimeter_m
+    when: floor_finish == 'sheet_vinyl'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+- id: adaptations
+  label: Accessibility adaptations
+  lines:
+  - id: ad_wall_reinforcement
+    description: Wall reinforcement behind rails and seat
+    spec: Plywood pattress or noggins so walls carry {wall_reinforcement_kn_m2} kN/m2
+    unit: item
+    quantity: '1'
+    provenance:
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+  - id: ad_grab_rails
+    description: Grab rails at the shower and WC
+    spec: Fluted grab rails {grab_rail_diameter_mm} mm diameter x {grab_rail_length_mm} mm, colour-contrasting
+      with the wall; positions agreed with the resident
+    unit: nr
+    quantity: '2'
+    uniclass_pr:
+      code: Pr_40_20_76_84
+      title: Support rails
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+      url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Nottinghamshire County Council level access shower factsheet
+      url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: ad_shower_seat
+    description: Wall-mounted fold-down shower seat
+    spec: Fold-down shower seat for wall fixing
+    unit: nr
+    quantity: '1'
+    when: shower_seat
+    provenance:
+    - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+      url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Nottinghamshire County Council level access shower factsheet
+      url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: ad_curtain_rail
+    description: Shower curtain and rail
+    spec: L- or U-shaped shower rail with full-length curtain (curtain preferred over screens)
+    unit: nr
+    quantity: '1'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+      url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Nottinghamshire County Council level access shower factsheet
+      url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: ad_blending_valve
+    description: Blending valve on the basin hot feed
+    spec: Thermostatic blending valve limiting the basin hot outlet to {basin_blend_max_c} degC
+    unit: nr
+    quantity: '1'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: TMV3 shower kit listing citing BS EN 1111 / BS EN 1287 (Independent4Life retailer)
+      url: https://independent4life.co.uk/triton-elina-exposed-concentric-tmv3-mixer-shower-with-grab-riser-kit
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+- id: heating
+  label: Heating
+  when: replace_radiator
+  lines:
+  - id: ht_lst_radiator
+    description: Low surface temperature radiator
+    spec: Low surface temperature radiator sized for the room
+    unit: nr
+    quantity: '1'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: ht_trv
+    description: Radiator valves
+    spec: Thermostatic radiator valve kit
+    unit: nr
+    quantity: '1'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: ht_inhibitor
+    description: Central heating inhibitor after drain-down
+    spec: Chemical inhibitor for the heating system
+    unit: item
+    quantity: '1'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+- id: sanitaryware
+  label: Sanitaryware
+  lines:
+  - id: sw_wc_pan_close_coupled
+    description: Close-coupled WC pan
+    spec: Floor-standing close-coupled WC pan, horizontal outlet, with floor fixing kit; pan height at
+      least {accessible_wc_pan_min_height_mm} mm where M4(3) applies; avoid a side outlet so a wheeled
+      commode fits
+    unit: nr
+    quantity: '1'
+    when: wc_type == 'close_coupled'
+    uniclass_pr:
+      code: Pr_40_20_93_94
+      title: WC pans
+      version: Pr v1.43 (July 2026)
+    etim_class:
+      code: EC011289
+      title: Toilet bowl/pan
+      version: ETIM 10.1
+    provenance:
+    - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+      url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+    - source_title: Nottinghamshire County Council level access shower factsheet
+      url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: sw_wc_cistern
+    description: Close-coupled cistern
+    spec: Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings
+    unit: nr
+    quantity: '1'
+    when: wc_type == 'close_coupled'
+    uniclass_pr:
+      code: Pr_40_20_93_89
+      title: WC cisterns
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+      url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: sw_wc_flush_lever
+    description: Flush lever or button if not supplied with the cistern
+    spec: Flush actuator to suit the cistern; on the front of the cistern on the transfer side (M4(3))
+    unit: nr
+    quantity: '1'
+    when: wc_type == 'close_coupled'
+    uniclass_pr:
+      code: Pr_40_20_93_87
+      title: WC cistern fittings
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+      url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+  - id: sw_wc_pan_connector
+    description: WC pan connector to the 110 mm soil
+    spec: Pan connector, 110 mm, type to suit the soil outlet (P, S or offset); rigid where alignment
+      allows
+    unit: nr
+    quantity: '1'
+    when: wc_type == 'close_coupled'
+    uniclass_pr:
+      code: Pr_40_20_93_93
+      title: WC pan connectors
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+      url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: 'Wickes how-to guide: installing a toilet'
+      url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: sw_wc_frame
+    description: Concealed WC frame with cistern
+    spec: Wall-hung WC frame with concealed cistern, 90 mm outlet bend and 90/110 mm adaptor, pan fixing
+      rods and fixings
+    unit: nr
+    quantity: '1'
+    when: wc_type == 'wall_hung'
+    example_note: e.g. frames sold as frame only or as a 3-in-1 set with plate
+    uniclass_pr:
+      code: Pr_40_20_93_62
+      title: Pre-plumbed installation frames
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet;
+        page 404 when fetched)
+      url: https://catalog.geberit.co.uk/en-GB/product/PRO_100926
+      licence: manufacturer-doc-facts-only
+      evidence_quality: search_snippet
+    - source_title: Grohe Rapid SL 3-in-1 set 3886020A component list (QS Supplies retailer page)
+      url: https://qssupplies.co.uk/bathroom-furniture-shower-taps/321819.htm
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: sw_wc_flush_plate
+    description: Flush plate for the concealed cistern
+    spec: Flush plate from the same maker and series as the concealed cistern; on the front of the cistern
+      on the transfer side (M4(3))
+    unit: nr
+    quantity: '1'
+    when: wc_type == 'wall_hung'
+    provenance:
+    - source_title: Grohe Rapid SL 3-in-1 set 3886020A component list (QS Supplies retailer page)
+      url: https://qssupplies.co.uk/bathroom-furniture-shower-taps/321819.htm
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet;
+        page 404 when fetched)
+      url: https://catalog.geberit.co.uk/en-GB/product/PRO_100926
+      licence: manufacturer-doc-facts-only
+      evidence_quality: derived
+      derived_from: Plate is not in the frame's scope list; the note infers it is a separate purchase.
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+  - id: sw_wc_pan_wall_hung
+    description: Wall-hung WC pan
+    spec: Wall-hung WC pan to suit the frame fixing centres; pan height at least {accessible_wc_pan_min_height_mm}
+      mm where M4(3) applies; avoid a side outlet so a wheeled commode fits
+    unit: nr
+    quantity: '1'
+    when: wc_type == 'wall_hung'
+    uniclass_pr:
+      code: Pr_40_20_93_94
+      title: WC pans
+      version: Pr v1.43 (July 2026)
+    etim_class:
+      code: EC011289
+      title: Toilet bowl/pan
+      version: ETIM 10.1
+    provenance:
+    - source_title: Grohe Rapid SL 3-in-1 set 3886020A component list (QS Supplies retailer page)
+      url: https://qssupplies.co.uk/bathroom-furniture-shower-taps/321819.htm
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet;
+        page 404 when fetched)
+      url: https://catalog.geberit.co.uk/en-GB/product/PRO_100926
+      licence: manufacturer-doc-facts-only
+      evidence_quality: search_snippet
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+    - source_title: Nottinghamshire County Council level access shower factsheet
+      url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: sw_wc_seat
+    description: WC seat and cover
+    spec: WC seat and cover to suit the pan
+    unit: nr
+    quantity: '1'
+    uniclass_pr:
+      code: Pr_40_20_93_95
+      title: WC seats and covers
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+      url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: sw_wc_frame_boxing
+    description: Boxing-in to enclose the WC frame
+    spec: Timber or metal framing and moisture-resistant board to enclose the frame
+    unit: pack
+    quantity: '1'
+    when: wc_type == 'wall_hung'
+    provenance:
+    - source_title: Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet;
+        page 404 when fetched)
+      url: https://catalog.geberit.co.uk/en-GB/product/PRO_100926
+      licence: manufacturer-doc-facts-only
+      evidence_quality: derived
+      derived_from: Notes list 'a stud partition or boxing-in kit' as an optional item with wall-hung
+        frames (manufacturer_dependencies.md).
+  - id: sw_basin_wall_hung
+    description: Wall-hung washbasin with brackets
+    spec: Wall-hung ceramic washbasin with concealed brackets or fixing clamps, rim {accessible_basin_rim_min_mm}-{accessible_basin_rim_max_mm}
+      mm above floor where M4(3) applies
+    unit: nr
+    quantity: '1'
+    uniclass_pr:
+      code: Pr_40_20_96_96
+      title: Wall-hung washbasins
+      version: Pr v1.43 (July 2026)
+    etim_class:
+      code: EC011550
+      title: Washbasin
+      version: ETIM 10.1
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
+  - id: sw_basin_taps
+    description: Basin taps or basin mixer
+    spec: Lever-handled basin taps or mixer for limited grip
+    unit: nr
+    quantity: '1'
+    uniclass_pr:
+      code: Pr_40_20_87_98
+      title: Washbasin taps
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Nottinghamshire County Council level access shower factsheet
+      url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: sw_basin_waste
+    description: Basin waste with plug
+    spec: Basin waste, slotted if the basin has an overflow, unslotted otherwise
+    unit: nr
+    quantity: '1'
+    provenance:
+    - source_title: McAlpine unslotted pop-up basin waste with bottle trap (Screwfix listing)
+      url: https://www.screwfix.com/p/mcalpine-unslotted-pop-up-all-in-one-basin-waste-with-bottle-trap-white-32mm/229cl
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: sw_basin_trap
+    description: Basin trap
+    spec: Trap {basin_trap_mm} mm with {basin_trap_seal_mm} mm seal, bottle or tubular
+    unit: nr
+    quantity: '1'
+    uniclass_pr:
+      code: Pr_65_52_25_98
+      title: Waste traps
+      version: Pr v1.43 (July 2026)
+    etim_class:
+      code: EC010195
+      title: P-, S-, bottle siphon
+      version: ETIM 10.1
+    provenance:
+    - source_title: McAlpine A10 bottle trap 32 mm x 75 mm (Travis Perkins listing)
+      url: https://www.travisperkins.co.uk/mcalpine-a10-seal-bottle-trap-32mm-x-75mm/p/960845
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+      url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: sw_tap_connectors
+    description: Flexible tap connectors
+    spec: 15 mm x 1/2 inch flexible tap connectors (if the taps have no tails)
+    unit: nr
+    quantity: '2'
+    provenance:
+    - source_title: Toolstation plumbing category tree
+      url: https://www.toolstation.com/plumbing/c3
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Bristan Melba tap fitting instructions
+      url: https://www.bristan.com/product-files/576949/fitting-instructions.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+- id: shower
+  label: Shower
+  lines:
+  - id: sh_electric_unit
+    description: Electric shower unit with head and hose
+    spec: Electric shower, rating per the shower_kw answer, mains cold feed only, 15 mm inlet; controls
+      at about {shower_control_height_mm} mm, riser reaching low for seated use
+    unit: nr
+    quantity: '1'
+    when: shower_type == 'electric'
+    example_note: Head and hose are supplied with the units cited
+    provenance:
+    - source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Triton Omnicare installation and operating instructions 2181515H
+      url: https://www.independent4life.co.uk/media/mageworx/downloads/attachment/file/2/5/25327%20triton%20omnicare%20installation%20and%20operating%20instructions%202181515h.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: sh_mixer_valve
+    description: Thermostatic bar mixer valve
+    spec: Thermostatic bar valve, {shower_valve_inlet_centres_mm} mm inlet centres with offset connectors,
+      rated for the household water system pressure; controls at about {shower_control_height_mm} mm,
+      riser reaching low for seated use
+    unit: nr
+    quantity: '1'
+    when: shower_type == 'mixer'
+    uniclass_pr:
+      code: Pr_40_20_87_80
+      title: Shower thermostatic valves
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+      url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Mira Discovery bar mixer installation guide
+      url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Broadland Housing Association affordable housing specification, March 2023
+      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: sh_riser_kit
+    description: Riser rail, hose and handset (if not bundled with the valve)
+    spec: Riser rail kit with hose and handset
+    unit: nr
+    quantity: '1'
+    when: shower_type == 'mixer'
+    uniclass_pr:
+      code: Pr_40_20_87_76
+      title: Shower heads
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)
+      url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+      url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+- id: ventilation
+  label: Ventilation
+  lines:
+  - id: vn_fan
+    description: Extractor fan with run-on timer
+    spec: Extract fan rated at least {bathroom_extract_l_s} l/s, run-on at least {extract_overrun_min}
+      min where there is no openable window; humidistat control optional; low-voltage (SELV) model if
+      inside a bathroom zone
+    unit: nr
+    quantity: '1'
+    provenance:
+    - source_title: Approved Document F Vol 1, 2021 edition (ventilation), Table 1.1
+      url: https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf
+      licence: OGL-3.0-unconfirmed
+      evidence_quality: standard
+    - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+      url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Canterbury City Council Void Lettable Standard v1.0 (2026)
+      url: https://www.canterbury.gov.uk/sites/default/files/2026-06/Void%20Lettable%20Standard%20policy.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: vn_duct
+    description: Extract duct
+    spec: '{extract_duct_diameter_mm} mm duct, rigid or flexible'
+    unit: m
+    quantity: fan_duct_run_m
+    provenance:
+    - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+      url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: vn_wall_or_roof_terminal
+    description: External terminal for the duct
+    spec: Through-wall kit or roof terminal with external grille to suit the duct
+    unit: nr
+    quantity: '1'
+    provenance:
+    - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+      url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: vn_condensation_trap
+    description: Condensation trap for the duct
+    spec: In-line condensation trap to suit the duct
+    unit: nr
+    quantity: '1'
+    provenance:
+    - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+      url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: vn_duct_fixings
+    description: Duct clips and tape
+    spec: Duct clips and foil duct tape
+    unit: pack
+    quantity: '1'
+    provenance:
+    - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+      url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: derived
+      derived_from: Fixing the duct run is implied by the ducting requirement.
+  - id: vn_humidistat_control
+    description: Humidistat control with pull-cord override
+    spec: Remote humidistat outside the shower area with pull-cord override
+    unit: nr
+    quantity: '1'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Canterbury City Council Void Lettable Standard v1.0 (2026)
+      url: https://www.canterbury.gov.uk/sites/default/files/2026-06/Void%20Lettable%20Standard%20policy.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+- id: consumables
+  label: Consumables and fixings
+  lines:
+  - id: cs_sanitary_silicone
+    description: Sanitary silicone sealant
+    spec: Bathroom-grade white silicone sealant with fungicide
+    unit: cartridge
+    quantity: ceil(sealant_joint_m / sealant_m_per_cartridge)
+    uniclass_pr:
+      code: Pr_30_31_76_77
+      title: Silicone construction joint sealants
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: 'Truly PVC: estimating silicone cartridge yield'
+      url: https://www.trulypvc.com/blogs/how-to-guides/how-to-estimate-silicone-cartridge-yield
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Ideal Standard i.life Idealform bath fitting instructions
+      url: https://heatandplumb.com/media/ideal-standard/fitting-instructions/file-512508.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: cs_clear_sealant_wc
+    description: Clear sealant at the WC base
+    spec: Clear silicone sealant
+    unit: cartridge
+    quantity: '1'
+    when: wc_type == 'close_coupled'
+    uniclass_pr:
+      code: Pr_30_31_76_77
+      title: Silicone construction joint sealants
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: 'Wickes how-to guide: installing a toilet'
+      url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+  - id: cs_thread_sealant
+    description: Thread sealant for threaded joints
+    spec: PTFE tape
+    unit: roll
+    quantity: '2'
+    uniclass_pr:
+      code: Pr_65_52_62_65
+      title: PTFE joint tapes
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+      url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: 'Wickes how-to guide: installing a toilet'
+      url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+  - id: cs_plumbing_sundries
+    description: Plumbing sundries allowance
+    spec: Small fittings, washers and connectors not listed elsewhere
+    unit: item
+    quantity: '1'
+    provenance:
+    - source_title: Screwfix new bathroom cost guide (2026; plumbing sundries line)
+      url: https://www.screwfix.com/guides/bathrooms-kitchens/bathrooms/new-bathroom-costs-guide
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: cs_wc_packers
+    description: Packers to level the WC pan
+    spec: Plastic packers
+    unit: pack
+    quantity: '1'
+    when: wc_type == 'close_coupled'
+    provenance:
+    - source_title: 'Wickes how-to guide: installing a toilet'
+      url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+  - id: cs_fixings_solid
+    description: Fixings for wall-mounted fittings in solid walls
+    spec: Plastic wall plugs and stainless or zinc-plated screws
+    unit: pack
+    quantity: '1'
+    when: wall_type == 'solid'
+    uniclass_pr:
+      code: Pr_20_29_63_63
+      title: Plastics plugs
+      version: Pr v1.43 (July 2026)
+    etim_class:
+      code: EC000089
+      title: All-purpose plug
+      version: ETIM 10.1
+    provenance:
+    - source_title: Mira Discovery bar mixer installation guide
+      url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Ideal Standard Idealcast bath installation guide (2009)
+      url: https://images.victorianplumbing.co.uk/products/ideal-standard-white-1700-x-800mm-0th-double-ended-idealcast-bath/instructions/is_idealcast_e002301_iguide_en.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: cs_fixings_stud
+    description: Fixings for wall-mounted fittings in stud walls
+    spec: Cavity fixings rated for the fitting load, or screws into noggins
+    unit: pack
+    quantity: '1'
+    when: wall_type == 'stud'
+    etim_class:
+      code: EC000040
+      title: Cavity fixing
+      version: ETIM 10.1
+    provenance:
+    - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+      url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: Mira Discovery bar mixer installation guide
+      url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+- id: decorating
+  label: Decorating
+  lines:
+  - id: dc_emulsion
+    description: Emulsion for walls and ceiling
+    spec: Vinyl matt emulsion with anti-mould additive, white
+    unit: l
+    quantity: ceil(paint_litres)
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Dulux Trade Vinyl Matt product page (spreading rate)
+      url: https://www.duluxtradepaintexpert.co.uk/en/products/dulux-trade-vinyl-matt
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: dc_woodwork_paint
+    description: Undercoat and gloss for woodwork
+    spec: Undercoat and gloss
+    unit: item
+    quantity: '1'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: dc_filler
+    description: Filler for making good
+    spec: Surface filler
+    unit: item
+    quantity: '1'
+    uniclass_pr:
+      code: Pr_35_31_65_82
+      title: Surface fillers
+      version: Pr v1.43 (July 2026)
+    provenance:
+    - source_title: 'City of York Council: rewiring council homes'
+      url: https://www.york.gov.uk/council-homes/rewiring-council-homes
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: dc_sundries
+    description: Decorating sundries
+    spec: Masking tape, abrasive paper, rollers and brushes
+    unit: pack
+    quantity: '1'
+    provenance:
+    - source_title: 'City of York Council: rewiring council homes'
+      url: https://www.york.gov.uk/council-homes/rewiring-council-homes
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+- id: waste
+  label: Waste
+  lines:
+  - id: ws_disposal
+    description: Removal and disposal of strip-out waste
+    spec: Skip, wait-and-load or licensed waste collection, sized on site
+    unit: item
+    quantity: '1'
+    kind: service
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: ws_rubble_sacks
+    description: Heavy-duty rubble sacks
+    spec: Reinforced rubble sacks
+    unit: pack
+    quantity: '1'
+    provenance:
+    - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+      url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: derived
+      derived_from: Walsall 'cart away' item; sacks are an assumed consumable.
+rules:
+- id: wall_hung_wc
+  when: wc_type == 'wall_hung'
+  requires:
+  - sw_wc_frame
+  - sw_wc_flush_plate
+  - sw_wc_pan_wall_hung
+  - sw_wc_seat
+  excludes:
+  - sw_wc_pan_connector
+  - sw_wc_pan_close_coupled
+  - sw_wc_cistern
+  rationale: A wall-hung WC needs a concealed frame, a flush plate and a wall-hung pan. The frames cited
+    ship a 90 mm bend with a 90/110 mm adaptor, so a separate 110 mm pan connector is not added (this
+    differs from the original brief). Plate must match the cistern maker and series; that compatibility
+    is a SKU check, not encoded here.
+  provenance:
+  - source_title: Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet; page
+      404 when fetched)
+    url: https://catalog.geberit.co.uk/en-GB/product/PRO_100926
+    licence: manufacturer-doc-facts-only
+    evidence_quality: search_snippet
+  - source_title: Grohe Rapid SL 3-in-1 set 3886020A component list (QS Supplies retailer page)
+    url: https://qssupplies.co.uk/bathroom-furniture-shower-taps/321819.htm
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: close_coupled_wc
+  when: wc_type == 'close_coupled'
+  requires:
+  - sw_wc_pan_close_coupled
+  - sw_wc_cistern
+  - sw_wc_seat
+  - sw_wc_flush_lever
+  - ff_iv_wc
+  excludes:
+  - sw_wc_frame
+  - sw_wc_flush_plate
+  - sw_wc_pan_wall_hung
+  rationale: A close-coupled suite is bought as pan, cistern, seat and lever, plus a pan connector chosen
+    by the soil outlet and an isolating valve on the cistern feed.
+  provenance:
+  - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+    url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: 'Wickes how-to guide: installing a toilet'
+    url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: basin
+  requires:
+  - sw_basin_waste
+  - sw_basin_trap
+  - sw_basin_taps
+  - ff_iv_basin
+  rationale: A basin needs a waste (slotted or unslotted to match its overflow), a 32 mm trap with a 75
+    mm seal and isolating valves on its feeds.
+  provenance:
+  - source_title: McAlpine unslotted pop-up basin waste with bottle trap (Screwfix listing)
+    url: https://www.screwfix.com/p/mcalpine-unslotted-pop-up-all-in-one-basin-waste-with-bottle-trap-white-32mm/229cl
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: McAlpine A10 bottle trap 32 mm x 75 mm (Travis Perkins listing)
+    url: https://www.travisperkins.co.uk/mcalpine-a10-seal-bottle-trap-32mm-x-75mm/p/960845
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: electric_shower
+  when: shower_type == 'electric'
+  requires:
+  - sh_electric_unit
+  - el_shower_isolator
+  - el_shower_rcbo
+  - el_shower_cable
+  - el_part_p_notification
+  - ff_iv_shower_electric
+  excludes:
+  - sh_mixer_valve
+  - ff_iv_shower_mixer
+  uses_lookup:
+    table: electric_shower_circuit
+    key: shower_kw
+  rationale: 'An electric shower needs a dedicated circuit: 45 A double-pole isolator (3 mm gap), 30 mA
+    RCD protection, an MCB and cable sized from the kW lookup, a mains cold feed with an isolating valve,
+    and notification (new circuit, special location).'
+  provenance:
+  - source_title: Triton T70Z electric shower installation guide
+    url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Triton Omnicare installation and operating instructions 2181515H
+    url: https://www.independent4life.co.uk/media/mageworx/downloads/attachment/file/2/5/25327%20triton%20omnicare%20installation%20and%20operating%20instructions%202181515h.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Approved Document P 2013 (electrical safety, dwellings)
+    url: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/441872/BR_PDF_AD_P_2013.pdf
+    licence: OGL-3.0-unconfirmed
+    evidence_quality: standard
+- id: mixer_shower
+  when: shower_type == 'mixer'
+  requires:
+  - sh_mixer_valve
+  - sh_riser_kit
+  - ff_iv_shower_mixer
+  - cs_thread_sealant
+  excludes:
+  - el_shower_isolator
+  - el_shower_rcbo
+  - el_shower_cable
+  - sh_electric_unit
+  rationale: A bar mixer needs isolating valves close to the valve, thread sealant (not supplied) and
+    a riser kit when not bundled; no shower circuit.
+  provenance:
+  - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+    url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Mira Discovery bar mixer installation guide
+    url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)
+    url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: wet_room_drainage
+  requires:
+  - dr_former
+  - dr_gully_trap
+  - dr_waste_pipe
+  - wp_tanking_kit
+  rationale: An installed level-access shower is step-free with the floor laid to falls towards a gully
+    connected to the drainage, inside a tanked wet room.
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: pumped_waste
+  when: drainage == 'pumped'
+  requires:
+  - dr_pump
+  - dr_pump_supply
+  rationale: Where falls are inadequate, a pumped gully and waste pump is used.
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+    url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: rails_need_reinforcement
+  requires:
+  - ad_grab_rails
+  - ad_wall_reinforcement
+  rationale: Walls must carry grab rails and seats (1.5 kN/m2).
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+- id: seat_needs_reinforcement
+  when: shower_seat
+  requires:
+  - ad_shower_seat
+  - ad_wall_reinforcement
+  rationale: A wall-fixed seat needs reinforced walls.
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+  - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+    url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: radiator_replacement
+  when: replace_radiator
+  requires:
+  - ht_lst_radiator
+  - ht_trv
+  - ht_inhibitor
+  rationale: The LST radiator item includes TRV kit, drain-down and inhibitor.
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: wet_room_basin
+  requires:
+  - sw_basin_wall_hung
+  - ad_blending_valve
+  rationale: M4(3) basins are wall-hung; lever taps help limited grip; basin hot water is blended in the
+    DFG spec cited.
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+  - source_title: Nottinghamshire County Council level access shower factsheet
+    url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: extractor_fan
+  requires:
+  - vn_fan
+  - el_fan_isolator
+  - el_fan_cable
+  - vn_duct
+  - vn_condensation_trap
+  - vn_wall_or_roof_terminal
+  rationale: The fan needs a local all-pole isolator (3 mm gap), 100 mm duct, an external terminal and
+    a condensation trap. The source asks for the trap on moisture-laden ducted air; it is always included
+    here and can be unticked on site. Rates come from parameters, not the template.
+  provenance:
+  - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+    url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Approved Document F Vol 1, 2021 edition (ventilation), Table 1.1
+    url: https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf
+    licence: OGL-3.0-unconfirmed
+    evidence_quality: standard
+- id: stud_wall_fixings
+  when: wall_type == 'stud'
+  requires:
+  - cs_fixings_stud
+  excludes:
+  - cs_fixings_solid
+  rationale: Mira guides warn stud partitions may need alternative fixings; wall fixings are not supplied.
+  provenance:
+  - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+    url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Mira Discovery bar mixer installation guide
+    url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: solid_wall_fixings
+  when: wall_type == 'solid'
+  requires:
+  - cs_fixings_solid
+  excludes:
+  - cs_fixings_stud
+  rationale: Wall fixings suited to the substrate are not supplied.
+  provenance:
+  - source_title: Mira Discovery bar mixer installation guide
+    url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Ideal Standard Idealcast bath installation guide (2009)
+    url: https://images.victorianplumbing.co.uk/products/ideal-standard-white-1700-x-800mm-0th-double-ended-idealcast-bath/instructions/is_idealcast_e002301_iguide_en.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: joint_system_compression
+  when: joint_system == 'compression'
+  requires:
+  - ff_fittings_compression
+  excludes:
+  - ff_fittings_push_fit
+  - ff_fittings_solder
+  - ff_flux
+  rationale: Merchants split fittings by joint technology, so the kit carries one family only.
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: joint_system_push_fit
+  when: joint_system == 'push_fit'
+  requires:
+  - ff_fittings_push_fit
+  excludes:
+  - ff_fittings_compression
+  - ff_fittings_solder
+  - ff_flux
+  rationale: Merchants split fittings by joint technology, so the kit carries one family only.
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: joint_system_solder
+  when: joint_system == 'solder'
+  requires:
+  - ff_fittings_solder
+  - ff_flux
+  excludes:
+  - ff_fittings_compression
+  - ff_fittings_push_fit
+  rationale: Merchants split fittings by joint technology, so the kit carries one family only.
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: layout_change_partition
+  when: layout_change
+  requires:
+  - nw_studs
+  - nw_plates
+  - nw_noggins
+  - nw_timber_screws
+  - nw_board
+  - nw_board_screws
+  - nw_joint_tape
+  - nw_jointing_compound
+  rationale: A new stud partition needs studs, plates, noggins, fixings, board, board screws, insulation,
+    tape and jointing compound.
+  provenance:
+  - source_title: 'Screwfix guide: how to build a stud wall'
+    url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: 'British Gypsum FAQ: screw fixing centres (search snippet; page 403 when fetched)'
+    url: https://www.british-gypsum.com/technical-support/self-help-tools/faqs/what-are-screw-fixing-centres-partitions-ceilings-encasements
+    licence: manufacturer-doc-facts-only
+    evidence_quality: search_snippet
+  - source_title: 'British Gypsum White Book: jointing (search snippet)'
+    url: https://www.british-gypsum.com/documents/white-book/british-gypsum-wb-jointing-1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: search_snippet
+- id: wall_tiling
+  requires:
+  - tl_wall_tiles
+  - tl_wall_adhesive
+  - tl_wall_grout
+  - tl_spacers
+  - tl_wall_primer
+  rationale: Tiling needs adhesive, grout, spacers and a primed substrate.
+  provenance:
+  - source_title: 'Wickes how-to guide: tiling a wall'
+    url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+- id: floor_tiled
+  when: floor_finish == 'tiled'
+  requires:
+  - tl_floor_tiles
+  - tl_floor_adhesive
+  - tl_floor_grout
+  excludes:
+  - fl_safety_vinyl
+  - fl_weld_rod
+  - fl_vinyl_trim
+  rationale: A tiled floor needs tiles, adhesive and grout and no sheet vinyl.
+  provenance:
+  - source_title: 'Wickes how-to guide: tiling a wall'
+    url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+- id: floor_sheet_vinyl
+  when: floor_finish == 'sheet_vinyl'
+  requires:
+  - fl_safety_vinyl
+  - fl_weld_rod
+  - fl_vinyl_trim
+  excludes:
+  - tl_floor_tiles
+  - tl_floor_adhesive
+  - tl_floor_grout
+  rationale: Sheet vinyl is welded and sealed to sanitaryware; no floor tiles.
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: tanking_and_backer
+  requires:
+  - wp_backer_board
+  - wp_backer_screws
+  - wp_backer_joint_tape
+  - wp_tanking_kit
+  rationale: Wet walls get backer board fixed with corrosion-resistant screws and washers, joints taped,
+    then a liquid membrane kit (area / kit coverage).
+  provenance:
+  - source_title: Shower waterproofing kit listing (Toolstation; Mapei kit contents and coverage)
+    url: https://www.toolstation.com/mapei-shower-waterproofing-kit/p71005
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: TilersForums thread quoting Marmox fixing guidance
+    url: https://tilersforums.com/threads/marmox-information.48611
+    licence: unknown-copyright-facts-only
+    evidence_quality: forum
+  - source_title: TilersForums thread quoting Hardiebacker fixing guidance
+    url: https://www.tilersforums.com/threads/hardie-backer-board-info.48531
+    licence: unknown-copyright-facts-only
+    evidence_quality: forum
