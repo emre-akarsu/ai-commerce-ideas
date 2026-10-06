@@ -161,3 +161,11 @@ derived from the tenant id), so replies can be attributed to a tenant.
 - **PO PDF export is not implemented** (CSV only). Accounting sync, enforced go-live and per-tenant send caps beyond the existing ones are also out of scope.
 - **Postgres repository tests** (`tests/aidb/test_supplier_repositories.py`, migration 0003 up/down) run only when the dev database is reachable (`scripts/pg_dev.sh start`); they skip with a reason otherwise. They passed in the last run recorded in the hand-back.
 - **Individual-subscriber setting** (`Settings.allow_individual_subscribers`, default off) is a deployment setting, not a profile key; counsel has not confirmed whether one-to-one RFQs to sole traders are outside direct marketing.
+
+## MVP web UI (added with the workspace build)
+- The approval link for a selected quote is not exposed to the requester by the API, so real-mode approval cannot be demonstrated by one user; the demo shows it only in mock mode.
+- `GET /v1/requests` returns summaries, so the inbox fetches each open request (up to 40). A list field for next action would remove the N+1.
+- Quantity and need-by date are typed into the composer; the intake does not read them from the text.
+- The RFQ text does not yet carry the buyer's account number or delivery postcode (supplier profile holds the account number).
+- No PDF purchase-order export; no onboarding wizard; no request intake by forwarded email.
+- No assistive-technology or WCAG audit has been done on the web app.
