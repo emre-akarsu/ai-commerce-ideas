@@ -72,3 +72,11 @@ PO PDF export (CSV exists), accounting sync, second-approver flow changes, enfor
 - No optimistic UI for anything that sends, approves or declines. Approval is an explicit button press that posts the shown `mime_hash`; a keyboard shortcut may focus the button but never press it.
 - Money, dates and lead times format from `GET /v1/profile`; copy overrides are plain text.
 - `NEXT_PUBLIC_API_MOCK=1` serves synthetic example data that follows this contract, labelled as synthetic in the UI.
+
+## 7. Reload-safe approval preview (added during the build)
+
+| Method | Path | Role | Purpose |
+|---|---|---|---|
+| GET | `/v1/requests/{id}/rfqs/prepared` | buyer+ | Returns `PreparedRFQ[]` for the request's RFQs that are prepared and not yet sent, re-rendered from stored state so the approver always sees the exact bytes that will be sent. `mime_hash` must equal what `rfqs/prepare` returned for the same stored RFQ and what `approve-send` verifies; if the bytes cannot be reproduced exactly the endpoint returns an empty list (the UI then asks the user to prepare again). Read-only: it never changes state and never sends. Cross-tenant ids return 404 |
+
+Reason: `prepare` returns the previews once, and `RequestDetail.rfqs` carries only summaries, so a page reload would otherwise lose the text the human must approve.
