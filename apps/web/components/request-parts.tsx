@@ -208,3 +208,81 @@ export function Timeline({ events, chainValid }: { events: EventView[]; chainVal
     </Card>
   );
 }
+
+export function ApproveAndSend({ rfqs, onSent, busy, err }: { rfqs: PreparedRFQ[]; onSent: (rfqId: string, msgId: string) => void; busy: string | null; err: string | null }) {
+  const [sent, setSent] = useState<Record<string, string>>({});
+
+  async function send(p: PreparedRFQ) {
+    try {
+      const res = await api.approveSend(p.rfq_id, p.mime_hash);
+      setSent((s) => ({ ...s, [p.rfq_id]: res.message_id }));
+      onSent(p.rfq_id, res.message_id);
+    } catch (x) {
+      const msg = errMsg(x);
+      if (msg.includes("409") || msg.includes("send refused")) {
+        alert(`Send refused: ${msg}`);
+      } else {
+        alert(`Error: ${msg}`);
+      }
+    }
+  }
+
+  if (rfqs.length === 0) return null;
+
+  return (
+    <Card>
+      <H2>Approve and send RFQs</H2>
+      <p className="mb-4 text-sm text-slate-600">
+        Review the message below. The shown hash will be verified with the send-service to ensure the message was not altered. Click the button only when you are ready to send.
+      </p>
+      <ErrorNote message={err} />
+      <ul className="space-y-6">
+        {rfqs.map((p) => (
+          <li key={p.rfq_id} className="rounded-md border p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <div className="font-medium">{p.vendor.name}</div>
+                <div className="text-sm text-slate-600">{p.to}</div>
+              </div>
+              {sent[p.rfq_id] && <Badge tone="green">Sent</Badge>}
+            </div>
+
+            <div className="mb-3">
+              <div className="text-sm font-medium">Subject:</div>
+              <div className="text-sm">{p.subject}</div>
+            </div>
+
+            <div className="mb-3">
+              <div className="text-sm font-medium">Message body:</div>
+              <pre className="mt-1 whitespace-pre-wrap rounded bg-slate-50 p-3 font-mono text-xs">
+                {p.body_preview}
+              </pre>
+            </div>
+
+            <div className="mb-3">
+              <div className="text-sm font-medium">Signature and footer:</div>
+              <pre className="mt-1 whitespace-pre-wrap rounded bg-slate-50 p-3 font-mono text-xs text-slate-700">
+                {p.footer}
+              </pre>
+            </div>
+
+            <div className="mb-3 rounded bg-slate-100 p-2 font-mono text-xs text-slate-700">
+              <div className="text-xs font-medium text-slate-600">Message fingerprint (mime_hash):</div>
+              <div className="break-all">{p.mime_hash.substring(0, 16)}...</div>
+            </div>
+
+            {!sent[p.rfq_id] && (
+              <Button
+                className="w-full"
+                disabled={busy !== null}
+                onClick={() => send(p)}
+              >
+                Approve and send exactly this message
+              </Button>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}

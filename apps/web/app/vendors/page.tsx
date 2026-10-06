@@ -135,15 +135,20 @@ export default function VendorsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [importErr, setImportErr] = useState<string | null>(null);
+  const [importResult, setImportResult] = useState<{ created: number; updated: number; rejected: Array<{ row: number; reason: string }> } | null>(null);
 
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.currentTarget.files?.[0];
     if (!file) return;
     setImporting(true);
     setImportErr(null);
+    setImportResult(null);
     try {
-      await api.importVendors(file);
-      list.reload();
+      const result = await api.importVendors(file);
+      setImportResult(result);
+      if (result.created > 0 || result.updated > 0) {
+        list.reload();
+      }
     } catch (x) {
       setImportErr(errMsg(x));
     } finally {
@@ -171,6 +176,25 @@ export default function VendorsPage() {
           className="min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2"
         />
         <ErrorNote message={importErr} />
+        {importResult && (
+          <div className="mt-3 rounded-md bg-blue-50 p-3">
+            <div className="font-medium text-sm text-blue-900">
+              Import complete: {importResult.created} created, {importResult.updated} updated
+            </div>
+            {importResult.rejected.length > 0 && (
+              <div className="mt-2">
+                <div className="text-sm font-medium text-blue-900">Rejected rows:</div>
+                <ul className="mt-1 space-y-1">
+                  {importResult.rejected.map((r) => (
+                    <li key={r.row} className="text-xs text-blue-700">
+                      Row {r.row}: {r.reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
       </Card>
 
       <div className="grid gap-4">
