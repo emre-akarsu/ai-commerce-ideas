@@ -1,0 +1,298 @@
+# Module: First-fix plumbing
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.first_fix_plumbing
+module: first_fix_plumbing
+version: 0.2.0
+market: uk
+title: First-fix plumbing
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: ff_pipe_15
+  description: Hot and cold supply pipe
+  spec: 15 mm copper or plastic supply pipe
+  unit: m
+  quantity: pipe_15mm_m
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)
+    url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  options:
+  - id: copper
+    label: Copper
+    spec: 15 mm copper supply pipe
+    tags: []
+    default: true
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)
+      url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: plastic
+    label: Plastic
+    spec: 15 mm plastic supply pipe, with pipe inserts where the pipe maker requires them
+    tags: []
+    default: false
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)
+      url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+- id: ff_pipe_clips
+  description: Pipe clips for new runs
+  spec: 15 mm pipe clips
+  unit: pack
+  quantity: '1'
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: ff_fittings_compression
+  description: Compression fittings allowance (elbows, tees, couplers)
+  spec: 15 mm compression fittings with olives
+  unit: pack
+  quantity: '1'
+  when: joint_system == 'compression'
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: ff_fittings_push_fit
+  description: Push-fit fittings allowance (elbows, tees, couplers)
+  spec: 15 mm push-fit fittings, with pipe inserts where the pipe maker requires them
+  unit: pack
+  quantity: '1'
+  when: joint_system == 'push_fit'
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: ff_fittings_solder
+  description: Solder-ring fittings allowance (elbows, tees, couplers)
+  spec: 15 mm solder-ring fittings
+  unit: pack
+  quantity: '1'
+  when: joint_system == 'solder'
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: ff_flux
+  description: Flux for soldered joints
+  spec: Plumbing flux suited to potable water
+  unit: item
+  quantity: '1'
+  when: joint_system == 'solder'
+  uniclass_pr:
+    code: Pr_65_52_62_32
+    title: Flux
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: derived
+    derived_from: Solder-ring fittings need flux; Uniclass lists flux as a pipe jointing consumable (Pr_65_52_62_32).
+- id: ff_iv_basin
+  description: Isolating valves on the basin feed(s)
+  spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+  unit: nr
+  quantity: '2'
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Bristan Melba tap fitting instructions
+    url: https://www.bristan.com/product-files/576949/fitting-instructions.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  with_module:
+  - basin
+- id: ff_iv_bath
+  description: Isolating valves on the bath tap feed(s)
+  spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+  unit: nr
+  quantity: '2'
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  with_module:
+  - bath
+- id: ff_iv_wc
+  description: Isolating valves on the WC cistern feed(s)
+  spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+  unit: nr
+  quantity: '1'
+  when: wc_type == 'close_coupled'
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  with_module:
+  - wc
+- id: ff_iv_shower_mixer
+  description: Isolating valves on the shower mixer feed(s)
+  spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+  unit: nr
+  quantity: '2'
+  when: shower_type == 'mixer'
+  provenance:
+  - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+    url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)
+    url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  with_module:
+  - shower
+- id: ff_iv_shower_electric
+  description: Isolating valves on the electric shower feed(s)
+  spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+  unit: nr
+  quantity: '1'
+  when: shower_type == 'electric'
+  provenance:
+  - source_title: Triton T70Z electric shower installation guide
+    url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: derived
+    derived_from: 'Notes inference from the electric shower rule: 15 mm mains cold feed plus an isolating
+      valve.'
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  with_module:
+  - shower
+- id: ff_waste_32
+  description: Basin waste pipe
+  spec: 32 mm waste pipe and fittings
+  unit: m
+  quantity: waste_32mm_m
+  uniclass_pr:
+    code: Pr_65_52_03_66
+    title: Polypropylene (PP) above-ground wastewater pipes and fittings
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+    url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  with_module:
+  - basin
+- id: ff_waste_40
+  description: Bath or shower waste pipe
+  spec: 40 mm waste pipe and fittings
+  unit: m
+  quantity: waste_40mm_m
+  uniclass_pr:
+    code: Pr_65_52_03_66
+    title: Polypropylene (PP) above-ground wastewater pipes and fittings
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+    url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  with_module:
+  - bath
+- id: ff_waste_fittings
+  description: Waste fittings allowance (bends, couplers, clips)
+  spec: Waste fittings to match the waste pipe system
+  unit: pack
+  quantity: '1'
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  with_module:
+  - basin
+  - bath
+rules:
+- id: joint_system_compression
+  when: joint_system == 'compression'
+  requires:
+  - ff_fittings_compression
+  excludes:
+  - ff_fittings_push_fit
+  - ff_fittings_solder
+  - ff_flux
+  rationale: Merchants split fittings by joint technology, so the kit carries one family only.
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: joint_system_push_fit
+  when: joint_system == 'push_fit'
+  requires:
+  - ff_fittings_push_fit
+  excludes:
+  - ff_fittings_compression
+  - ff_fittings_solder
+  - ff_flux
+  rationale: Merchants split fittings by joint technology, so the kit carries one family only.
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: joint_system_solder
+  when: joint_system == 'solder'
+  requires:
+  - ff_fittings_solder
+  - ff_flux
+  excludes:
+  - ff_fittings_compression
+  - ff_fittings_push_fit
+  rationale: Merchants split fittings by joint technology, so the kit carries one family only.
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer

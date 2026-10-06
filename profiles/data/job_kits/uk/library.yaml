@@ -1,0 +1,116 @@
+# UK job-kit library: job types, scopes, shared measurements and derived values
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Hierarchy: job_type -> scope (scopes/<job_type>_<scope>.yaml) -> module (modules/<module>.yaml)
+# -> line. Resolver: packages/components/job_kits/. Checked by tests/profiles/test_job_kits*.py.
+id: uk.job_kit_library
+version: 0.2.0
+market: uk
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+review:
+  owner: null
+  reviewed_by: null
+  reviewed_on: null
+  note: Not reviewed. A named owner and a UK tradesperson must review every line, quantity and rule before
+    any customer use.
+assumption_source: default_template
+parameters_file: parameters.yaml
+questions_file: questions.yaml
+max_upfront_questions: 3
+classification_attribution:
+  uniclass: Uniclass 2015 © NBS, CC BY-ND 4.0 (https://uniclass.thenbs.com/download). Pr and Ss tables
+    v1.43 (July 2026). Codes and titles are stored verbatim as checked live in the research notes; nothing
+    is modified or extended.
+  etim: ETIM 10.1, ETIM International, Open Data Commons Attribution Licence (ODC-By 1.0, http://opendatacommons.org/licenses/by/1.0/).
+    Class codes and English titles via the buildingSMART Data Dictionary.
+job_types:
+  bathroom:
+    title: Bathroom
+    scopes:
+    - full
+    - cloakroom
+    - wc_only
+    - wet_room
+measurements:
+  room_width_m:
+    unit: m
+    label: Room width
+    description: Internal width of the room, wall to wall.
+  room_length_m:
+    unit: m
+    label: Room length
+    description: Internal length of the room, wall to wall.
+  tiled_height_m:
+    unit: m
+    label: Tiled height
+    description: Height of wall tiling above the floor (splashback height in a cloakroom).
+allowance_note: Allowances are illustrative starting values carried over from the v0.1 kit samples. They
+  are not sourced; each one is shown on review as a default the user can change.
+derived:
+  floor_m2:
+    formula: room_width_m * room_length_m
+    unit: m2
+    description: Floor area.
+  floor_perimeter_m:
+    formula: 2 * (room_width_m + room_length_m)
+    unit: m
+    description: Floor perimeter.
+  wall_tiled_m2:
+    formula: floor_perimeter_m * tiled_height_m
+    unit: m2
+    description: Wall area to tile (all walls to the tiled height; openings not deducted).
+  paint_wall_m2:
+    formula: max(0, floor_perimeter_m * room_height_m - wall_tiled_m2)
+    unit: m2
+    description: Untiled wall area to paint (openings not deducted).
+  paint_ceiling_m2:
+    formula: floor_m2
+    unit: m2
+    description: Ceiling area to paint.
+  partition_height_m:
+    formula: room_height_m
+    unit: m
+    description: Height of a new stud partition (floor to ceiling).
+  partition_area_m2:
+    formula: partition_length_m * partition_height_m * partition_faces
+    unit: m2
+    description: Board area for the new partition.
+  partition_boards:
+    formula: ceil(partition_area_m2 / plasterboard_sheet_area_m2)
+    unit: nr
+    description: Plasterboard sheets for the partition.
+  partition_studs:
+    formula: ceil(partition_length_m * 1000 / stud_centres_mm) + 1
+    unit: nr
+    description: Studs at the stud centres plus one end stud.
+  screws_per_board:
+    formula: (ceil(plasterboard_sheet_width_mm / stud_centres_mm) + 1) * (ceil(plasterboard_sheet_height_mm
+      / plasterboard_screw_centres_mm) + 1)
+    unit: nr
+    description: Plasterboard screws per board.
+  partition_joint_m:
+    formula: partition_boards * board_joint_m_per_board
+    unit: m
+    description: Board joint length.
+  adhesive_kg_per_m2:
+    formula: adhesive_kg_per_m2_per_mm * adhesive_notch_mm * adhesive_bed_to_notch_ratio
+    unit: kg/m2
+    description: Tile adhesive per m2.
+  grout_kg_per_m2:
+    formula: grout_formula_constant * grout_joint_mm * tile_thickness_mm * (tile_length_cm + tile_width_cm)
+      / (tile_length_cm * tile_width_cm)
+    unit: kg/m2
+    description: Grout per m2.
+  sealant_m_per_cartridge:
+    formula: sealant_cartridge_ml / (sealant_joint_width_mm * sealant_joint_depth_mm)
+    unit: m
+    description: Sealant bead length per cartridge.
+  paint_litres:
+    formula: (paint_wall_m2 + paint_ceiling_m2) * (emulsion_finish_coats + emulsion_mist_coats) / emulsion_coverage_m2_per_l
+    unit: l
+    description: Emulsion for walls and ceiling, all coats.
+  backer_boards:
+    formula: ceil(backer_board_m2 / backer_board_area_m2)
+    unit: nr
+    description: Backer boards.

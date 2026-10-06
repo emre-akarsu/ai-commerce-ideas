@@ -1,0 +1,37 @@
+# Module: Waste
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.waste
+module: waste
+version: 0.2.0
+market: uk
+title: Waste
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: ws_disposal
+  description: Removal and disposal of strip-out waste
+  spec: Skip, wait-and-load or licensed waste collection, sized on site
+  unit: item
+  quantity: '1'
+  kind: service
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: ws_rubble_sacks
+  description: Heavy-duty rubble sacks
+  spec: Reinforced rubble sacks
+  unit: pack
+  quantity: '1'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: derived
+    derived_from: Walsall 'cart away' item; sacks are an assumed consumable.
+rules: []

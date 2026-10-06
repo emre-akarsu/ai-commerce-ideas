@@ -1,0 +1,137 @@
+# Module: Shower
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.shower
+module: shower
+version: 0.2.0
+market: uk
+title: Shower
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: sh_electric_unit
+  description: Electric shower unit with head and hose
+  spec: Electric shower, rating per the shower_kw answer, mains cold feed only, 15 mm inlet
+  unit: nr
+  quantity: '1'
+  when: shower_type == 'electric'
+  example_note: Head and hose are supplied with the units cited
+  provenance:
+  - source_title: Triton T70Z electric shower installation guide
+    url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Triton Omnicare installation and operating instructions 2181515H
+    url: https://www.independent4life.co.uk/media/mageworx/downloads/attachment/file/2/5/25327%20triton%20omnicare%20installation%20and%20operating%20instructions%202181515h.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: sh_mixer_valve
+  description: Thermostatic bar mixer valve
+  spec: Thermostatic bar valve, {shower_valve_inlet_centres_mm} mm inlet centres with offset connectors,
+    rated for the household water system pressure
+  unit: nr
+  quantity: '1'
+  when: shower_type == 'mixer'
+  uniclass_pr:
+    code: Pr_40_20_87_80
+    title: Shower thermostatic valves
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+    url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Mira Discovery bar mixer installation guide
+    url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Broadland Housing Association affordable housing specification, March 2023
+    url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: sh_riser_kit
+  description: Riser rail, hose and handset (if not bundled with the valve)
+  spec: Riser rail kit with hose and handset
+  unit: nr
+  quantity: '1'
+  when: shower_type == 'mixer'
+  uniclass_pr:
+    code: Pr_40_20_87_76
+    title: Shower heads
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)
+    url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+    url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+rules:
+- id: electric_shower
+  when: shower_type == 'electric'
+  requires:
+  - sh_electric_unit
+  - el_shower_isolator
+  - el_shower_rcbo
+  - el_shower_cable
+  - el_part_p_notification
+  - ff_iv_shower_electric
+  excludes:
+  - sh_mixer_valve
+  - ff_iv_shower_mixer
+  uses_lookup:
+    table: electric_shower_circuit
+    key: shower_kw
+  rationale: 'An electric shower needs a dedicated circuit: 45 A double-pole isolator (3 mm gap), 30 mA
+    RCD protection, an MCB and cable sized from the kW lookup, a mains cold feed with an isolating valve,
+    and notification (new circuit, special location).'
+  provenance:
+  - source_title: Triton T70Z electric shower installation guide
+    url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Triton Omnicare installation and operating instructions 2181515H
+    url: https://www.independent4life.co.uk/media/mageworx/downloads/attachment/file/2/5/25327%20triton%20omnicare%20installation%20and%20operating%20instructions%202181515h.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Approved Document P 2013 (electrical safety, dwellings)
+    url: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/441872/BR_PDF_AD_P_2013.pdf
+    licence: OGL-3.0-unconfirmed
+    evidence_quality: standard
+- id: mixer_shower
+  when: shower_type == 'mixer'
+  requires:
+  - sh_mixer_valve
+  - sh_riser_kit
+  - ff_iv_shower_mixer
+  - cs_thread_sealant
+  excludes:
+  - el_shower_isolator
+  - el_shower_rcbo
+  - el_shower_cable
+  - sh_electric_unit
+  rationale: A bar mixer needs isolating valves close to the valve, thread sealant (not supplied) and
+    a riser kit when not bundled; no shower circuit.
+  provenance:
+  - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+    url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Mira Discovery bar mixer installation guide
+    url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)
+    url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc

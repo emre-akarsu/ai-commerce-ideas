@@ -1,0 +1,148 @@
+# UK job-kit question bank
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema: profiles/data/job_kits/README.md. Each question is defined
+# once here; a scope lists the ones it uses with `ask` (upfront or on_review) and `priority`.
+id: uk.job_kit_questions
+version: 0.2.0
+market: uk
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+questions:
+  layout_change:
+    type: bool
+    question: Is the layout changing (new stud partition, moved fittings)?
+    options:
+    - value: false
+      label: No, same layout
+    - value: true
+      label: Yes, new partition or moved fittings
+    default: false
+  wc_type:
+    type: enum
+    question: WC type?
+    options:
+    - value: close_coupled
+      label: Close-coupled (cistern on the pan)
+    - value: wall_hung
+      label: Wall-hung pan on a concealed frame
+    default: close_coupled
+  soil_outlet:
+    type: enum
+    question: Where does the soil pipe leave the pan position?
+    options:
+    - value: horizontal
+      label: Through the wall (horizontal)
+    - value: vertical
+      label: Through the floor (vertical)
+    default: horizontal
+  basin_mount:
+    type: enum
+    question: Basin type?
+    options:
+    - value: pedestal
+      label: Basin on a pedestal
+    - value: wall_hung
+      label: Wall-hung basin
+    default: pedestal
+  shower_type:
+    type: enum
+    question: Shower type?
+    options:
+    - value: electric
+      label: Electric shower
+    - value: mixer
+      label: Mixer shower (hot and cold feeds)
+    default: electric
+  shower_kw:
+    type: enum
+    question: Electric shower rating in kW (selects the circuit lookup row; ignored for a mixer shower)?
+    options:
+    - value: '7.0'
+      label: 7.0 kW
+    - value: '7.5'
+      label: 7.5 kW
+    - value: '8.0'
+      label: 8.0 kW
+    - value: '8.5'
+      label: 8.5 kW
+    - value: '9.0'
+      label: 9.0 kW
+    - value: '9.5'
+      label: 9.5 kW
+    - value: '10.5'
+      label: 10.5 kW
+    default: '8.5'
+  shower_location:
+    type: enum
+    question: Where is the shower?
+    options:
+    - value: over_bath
+      label: Over the bath
+    - value: enclosure
+      label: Separate enclosure with a tray
+    default: over_bath
+  wall_type:
+    type: enum
+    question: Main wall construction where fittings are fixed?
+    options:
+    - value: solid
+      label: Solid (brick or block)
+    - value: stud
+      label: Stud (timber or metal frame)
+    default: solid
+  joint_system:
+    type: enum
+    question: Pipe joint system for new pipework?
+    options:
+    - value: compression
+      label: Compression
+    - value: push_fit
+      label: Push-fit
+    - value: solder
+      label: Solder-ring
+    default: compression
+  floor_finish:
+    type: enum
+    question: Floor finish?
+    options:
+    - value: sheet_vinyl
+      label: Slip-resistant sheet vinyl
+    - value: tiled
+      label: Floor tiles
+    default: sheet_vinyl
+  floor_construction:
+    type: enum
+    question: Floor construction under the shower?
+    options:
+    - value: timber
+      label: Timber joists
+    - value: concrete
+      label: Concrete
+    default: timber
+  drainage:
+    type: enum
+    question: Can the gully drain by gravity, or is a pump needed?
+    options:
+    - value: gravity
+      label: Gravity
+    - value: pumped
+      label: Pumped
+    default: gravity
+  shower_seat:
+    type: bool
+    question: Fit a wall-mounted fold-down shower seat?
+    options:
+    - value: false
+      label: No seat
+    - value: true
+      label: Fit a fold-down seat
+    default: false
+  replace_radiator:
+    type: bool
+    question: Replace the radiator with a low surface temperature one?
+    options:
+    - value: false
+      label: Keep the radiator
+    - value: true
+      label: Replace with a low surface temperature radiator
+    default: false

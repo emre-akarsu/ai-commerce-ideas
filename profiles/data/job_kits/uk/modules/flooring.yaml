@@ -1,0 +1,121 @@
+# Module: Floor preparation and sheet flooring
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.flooring
+module: flooring
+version: 0.2.0
+market: uk
+title: Floor preparation and sheet flooring
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: fl_overlay
+  description: Floor overlay board where the existing floor is not sound or flat
+  spec: 18 mm tongue-and-groove moisture-resistant chipboard or marine plywood
+  unit: m2
+  quantity: floor_m2
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: fl_levelling
+  description: Levelling compound
+  spec: Latex or cement-based smoothing and levelling compound
+  unit: pack
+  quantity: '1'
+  uniclass_pr:
+    code: Pr_35_31_06_80
+    title: Smoothing and levelling underlay compounds
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: fl_safety_vinyl
+  description: Slip-resistant safety vinyl sheet
+  spec: Safety vinyl sheet {safety_vinyl_thickness_mm} mm, slip-resistant (R10 or better), laid by a specialist
+    to BS 8203 with welded seams, sealed to sanitaryware
+  unit: m2
+  quantity: floor_m2
+  when: floor_finish == 'sheet_vinyl'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Broadland Housing Association affordable housing specification, March 2023
+    url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: fl_weld_rod
+  description: Weld rod for vinyl seams
+  spec: Colour-matched weld rod
+  unit: item
+  quantity: '1'
+  when: floor_finish == 'sheet_vinyl'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: derived
+    derived_from: Walsall and the Welsh spec require welded seams; weld rod is the assumed consumable.
+- id: fl_vinyl_trim
+  description: Trim or coved edge for the vinyl
+  spec: PVC capping trim or coved skirting to seal the vinyl edge
+  unit: m
+  quantity: floor_perimeter_m
+  when: floor_finish == 'sheet_vinyl'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  optional: true
+rules:
+- id: floor_tiled
+  when: floor_finish == 'tiled'
+  requires:
+  - tl_floor_tiles
+  - tl_floor_adhesive
+  - tl_floor_grout
+  excludes:
+  - fl_safety_vinyl
+  - fl_weld_rod
+  rationale: A tiled floor needs tiles, adhesive and grout and no sheet vinyl.
+  provenance:
+  - source_title: 'Wickes how-to guide: tiling a wall'
+    url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+- id: floor_sheet_vinyl
+  when: floor_finish == 'sheet_vinyl'
+  requires:
+  - fl_safety_vinyl
+  - fl_weld_rod
+  excludes:
+  - tl_floor_tiles
+  - tl_floor_adhesive
+  - tl_floor_grout
+  rationale: Sheet vinyl is welded and sealed to sanitaryware; no floor tiles.
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec

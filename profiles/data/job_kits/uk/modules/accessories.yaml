@@ -1,0 +1,29 @@
+# Module: Accessories
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.accessories
+module: accessories
+version: 0.2.0
+market: uk
+title: Accessories
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: sw_toilet_roll_holder
+  description: Toilet roll holder
+  spec: Wall-mounted toilet roll holder
+  unit: nr
+  quantity: '1'
+  uniclass_pr:
+    code: Pr_40_20_76_88
+    title: Toilet roll holders
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Broadland Housing Association affordable housing specification, March 2023
+    url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+rules: []

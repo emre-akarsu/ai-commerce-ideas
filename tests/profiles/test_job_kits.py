@@ -1,28 +1,36 @@
-"""UK bathroom job-type kits (templates) are well-formed, cited and licence-clean.
+"""UK job-kit library (job type -> scope -> module -> line) is well-formed, cited and licence-clean.
 
 The kits are synthetic/illustrative seed data (profiles/data/job_kits/README.md). These checks are
-offline and deterministic: they parse the YAML, evaluate every quantity formula with Decimal through
-a small AST whitelist (never eval), and enumerate every variant combination to prove the rules hold.
+offline and deterministic: they parse the YAML, check every formula and condition through the
+resolver's AST whitelist (never eval), and hold the question budget and option rules.
 """
 
 from __future__ import annotations
 
-import ast
-import itertools
 import re
-from collections.abc import Callable, Iterator, Mapping
-from decimal import ROUND_CEILING, ROUND_FLOOR, Decimal
+from collections.abc import Iterator
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
 import pytest
 import yaml
 
+from components.job_kits import JobKitLibrary, load_library
+from components.job_kits.formula import check_condition, check_formula, formula_names
+
 ROOT = Path(__file__).resolve().parents[2]
 KIT_DIR = ROOT / "profiles" / "data" / "job_kits" / "uk"
 README = ROOT / "profiles" / "data" / "job_kits" / "README.md"
 NOTES_DIR = ROOT / "research_notes" / "UK refurbishment job templates data"
-TEMPLATES = ("bathroom_full", "bathroom_cloakroom", "wc_replacement", "wet_room")
+SCOPES = ("full", "cloakroom", "wc_only", "wet_room")
+SCOPE_IDS = tuple(f"bathroom_{s}" for s in SCOPES)
+MODULES = ("strip_out", "partition", "first_fix_plumbing", "wc", "basin", "bath", "shower",
+           "shower_enclosure", "floor_drainage", "waterproofing", "tiling", "flooring",
+           "electrics", "ventilation", "heating", "adaptations", "accessories", "consumables",
+           "decorating", "waste")
+DATA_FILES = ("library", "questions", "parameters", *(f"modules/{m}" for m in MODULES),
+              *(f"scopes/{s}" for s in SCOPE_IDS))
 
 LICENCES = {
     "OGL-3.0",                         # licence confirmed in the notes
@@ -44,17 +52,11 @@ BRANDS = ("geberit", "grohe", "mira", "triton", "mapei", "marmox", "vent-axia", 
           "gyproc", "envirovent", "pegler", "akw", "kudos", "merlyn", "croydex", "myson", "dimplex",
           "scolmore", "greenwood", "manrose", "viega", "roca", "idealcast", "idealform", "bal ")
 UNITS = {"nr", "m", "m2", "kg", "l", "cartridge", "pack", "kit", "roll", "item", "pair"}
-COUNT_UNITS = {"nr", "cartridge", "pack", "kit", "roll", "item", "pair"}
-REQUIRED_FULL_GROUPS = {"strip_out", "new_wall", "first_fix_plumbing", "electrics", "waterproofing",
-                        "tiling", "sanitaryware", "shower", "ventilation", "consumables",
-                        "decorating", "waste"}
-ALLOWED_INT_LITERALS = set(range(11)) | {1000}   # structural counts and mm->m; never a factor
-FUNCS: dict[str, Callable[..., Decimal]] = {
-    "ceil": lambda x: x.to_integral_value(rounding=ROUND_CEILING),
-    "floor": lambda x: x.to_integral_value(rounding=ROUND_FLOOR),
-    "max": lambda *a: max(a),
-    "min": lambda *a: min(a),
-}
+TAGS = {"budget", "most_used", "premium"}
+CORE_MEASUREMENTS = {"room_width_m", "room_length_m", "tiled_height_m"}
+REQUIRED_FULL_MODULES = {"strip_out", "partition", "first_fix_plumbing", "electrics",
+                         "waterproofing", "tiling", "wc", "basin", "bath", "shower", "ventilation",
+                         "consumables", "decorating", "waste"}
 
 
 # --------------------------------------------------------------------------- helpers
@@ -66,12 +68,13 @@ def load(name: str) -> dict[str, Any]:
     return data
 
 
+@pytest.fixture(scope="module")
+def library() -> JobKitLibrary:
+    return load_library(KIT_DIR)
+
+
 def notes_text() -> str:
     return "\n".join(p.read_text(encoding="utf-8") for p in sorted(NOTES_DIR.glob("*.md")))
-
-
-def params() -> dict[str, Any]:
-    return load("parameters")
 
 
 def uniclass_verified(code: str, title: str, notes: str) -> bool:
@@ -84,250 +87,84 @@ def uniclass_verified(code: str, title: str, notes: str) -> bool:
     return len(parts) > 3 and prefix in notes and f"{suffix} {title}" in notes
 
 
-def lines(t: Mapping[str, Any]) -> Iterator[tuple[dict[str, Any], dict[str, Any]]]:
-    for g in t["groups"]:
-        for line in g["lines"]:
-            yield g, line
+def ss_verified(code: str, title: str, notes: str) -> bool:
+    """System codes are listed as siblings under their parent in the notes
+    ("Ss_40_15_75 Sanitary appliance systems > _05 Bath systems")."""
+    parts = code.split("_")
+    return f"{code} {title}" in notes or any(
+        "_".join(parts[:i]) in notes and f"_{'_'.join(parts[i:])} {title}" in notes
+        for i in range(2, len(parts)))
 
 
-def provenance_holders(name: str) -> Iterator[tuple[str, list[dict[str, Any]]]]:
-    if name == "parameters":
-        p = params()
-        for k, v in p["parameters"].items():
-            yield f"parameters.{k}", v["provenance"]
-        for k, v in p["lookups"].items():
-            yield f"lookups.{k}", v["provenance"]
-        return
-    t = load(name)
-    for _, line in lines(t):
-        yield f"line {line['id']}", line["provenance"]
-    for r in t["rules"]:
-        yield f"rule {r['id']}", r["provenance"]
+def all_lines(lib: JobKitLibrary) -> Iterator[Any]:
+    """Every module line, plus every scope's effective copy (overrides applied)."""
+    for module in lib.modules.values():
+        yield from module.lines
+    for scope_id in lib.scope_ids():
+        for sm in lib.scope(scope_id).modules:
+            yield from sm.lines
 
 
-def check_formula(expr: str, names: set[str]) -> ast.Expression:
-    """Parse a quantity formula; allow only arithmetic, declared names and whitelisted calls."""
-    tree = ast.parse(expr, mode="eval")
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Expression | ast.Load | ast.operator | ast.unaryop):
-            if isinstance(node, ast.operator) and not isinstance(
-                    node, ast.Add | ast.Sub | ast.Mult | ast.Div):
-                raise ValueError(f"operator {type(node).__name__} not allowed in {expr!r}")
-            continue
-        if isinstance(node, ast.BinOp | ast.UnaryOp):
-            continue
-        if isinstance(node, ast.Constant):
-            if isinstance(node.value, bool) or not isinstance(node.value, int):
-                raise ValueError(f"literal {node.value!r} in {expr!r}: use a named parameter")
-            if node.value not in ALLOWED_INT_LITERALS:
-                raise ValueError(f"literal {node.value} in {expr!r}: use a named parameter")
-            continue
-        if isinstance(node, ast.Call):
-            if not (isinstance(node.func, ast.Name) and node.func.id in FUNCS) or node.keywords:
-                raise ValueError(f"call not allowed in {expr!r}")
-            continue
-        if isinstance(node, ast.Name):
-            if node.id not in names and node.id not in FUNCS:
-                raise ValueError(f"undeclared name {node.id!r} in {expr!r}")
-            continue
-        raise ValueError(f"syntax {type(node).__name__} not allowed in {expr!r}")
-    return tree
-
-
-def evaluate(expr: str, env: Mapping[str, Decimal]) -> Decimal:
-    tree = check_formula(expr, set(env))
-
-    def ev(n: ast.AST) -> Decimal:
-        if isinstance(n, ast.Expression):
-            return ev(n.body)
-        if isinstance(n, ast.Constant):
-            return Decimal(str(n.value))
-        if isinstance(n, ast.Name):
-            return env[n.id]
-        if isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.USub):
-            return -ev(n.operand)
-        if isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.UAdd):
-            return ev(n.operand)
-        if isinstance(n, ast.BinOp):
-            a, b = ev(n.left), ev(n.right)
-            if isinstance(n.op, ast.Add):
-                return a + b
-            if isinstance(n.op, ast.Sub):
-                return a - b
-            if isinstance(n.op, ast.Mult):
-                return a * b
-            return a / b
-        if isinstance(n, ast.Call) and isinstance(n.func, ast.Name):
-            return FUNCS[n.func.id](*(ev(a) for a in n.args))
-        raise ValueError(type(n).__name__)
-
-    return ev(tree)
-
-
-def check_condition(expr: str, variants: Mapping[str, Any]) -> ast.Expression:
-    """A `when` condition: declared variants, ==/!=/in against declared values, and/or/not."""
-    tree = ast.parse(expr, mode="eval")
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Compare):
-            if not isinstance(node.left, ast.Name) or len(node.comparators) != 1:
-                raise ValueError(f"comparison must be <variant> op <value> in {expr!r}")
-            var = variants.get(node.left.id)
-            if var is None or var["type"] != "enum":
-                raise ValueError(f"{node.left.id!r} is not a declared enum variant in {expr!r}")
-            right = node.comparators[0]
-            vals = [right] if isinstance(right, ast.Constant) else getattr(right, "elts", None)
-            if vals is None or not all(isinstance(v, ast.Constant) for v in vals):
-                raise ValueError(f"right side must be literal value(s) in {expr!r}")
-            for v in vals:
-                assert isinstance(v, ast.Constant)
-                if v.value not in var["values"]:
-                    raise ValueError(f"{v.value!r} is not a value of {node.left.id} in {expr!r}")
-        elif isinstance(node, ast.Name):
-            if node.id not in variants:
-                raise ValueError(f"undeclared variant {node.id!r} in {expr!r}")
-        elif not isinstance(node, ast.Expression | ast.BoolOp | ast.And | ast.Or | ast.UnaryOp
-                            | ast.Not | ast.Load | ast.Eq | ast.NotEq | ast.In | ast.NotIn
-                            | ast.Constant | ast.Tuple | ast.List):
-            raise ValueError(f"syntax {type(node).__name__} not allowed in {expr!r}")
-    return tree
-
-
-_CHECKED: dict[tuple[str, int], ast.Expression] = {}
-
-
-def holds(expr: str | None, choice: Mapping[str, Any], variants: Mapping[str, Any]) -> bool:
-    if expr is None:
-        return True
-    key = (expr, id(variants))
-    if key not in _CHECKED:
-        _CHECKED[key] = check_condition(expr, variants)
-    tree = _CHECKED[key]
-
-    def ev(n: ast.AST) -> Any:
-        if isinstance(n, ast.Expression):
-            return ev(n.body)
-        if isinstance(n, ast.BoolOp):
-            vals = [ev(v) for v in n.values]
-            return all(vals) if isinstance(n.op, ast.And) else any(vals)
-        if isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.Not):
-            return not ev(n.operand)
-        if isinstance(n, ast.Name):
-            return choice[n.id]
-        if isinstance(n, ast.Constant):
-            return n.value
-        if isinstance(n, ast.Tuple | ast.List):
-            return [ev(e) for e in n.elts]
-        if isinstance(n, ast.Compare):
-            left, right, op = ev(n.left), ev(n.comparators[0]), n.ops[0]
-            if isinstance(op, ast.Eq):
-                return left == right
-            if isinstance(op, ast.NotEq):
-                return left != right
-            if isinstance(op, ast.In):
-                return left in right
-            if isinstance(op, ast.NotIn):
-                return left not in right
-        raise ValueError(type(n).__name__)
-
-    return bool(ev(tree))
-
-
-def condition_names(t: Mapping[str, Any]) -> set[str]:
-    exprs = [g.get("when") for g in t["groups"]] + [line.get("when") for _, line in lines(t)]
-    exprs += [r.get("when") for r in t["rules"]]
-    return {n.id for e in exprs if e for n in ast.walk(ast.parse(e, mode="eval"))
-            if isinstance(n, ast.Name)}
-
-
-def combos(t: Mapping[str, Any]) -> Iterator[dict[str, Any]]:
-    """Every combination of the variants that appear in a condition; the rest stay at default
-    (they cannot change which lines are active, e.g. shower_kw only selects a lookup row)."""
-    variants = t["variants"]
-    used = condition_names(t)
-    keys = [k for k in variants if k in used]
-    fixed = {k: v["default"] for k, v in variants.items() if k not in used}
-    domains = [[False, True] if variants[k]["type"] == "bool" else list(variants[k]["values"])
-               for k in keys]
-    for values in itertools.product(*domains):
-        yield {**fixed, **dict(zip(keys, values, strict=True))}
-
-
-def active_lines(t: Mapping[str, Any], choice: Mapping[str, Any]) -> set[str]:
-    v = t["variants"]
-    return {line["id"] for g, line in lines(t)
-            if holds(g.get("when"), choice, v) and holds(line.get("when"), choice, v)}
-
-
-def sample_env(t: Mapping[str, Any]) -> dict[str, Decimal]:
-    env = {k: Decimal(p["value"]) for k, p in params()["parameters"].items()}
-    env.update({k: Decimal(i["sample"]) for k, i in t["inputs"].items()})
-    for k, d in (t.get("derived") or {}).items():
-        env[k] = evaluate(d["formula"], env)
-    return env
-
-
-# --------------------------------------------------------------------------- the helpers themselves
-
-
-@pytest.mark.parametrize("bad", ["__import__('os')", "x ** 2", "1.1 * x", "x * 300", "y + 1",
-                                 "x.real", "[x][0]", "ceil(x, key=1)", "'a'"])
-def test_the_formula_checker_rejects_unsafe_or_hard_coded_expressions(bad: str) -> None:
-    with pytest.raises(ValueError):
-        check_formula(bad, {"x"})
-
-
-def test_the_evaluator_uses_decimal_and_ceil_rounds_up() -> None:
-    env = {"a": Decimal("2.88"), "b": Decimal("10.1")}
-    assert evaluate("ceil(b / a)", env) == Decimal(4)
-    assert evaluate("b * (1 + a) - 1", env) == Decimal("10.1") * Decimal("3.88") - 1
-    assert isinstance(evaluate("max(a, b)", env), Decimal)
-
-
-def test_the_condition_checker_rejects_unknown_variants_and_values() -> None:
-    v = {"wc_type": {"type": "enum", "values": ["close_coupled", "wall_hung"]},
-         "layout_change": {"type": "bool"}}
-    assert holds("wc_type == 'wall_hung' and not layout_change",
-                 {"wc_type": "wall_hung", "layout_change": False}, v)
-    for bad in ("wc_type == 'back_to_wall'", "wall_type == 'stud'", "layout_change == 1",
-                "__import__('os')"):
-        with pytest.raises(ValueError):
-            check_condition(bad, v)
+def provenance_holders(lib: JobKitLibrary) -> Iterator[tuple[str, list[dict[str, Any]]]]:
+    p = load("parameters")
+    for k, v in p["parameters"].items():
+        yield f"parameters.{k}", v["provenance"]
+    for k, v in p["lookups"].items():
+        yield f"lookups.{k}", v["provenance"]
+    for line in all_lines(lib):
+        yield f"line {line.id}", list(line.provenance)
+        for o in line.options:
+            yield f"option {line.id}.{o.id}", list(o.provenance)
+    for scope_id in lib.scope_ids():
+        scope = lib.scope(scope_id)
+        yield f"scope {scope_id}", list(scope.job_provenance)
+        for r in scope.rules:
+            yield f"rule {scope_id}.{r.id}", list(r.provenance)
 
 
 # --------------------------------------------------------------------------- files and labels
 
 
 def test_all_kit_files_and_the_readme_exist() -> None:
-    for name in (*TEMPLATES, "parameters"):
+    for name in DATA_FILES:
         assert (KIT_DIR / f"{name}.yaml").is_file(), name
     assert README.is_file()
+    assert sorted(p.stem for p in (KIT_DIR / "modules").glob("*.yaml")) == sorted(MODULES)
+    assert sorted(p.stem for p in (KIT_DIR / "scopes").glob("*.yaml")) == sorted(SCOPE_IDS)
+    legacy = ("bathroom_full", "bathroom_cloakroom", "wc_replacement", "wet_room")
+    assert not [n for n in legacy if (KIT_DIR / f"{n}.yaml").exists()], "old layout left behind"
 
 
-@pytest.mark.parametrize("name", (*TEMPLATES, "parameters"))
+@pytest.mark.parametrize("name", DATA_FILES)
 def test_every_file_is_labelled_synthetic_and_needs_tradesperson_review(name: str) -> None:
     t = load(name)
     assert t["id"].startswith("uk.") and t["version"] and isinstance(t["version"], str)
     assert "synthetic" in t["label"] and "tradesperson review required" in t["label"]
     assert t["status"] == "needs_tradesperson_review"
+    if "review" in t:
+        assert t["review"]["reviewed_by"] is None or t["status"] != "needs_tradesperson_review"
 
 
-def test_readme_states_licensing_policy_and_review_status() -> None:
+def test_readme_states_licensing_policy_review_status_and_schema() -> None:
     text = README.read_text(encoding="utf-8")
     for must in ("Uniclass 2015 © NBS, CC BY-ND 4.0", "ODC-By", "M3NHF", "SFG20", "BIMobject",
-                 "ECLASS", "Spon", "BCIS", "needs_tradesperson_review", "verbatim"):
+                 "ECLASS", "Spon", "BCIS", "needs_tradesperson_review", "verbatim",
+                 "library.yaml", "questions.yaml", "parameters.yaml", "modules/", "scopes/",
+                 "upfront", "on_review", "most_used", "budget", "premium", "default_template",
+                 "export_job_kits.py"):
         assert must in text, must
-    for name in TEMPLATES:
-        assert f"{name}.yaml" in text, name
+    for scope_id in SCOPE_IDS:
+        assert f"{scope_id}.yaml" in text, scope_id
 
 
 # --------------------------------------------------------------------------- provenance
 
 
-@pytest.mark.parametrize("name", (*TEMPLATES, "parameters"))
-def test_every_line_rule_and_parameter_cites_an_allowed_source_from_the_notes(name: str) -> None:
+def test_every_line_option_rule_scope_and_parameter_cites_an_allowed_source(
+        library: JobKitLibrary) -> None:
     notes = notes_text()
-    holders = list(provenance_holders(name))
-    assert holders
+    holders = list(provenance_holders(library))
+    assert len(holders) > 200
     for where, prov in holders:
         assert isinstance(prov, list) and prov, f"{where}: no provenance"
         for p in prov:
@@ -343,55 +180,69 @@ def test_every_line_rule_and_parameter_cites_an_allowed_source_from_the_notes(na
             assert not [x for x in EXCLUDED_URL_PARTS if x in low], (where, url)
 
 
-@pytest.mark.parametrize("name", TEMPLATES)
-def test_lines_are_generic_specs_without_brand_names(name: str) -> None:
-    for _, line in lines(load(name)):
-        text = f"{line['description']} {line['spec']}".lower()
-        hits = [b for b in BRANDS if re.search(rf"\b{re.escape(b.strip())}\b", text)]
-        assert not hits, (line["id"], hits)
+def test_lines_and_options_are_generic_specs_without_brand_names(library: JobKitLibrary) -> None:
+    for line in all_lines(library):
+        texts = [line.description, line.spec] + [f"{o.label} {o.spec}" for o in line.options]
+        for text in texts:
+            hits = [b for b in BRANDS if re.search(rf"\b{re.escape(b.strip())}\b", text.lower())]
+            assert not hits, (line.id, hits)
 
 
-@pytest.mark.parametrize("name", TEMPLATES)
-def test_classification_codes_are_only_those_verified_in_the_notes(name: str) -> None:
+def test_classification_codes_are_only_those_verified_in_the_notes(
+        library: JobKitLibrary) -> None:
     notes = notes_text()
-    t = load(name)
-    assert "Uniclass 2015 © NBS, CC BY-ND 4.0" in t["classification_attribution"]["uniclass"]
-    assert "ODC-By" in t["classification_attribution"]["etim"]
-    for _, line in lines(t):
-        u = line.get("uniclass_pr")
+    attribution = load("library")["classification_attribution"]
+    assert "Uniclass 2015 © NBS, CC BY-ND 4.0" in attribution["uniclass"]
+    assert "ODC-By" in attribution["etim"]
+    for line in all_lines(library):
+        u = line.uniclass_pr
         if u:
-            assert re.fullmatch(r"Pr_\d\d(_\d\d){1,3}", u["code"]), line["id"]
-            assert uniclass_verified(u["code"], u["title"], notes), (line["id"], u)
-            assert u["version"].startswith("Pr v"), line["id"]
-        e = line.get("etim_class")
+            assert re.fullmatch(r"Pr_\d\d(_\d\d){1,3}", u["code"]), line.id
+            assert uniclass_verified(u["code"], u["title"], notes), (line.id, u)
+            assert u["version"].startswith("Pr v"), line.id
+        e = line.etim_class
         if e:
-            assert re.search(rf"{e['code']} {re.escape(e['title'])}", notes), (line["id"], e)
-            assert e["version"] == "ETIM 10.1", line["id"]
+            assert re.search(rf"{e['code']} {re.escape(e['title'])}", notes), (line.id, e)
+            assert e["version"] == "ETIM 10.1", line.id
+    for scope_id in library.scope_ids():
+        for ss in library.scope(scope_id).uniclass_ss:
+            assert ss_verified(ss["code"], ss["title"], notes), ss
 
 
-# --------------------------------------------------------------------------- structure and formulas
+# --------------------------------------------------------------------------- structure
 
 
-@pytest.mark.parametrize("name", TEMPLATES)
-def test_structure_ids_units_and_groups(name: str) -> None:
-    t = load(name)
-    ids = [line["id"] for _, line in lines(t)]
-    assert len(ids) == len(set(ids)), "duplicate line ids"
-    group_ids = [g["id"] for g in t["groups"]]
-    assert len(group_ids) == len(set(group_ids))
-    for g, line in lines(t):
-        assert line["unit"] in UNITS, (line["id"], line["unit"])
-        assert isinstance(line["quantity"], str), line["id"]
-        assert line["description"].strip() and line["spec"].strip(), line["id"]
-        assert g["lines"], g["id"]
-    if name == "bathroom_full":
-        assert REQUIRED_FULL_GROUPS <= set(group_ids), REQUIRED_FULL_GROUPS - set(group_ids)
-        new_wall = next(g for g in t["groups"] if g["id"] == "new_wall")
-        assert new_wall["when"] == "layout_change"
+def test_each_line_is_defined_once_in_exactly_one_module(library: JobKitLibrary) -> None:
+    seen: dict[str, str] = {}
+    for module in library.modules.values():
+        for line in module.lines:
+            assert line.id not in seen, (line.id, seen.get(line.id), module.id)
+            seen[line.id] = module.id
+            assert line.module == module.id
+    assert len(seen) >= 120
+    used = {sm.id for s in library.scope_ids() for sm in library.scope(s).modules}
+    assert used == set(library.modules), set(library.modules) - used
+
+
+@pytest.mark.parametrize("scope_id", SCOPE_IDS)
+def test_lines_have_known_units_formulas_and_text(library: JobKitLibrary, scope_id: str) -> None:
+    for sm in library.scope(scope_id).modules:
+        assert sm.lines, sm.id
+        for line in sm.lines:
+            assert line.unit in UNITS, (line.id, line.unit)
+            assert isinstance(line.quantity, str), line.id
+            assert line.description.strip() and line.spec.strip(), line.id
+
+
+def test_the_full_scope_has_the_required_modules_and_a_conditional_partition(
+        library: JobKitLibrary) -> None:
+    mods = {sm.id: sm for sm in library.scope("bathroom_full").modules}
+    assert REQUIRED_FULL_MODULES <= set(mods), REQUIRED_FULL_MODULES - set(mods)
+    assert mods["partition"].when == "layout_change"
 
 
 def test_parameters_are_decimal_strings_with_units() -> None:
-    p = params()
+    p = load("parameters")
     for k, v in p["parameters"].items():
         assert isinstance(v["value"], str), k
         Decimal(v["value"])
@@ -402,101 +253,186 @@ def test_parameters_are_decimal_strings_with_units() -> None:
         assert needed in p["parameters"], needed
 
 
-@pytest.mark.parametrize("name", TEMPLATES)
-def test_formulas_reference_only_declared_inputs_and_parameters(name: str) -> None:
-    t = load(name)
-    env = sample_env(t)  # also evaluates every derived value in declaration order
-    for k, i in t["inputs"].items():
-        assert i["unit"].strip() and i["description"].strip(), k
-        assert k not in params()["parameters"], f"input {k} shadows a parameter"
-    for _, line in lines(t):
-        q = evaluate(line["quantity"], env)
-        assert q >= 0, (line["id"], q)
-        if line["unit"] in COUNT_UNITS:
-            assert q == q.to_integral_value(), f"{line['id']}: {q} {line['unit']} is not whole"
+@pytest.mark.parametrize("scope_id", SCOPE_IDS)
+def test_formulas_use_only_declared_names_and_the_whitelist(library: JobKitLibrary,
+                                                            scope_id: str) -> None:
+    scope = library.scope(scope_id)
+    names = library.value_names(scope_id)
+    assert not (set(library.parameters) & ({m.id for m in scope.measurements}
+                                           | {a.id for a in scope.allowances})), "shadowing"
+    for name, d in scope.derived.items():
+        check_formula(d.formula, names)
+        assert name not in formula_names(d.formula), name
+    for sm in scope.modules:
+        for line in sm.lines:
+            check_formula(line.quantity, names)
 
 
-@pytest.mark.parametrize("name", TEMPLATES)
-def test_spec_placeholders_and_lookups_resolve(name: str) -> None:
-    t, p = load(name), params()
-    for _, line in lines(t):
-        for ref in re.findall(r"\{(\w+)\}", line["spec"]):
-            assert ref in p["parameters"], (line["id"], ref)
-        lk = line.get("spec_lookup")
-        if lk:
-            table = p["lookups"][lk["table"]]
-            var = t["variants"][lk["key"]]
-            assert table["key_variant"] == lk["key"]
-            assert set(var["values"]) <= set(table["rows"]), (line["id"], var["values"])
+@pytest.mark.parametrize("scope_id", SCOPE_IDS)
+def test_spec_placeholders_and_lookups_resolve(library: JobKitLibrary, scope_id: str) -> None:
+    scope = library.scope(scope_id)
+    questions = {q.id: q for q in scope.questions}
+    for sm in scope.modules:
+        for line in sm.lines:
+            for text in [line.spec] + [o.spec for o in line.options]:
+                for ref in re.findall(r"\{(\w+)\}", text):
+                    assert ref in library.parameters, (line.id, ref)
+            lk = line.spec_lookup
+            if lk:
+                table = library.lookups[lk["table"]]
+                assert table["key_variant"] == lk["key"]
+                values = [o.value for o in questions[lk["key"]].question.options]
+                assert set(values) <= set(table["rows"]), (line.id, values)
 
 
-def test_tile_quantity_uses_the_profile_waste_factor_not_a_literal() -> None:
-    t = load("bathroom_full")
-    tiles = next(line for _, line in lines(t) if line["id"] == "tl_wall_tiles")
-    env = sample_env(t)
-    waste = Decimal(params()["parameters"]["tile_waste_factor"]["value"])
-    assert evaluate(tiles["quantity"], env) == Decimal(t["inputs"]["wall_tiled_m2"]["sample"]) * (
-        1 + waste)
+# --------------------------------------------------------------------------- measurements
 
 
-# --------------------------------------------------------------------------- variants and rules
+@pytest.mark.parametrize("scope_id", SCOPE_IDS)
+def test_measurements_are_minimal_and_everything_else_is_derived_or_an_allowance(
+        library: JobKitLibrary, scope_id: str) -> None:
+    scope = library.scope(scope_id)
+    asked = {m.id for m in scope.measurements}
+    assert asked <= CORE_MEASUREMENTS, asked - CORE_MEASUREMENTS
+    for m in scope.measurements:
+        assert m.unit == "m" and m.label.strip() and m.sample > 0, m.id
+    for a in scope.allowances:
+        assert a.label.strip() and a.unit.strip() and a.description.strip(), a.id
+        assert a.value >= 0, a.id
+    for name in ("floor_m2", "wall_tiled_m2"):
+        if asked:
+            assert name in scope.derived, (scope_id, name)
 
 
-@pytest.mark.parametrize("name", TEMPLATES)
-def test_variants_and_conditions_are_declared(name: str) -> None:
-    t = load(name)
-    for k, v in t["variants"].items():
-        assert v["question"].strip(), k
-        assert v["type"] in {"bool", "enum"}, k
-        if v["type"] == "enum":
-            assert v["values"] and v["default"] in v["values"], k
+# --------------------------------------------------------------------------- questions
+
+
+def test_every_bank_question_has_a_default_and_every_option_a_label() -> None:
+    bank = load("questions")["questions"]
+    for qid, q in bank.items():
+        assert q["question"].strip() and q["type"] in {"bool", "enum"}, qid
+        values = [o["value"] for o in q["options"]]
+        assert len(values) == len(set(values)) >= 2, qid
+        assert "default" in q and q["default"] in values, qid
+        assert all(isinstance(o["label"], str) and o["label"].strip() for o in q["options"]), qid
+        if q["type"] == "bool":
+            assert sorted(values) == [False, True], qid
         else:
-            assert isinstance(v["default"], bool), k
-    for g in t["groups"]:
-        if g.get("when"):
-            check_condition(g["when"], t["variants"])
-        for line in g["lines"]:
-            if line.get("when"):
-                check_condition(line["when"], t["variants"])
-    for r in t["rules"]:
-        if r.get("when"):
-            check_condition(r["when"], t["variants"])
+            assert all(isinstance(v, str) for v in values), qid
 
 
-@pytest.mark.parametrize("name", TEMPLATES)
-def test_rules_reference_existing_lines_and_hold_for_every_variant_combination(name: str) -> None:
-    t = load(name)
-    ids = {line["id"] for _, line in lines(t)}
-    for r in t["rules"]:
-        refs = set(r.get("requires", [])) | set(r.get("excludes", []))
-        assert refs, r["id"]
-        assert refs <= ids, (r["id"], refs - ids)
-        assert r["rationale"].strip(), r["id"]
+@pytest.mark.parametrize("scope_id", SCOPE_IDS)
+def test_question_budget_at_most_three_upfront(library: JobKitLibrary, scope_id: str) -> None:
+    scope = library.scope(scope_id)
+    upfront = [q for q in scope.questions if q.ask == "upfront"]
+    assert len(upfront) <= library.max_upfront_questions == 3, [q.id for q in upfront]
+    assert upfront, "ask at least one question upfront"
+    for q in scope.questions:
+        assert q.ask in {"upfront", "on_review"}, q.id
+        assert q.default in [o.value for o in q.question.options], q.id
+        assert all(o.label.strip() for o in q.question.options), q.id
+
+
+@pytest.mark.parametrize("scope_id", SCOPE_IDS)
+def test_question_priority_is_its_impact_and_upfront_ones_have_the_most(
+        library: JobKitLibrary, scope_id: str) -> None:
+    scope = library.scope(scope_id)
+    for q in scope.questions:
+        assert q.priority == library.question_impact(scope_id, q.id), (q.id, q.priority)
+        assert q.priority >= 1, f"{q.id} changes nothing: drop it"
+    upfront = [q.priority for q in scope.questions if q.ask == "upfront"]
+    review = [q.priority for q in scope.questions if q.ask == "on_review"]
+    assert not review or min(upfront) >= max(review), (upfront, review)
+
+
+@pytest.mark.parametrize("scope_id", SCOPE_IDS)
+def test_conditions_reference_only_the_scope_questions(library: JobKitLibrary,
+                                                       scope_id: str) -> None:
+    scope = library.scope(scope_id)
+    domains = library.domains(scope_id)
+    for sm in scope.modules:
+        if sm.when:
+            check_condition(sm.when, domains)
+        for line in sm.lines:
+            if line.when:
+                check_condition(line.when, domains)
+    for r in scope.rules:
+        if r.when:
+            check_condition(r.when, domains)
+    for qid, value in scope.fixed_answers.items():
+        assert qid not in {q.id for q in scope.questions}, qid
+        assert value in domains[qid], (qid, value)
+
+
+# --------------------------------------------------------------------------- options
+
+
+def test_line_options_have_one_default_labels_and_allowed_tags(library: JobKitLibrary) -> None:
     n = 0
-    for choice in combos(t):
+    for line in all_lines(library):
+        if not line.options:
+            continue
         n += 1
-        active = active_lines(t, choice)
-        for r in t["rules"]:
-            if holds(r.get("when"), choice, t["variants"]):
-                missing = set(r.get("requires", [])) - active
-                clash = set(r.get("excludes", [])) & active
-                assert not missing and not clash, (r["id"], choice, missing, clash)
-    assert n >= 2
+        assert sum(o.default for o in line.options) == 1, line.id
+        ids = [o.id for o in line.options]
+        assert len(ids) == len(set(ids)) >= 2, line.id
+        assert line.default_option in ids, line.id
+        for o in line.options:
+            assert o.label.strip() and o.spec.strip(), (line.id, o.id)
+            assert set(o.tags) <= TAGS, (line.id, o.id, o.tags)
+            assert o.provenance, (line.id, o.id)
+    assert n >= 5
 
 
-def test_wall_hung_wc_needs_frame_plate_and_pan_but_no_separate_110mm_connector() -> None:
-    for name in ("bathroom_full", "bathroom_cloakroom", "wc_replacement"):
-        t = load(name)
-        rule = next(r for r in t["rules"] if r["id"] == "wall_hung_wc")
-        assert rule["when"] == "wc_type == 'wall_hung'"
-        assert {"sw_wc_frame", "sw_wc_flush_plate", "sw_wc_pan_wall_hung"} <= set(rule["requires"])
-        assert "sw_wc_pan_connector" in rule["excludes"]
+def test_option_schema_rejects_two_defaults_and_unknown_tags(tmp_path: Path) -> None:
+    import shutil
+
+    from components.job_kits import KitError
+
+    for mutate in ("two_defaults", "bad_tag"):
+        lib_dir = tmp_path / mutate
+        shutil.copytree(KIT_DIR, lib_dir, ignore=shutil.ignore_patterns("export"))
+        path = lib_dir / "modules" / "basin.yaml"
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        line = next(x for x in data["lines"] if x["id"] == "sw_basin_taps")
+        if mutate == "two_defaults":
+            for o in line["options"]:
+                o["default"] = True
+        else:
+            line["options"][0]["tags"] = ["cheapest"]
+        path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True),
+                        encoding="utf-8")
+        with pytest.raises(KitError):
+            load_library(lib_dir)
 
 
-def test_electric_shower_rule_and_circuit_lookup() -> None:
-    t, p = load("bathroom_full"), params()
-    rule = next(r for r in t["rules"] if r["id"] == "electric_shower")
-    assert {"el_shower_isolator", "el_shower_rcbo", "el_shower_cable"} <= set(rule["requires"])
+# --------------------------------------------------------------------------- rules
+
+
+@pytest.mark.parametrize("scope_id", SCOPE_IDS)
+def test_rules_reference_lines_in_the_scope(library: JobKitLibrary, scope_id: str) -> None:
+    scope = library.scope(scope_id)
+    ids = {line.id for sm in scope.modules for line in sm.lines}
+    for r in scope.rules:
+        refs = set(r.requires) | set(r.excludes)
+        assert refs, r.id
+        assert refs <= ids, (r.id, refs - ids)
+        assert r.rationale.strip(), r.id
+
+
+def test_wall_hung_wc_needs_frame_plate_and_pan_but_no_separate_110mm_connector(
+        library: JobKitLibrary) -> None:
+    for scope_id in ("bathroom_full", "bathroom_cloakroom", "bathroom_wc_only"):
+        rule = next(r for r in library.scope(scope_id).rules if r.id == "wall_hung_wc")
+        assert rule.when == "wc_type == 'wall_hung'"
+        assert {"sw_wc_frame", "sw_wc_flush_plate", "sw_wc_pan_wall_hung"} <= set(rule.requires)
+        assert "sw_wc_pan_connector" in rule.excludes
+
+
+def test_electric_shower_rule_and_circuit_lookup(library: JobKitLibrary) -> None:
+    rule = next(r for r in library.scope("bathroom_full").rules if r.id == "electric_shower")
+    assert {"el_shower_isolator", "el_shower_rcbo", "el_shower_cable"} <= set(rule.requires)
+    p = load("parameters")
     table = p["lookups"]["electric_shower_circuit"]
     capacity = p["lookups"]["twin_earth_current_capacity_a"]["rows"]
     manufacturer_min = Decimal(p["parameters"]["electric_shower_cable_min_mm2"]["value"])
@@ -509,12 +445,12 @@ def test_electric_shower_rule_and_circuit_lookup() -> None:
             assert chosen == expect, (kw, method, chosen, expect)
 
 
-def test_extractor_rule_requires_isolator_duct_and_condensation_trap() -> None:
-    for name in TEMPLATES:
-        t = load(name)
-        rule = next((r for r in t["rules"] if r["id"] == "extractor_fan"), None)
+def test_extractor_rule_requires_isolator_duct_and_condensation_trap(
+        library: JobKitLibrary) -> None:
+    for scope_id in SCOPE_IDS:
+        rule = next((r for r in library.scope(scope_id).rules if r.id == "extractor_fan"), None)
         if rule is None:
-            assert name == "wc_replacement"
+            assert scope_id == "bathroom_wc_only"
             continue
         assert {"vn_fan", "el_fan_isolator", "vn_duct", "vn_condensation_trap"} <= set(
-            rule["requires"])
+            rule.requires)

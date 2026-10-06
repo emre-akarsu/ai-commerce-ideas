@@ -1,0 +1,156 @@
+# WC replacement
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.bathroom.wc_only
+scope_id: bathroom_wc_only
+job_type: bathroom
+scope: wc_only
+replaces: uk.wc_replacement
+version: 0.2.0
+market: uk
+title: WC replacement
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+review:
+  owner: null
+  reviewed_by: null
+  reviewed_on: null
+  note: Not reviewed. A named owner and a UK tradesperson must review every line, quantity and rule before
+    any customer use.
+description: Replace one WC like for like (close-coupled) or with a wall-hung pan on a concealed frame.
+  Separate WC replacement is its own line in council kitchen and bathroom programmes.
+assumption_source: default_template
+uniclass_ss:
+- code: Ss_40_15_75_97
+  title: WC systems
+  version: Ss v1.43 (July 2026)
+job_provenance:
+- source_title: LB Hillingdon kitchen and bathroom replacement programme notice (separate WC line; search
+    snippet)
+  url: https://www.contractsfinder.service.gov.uk/Notice/17827971-84e2-4670-ac4a-6c13c871fc77
+  licence: unknown-copyright-facts-only
+  evidence_quality: search_snippet
+- source_title: 'Wickes how-to guide: installing a toilet'
+  url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
+  licence: all-rights-reserved-facts-only
+  evidence_quality: retailer
+- source_title: 'A Decent Home: definition and guidance (DCLG, June 2006)'
+  url: https://assets.publishing.service.gov.uk/media/5a7968b740f0b63d72fc5926/138355.pdf
+  licence: OGL-3.0
+  evidence_quality: public_spec
+questions:
+- id: wc_type
+  ask: upfront
+  priority: 11
+- id: soil_outlet
+  ask: upfront
+  priority: 2
+- id: wall_type
+  ask: on_review
+  priority: 2
+- id: joint_system
+  ask: upfront
+  priority: 4
+fixed_answers: {}
+measurements: []
+allowances:
+  sealant_joint_m:
+    value: '1.5'
+    unit: m
+    label: Sealant joint length
+    description: Sealant joint length around the pan and cistern.
+  pipe_15mm_m:
+    value: '1'
+    unit: m
+    label: 15 mm supply pipe run
+    description: New 15 mm supply pipe run.
+  paint_wall_m2:
+    value: '3'
+    unit: m2
+    label: Wall area to paint
+    description: Wall area to make good and paint.
+  paint_ceiling_m2:
+    value: '0'
+    unit: m2
+    label: Ceiling area to paint
+    description: Ceiling area to paint (usually 0).
+derived: {}
+modules:
+- module: strip_out
+  overrides:
+    so_cap_feeds:
+      quantity: '1'
+    so_remove_fittings:
+      description: Disconnect and remove the existing WC
+- module: first_fix_plumbing
+- module: wc
+  overrides:
+    sw_wc_pan_connector:
+      description: WC pan connector for a horizontal soil outlet
+      spec: Pan connector, 110 mm, straight or offset for a horizontal outlet (P trap); rigid where alignment
+        allows
+      when: wc_type == 'close_coupled' and soil_outlet == 'horizontal'
+  include_lines:
+  - sw_wc_pan_connector_vertical
+- module: consumables
+  overrides:
+    cs_clear_sealant_wc:
+      when: null
+- module: decorating
+- module: waste
+rules:
+- id: pan_connector_horizontal
+  when: wc_type == 'close_coupled' and soil_outlet == 'horizontal'
+  requires:
+  - sw_wc_pan_connector
+  excludes:
+  - sw_wc_pan_connector_vertical
+  rationale: 'The connector depends on the soil position: horizontal outlet to P trap.'
+  provenance:
+  - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+    url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: pan_connector_vertical
+  when: wc_type == 'close_coupled' and soil_outlet == 'vertical'
+  requires:
+  - sw_wc_pan_connector_vertical
+  excludes:
+  - sw_wc_pan_connector
+  rationale: 'The connector depends on the soil position: S or turned P trap.'
+  provenance:
+  - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+    url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: wall_hung_no_pan_connector
+  when: wc_type == 'wall_hung'
+  excludes:
+  - sw_wc_pan_connector
+  - sw_wc_pan_connector_vertical
+  rationale: Wall-hung frames connect through their own 90/110 mm adaptor whatever the soil position.
+  provenance:
+  - source_title: Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet; page
+      404 when fetched)
+    url: https://catalog.geberit.co.uk/en-GB/product/PRO_100926
+    licence: manufacturer-doc-facts-only
+    evidence_quality: search_snippet
+  - source_title: Grohe Rapid SL 3-in-1 set 3886020A component list (QS Supplies retailer page)
+    url: https://qssupplies.co.uk/bathroom-furniture-shower-taps/321819.htm
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: close_coupled_consumables
+  when: wc_type == 'close_coupled'
+  requires:
+  - cs_wc_packers
+  - cs_clear_sealant_wc
+  - cs_thread_sealant
+  rationale: Pan installation needs packers, silicone and PTFE.
+  provenance:
+  - source_title: 'Wickes how-to guide: installing a toilet'
+    url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer

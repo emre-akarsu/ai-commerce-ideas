@@ -1,0 +1,148 @@
+# Module: Wet-room floor and drainage
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.floor_drainage
+module: floor_drainage
+version: 0.2.0
+market: uk
+title: Wet-room floor and drainage
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: dr_former
+  description: Wet-room floor former laid to falls with gully outlet
+  spec: Pre-formed wet-room floor former with integral gully outlet, falls to the gully as the former
+    maker specifies; shower area at least {level_shower_area_min_mm} mm square, {level_shower_area_preferred_mm}
+    mm preferred
+  unit: nr
+  quantity: '1'
+  uniclass_pr:
+    code: Pr_40_20_60_96
+    title: Wet room floor formers
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+    url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: dr_gully_trap
+  description: Floor gully trap connected to the drainage
+  spec: Gully trap and outlet to suit the former
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+- id: dr_waste_pipe
+  description: Waste pipe from the gully
+  spec: Waste pipe and fittings to suit the gully outlet size
+  unit: m
+  quantity: waste_gully_m
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+  - source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+    url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: dr_timber_support
+  description: Support for the former in a timber floor
+  spec: Joist noggins and exterior-grade plywood deck to carry the former
+  unit: item
+  quantity: '1'
+  when: floor_construction == 'timber'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: derived
+    derived_from: Walsall requires floor levels corrected so water does not run out of the shower area;
+      timber-floor details are not in the notes and need tradesperson input.
+- id: dr_screed
+  description: Screed or recess for the former in a concrete floor
+  spec: Sand-cement screed or levelling compound to set the former level
+  unit: item
+  quantity: '1'
+  when: floor_construction == 'concrete'
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: derived
+    derived_from: ADM's 'potential level access shower' mentions removing screed or solid flooring; method
+      and quantity need tradesperson input.
+- id: dr_pump
+  description: Pumped shower waste where the falls are not enough
+  spec: Pumped gully or shower waste pump sized for the shower flow
+  unit: nr
+  quantity: '1'
+  when: drainage == 'pumped'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+    url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: dr_pump_supply
+  description: Electrical supply for the waste pump
+  spec: Fused connection for the pump, outside the shower zone
+  unit: nr
+  quantity: '1'
+  when: drainage == 'pumped'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: derived
+    derived_from: Walsall option 8a adds a pumped waste; its electrical supply is assumed.
+rules:
+- id: wet_room_drainage
+  requires:
+  - dr_former
+  - dr_gully_trap
+  - dr_waste_pipe
+  - wp_tanking_kit
+  rationale: An installed level-access shower is step-free with the floor laid to falls towards a gully
+    connected to the drainage, inside a tanked wet room.
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: pumped_waste
+  when: drainage == 'pumped'
+  requires:
+  - dr_pump
+  - dr_pump_supply
+  rationale: Where falls are inadequate, a pumped gully and waste pump is used.
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+    url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec

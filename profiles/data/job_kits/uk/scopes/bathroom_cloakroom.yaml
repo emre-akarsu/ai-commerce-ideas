@@ -1,0 +1,183 @@
+# Cloakroom refit (WC and basin)
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.bathroom.cloakroom
+scope_id: bathroom_cloakroom
+job_type: bathroom
+scope: cloakroom
+replaces: uk.bathroom_cloakroom
+version: 0.2.0
+market: uk
+title: Cloakroom refit (WC and basin)
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+review:
+  owner: null
+  reviewed_by: null
+  reviewed_on: null
+  note: Not reviewed. A named owner and a UK tradesperson must review every line, quantity and rule before
+    any customer use.
+description: Refit a separate WC room with a WC and a small washbasin. Decent Homes requires a basin on
+  the same floor as the WC; separate WC replacement appears as its own line in council programmes.
+assumption_source: default_template
+uniclass_ss:
+- code: Ss_40_15_75_97
+  title: WC systems
+  version: Ss v1.43 (July 2026)
+- code: Ss_40_15_90
+  title: Toilet systems
+  version: Ss v1.43 (July 2026)
+job_provenance:
+- source_title: 'A Decent Home: definition and guidance (DCLG, June 2006)'
+  url: https://assets.publishing.service.gov.uk/media/5a7968b740f0b63d72fc5926/138355.pdf
+  licence: OGL-3.0
+  evidence_quality: public_spec
+- source_title: LB Hillingdon kitchen and bathroom replacement programme notice (separate WC line; search
+    snippet)
+  url: https://www.contractsfinder.service.gov.uk/Notice/17827971-84e2-4670-ac4a-6c13c871fc77
+  licence: unknown-copyright-facts-only
+  evidence_quality: search_snippet
+- source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+    (Sell2Wales tender attachment)
+  url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+  licence: unknown-copyright-facts-only
+  evidence_quality: public_spec
+questions:
+- id: layout_change
+  ask: upfront
+  priority: 9
+- id: wc_type
+  ask: upfront
+  priority: 11
+- id: basin_mount
+  ask: on_review
+  priority: 3
+- id: wall_type
+  ask: on_review
+  priority: 3
+- id: joint_system
+  ask: on_review
+  priority: 4
+- id: floor_finish
+  ask: upfront
+  priority: 5
+fixed_answers: {}
+measurements:
+- id: room_width_m
+  sample: '1.0'
+- id: room_length_m
+  sample: '1.8'
+- id: tiled_height_m
+  sample: '0.3'
+allowances:
+  sealant_joint_m:
+    value: '3'
+    unit: m
+    label: Sealant joint length
+    description: Total sealant joint length (basin, WC).
+  pipe_15mm_m:
+    value: '4'
+    unit: m
+    label: 15 mm supply pipe run
+    description: New 15 mm supply pipe run.
+  waste_32mm_m:
+    value: '1.5'
+    unit: m
+    label: 32 mm waste run
+    description: New 32 mm waste run.
+  fan_cable_run_m:
+    value: '4'
+    unit: m
+    label: Fan cable run
+    description: Fan cable run.
+  fan_duct_run_m:
+    value: '2'
+    unit: m
+    label: Fan duct run
+    description: Fan duct run.
+  partition_length_m:
+    value: '1.8'
+    unit: m
+    label: Partition length
+    description: Length of new stud partition (0 if none).
+  partition_faces:
+    value: '2'
+    unit: nr
+    label: Partition faces to board
+    description: Faces of the partition to board (1 or 2).
+  tile_length_cm:
+    value: '30'
+    unit: cm
+    label: Tile length
+    description: Tile length.
+  tile_width_cm:
+    value: '60'
+    unit: cm
+    label: Tile width
+    description: Tile width.
+  tile_thickness_mm:
+    value: '9'
+    unit: mm
+    label: Tile thickness
+    description: Tile thickness.
+  grout_joint_mm:
+    value: '3'
+    unit: mm
+    label: Grout joint width
+    description: Grout joint width.
+  adhesive_notch_mm:
+    value: '6'
+    unit: mm
+    label: Trowel notch depth
+    description: Trowel notch depth.
+  tile_trim_m:
+    value: '5'
+    unit: m
+    label: Tile trim length
+    description: Length of exposed tile edges needing trim.
+  room_height_m:
+    value: '2.4'
+    unit: m
+    label: Room height
+    description: Room (ceiling) height.
+derived:
+  wall_tiled_m2:
+    formula: room_width_m * tiled_height_m
+    unit: m2
+    description: 'Splashback on one wall: room width x tiled height.'
+modules:
+- module: strip_out
+  overrides:
+    so_cap_feeds:
+      quantity: '3'
+    so_remove_fittings:
+      description: Disconnect and remove the existing WC, basin and fittings
+- module: partition
+  when: layout_change
+- module: first_fix_plumbing
+- module: electrics
+- module: tiling
+  overrides:
+    tl_wall_tiles:
+      spec: Ceramic or porcelain wall tiles for the splashback, about {splashback_height_mm} mm high above
+        the basin
+- module: flooring
+- module: wc
+- module: basin
+  overrides:
+    sw_basin_taps:
+      spec: Single basin mixer or pair of pillar taps, lever handles
+      default_option: mixer
+- module: ventilation
+  overrides:
+    vn_fan:
+      spec: Extract fan rated at least {sanitary_extract_l_s} l/s, run-on at least {extract_overrun_min}
+        min where there is no openable window; humidistat control optional; low-voltage (SELV) model if
+        inside a bathroom zone
+- module: consumables
+- module: decorating
+- module: waste
+rules: []

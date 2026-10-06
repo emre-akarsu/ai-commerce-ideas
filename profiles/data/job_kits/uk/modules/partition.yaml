@@ -1,0 +1,177 @@
+# Module: New stud partition
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.partition
+module: partition
+version: 0.2.0
+market: uk
+title: New stud partition
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: nw_studs
+  description: Timber studs for the new partition
+  spec: Studwork timber 38 x 63 mm or 38 x 89 mm, cut to partition height
+  unit: nr
+  quantity: partition_studs
+  uniclass_pr:
+    code: Pr_20_76_88
+    title: Timber sections
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: 'Screwfix guide: how to build a stud wall'
+    url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: nw_plates
+  description: Head and sole plates
+  spec: Timber to match studs, head and sole plates
+  unit: m
+  quantity: 2 * partition_length_m
+  uniclass_pr:
+    code: Pr_20_76_88
+    title: Timber sections
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: 'Screwfix guide: how to build a stud wall'
+    url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+    licence: unknown-copyright-facts-only
+    evidence_quality: derived
+    derived_from: Head plus sole plate = 2 x partition length.
+- id: nw_noggins
+  description: Noggins between studs
+  spec: Timber to match studs, one run per noggin row
+  unit: m
+  quantity: partition_length_m * noggin_rows
+  uniclass_pr:
+    code: Pr_20_76_88
+    title: Timber sections
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: 'Screwfix guide: how to build a stud wall'
+    url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+    licence: unknown-copyright-facts-only
+    evidence_quality: derived
+    derived_from: One noggin row along the partition length.
+- id: nw_timber_screws
+  description: Screws to fix the stud frame
+  spec: Timber screws 75-100 mm
+  unit: nr
+  quantity: partition_studs * timber_screws_per_stud
+  uniclass_pr:
+    code: Pr_20_29_76_98
+    title: Wood screws
+    version: Pr v1.43 (July 2026)
+  etim_class:
+    code: EC002385
+    title: Wood/timber screw
+    version: ETIM 10.1
+  provenance:
+  - source_title: 'Screwfix guide: how to build a stud wall'
+    url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: nw_board
+  description: Moisture-resistant plasterboard for the partition
+  spec: Moisture-resistant gypsum plasterboard 12.5 mm, 2400 x 1200
+  unit: nr
+  quantity: partition_boards
+  uniclass_pr:
+    code: Pr_25_71_35_52
+    title: Moisture-resistant gypsum plasterboards
+    version: Pr v1.43 (July 2026)
+  etim_class:
+    code: EC003143
+    title: Gypsum board
+    version: ETIM 10.1
+  provenance:
+  - source_title: 'Screwfix guide: how to build a stud wall'
+    url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: 'British Gypsum FAQ: screw fixing centres (search snippet; page 403 when fetched)'
+    url: https://www.british-gypsum.com/technical-support/self-help-tools/faqs/what-are-screw-fixing-centres-partitions-ceilings-encasements
+    licence: manufacturer-doc-facts-only
+    evidence_quality: search_snippet
+- id: nw_board_screws
+  description: Plasterboard screws
+  spec: Drywall screws 25-38 mm for timber studs
+  unit: nr
+  quantity: partition_boards * screws_per_board
+  uniclass_pr:
+    code: Pr_20_29_76_65
+    title: Plasterboard screws
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: 'British Gypsum FAQ: screw fixing centres (search snippet; page 403 when fetched)'
+    url: https://www.british-gypsum.com/technical-support/self-help-tools/faqs/what-are-screw-fixing-centres-partitions-ceilings-encasements
+    licence: manufacturer-doc-facts-only
+    evidence_quality: search_snippet
+  - source_title: 'Screwfix guide: how to build a stud wall'
+    url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: nw_insulation
+  description: Acoustic insulation between studs
+  spec: Mineral wool partition roll to suit stud depth
+  unit: m
+  quantity: ceil(partition_length_m)
+  provenance:
+  - source_title: 'Screwfix guide: how to build a stud wall'
+    url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: nw_joint_tape
+  description: Joint tape for board joints
+  spec: Paper joint tape about 50 mm wide
+  unit: m
+  quantity: partition_joint_m
+  provenance:
+  - source_title: Gyproc joint tape product data sheet
+    url: https://www.okarno.com/documents/product-datasheet/british-gypsum-pds-gyproc-joint-tape.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: nw_jointing_compound
+  description: Jointing compound for taped joints
+  spec: Ready-mixed or powder jointing compound for hand application
+  unit: kg
+  quantity: ceil(partition_joint_m * jointing_compound_kg_per_m)
+  etim_class:
+    code: EC002722
+    title: Jointing compound
+    version: ETIM 10.1
+  provenance:
+  - source_title: 'British Gypsum White Book: jointing (search snippet)'
+    url: https://www.british-gypsum.com/documents/white-book/british-gypsum-wb-jointing-1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: search_snippet
+rules:
+- id: layout_change_partition
+  when: layout_change
+  requires:
+  - nw_studs
+  - nw_plates
+  - nw_noggins
+  - nw_timber_screws
+  - nw_board
+  - nw_board_screws
+  - nw_joint_tape
+  - nw_jointing_compound
+  rationale: A new stud partition needs studs, plates, noggins, fixings, board, board screws, insulation,
+    tape and jointing compound.
+  provenance:
+  - source_title: 'Screwfix guide: how to build a stud wall'
+    url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: 'British Gypsum FAQ: screw fixing centres (search snippet; page 403 when fetched)'
+    url: https://www.british-gypsum.com/technical-support/self-help-tools/faqs/what-are-screw-fixing-centres-partitions-ceilings-encasements
+    licence: manufacturer-doc-facts-only
+    evidence_quality: search_snippet
+  - source_title: 'British Gypsum White Book: jointing (search snippet)'
+    url: https://www.british-gypsum.com/documents/white-book/british-gypsum-wb-jointing-1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: search_snippet

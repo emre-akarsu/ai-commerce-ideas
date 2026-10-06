@@ -1,0 +1,57 @@
+# Module: Heating
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.heating
+module: heating
+version: 0.2.0
+market: uk
+title: Heating
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: ht_lst_radiator
+  description: Low surface temperature radiator
+  spec: Low surface temperature radiator sized for the room
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: ht_trv
+  description: Radiator valves
+  spec: Thermostatic radiator valve kit
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: ht_inhibitor
+  description: Central heating inhibitor after drain-down
+  spec: Chemical inhibitor for the heating system
+  unit: item
+  quantity: '1'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+rules:
+- id: radiator_replacement
+  when: replace_radiator
+  requires:
+  - ht_lst_radiator
+  - ht_trv
+  - ht_inhibitor
+  rationale: The LST radiator item includes TRV kit, drain-down and inhibitor.
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec

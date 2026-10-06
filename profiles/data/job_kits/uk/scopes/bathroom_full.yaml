@@ -1,0 +1,201 @@
+# Full bathroom refit (bath, basin, WC, shower)
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.bathroom.full
+scope_id: bathroom_full
+job_type: bathroom
+scope: full
+replaces: uk.bathroom_full
+version: 0.2.0
+market: uk
+title: Full bathroom refit (bath, basin, WC, shower)
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+review:
+  owner: null
+  reviewed_by: null
+  reviewed_on: null
+  note: Not reviewed. A named owner and a UK tradesperson must review every line, quantity and rule before
+    any customer use.
+description: 'Strip out and refit a family bathroom: bath with panel, basin, WC, shower over the bath
+  or in an enclosure, tiling, extract, electrics and decorating. Skeleton from the Decent Homes bathroom
+  items and two social-landlord specifications.'
+assumption_source: default_template
+uniclass_ss:
+- code: Ss_40_15_75_05
+  title: Bath systems
+  version: Ss v1.43 (July 2026)
+- code: Ss_40_15_75_78
+  title: Shower area systems
+  version: Ss v1.43 (July 2026)
+- code: Ss_40_15_75_97
+  title: WC systems
+  version: Ss v1.43 (July 2026)
+- code: Ss_25_45_88_40
+  title: Internal wall tiling systems
+  version: Ss v1.43 (July 2026)
+job_provenance:
+- source_title: 'A Decent Home: definition and guidance (DCLG, June 2006)'
+  url: https://assets.publishing.service.gov.uk/media/5a7968b740f0b63d72fc5926/138355.pdf
+  licence: OGL-3.0
+  evidence_quality: public_spec
+- source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+    (Sell2Wales tender attachment)
+  url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+  licence: unknown-copyright-facts-only
+  evidence_quality: public_spec
+- source_title: Broadland Housing Association affordable housing specification, March 2023
+  url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+  licence: unknown-copyright-facts-only
+  evidence_quality: public_spec
+questions:
+- id: layout_change
+  ask: upfront
+  priority: 9
+- id: wc_type
+  ask: upfront
+  priority: 11
+- id: shower_type
+  ask: upfront
+  priority: 9
+- id: shower_kw
+  ask: on_review
+  priority: 2
+- id: shower_location
+  ask: on_review
+  priority: 5
+- id: basin_mount
+  ask: on_review
+  priority: 3
+- id: wall_type
+  ask: on_review
+  priority: 3
+- id: joint_system
+  ask: on_review
+  priority: 4
+- id: floor_finish
+  ask: on_review
+  priority: 5
+fixed_answers: {}
+measurements:
+- id: room_width_m
+  sample: '2.0'
+- id: room_length_m
+  sample: '2.25'
+- id: tiled_height_m
+  sample: '1.2'
+allowances:
+  tanked_m2:
+    value: '4'
+    unit: m2
+    label: Area to tank
+    description: Wall area to tank in the shower zone.
+  backer_board_m2:
+    value: '6'
+    unit: m2
+    label: Backer board area
+    description: Wall area to line with tile backer board.
+  sealant_joint_m:
+    value: '9'
+    unit: m
+    label: Sealant joint length
+    description: Total sealant joint length (bath, basin, tray, WC).
+  pipe_15mm_m:
+    value: '12'
+    unit: m
+    label: 15 mm supply pipe run
+    description: New 15 mm supply pipe run.
+  waste_32mm_m:
+    value: '2'
+    unit: m
+    label: 32 mm waste run
+    description: New 32 mm waste run.
+  waste_40mm_m:
+    value: '3'
+    unit: m
+    label: 40 mm waste run
+    description: New 40 mm waste run.
+  shower_cable_run_m:
+    value: '12'
+    unit: m
+    label: Shower cable run
+    description: Shower circuit cable run (electric shower only).
+  fan_cable_run_m:
+    value: '6'
+    unit: m
+    label: Fan cable run
+    description: Fan cable run.
+  fan_duct_run_m:
+    value: '3'
+    unit: m
+    label: Fan duct run
+    description: Fan duct run.
+  partition_length_m:
+    value: '1.8'
+    unit: m
+    label: Partition length
+    description: Length of new stud partition (0 if none).
+  partition_faces:
+    value: '2'
+    unit: nr
+    label: Partition faces to board
+    description: Faces of the partition to board (1 or 2).
+  tile_length_cm:
+    value: '30'
+    unit: cm
+    label: Tile length
+    description: Tile length.
+  tile_width_cm:
+    value: '60'
+    unit: cm
+    label: Tile width
+    description: Tile width.
+  tile_thickness_mm:
+    value: '9'
+    unit: mm
+    label: Tile thickness
+    description: Tile thickness.
+  grout_joint_mm:
+    value: '3'
+    unit: mm
+    label: Grout joint width
+    description: Grout joint width.
+  adhesive_notch_mm:
+    value: '6'
+    unit: mm
+    label: Trowel notch depth
+    description: Trowel notch depth.
+  tile_trim_m:
+    value: '5'
+    unit: m
+    label: Tile trim length
+    description: Length of exposed tile edges needing trim.
+  room_height_m:
+    value: '2.4'
+    unit: m
+    label: Room height
+    description: Room (ceiling) height.
+derived: {}
+modules:
+- module: strip_out
+- module: partition
+  when: layout_change
+- module: first_fix_plumbing
+- module: electrics
+- module: waterproofing
+- module: tiling
+- module: flooring
+- module: bath
+- module: basin
+- module: wc
+- module: accessories
+- module: shower
+- module: shower_enclosure
+- module: ventilation
+- module: consumables
+- module: decorating
+- module: waste
+rules: []

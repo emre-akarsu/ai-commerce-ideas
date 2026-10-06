@@ -1,0 +1,57 @@
+# Module: Strip out
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.strip_out
+module: strip_out
+version: 0.2.0
+market: uk
+title: Strip out
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: so_cap_feeds
+  description: Temporary caps for hot and cold feeds after the old fittings come out
+  spec: 15 mm stop ends to suit the joint system
+  unit: nr
+  quantity: '4'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: derived
+    derived_from: 'Walsall strip-out item: isolate, disconnect, remove fittings and cart away. One cap
+      per disconnected feed (count assumed).'
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: so_protection
+  description: Dust sheets and floor protection for an occupied home
+  spec: Dust sheets and self-adhesive floor protection film
+  unit: pack
+  quantity: '1'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: derived
+    derived_from: Walsall occupied-property protection clause; material is assumed.
+- id: so_remove_fittings
+  description: Disconnect and remove the existing bath, basin, WC and fittings
+  spec: Labour item; removed fittings go to waste
+  unit: item
+  quantity: '1'
+  kind: service
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: 'A Decent Home: definition and guidance (DCLG, June 2006)'
+    url: https://assets.publishing.service.gov.uk/media/5a7968b740f0b63d72fc5926/138355.pdf
+    licence: OGL-3.0
+    evidence_quality: public_spec
+rules: []

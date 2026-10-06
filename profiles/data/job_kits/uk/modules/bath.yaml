@@ -1,0 +1,217 @@
+# Module: Bath
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.bath
+module: bath
+version: 0.2.0
+market: uk
+title: Bath
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: sw_bath
+  description: Bath
+  spec: Acrylic or steel bath about 1700 x 700-750 mm, slip-resistant base
+  unit: nr
+  quantity: '1'
+  uniclass_pr:
+    code: Pr_40_20_06_08
+    title: Baths
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Broadland Housing Association affordable housing specification, March 2023
+    url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: 'A Decent Home: definition and guidance (DCLG, June 2006)'
+    url: https://assets.publishing.service.gov.uk/media/5a7968b740f0b63d72fc5926/138355.pdf
+    licence: OGL-3.0
+    evidence_quality: public_spec
+- id: sw_bath_legs
+  description: Bath leg set (if not supplied with the bath)
+  spec: Adjustable leg set to suit the bath
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Ideal Standard i.life Idealform bath fitting instructions
+    url: https://heatandplumb.com/media/ideal-standard/fitting-instructions/file-512508.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Ideal Standard Idealcast bath installation guide (2009)
+    url: https://images.victorianplumbing.co.uk/products/ideal-standard-white-1700-x-800mm-0th-double-ended-idealcast-bath/instructions/is_idealcast_e002301_iguide_en.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: sw_bath_panel
+  description: Bath front panel (and end panel for a corner fit)
+  spec: Bath panel to suit bath length; end panel where the bath is not in a recess
+  unit: nr
+  quantity: '1'
+  uniclass_pr:
+    code: Pr_40_20_76_07
+    title: Bath panels
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Ideal Standard i.life Idealform bath fitting instructions
+    url: https://heatandplumb.com/media/ideal-standard/fitting-instructions/file-512508.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Marmox bath panel kit fitting instructions
+    url: https://www.specifiedby.com/marmox/bath-panel-kit/Marmox_Bath-Panel-Kit_Operations_Fitting-Instructions.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: sw_bath_fixing_pack
+  description: Bath fixing pack and panel clips
+  spec: Fixing pack with wall brackets and panel clips to suit the bath
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Ideal Standard i.life Idealform bath fitting instructions
+    url: https://heatandplumb.com/media/ideal-standard/fitting-instructions/file-512508.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Ideal Standard Idealcast bath installation guide (2009)
+    url: https://images.victorianplumbing.co.uk/products/ideal-standard-white-1700-x-800mm-0th-double-ended-idealcast-bath/instructions/is_idealcast_e002301_iguide_en.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: sw_bath_battens
+  description: Timber battens for bath rim and panel support
+  spec: Treated softwood battens
+  unit: m
+  quantity: '3'
+  provenance:
+  - source_title: Ideal Standard i.life Idealform bath fitting instructions
+    url: https://heatandplumb.com/media/ideal-standard/fitting-instructions/file-512508.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: derived
+    derived_from: Battens are 'not supplied'; length assumes rim plus panel base for one long side.
+- id: sw_bath_wall_floor_screws
+  description: Screws and plugs for bath brackets and floor fixing
+  spec: Screws and plugs to suit wall and floor
+  unit: pack
+  quantity: '1'
+  provenance:
+  - source_title: Ideal Standard Idealcast bath installation guide (2009)
+    url: https://images.victorianplumbing.co.uk/products/ideal-standard-white-1700-x-800mm-0th-double-ended-idealcast-bath/instructions/is_idealcast_e002301_iguide_en.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: sw_bath_waste_overflow
+  description: Bath waste and overflow with plug
+  spec: Bath waste and overflow, plug and chain or click waste
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Ideal Standard i.life Idealform bath fitting instructions
+    url: https://heatandplumb.com/media/ideal-standard/fitting-instructions/file-512508.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: sw_bath_trap
+  description: Bath trap
+  spec: '{bath_shower_trap_mm} mm trap'
+  unit: nr
+  quantity: '1'
+  uniclass_pr:
+    code: Pr_65_52_25_98
+    title: Waste traps
+    version: Pr v1.43 (July 2026)
+  etim_class:
+    code: EC010195
+    title: P-, S-, bottle siphon
+    version: ETIM 10.1
+  provenance:
+  - source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+    url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: sw_bath_taps
+  description: Bath taps or bath mixer
+  spec: Pair of bath pillar taps or a bath mixer, lever handles
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Broadland Housing Association affordable housing specification, March 2023
+    url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  options:
+  - id: pillar_pair
+    label: Pair of pillar taps
+    spec: Pair of bath pillar taps, lever handles
+    tags: []
+    default: true
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Broadland Housing Association affordable housing specification, March 2023
+      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: mixer
+    label: Bath mixer
+    spec: Bath mixer tap, lever handles
+    tags: []
+    default: false
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Broadland Housing Association affordable housing specification, March 2023
+      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+rules:
+- id: bath
+  requires:
+  - sw_bath
+  - sw_bath_panel
+  - sw_bath_fixing_pack
+  - sw_bath_battens
+  - sw_bath_wall_floor_screws
+  - sw_bath_waste_overflow
+  - sw_bath_trap
+  - sw_bath_taps
+  - ff_iv_bath
+  - cs_sanitary_silicone
+  rationale: Bath makers sell panels and fixing packs separately and do not supply sealant, wall and floor
+    screws or panel battens; the waste and overflow is fitted 'where supplied', so it is normally separate,
+    with a 40 mm trap.
+  provenance:
+  - source_title: Ideal Standard i.life Idealform bath fitting instructions
+    url: https://heatandplumb.com/media/ideal-standard/fitting-instructions/file-512508.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Ideal Standard Idealcast bath installation guide (2009)
+    url: https://images.victorianplumbing.co.uk/products/ideal-standard-white-1700-x-800mm-0th-double-ended-idealcast-bath/instructions/is_idealcast_e002301_iguide_en.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+    url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer

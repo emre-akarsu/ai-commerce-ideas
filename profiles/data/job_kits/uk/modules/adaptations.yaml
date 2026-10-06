@@ -1,0 +1,120 @@
+# Module: Accessibility adaptations
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.adaptations
+module: adaptations
+version: 0.2.0
+market: uk
+title: Accessibility adaptations
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: ad_wall_reinforcement
+  description: Wall reinforcement behind rails and seat
+  spec: Plywood pattress or noggins so walls carry {wall_reinforcement_kn_m2} kN/m2
+  unit: item
+  quantity: '1'
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+- id: ad_grab_rails
+  description: Grab rails at the shower and WC
+  spec: Fluted grab rails {grab_rail_diameter_mm} mm diameter x {grab_rail_length_mm} mm, colour-contrasting
+    with the wall; positions agreed with the resident
+  unit: nr
+  quantity: '2'
+  uniclass_pr:
+    code: Pr_40_20_76_84
+    title: Support rails
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+    url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Nottinghamshire County Council level access shower factsheet
+    url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: ad_shower_seat
+  description: Wall-mounted fold-down shower seat
+  spec: Fold-down shower seat for wall fixing
+  unit: nr
+  quantity: '1'
+  when: shower_seat
+  provenance:
+  - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+    url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Nottinghamshire County Council level access shower factsheet
+    url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: ad_curtain_rail
+  description: Shower curtain and rail
+  spec: L- or U-shaped shower rail with full-length curtain (curtain preferred over screens)
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+    url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Nottinghamshire County Council level access shower factsheet
+    url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: ad_blending_valve
+  description: Blending valve on the basin hot feed
+  spec: Thermostatic blending valve limiting the basin hot outlet to {basin_blend_max_c} degC
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: TMV3 shower kit listing citing BS EN 1111 / BS EN 1287 (Independent4Life retailer)
+    url: https://independent4life.co.uk/triton-elina-exposed-concentric-tmv3-mixer-shower-with-grab-riser-kit
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+rules:
+- id: rails_need_reinforcement
+  requires:
+  - ad_grab_rails
+  - ad_wall_reinforcement
+  rationale: Walls must carry grab rails and seats (1.5 kN/m2).
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+- id: seat_needs_reinforcement
+  when: shower_seat
+  requires:
+  - ad_shower_seat
+  - ad_wall_reinforcement
+  rationale: A wall-fixed seat needs reinforced walls.
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+  - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+    url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec

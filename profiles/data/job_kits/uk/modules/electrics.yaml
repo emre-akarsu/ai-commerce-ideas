@@ -1,0 +1,133 @@
+# Module: Electrics
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.electrics
+module: electrics
+version: 0.2.0
+market: uk
+title: Electrics
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: el_light
+  description: Bathroom ceiling light
+  spec: Sealed ceiling luminaire rated for the bathroom zone (dust and splash proof), LED
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: el_fan_isolator
+  description: Isolator for the extractor fan
+  spec: Local isolator switching all poles, contact gap at least {isolator_contact_gap_mm} mm (fused where
+    the fan maker requires)
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+    url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: el_fan_cable
+  description: Cable for the fan circuit
+  spec: Cable to suit the fan wiring (permanent and switched live for overrun models)
+  unit: m
+  quantity: fan_cable_run_m
+  provenance:
+  - source_title: Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)
+    url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: derived
+    derived_from: Timer overrun fans take a permanent and a switched supply; cable type is the electrician's
+      choice.
+- id: el_shower_isolator
+  description: Shower isolating switch
+  spec: '{electric_shower_isolator_a} A double-pole isolating switch, contact gap at least {isolator_contact_gap_mm}
+    mm in both poles, mechanical OFF indicator, wired without plug or socket (pull-cord with neon is common)'
+  unit: nr
+  quantity: '1'
+  when: shower_type == 'electric'
+  provenance:
+  - source_title: Triton T70Z electric shower installation guide
+    url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Triton Omnicare installation and operating instructions 2181515H
+    url: https://www.independent4life.co.uk/media/mageworx/downloads/attachment/file/2/5/25327%20triton%20omnicare%20installation%20and%20operating%20instructions%202181515h.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  with_module:
+  - shower
+- id: el_shower_rcbo
+  description: Shower circuit protective device
+  spec: '{electric_shower_rcd_ma} mA RCD protection with an MCB rated per the lookup row (an RCBO does
+    both)'
+  unit: nr
+  quantity: '1'
+  when: shower_type == 'electric'
+  spec_lookup:
+    table: electric_shower_circuit
+    key: shower_kw
+  provenance:
+  - source_title: Triton T70Z electric shower installation guide
+    url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Triton Omnicare installation and operating instructions 2181515H
+    url: https://www.independent4life.co.uk/media/mageworx/downloads/attachment/file/2/5/25327%20triton%20omnicare%20installation%20and%20operating%20instructions%202181515h.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  with_module:
+  - shower
+- id: el_shower_cable
+  description: Shower circuit cable
+  spec: Twin and earth sized per the lookup row for the installation method; not below {electric_shower_cable_min_mm2}
+    mm2
+  unit: m
+  quantity: shower_cable_run_m
+  when: shower_type == 'electric'
+  spec_lookup:
+    table: electric_shower_circuit
+    key: shower_kw
+  provenance:
+  - source_title: Triton T70Z electric shower installation guide
+    url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  with_module:
+  - shower
+- id: el_part_p_notification
+  description: Notification and certificate for the new shower circuit
+  spec: Electrical Installation Certificate and building control notification (new circuit in a special
+    location), by a registered electrician
+  unit: item
+  quantity: '1'
+  when: shower_type == 'electric'
+  kind: service
+  provenance:
+  - source_title: Approved Document P 2013 (electrical safety, dwellings)
+    url: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/441872/BR_PDF_AD_P_2013.pdf
+    licence: OGL-3.0-unconfirmed
+    evidence_quality: standard
+  - source_title: 'City of York Council: rewiring council homes'
+    url: https://www.york.gov.uk/council-homes/rewiring-council-homes
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  with_module:
+  - shower
+rules: []

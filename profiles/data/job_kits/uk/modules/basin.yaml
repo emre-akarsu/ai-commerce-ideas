@@ -1,0 +1,252 @@
+# Module: Basin
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.basin
+module: basin
+version: 0.2.0
+market: uk
+title: Basin
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: sw_basin_pedestal
+  description: Washbasin with full pedestal
+  spec: Ceramic washbasin with full pedestal, tap holes to suit taps
+  unit: nr
+  quantity: '1'
+  uniclass_pr:
+    code: Pr_40_20_96_63
+    title: Pedestal washbasins
+    version: Pr v1.43 (July 2026)
+  etim_class:
+    code: EC011550
+    title: Washbasin
+    version: ETIM 10.1
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Broadland Housing Association affordable housing specification, March 2023
+    url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  when: basin_mount == 'pedestal'
+- id: sw_basin_wall_hung
+  description: Wall-hung washbasin with brackets
+  spec: Wall-hung ceramic washbasin with concealed brackets or fixing clamps
+  unit: nr
+  quantity: '1'
+  when: basin_mount == 'wall_hung'
+  uniclass_pr:
+    code: Pr_40_20_96_96
+    title: Wall-hung washbasins
+    version: Pr v1.43 (July 2026)
+  etim_class:
+    code: EC011550
+    title: Washbasin
+    version: ETIM 10.1
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+- id: sw_basin_taps
+  description: Basin taps or basin mixer
+  spec: Pair of basin pillar taps or a basin mixer, lever handles
+  unit: nr
+  quantity: '1'
+  uniclass_pr:
+    code: Pr_40_20_87_98
+    title: Washbasin taps
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Broadland Housing Association affordable housing specification, March 2023
+    url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  options:
+  - id: pillar_pair
+    label: Pair of pillar taps
+    spec: Pair of basin pillar taps, lever handles
+    tags: []
+    default: true
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Broadland Housing Association affordable housing specification, March 2023
+      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: mixer
+    label: Basin mixer
+    spec: Single basin mixer tap, lever handle
+    tags: []
+    default: false
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Broadland Housing Association affordable housing specification, March 2023
+      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+- id: sw_basin_waste
+  description: Basin waste with plug
+  spec: Basin waste, slotted if the basin has an overflow, unslotted otherwise
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: McAlpine unslotted pop-up basin waste with bottle trap (Screwfix listing)
+    url: https://www.screwfix.com/p/mcalpine-unslotted-pop-up-all-in-one-basin-waste-with-bottle-trap-white-32mm/229cl
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: sw_basin_trap
+  description: Basin trap
+  spec: Trap {basin_trap_mm} mm with {basin_trap_seal_mm} mm seal, bottle or tubular
+  unit: nr
+  quantity: '1'
+  uniclass_pr:
+    code: Pr_65_52_25_98
+    title: Waste traps
+    version: Pr v1.43 (July 2026)
+  etim_class:
+    code: EC010195
+    title: P-, S-, bottle siphon
+    version: ETIM 10.1
+  provenance:
+  - source_title: McAlpine A10 bottle trap 32 mm x 75 mm (Travis Perkins listing)
+    url: https://www.travisperkins.co.uk/mcalpine-a10-seal-bottle-trap-32mm-x-75mm/p/960845
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+    url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  options:
+  - id: bottle
+    label: Bottle trap
+    spec: Bottle trap {basin_trap_mm} mm with {basin_trap_seal_mm} mm seal
+    tags: []
+    default: true
+    provenance:
+    - source_title: McAlpine A10 bottle trap 32 mm x 75 mm (Travis Perkins listing)
+      url: https://www.travisperkins.co.uk/mcalpine-a10-seal-bottle-trap-32mm-x-75mm/p/960845
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - &id001
+      source_title: Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)
+      url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: tubular
+    label: Tubular trap
+    spec: Tubular trap {basin_trap_mm} mm with {basin_trap_seal_mm} mm seal
+    tags: []
+    default: false
+    provenance:
+    - source_title: McAlpine SB10 tubular S-trap 32 mm x 75 mm (Travis Perkins listing)
+      url: https://www.travisperkins.co.uk/mcalpine-sb10-seal-s-trap-32mm-x-75mm/p/960851
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - *id001
+- id: sw_tap_connectors
+  description: Flexible tap connectors
+  spec: 15 mm x 1/2 inch flexible tap connectors (if the taps have no tails)
+  unit: nr
+  quantity: '2'
+  provenance:
+  - source_title: Toolstation plumbing category tree
+    url: https://www.toolstation.com/plumbing/c3
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Bristan Melba tap fitting instructions
+    url: https://www.bristan.com/product-files/576949/fitting-instructions.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+rules:
+- id: basin
+  requires:
+  - sw_basin_waste
+  - sw_basin_trap
+  - sw_basin_taps
+  - ff_iv_basin
+  rationale: A basin needs a waste (slotted or unslotted to match its overflow), a 32 mm trap with a 75
+    mm seal and isolating valves on its feeds.
+  provenance:
+  - source_title: McAlpine unslotted pop-up basin waste with bottle trap (Screwfix listing)
+    url: https://www.screwfix.com/p/mcalpine-unslotted-pop-up-all-in-one-basin-waste-with-bottle-trap-white-32mm/229cl
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: McAlpine A10 bottle trap 32 mm x 75 mm (Travis Perkins listing)
+    url: https://www.travisperkins.co.uk/mcalpine-a10-seal-bottle-trap-32mm-x-75mm/p/960845
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: basin_pedestal
+  when: basin_mount == 'pedestal'
+  requires:
+  - sw_basin_pedestal
+  excludes:
+  - sw_basin_wall_hung
+  rationale: Pedestal basin chosen.
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: basin_wall_hung
+  when: basin_mount == 'wall_hung'
+  requires:
+  - sw_basin_wall_hung
+  excludes:
+  - sw_basin_pedestal
+  rationale: Wall-hung basin chosen.
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: wall_hung_basin_on_stud
+  when: basin_mount == 'wall_hung' and wall_type == 'stud'
+  requires:
+  - cs_pattress
+  - cs_fixings_stud
+  rationale: A wall-hung basin on a stud wall needs backing for its fixings.
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: standard
+  - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+    url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc

@@ -1,0 +1,263 @@
+# Module: WC
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.wc
+module: wc
+version: 0.2.0
+market: uk
+title: WC
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: sw_wc_pan_close_coupled
+  description: Close-coupled WC pan
+  spec: Floor-standing close-coupled WC pan, horizontal outlet, with floor fixing kit
+  unit: nr
+  quantity: '1'
+  when: wc_type == 'close_coupled'
+  uniclass_pr:
+    code: Pr_40_20_93_94
+    title: WC pans
+    version: Pr v1.43 (July 2026)
+  etim_class:
+    code: EC011289
+    title: Toilet bowl/pan
+    version: ETIM 10.1
+  provenance:
+  - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+    url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: sw_wc_cistern
+  description: Close-coupled cistern
+  spec: Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings
+  unit: nr
+  quantity: '1'
+  when: wc_type == 'close_coupled'
+  uniclass_pr:
+    code: Pr_40_20_93_89
+    title: WC cisterns
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+    url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: sw_wc_flush_lever
+  description: Flush lever or button if not supplied with the cistern
+  spec: Flush actuator to suit the cistern
+  unit: nr
+  quantity: '1'
+  when: wc_type == 'close_coupled'
+  uniclass_pr:
+    code: Pr_40_20_93_87
+    title: WC cistern fittings
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+    url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: sw_wc_pan_connector
+  description: WC pan connector to the 110 mm soil
+  spec: Pan connector, 110 mm, type to suit the soil outlet (P, S or offset); rigid where alignment allows
+  unit: nr
+  quantity: '1'
+  when: wc_type == 'close_coupled'
+  uniclass_pr:
+    code: Pr_40_20_93_93
+    title: WC pan connectors
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+    url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: 'Wickes how-to guide: installing a toilet'
+    url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: sw_wc_pan_connector_vertical
+  description: WC pan connector for a vertical (floor) soil outlet
+  spec: Pan connector, 110 mm, to convert to an S trap or turned P trap
+  unit: nr
+  quantity: '1'
+  when: wc_type == 'close_coupled' and soil_outlet == 'vertical'
+  uniclass_pr:
+    code: Pr_40_20_93_93
+    title: WC pan connectors
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+    url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  optional: true
+- id: sw_wc_frame
+  description: Concealed WC frame with cistern
+  spec: Wall-hung WC frame with concealed cistern, 90 mm outlet bend and 90/110 mm adaptor, pan fixing
+    rods and fixings
+  unit: nr
+  quantity: '1'
+  when: wc_type == 'wall_hung'
+  example_note: e.g. frames sold as frame only or as a 3-in-1 set with plate
+  uniclass_pr:
+    code: Pr_40_20_93_62
+    title: Pre-plumbed installation frames
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet; page
+      404 when fetched)
+    url: https://catalog.geberit.co.uk/en-GB/product/PRO_100926
+    licence: manufacturer-doc-facts-only
+    evidence_quality: search_snippet
+  - source_title: Grohe Rapid SL 3-in-1 set 3886020A component list (QS Supplies retailer page)
+    url: https://qssupplies.co.uk/bathroom-furniture-shower-taps/321819.htm
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: sw_wc_flush_plate
+  description: Flush plate for the concealed cistern
+  spec: Flush plate from the same maker and series as the concealed cistern
+  unit: nr
+  quantity: '1'
+  when: wc_type == 'wall_hung'
+  provenance:
+  - source_title: Grohe Rapid SL 3-in-1 set 3886020A component list (QS Supplies retailer page)
+    url: https://qssupplies.co.uk/bathroom-furniture-shower-taps/321819.htm
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet; page
+      404 when fetched)
+    url: https://catalog.geberit.co.uk/en-GB/product/PRO_100926
+    licence: manufacturer-doc-facts-only
+    evidence_quality: derived
+    derived_from: Plate is not in the frame's scope list; the note infers it is a separate purchase.
+- id: sw_wc_pan_wall_hung
+  description: Wall-hung WC pan
+  spec: Wall-hung WC pan to suit the frame fixing centres
+  unit: nr
+  quantity: '1'
+  when: wc_type == 'wall_hung'
+  uniclass_pr:
+    code: Pr_40_20_93_94
+    title: WC pans
+    version: Pr v1.43 (July 2026)
+  etim_class:
+    code: EC011289
+    title: Toilet bowl/pan
+    version: ETIM 10.1
+  provenance:
+  - source_title: Grohe Rapid SL 3-in-1 set 3886020A component list (QS Supplies retailer page)
+    url: https://qssupplies.co.uk/bathroom-furniture-shower-taps/321819.htm
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet; page
+      404 when fetched)
+    url: https://catalog.geberit.co.uk/en-GB/product/PRO_100926
+    licence: manufacturer-doc-facts-only
+    evidence_quality: search_snippet
+- id: sw_wc_seat
+  description: WC seat and cover
+  spec: WC seat and cover to suit the pan
+  unit: nr
+  quantity: '1'
+  uniclass_pr:
+    code: Pr_40_20_93_95
+    title: WC seats and covers
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+    url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: sw_wc_frame_boxing
+  description: Boxing-in to enclose the WC frame
+  spec: Timber or metal framing and moisture-resistant board to enclose the frame
+  unit: pack
+  quantity: '1'
+  when: wc_type == 'wall_hung'
+  provenance:
+  - source_title: Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet; page
+      404 when fetched)
+    url: https://catalog.geberit.co.uk/en-GB/product/PRO_100926
+    licence: manufacturer-doc-facts-only
+    evidence_quality: derived
+    derived_from: Notes list 'a stud partition or boxing-in kit' as an optional item with wall-hung frames
+      (manufacturer_dependencies.md).
+rules:
+- id: wall_hung_wc
+  when: wc_type == 'wall_hung'
+  requires:
+  - sw_wc_frame
+  - sw_wc_flush_plate
+  - sw_wc_pan_wall_hung
+  - sw_wc_seat
+  excludes:
+  - sw_wc_pan_connector
+  - sw_wc_pan_close_coupled
+  - sw_wc_cistern
+  rationale: A wall-hung WC needs a concealed frame, a flush plate and a wall-hung pan. The frames cited
+    ship a 90 mm bend with a 90/110 mm adaptor, so a separate 110 mm pan connector is not added (this
+    differs from the original brief). Plate must match the cistern maker and series; that compatibility
+    is a SKU check, not encoded here.
+  provenance:
+  - source_title: Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet; page
+      404 when fetched)
+    url: https://catalog.geberit.co.uk/en-GB/product/PRO_100926
+    licence: manufacturer-doc-facts-only
+    evidence_quality: search_snippet
+  - source_title: Grohe Rapid SL 3-in-1 set 3886020A component list (QS Supplies retailer page)
+    url: https://qssupplies.co.uk/bathroom-furniture-shower-taps/321819.htm
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: close_coupled_wc
+  when: wc_type == 'close_coupled'
+  requires:
+  - sw_wc_pan_close_coupled
+  - sw_wc_cistern
+  - sw_wc_seat
+  - sw_wc_flush_lever
+  - ff_iv_wc
+  excludes:
+  - sw_wc_frame
+  - sw_wc_flush_plate
+  - sw_wc_pan_wall_hung
+  rationale: A close-coupled suite is bought as pan, cistern, seat and lever, plus a pan connector chosen
+    by the soil outlet and an isolating valve on the cistern feed.
+  provenance:
+  - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
+    url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: 'Wickes how-to guide: installing a toilet'
+    url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec

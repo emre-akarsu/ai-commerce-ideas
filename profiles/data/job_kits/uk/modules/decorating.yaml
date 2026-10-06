@@ -1,0 +1,73 @@
+# Module: Decorating
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.decorating
+module: decorating
+version: 0.2.0
+market: uk
+title: Decorating
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: dc_emulsion
+  description: Emulsion for walls and ceiling
+  spec: Vinyl matt emulsion with anti-mould additive, white
+  unit: l
+  quantity: ceil(paint_litres)
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Dulux Trade Vinyl Matt product page (spreading rate)
+    url: https://www.duluxtradepaintexpert.co.uk/en/products/dulux-trade-vinyl-matt
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: dc_woodwork_paint
+  description: Undercoat and gloss for woodwork
+  spec: Undercoat and gloss
+  unit: item
+  quantity: '1'
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: dc_filler
+  description: Filler for making good
+  spec: Surface filler
+  unit: item
+  quantity: '1'
+  uniclass_pr:
+    code: Pr_35_31_65_82
+    title: Surface fillers
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: 'City of York Council: rewiring council homes'
+    url: https://www.york.gov.uk/council-homes/rewiring-council-homes
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: dc_sundries
+  description: Decorating sundries
+  spec: Masking tape, abrasive paper, rollers and brushes
+  unit: pack
+  quantity: '1'
+  provenance:
+  - source_title: 'City of York Council: rewiring council homes'
+    url: https://www.york.gov.uk/council-homes/rewiring-council-homes
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+rules: []

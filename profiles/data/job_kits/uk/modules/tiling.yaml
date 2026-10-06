@@ -1,0 +1,227 @@
+# Module: Tiling
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.tiling
+module: tiling
+version: 0.2.0
+market: uk
+title: Tiling
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: tl_wall_tiles
+  description: Wall tiles
+  spec: Ceramic or porcelain wall tiles, size per tile inputs
+  unit: m2
+  quantity: wall_tiled_m2 * (1 + tile_waste_factor)
+  uniclass_pr:
+    code: Pr_35_93_96_19
+    title: Ceramic tiles
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: 'Wickes how-to guide: tiling a wall'
+    url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: tl_wall_adhesive
+  description: Wall tile adhesive
+  spec: Cementitious tile adhesive for walls
+  unit: kg
+  quantity: ceil(wall_tiled_m2 * adhesive_kg_per_m2)
+  uniclass_pr:
+    code: Pr_20_31_02_89
+    title: Tile adhesives
+    version: Pr v1.43 (July 2026)
+  etim_class:
+    code: EC011707
+    title: Tile adhesive
+    version: ETIM 10.1
+  provenance:
+  - source_title: Mapei Keraflex Maxi S1 listing quoting the TDS consumption (retailer, secondary)
+    url: https://www.skroutz.gr/s/12196759/Mapei-Keraflex-Maxi-S1-Klebstoff-Kacheln-23kg.html
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: 'Wickes how-to guide: tiling a wall'
+    url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+- id: tl_wall_grout
+  description: Wall grout
+  spec: Water-resistant cementitious grout
+  unit: kg
+  quantity: ceil(wall_tiled_m2 * grout_kg_per_m2)
+  uniclass_pr:
+    code: Pr_20_31_53_16
+    title: Cementitious tiling grouts
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: 'TilersForums: grout calculation formula attributed to the Weber TDS'
+    url: https://tilersforums.com/threads/how-to-calculate-your-grout-requirements.39223
+    licence: unknown-copyright-facts-only
+    evidence_quality: forum
+  - source_title: Weber weberjoint technical data sheet
+    url: https://www.middleeast.weber/files/sodamco/2025-11/TDS_weberjoint-weberjoint_thick.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: tl_spacers
+  description: Tile spacers
+  spec: Tile spacers to suit the grout joint
+  unit: pack
+  quantity: '1'
+  uniclass_pr:
+    code: Pr_35_93_96_92
+    title: Tile spacers
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: 'Wickes how-to guide: tiling a wall'
+    url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+- id: tl_trim
+  description: Tile trim for exposed edges
+  spec: Plastic or metal tile trim to suit tile thickness
+  unit: m
+  quantity: tile_trim_m
+  uniclass_pr:
+    code: Pr_35_93_96_12
+    title: Ceramic tile angle beads
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Broadland Housing Association affordable housing specification, March 2023
+    url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  options:
+  - id: plastic
+    label: Plastic trim
+    spec: Plastic tile trim to suit tile thickness
+    tags: []
+    default: true
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Broadland Housing Association affordable housing specification, March 2023
+      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: metal
+    label: Metal trim
+    spec: Metal tile trim to suit tile thickness
+    tags: []
+    default: false
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Broadland Housing Association affordable housing specification, March 2023
+      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+- id: tl_wall_primer
+  description: Primer for the tiled wall substrate
+  spec: Tile primer suited to the substrate
+  unit: l
+  quantity: ceil(wall_tiled_m2 / primer_coverage_m2_per_l)
+  provenance:
+  - source_title: 'Wickes how-to guide: tiling a wall'
+    url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+  - source_title: Ardex Multiprime datasheet (New Zealand edition)
+    url: https://ardex.co.nz/products/Tiling/Multiprime/Multiprime%20Datasheet%2012.10.20.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: tl_floor_tiles
+  description: Floor tiles
+  spec: Slip-resistant ceramic or porcelain floor tiles
+  unit: m2
+  quantity: floor_m2 * (1 + tile_waste_factor)
+  when: floor_finish == 'tiled'
+  uniclass_pr:
+    code: Pr_35_93_96_63
+    title: Porcelain tiles
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: 'Wickes how-to guide: tiling a wall'
+    url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+  - source_title: 'North Norfolk DC advice sheet: accessible bathrooms (self-funded DFG adaptations)'
+    url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: tl_floor_adhesive
+  description: Floor tile adhesive
+  spec: Cementitious floor tile adhesive
+  unit: kg
+  quantity: ceil(floor_m2 * adhesive_kg_per_m2)
+  when: floor_finish == 'tiled'
+  uniclass_pr:
+    code: Pr_20_31_02_89
+    title: Tile adhesives
+    version: Pr v1.43 (July 2026)
+  etim_class:
+    code: EC011707
+    title: Tile adhesive
+    version: ETIM 10.1
+  provenance:
+  - source_title: Mapei Keraflex Maxi S1 listing quoting the TDS consumption (retailer, secondary)
+    url: https://www.skroutz.gr/s/12196759/Mapei-Keraflex-Maxi-S1-Klebstoff-Kacheln-23kg.html
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: tl_floor_grout
+  description: Floor grout
+  spec: Cementitious floor grout
+  unit: kg
+  quantity: ceil(floor_m2 * grout_kg_per_m2)
+  when: floor_finish == 'tiled'
+  uniclass_pr:
+    code: Pr_20_31_53_16
+    title: Cementitious tiling grouts
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: 'TilersForums: grout calculation formula attributed to the Weber TDS'
+    url: https://tilersforums.com/threads/how-to-calculate-your-grout-requirements.39223
+    licence: unknown-copyright-facts-only
+    evidence_quality: forum
+  - source_title: Weber weberjoint technical data sheet
+    url: https://www.middleeast.weber/files/sodamco/2025-11/TDS_weberjoint-weberjoint_thick.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+rules:
+- id: wall_tiling
+  requires:
+  - tl_wall_tiles
+  - tl_wall_adhesive
+  - tl_wall_grout
+  - tl_spacers
+  - tl_wall_primer
+  rationale: Tiling needs adhesive, grout, spacers and a primed substrate.
+  provenance:
+  - source_title: 'Wickes how-to guide: tiling a wall'
+    url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer

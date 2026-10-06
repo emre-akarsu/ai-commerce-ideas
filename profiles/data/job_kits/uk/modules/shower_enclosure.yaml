@@ -1,0 +1,158 @@
+# Module: Shower enclosure or bath screen
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.shower_enclosure
+module: shower_enclosure
+version: 0.2.0
+market: uk
+title: Shower enclosure or bath screen
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: sh_tray
+  description: Shower tray
+  spec: Stone resin shower tray, {shower_tray_waste_mm} mm outlet, size to suit the enclosure
+  unit: nr
+  quantity: '1'
+  when: shower_location == 'enclosure'
+  uniclass_pr:
+    code: Pr_40_20_06_84
+    title: Shower trays
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: 'Stone resin shower tray listing: waste not included (ManoMano; search summary)'
+    url: https://www.manomano.co.uk/p/mx-minerals-quadrant-shower-tray-900mm-x-900mm-ash-grey-79610490
+    licence: unknown-copyright-facts-only
+    evidence_quality: search_snippet
+  - source_title: Broadland Housing Association affordable housing specification, March 2023
+    url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: sh_tray_waste
+  description: Shower tray waste and trap
+  spec: '{shower_tray_waste_mm} mm shower waste with trap (low-profile where there is no void)'
+  unit: nr
+  quantity: '1'
+  when: shower_location == 'enclosure'
+  provenance:
+  - source_title: 'Stone resin shower tray listing: waste not included (ManoMano; search summary)'
+    url: https://www.manomano.co.uk/p/mx-minerals-quadrant-shower-tray-900mm-x-900mm-ash-grey-79610490
+    licence: unknown-copyright-facts-only
+    evidence_quality: search_snippet
+- id: sh_tray_bedding
+  description: Tray bedding
+  spec: Bedding mortar or riser kit as the tray maker specifies
+  unit: item
+  quantity: '1'
+  when: shower_location == 'enclosure'
+  provenance:
+  - source_title: 'Stone resin shower tray listing: waste not included (ManoMano; search summary)'
+    url: https://www.manomano.co.uk/p/mx-minerals-quadrant-shower-tray-900mm-x-900mm-ash-grey-79610490
+    licence: unknown-copyright-facts-only
+    evidence_quality: derived
+    derived_from: Notes infer a bedding method is needed; not verified from a tray maker's document.
+- id: sh_enclosure
+  description: Shower enclosure
+  spec: Shower enclosure or door and side panel to match tray size, fixings for the wall type
+  unit: nr
+  quantity: '1'
+  when: shower_location == 'enclosure'
+  uniclass_pr:
+    code: Pr_40_20_06_79
+    title: Shower enclosures
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Broadland Housing Association affordable housing specification, March 2023
+    url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: sh_bath_screen_or_curtain
+  description: Bath screen or shower curtain and rail
+  spec: Over-bath glass screen, or curtain with rail or pole
+  unit: nr
+  quantity: '1'
+  when: shower_location == 'over_bath'
+  uniclass_pr:
+    code: Pr_40_20_06_82
+    title: Shower screens
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Canterbury City Council Void Lettable Standard v1.0 (2026)
+    url: https://www.canterbury.gov.uk/sites/default/files/2026-06/Void%20Lettable%20Standard%20policy.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  options:
+  - id: screen
+    label: Glass bath screen
+    spec: Over-bath glass screen
+    tags: []
+    default: true
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Canterbury City Council Void Lettable Standard v1.0 (2026)
+      url: https://www.canterbury.gov.uk/sites/default/files/2026-06/Void%20Lettable%20Standard%20policy.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: curtain
+    label: Curtain and rail
+    spec: Shower curtain with rail or pole
+    tags: []
+    default: false
+    provenance:
+    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+        (Sell2Wales tender attachment)
+      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+    - source_title: Canterbury City Council Void Lettable Standard v1.0 (2026)
+      url: https://www.canterbury.gov.uk/sites/default/files/2026-06/Void%20Lettable%20Standard%20policy.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+rules:
+- id: shower_enclosure
+  when: shower_location == 'enclosure'
+  requires:
+  - sh_tray
+  - sh_tray_waste
+  - sh_tray_bedding
+  - sh_enclosure
+  - cs_sanitary_silicone
+  excludes:
+  - sh_bath_screen_or_curtain
+  rationale: A tray is sold without its waste; it needs a 90 mm waste and trap, bedding and silicone.
+  provenance:
+  - source_title: 'Stone resin shower tray listing: waste not included (ManoMano; search summary)'
+    url: https://www.manomano.co.uk/p/mx-minerals-quadrant-shower-tray-900mm-x-900mm-ash-grey-79610490
+    licence: unknown-copyright-facts-only
+    evidence_quality: search_snippet
+- id: shower_over_bath
+  when: shower_location == 'over_bath'
+  requires:
+  - sh_bath_screen_or_curtain
+  excludes:
+  - sh_tray
+  - sh_tray_waste
+  - sh_enclosure
+  rationale: A shower over the bath needs a screen or curtain and no tray.
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Canterbury City Council Void Lettable Standard v1.0 (2026)
+    url: https://www.canterbury.gov.uk/sites/default/files/2026-06/Void%20Lettable%20Standard%20policy.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec

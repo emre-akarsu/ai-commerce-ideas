@@ -1,0 +1,194 @@
+# Module: Consumables and fixings
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.consumables
+module: consumables
+version: 0.2.0
+market: uk
+title: Consumables and fixings
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: cs_sanitary_silicone
+  description: Sanitary silicone sealant
+  spec: Bathroom-grade white silicone sealant with fungicide
+  unit: cartridge
+  quantity: ceil(sealant_joint_m / sealant_m_per_cartridge)
+  uniclass_pr:
+    code: Pr_30_31_76_77
+    title: Silicone construction joint sealants
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: 'Truly PVC: estimating silicone cartridge yield'
+    url: https://www.trulypvc.com/blogs/how-to-guides/how-to-estimate-silicone-cartridge-yield
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Ideal Standard i.life Idealform bath fitting instructions
+    url: https://heatandplumb.com/media/ideal-standard/fitting-instructions/file-512508.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: cs_clear_sealant_wc
+  description: Clear sealant at the WC base
+  spec: Clear silicone sealant
+  unit: cartridge
+  quantity: '1'
+  when: wc_type == 'close_coupled'
+  uniclass_pr:
+    code: Pr_30_31_76_77
+    title: Silicone construction joint sealants
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
+      (Sell2Wales tender attachment)
+    url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: 'Wickes how-to guide: installing a toilet'
+    url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+  with_module:
+  - wc
+- id: cs_thread_sealant
+  description: Thread sealant for threaded joints
+  spec: PTFE tape
+  unit: roll
+  quantity: '2'
+  uniclass_pr:
+    code: Pr_65_52_62_65
+    title: PTFE joint tapes
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+    url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: 'Wickes how-to guide: installing a toilet'
+    url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+- id: cs_plumbing_sundries
+  description: Plumbing sundries allowance
+  spec: Small fittings, washers and connectors not listed elsewhere
+  unit: item
+  quantity: '1'
+  provenance:
+  - source_title: Screwfix new bathroom cost guide (2026; plumbing sundries line)
+    url: https://www.screwfix.com/guides/bathrooms-kitchens/bathrooms/new-bathroom-costs-guide
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: cs_wc_packers
+  description: Packers to level the WC pan
+  spec: Plastic packers
+  unit: pack
+  quantity: '1'
+  when: wc_type == 'close_coupled'
+  provenance:
+  - source_title: 'Wickes how-to guide: installing a toilet'
+    url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+  with_module:
+  - wc
+- id: cs_fixings_solid
+  description: Fixings for wall-mounted fittings in solid walls
+  spec: Plastic wall plugs and stainless or zinc-plated screws
+  unit: pack
+  quantity: '1'
+  when: wall_type == 'solid'
+  uniclass_pr:
+    code: Pr_20_29_63_63
+    title: Plastics plugs
+    version: Pr v1.43 (July 2026)
+  etim_class:
+    code: EC000089
+    title: All-purpose plug
+    version: ETIM 10.1
+  provenance:
+  - source_title: Mira Discovery bar mixer installation guide
+    url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Ideal Standard Idealcast bath installation guide (2009)
+    url: https://images.victorianplumbing.co.uk/products/ideal-standard-white-1700-x-800mm-0th-double-ended-idealcast-bath/instructions/is_idealcast_e002301_iguide_en.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: cs_fixings_stud
+  description: Fixings for wall-mounted fittings in stud walls
+  spec: Cavity fixings rated for the fitting load, or screws into noggins
+  unit: pack
+  quantity: '1'
+  when: wall_type == 'stud'
+  etim_class:
+    code: EC000040
+    title: Cavity fixing
+    version: ETIM 10.1
+  provenance:
+  - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+    url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Mira Discovery bar mixer installation guide
+    url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: cs_pattress
+  description: Pattress or noggins behind a wall-hung basin on a stud wall
+  spec: Plywood pattress or timber noggins fixed between studs
+  unit: item
+  quantity: '1'
+  when: basin_mount == 'wall_hung' and wall_type == 'stud'
+  provenance:
+  - source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+    url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+    licence: OGL-3.0
+    evidence_quality: derived
+    derived_from: ADM para 2.26 asks walls to carry fittings and adaptations; strengthening for a wall-hung
+      basin on studs is inferred for refurbishment.
+  - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+    url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  with_module:
+  - basin
+rules:
+- id: stud_wall_fixings
+  when: wall_type == 'stud'
+  requires:
+  - cs_fixings_stud
+  excludes:
+  - cs_fixings_solid
+  rationale: Mira guides warn stud partitions may need alternative fixings; wall fixings are not supplied.
+  provenance:
+  - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
+    url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Mira Discovery bar mixer installation guide
+    url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: solid_wall_fixings
+  when: wall_type == 'solid'
+  requires:
+  - cs_fixings_solid
+  excludes:
+  - cs_fixings_stud
+  rationale: Wall fixings suited to the substrate are not supplied.
+  provenance:
+  - source_title: Mira Discovery bar mixer installation guide
+    url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Ideal Standard Idealcast bath installation guide (2009)
+    url: https://images.victorianplumbing.co.uk/products/ideal-standard-white-1700-x-800mm-0th-double-ended-idealcast-bath/instructions/is_idealcast_e002301_iguide_en.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc

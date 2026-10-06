@@ -1,0 +1,96 @@
+# Module: Waterproofing and tile backer
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ (2026-10-06).
+id: uk.module.waterproofing
+module: waterproofing
+version: 0.2.0
+market: uk
+title: Waterproofing and tile backer
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: wp_backer_board
+  description: Tile backer board on wet walls
+  spec: Cement or insulated tile backer board, 1200 x 800
+  unit: nr
+  quantity: backer_boards
+  uniclass_pr:
+    code: Pr_25_71_11
+    title: Cement boards and sheets
+    version: Pr v1.43 (July 2026)
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: 'Wickes how-to guide: tiling a wall'
+    url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+  - source_title: TilersForums thread quoting Hardiebacker fixing guidance
+    url: https://www.tilersforums.com/threads/hardie-backer-board-info.48531
+    licence: unknown-copyright-facts-only
+    evidence_quality: forum
+- id: wp_backer_screws
+  description: Backer board screws and washers
+  spec: Corrosion-resistant screws with board washers
+  unit: nr
+  quantity: backer_boards * backer_screws_per_board
+  provenance:
+  - source_title: TilersForums thread quoting Hardiebacker fixing guidance
+    url: https://www.tilersforums.com/threads/hardie-backer-board-info.48531
+    licence: unknown-copyright-facts-only
+    evidence_quality: forum
+  - source_title: TilersForums thread quoting Marmox fixing guidance
+    url: https://tilersforums.com/threads/marmox-information.48611
+    licence: unknown-copyright-facts-only
+    evidence_quality: forum
+- id: wp_backer_joint_tape
+  description: Joint tape for backer board
+  spec: Alkali-resistant glass-fibre mesh tape
+  unit: roll
+  quantity: '1'
+  provenance:
+  - source_title: TilersForums thread quoting Marmox fixing guidance
+    url: https://tilersforums.com/threads/marmox-information.48611
+    licence: unknown-copyright-facts-only
+    evidence_quality: forum
+- id: wp_tanking_kit
+  description: Liquid tanking kit for shower walls (and floor in a wet room)
+  spec: Liquid waterproofing membrane kit with primer and reinforcing tape, tested to BS EN 14891
+  unit: kit
+  quantity: ceil(tanked_m2 / tanking_kit_coverage_m2)
+  provenance:
+  - source_title: Shower waterproofing kit listing (Toolstation; Mapei kit contents and coverage)
+    url: https://www.toolstation.com/mapei-shower-waterproofing-kit/p71005
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Camden Council DFG schedule of works (search snippet only)
+    url: https://camdocs.camden.gov.uk/CMWebDrawer/Record/10781649/file/document
+    licence: unknown-copyright-facts-only
+    evidence_quality: search_snippet
+rules:
+- id: tanking_and_backer
+  requires:
+  - wp_backer_board
+  - wp_backer_screws
+  - wp_backer_joint_tape
+  - wp_tanking_kit
+  rationale: Wet walls get backer board fixed with corrosion-resistant screws and washers, joints taped,
+    then a liquid membrane kit (area / kit coverage).
+  provenance:
+  - source_title: Shower waterproofing kit listing (Toolstation; Mapei kit contents and coverage)
+    url: https://www.toolstation.com/mapei-shower-waterproofing-kit/p71005
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: TilersForums thread quoting Marmox fixing guidance
+    url: https://tilersforums.com/threads/marmox-information.48611
+    licence: unknown-copyright-facts-only
+    evidence_quality: forum
+  - source_title: TilersForums thread quoting Hardiebacker fixing guidance
+    url: https://www.tilersforums.com/threads/hardie-backer-board-info.48531
+    licence: unknown-copyright-facts-only
+    evidence_quality: forum
