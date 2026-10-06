@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 """Pure rules: stop-request detection and the supplier CSV parser (FR-SU-1).
 
 Both treat their input as untrusted text. The CSV parser never raises for a bad ROW: every data row is

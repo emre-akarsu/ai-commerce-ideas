@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 """Tenant-scoped in-memory repositories for supplier profiles and assumption rows.
 
 Same capability model as ``components.core.store``: ``SupplierStore.for_tenant(tenant_id)`` hands out

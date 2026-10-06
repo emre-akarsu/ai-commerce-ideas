@@ -158,7 +158,8 @@ def make_idempotency(
     ) -> Response:
         key = request.headers.get("idempotency-key")
         authz = request.headers.get("authorization", "")
-        if request.method not in {"POST", "PATCH", "PUT"} or not key or not authz.startswith("Bearer "):
+        if (request.method not in {"POST", "PATCH", "PUT"} or not key
+                or not authz.startswith("Bearer ")):
             return await call_next(request)
         try:
             ctx = auth.authenticate(authz[7:].strip())

@@ -9,7 +9,7 @@ if context.is_offline_mode():
     raise RuntimeError("offline migrations are not supported (DDL uses DO blocks and roles)")
 
 engine = create_engine(
-    config.get_main_option("sqlalchemy.url"), connect_args={"client_encoding": "utf8"}
+    str(config.get_main_option("sqlalchemy.url")), connect_args={"client_encoding": "utf8"}
 )
 with engine.connect() as connection:
     context.configure(connection=connection)

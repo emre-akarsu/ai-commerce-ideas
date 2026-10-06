@@ -475,14 +475,14 @@ class MvpOps:
 
     # ------------------------------------------------------------ setup and go-live
 
-    def _last_event(self, tenant_id: str, etype: str) -> Any:
+    def _last_tenant_event(self, tenant_id: str, etype: str) -> Any:
         for e in reversed(self._log.events(tenant_id)):
             if e.type == etype:
                 return e
         return None
 
     def _is_live(self, tenant_id: str) -> bool:
-        return self._last_event(tenant_id, EVT_SETUP_GO_LIVE) is not None
+        return self._last_tenant_event(tenant_id, EVT_SETUP_GO_LIVE) is not None
 
     def _missing_identity(self, tenant_id: str) -> list[str]:
         s = self._settings
@@ -506,13 +506,13 @@ class MvpOps:
         items.append(SetupItem(
             id="suppliers", label="At least one attested supplier",
             status="done" if attested else "todo", detail=f"{attested} attested"))
-        kill = self._last_event(tenant_id, EVT_KILL_SWITCH_NAME)
+        kill = self._last_tenant_event(tenant_id, EVT_KILL_SWITCH_NAME)
         engaged = bool(kill and kill.payload.get("engaged"))
         items.append(SetupItem(
             id="kill_switch", label="Kill switch not engaged",
             status="blocked" if engaged else "done",
             detail="sending is stopped for this tenant" if engaged else "not engaged"))
-        dry = self._last_event(tenant_id, EVT_RFQ_PREPARED_NAME) is not None
+        dry = self._last_tenant_event(tenant_id, EVT_RFQ_PREPARED_NAME) is not None
         items.append(SetupItem(
             id="dry_run", label="A request has reached a prepared RFQ",
             status="done" if dry else "todo",

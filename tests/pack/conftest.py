@@ -79,7 +79,7 @@ def build_world(
 ) -> World:
     clock = FakeClock()
     store = Store()
-    log = EventLog(clock, pii_key=b"k" * 32)
+    log = EventLog(clock, pii_key=b"k" * 32, chain_key=b"c" * 32)
     transport = RecordingTransport()
     notifier = InMemoryNotifier()
     suppliers = SupplierStore()

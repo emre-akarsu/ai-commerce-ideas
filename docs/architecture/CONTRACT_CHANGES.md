@@ -39,3 +39,8 @@ Tables use primary key `(tenant_id, id)` so ids are not an existence oracle acro
 
 ## 2026-10-02 (lead): tax basis on quotes (deployment profiles)
 Additive, defaulted fields so stored data stays valid: `ExtractedQuote.tax_text`; `Quote.unit_price_quoted`, `Quote.tax_basis` ("ex_tax"|"inc_tax"|"unknown"), `Quote.tax_rate`. `Quote.unit_price_each` is the EX-TAX price once the basis is known, so comparison stays like-for-like. Reason: UK (and most non-US) B2B quotes are ex-VAT by norm and may state VAT inclusively; the active deployment profile (`aiplat.profile`) decides the default basis, rate and handling of unknown basis.
+
+## 2026-10-06 (backend, buy-side RFQ MVP): no frozen-file change needed
+`domain.py` and `ports.py` are untouched. `Vendor` stays as is: the supplier profile, attestation and suppression live in the new `components/suppliers` records keyed by `(tenant_id, vendor_id)`, and `VendorView` (API) is `Vendor` plus `profile`. Assumption rows are `components.suppliers.Assumption`. Two non-frozen notes for the owners:
+- `components/rfq/workflow/machine.py`: added the transition `SPEC_CONFIRMED -> SPEC_DRAFT`, used only when a person invalidates an assumption (the request returns to its open questions through `Workflow.transition`, never a direct status write). The only way to reopen a confirmed spec before this was through ESCALATED.
+- Preferable later: a `Vendor.profile`-style typed field or a `SupplierProfile` port in `domain.py`/`ports.py` so `PgStore` and `Store` share one protocol (today `PgTenantStore.profiles/assumptions` match `SupplierTenantStore` structurally).

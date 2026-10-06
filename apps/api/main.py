@@ -40,9 +40,9 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from aiplat.ctx import Ctx, Forbidden, Role, require
 from aiplat.profile import ResolvedProfile, load_profile
 from components.core.domain import Comparison, PurchaseOrderDraft, Vendor
+from components.send_service.message import is_plain_line
 from components.suppliers import Money
 from components.suppliers.models import AccountType, ContactKind
-from components.send_service.message import is_plain_line
 
 from .auth import Authenticator, AuthError
 from .inbound import verify_inbound_signature

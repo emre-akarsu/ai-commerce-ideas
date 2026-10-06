@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 """Supplier and assumption records (api-contract-mvp.md sections 1 and 2).
 
 These live beside the frozen ``domain.Vendor`` instead of inside it (``domain.py`` is frozen): a
