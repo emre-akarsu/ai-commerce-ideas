@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import { widgetFor, CARD_LIMIT } from "@/lib/kits/widgets";
 import { readKit } from "@/lib/kits/schema";
 import { finishLevelOf, optionFor, resolveKit, measuredDerived } from "@/lib/kits/resolve";
-import { countStates, initialWizard, lineState, setLine, setModule, startFor, wizardReducer } from "@/lib/kits/state";
+import { countStates, initialWizard, lineState, setLine, setModule, startFor, unknownIds, wizardReducer } from "@/lib/kits/state";
 import { completeness, indicativeTotals, ledger, money, popularityBadge, priceText, rfqDraft } from "@/lib/kits/summary";
 import { bundledKits, isReady, parametersFor } from "@/lib/kits/catalog";
 import type { KitQuestion, KitSpec } from "@/lib/kits/model";
-import { v2Sample } from "@/lib/kits/test-support";
+import { loadV1, v2Sample } from "@/lib/kits/test-support";
 
 const q = (over: Partial<KitQuestion>): KitQuestion => ({
   id: "x", text: "?", type: "enum", ask: "upfront", priority: 1, default: "a", options: [{ value: "a", label: "A" }, { value: "b", label: "B" }],
@@ -18,6 +18,7 @@ describe("widgetFor", () => {
   it.each<[string, Partial<KitQuestion>, string]>([
     ["bool without hint -> two cards", { type: "bool", options: [{ value: false, label: "No" }, { value: true, label: "Yes" }], default: false }, "bool-cards"],
     ["bool with toggle hint", { type: "bool", widget: "toggle", options: [{ value: false, label: "No" }, { value: true, label: "Yes" }], default: false }, "toggle"],
+    ["toggle hint on a bool with don't know -> two cards plus don't know", { type: "bool", widget: "toggle", unknown: { label: "Don't know", mapsTo: false }, options: [{ value: false, label: "No" }, { value: true, label: "Yes" }], default: false }, "bool-cards"],
     ["enum with 2 options -> cards", {}, "choice-cards"],
     [`enum with ${CARD_LIMIT} options -> cards`, { options: opts(CARD_LIMIT), default: "o0" }, "choice-cards"],
     [`enum with ${CARD_LIMIT + 1} options -> select`, { options: opts(CARD_LIMIT + 1), default: "o0" }, "select"],
@@ -66,8 +67,33 @@ describe("finish level selection", () => {
     expect(dflt.lines.find((x) => x.line.id === "tl_trim")!.option?.id).toBe("plastic"); // premium never pre-selected
   });
   it("no finish_level question -> no level", () => {
-    const k = bundledKits().filter(isReady)[0].result.spec;
-    expect(finishLevelOf(k, {})).toBeNull();
+    const r = readKit(loadV1());
+    expect(r.ok && finishLevelOf(r.spec, {})).toBeNull();
+  });
+  it("real exports: the finish level only ever moves a line to an option tagged with it", () => {
+    for (const k of bundledKits().filter(isReady)) {
+      const spec = k.result.spec;
+      for (const level of ["budget", "most_used", "premium"] as const) for (const line of spec.modules.flatMap((m) => m.lines)) {
+        const { option, source } = optionFor(line, level, {});
+        if (source === "finish_level") expect(option!.tags).toContain(level);
+        if (source === "default") expect(option!.id).toBe(line.defaultOption);
+      }
+    }
+  });
+});
+
+describe("don't know answers", () => {
+  const spec = v2();
+  it('"unknown" resolves to maps_to and is recorded first among the assumptions, as in Python', () => {
+    const meas = Object.fromEntries(spec.measurements.map((m) => [m.id, m.sample]));
+    const r = resolveKit(spec, parametersFor(spec.market), { answers: { wc_type: "unknown" }, measurements: meas });
+    expect(r.answers.wc_type).toBe("close_coupled");
+    expect(r.assumptions[0]).toEqual({ kind: "question", key: "wc_type", value: "close_coupled", label: "Don't know: treated as Close-coupled (cistern on the pan)" });
+    expect(r.assumptions.filter((a) => a.key === "wc_type")).toHaveLength(1);
+  });
+  it('"unknown" is ignored for a question without a don\'t-know choice (falls back to the default)', () => {
+    const r = resolveKit(spec, parametersFor(spec.market), { answers: { layout_change: "unknown" }, measurements: {} });
+    expect(r.answers.layout_change).toBe(false);
   });
 });
 
@@ -94,9 +120,10 @@ describe("tri-state lines", () => {
     expect(s.step).toBe("questions");
     expect(s.measurements.room_width_m).toBe("2.0");
     s = wizardReducer(s, { type: "answer", id: "wc_type", value: "close_coupled", unknown: true });
-    expect(s.unknown).toEqual(["wc_type"]);
+    expect(s.answers.wc_type).toBe("unknown");
+    expect(unknownIds(spec, s.answers)).toEqual(["wc_type"]);
     s = wizardReducer(s, { type: "answer", id: "wc_type", value: "wall_hung" });
-    expect(s.unknown).toEqual([]);
+    expect(unknownIds(spec, s.answers)).toEqual([]);
     s = wizardReducer(s, { type: "line", spec, lineId: "so_cap_feeds", value: "not_needed" });
     s = wizardReducer(s, { type: "acceptDefaults" });
     expect(s).toMatchObject({ step: "summary", acceptedDefaults: true, lines: { so_cap_feeds: "not_needed" } });
@@ -112,7 +139,7 @@ describe("review and summary views", () => {
   it("ledger lists every review default; only the finish level has moved one off its default", () => {
     const l = ledger(spec, s0, res);
     expect(l.length).toBe(spec.reviewDefaults.length);
-    expect(l.filter((x) => x.changed).map((x) => [x.key, x.valueLabel])).toEqual([["sw_basin_taps", "Single-lever basin mixer"]]);
+    expect(l.filter((x) => x.changed).map((x) => [x.key, x.valueLabel])).toEqual([["sw_basin_taps", "Basin mixer"]]);
   });
   it("completeness flags a rule-required line marked not needed", () => {
     const s = { ...s0, lines: { ff_fittings_compression: "not_needed" as const } };

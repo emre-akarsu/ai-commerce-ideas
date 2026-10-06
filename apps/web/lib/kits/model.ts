@@ -56,6 +56,8 @@ export const DEFAULT_FINISH_LEVELS: FinishLevel[] = [
 ];
 
 export const FINISH_QUESTION_ID = "finish_level";
+/** The answer value for a question's "don't know" choice; it resolves to `unknown.maps_to`. */
+export const UNKNOWN_ANSWER = "unknown";
 export const isFinishQuestion = (q: Pick<KitQuestion, "id">): boolean => q.id === FINISH_QUESTION_ID;
 
 export function allLines(spec: KitSpec): KitLine[] { return spec.modules.flatMap((m) => m.lines); }

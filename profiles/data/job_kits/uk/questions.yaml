@@ -278,7 +278,7 @@ questions:
       a tiled floor. Off unless you add it.
   add_led_mirror:
     type: bool
-    question: Add lED mirror with demister?
+    question: Add LED mirror with demister?
     options:
     - value: false
       label: 'No'

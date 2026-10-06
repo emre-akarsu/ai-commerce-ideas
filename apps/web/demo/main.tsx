@@ -9,6 +9,7 @@ import RequestDetail from "@/app/requests/[id]/page";
 import Vendors from "@/app/vendors/page";
 import Setup from "@/app/setup/page";
 import Audit from "@/app/audit/page";
+import Kits from "@/app/kits/page";
 import Approve from "@/app/approve/[token]/page";
 import { useRoute } from "./router";
 
@@ -20,6 +21,7 @@ function Page() {
   if (r === "/vendors") return <Vendors />;
   if (r === "/setup") return <Setup />;
   if (r === "/audit") return <Audit />;
+  if (r === "/kits") return <Kits />;
   return <Inbox />;
 }
 

@@ -9,11 +9,11 @@ export const CARD_LIMIT = 4;
 /** A config may ask for cards beyond CARD_LIMIT, but never more than this. */
 export const CARD_HINT_LIMIT = 8;
 
-export function widgetFor(q: Pick<KitQuestion, "id" | "type" | "options" | "widget">): QuestionWidget {
+export function widgetFor(q: Pick<KitQuestion, "id" | "type" | "options" | "widget" | "unknown">): QuestionWidget {
   if (q.id === FINISH_QUESTION_ID) return "tier-cards";
   const n = q.options.length;
   switch (q.widget) {
-    case "toggle": if (q.type === "bool") return "toggle"; break;
+    case "toggle": if (q.type === "bool" && !q.unknown) return "toggle"; break; // a switch cannot say "don't know"
     case "cards": if (q.type === "bool") return "bool-cards"; if (n <= CARD_HINT_LIMIT) return "choice-cards"; break;
     case "segmented": if (n <= CARD_LIMIT) return "segmented"; break;
     case "select": if (q.type === "enum") return "select"; break;

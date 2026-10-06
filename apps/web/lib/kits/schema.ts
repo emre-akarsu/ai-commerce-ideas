@@ -93,7 +93,7 @@ class Ctx {
   }
   arr(v: unknown, path: string, optional = false): unknown[] {
     if (Array.isArray(v)) return v;
-    if (v === undefined && optional) return [];
+    if ((v === undefined || v === null) && optional) return [];
     this.err(path, v === undefined ? "is missing" : "must be a list"); return [];
   }
   str(o: Obj, k: string, path: string): string {
@@ -380,7 +380,8 @@ function readSchemaChanges(c: Ctx, v: unknown): string[] {
 // ------------------------------------------------------------------ references between parts
 
 function crossCheck(c: Ctx, spec: KitSpec, opts: ReadOptions): void {
-  const qIds = new Set(spec.questions.map((q) => q.id));
+  const qIds = new Set<string>();
+  for (const q of spec.questions) { if (qIds.has(q.id)) c.err(`question ${q.id}`, "id is used twice"); qIds.add(q.id); }
   for (const id of spec.upfrontQuestions) if (!qIds.has(id)) c.err("upfront_questions", `names "${id}", which is not a question`);
   const domains: Domains = {};
   for (const q of spec.questions) domains[q.id] = q.options.map((o) => o.value);

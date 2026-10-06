@@ -350,7 +350,7 @@
     },
     {
       "id": "add_led_mirror",
-      "question": "Add lED mirror with demister?",
+      "question": "Add LED mirror with demister?",
       "type": "bool",
       "ask": "on_review",
       "priority": 3,
@@ -472,7 +472,7 @@
     {
       "kind": "question",
       "key": "add_led_mirror",
-      "label": "Add lED mirror with demister?",
+      "label": "Add LED mirror with demister?",
       "default": false,
       "default_label": "No",
       "unit": null

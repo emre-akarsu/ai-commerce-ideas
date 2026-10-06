@@ -1,6 +1,6 @@
 // Pure wizard state: step, answers, measurements, choices and the per-line Include / Not needed /
 // Already have state. Reducers are plain functions so they are unit-tested without React.
-import { allLines, type KitSpec, type Scalar } from "./model";
+import { allLines, UNKNOWN_ANSWER, type KitSpec, type Scalar } from "./model";
 
 export type TriState = "include" | "not_needed" | "have";
 export const TRI_STATES: readonly TriState[] = ["include", "not_needed", "have"];
@@ -15,9 +15,8 @@ export const STEPS: ReadonlyArray<{ id: Step; label: string }> = [
 export interface WizardState {
   kitKey: string | null;
   step: Step;
+  /** Raw answers as the person gave them; "don't know" is stored as "unknown" (see resolve.mapUnknown). */
   answers: Record<string, Scalar>;
-  /** Questions answered with "Don't know"; the answer holds the value it maps to. */
-  unknown: string[];
   measurements: Record<string, string>;
   allowances: Record<string, string>;
   choices: Record<string, string>;
@@ -27,7 +26,7 @@ export interface WizardState {
 }
 
 export const initialWizard: WizardState = {
-  kitKey: null, step: "scope", answers: {}, unknown: [], measurements: {}, allowances: {}, choices: {}, lines: {}, acceptedDefaults: false,
+  kitKey: null, step: "scope", answers: {}, measurements: {}, allowances: {}, choices: {}, lines: {}, acceptedDefaults: false,
 };
 
 export type WizardAction =
@@ -45,20 +44,16 @@ export type WizardAction =
 /** Measurements start from the config's sample so every scope can be previewed at defaults. */
 export function startFor(kitKey: string, spec: KitSpec): WizardState {
   return {
-    ...initialWizard, kitKey, step: spec.upfrontQuestions.length || hasFinish(spec) ? "questions" : spec.measurements.length ? "measure" : "review",
+    ...initialWizard, kitKey, step: spec.upfrontQuestions.length ? "questions" : spec.measurements.length ? "measure" : "review",
     measurements: Object.fromEntries(spec.measurements.map((m) => [m.id, m.sample])),
   };
 }
-const hasFinish = (spec: KitSpec): boolean => spec.questions.some((q) => q.id === "finish_level");
 
 export function wizardReducer(s: WizardState, a: WizardAction): WizardState {
   switch (a.type) {
     case "pick": return startFor(a.kitKey, a.spec);
     case "go": return { ...s, step: a.step };
-    case "answer": {
-      const unknown = s.unknown.filter((x) => x !== a.id);
-      return { ...s, answers: { ...s.answers, [a.id]: a.value }, unknown: a.unknown ? [...unknown, a.id] : unknown };
-    }
+    case "answer": return { ...s, answers: { ...s.answers, [a.id]: a.unknown ? UNKNOWN_ANSWER : a.value } };
     case "measure": return { ...s, measurements: { ...s.measurements, [a.id]: a.value } };
     case "allowance": {
       const allowances = { ...s.allowances };
@@ -76,6 +71,11 @@ export function wizardReducer(s: WizardState, a: WizardAction): WizardState {
     case "reset": return initialWizard;
     default: return s;
   }
+}
+
+/** Questions the person answered "don't know" (stored as "unknown"; only where the config offers it). */
+export function unknownIds(spec: KitSpec, answers: Record<string, Scalar>): string[] {
+  return spec.questions.filter((q) => q.unknown && answers[q.id] === UNKNOWN_ANSWER).map((q) => q.id);
 }
 
 // ------------------------------------------------------------------ tri-state lines

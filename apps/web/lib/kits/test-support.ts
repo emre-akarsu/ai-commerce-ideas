@@ -10,10 +10,15 @@ export function loadExport(scope: string): Record<string, unknown> {
   return JSON.parse(readFileSync(path.join(webRoot, "lib/kits/generated/uk", `${scope}.json`), "utf8"));
 }
 
+/** A pinned job-kit-ui/1 export (bathroom_full as committed before the v2 exporter), so the v1 path stays tested. */
+export function loadV1(): Record<string, unknown> {
+  return JSON.parse(readFileSync(path.join(webRoot, "tests/fixtures/kits-v1-bathroom_full.json"), "utf8"));
+}
+
 type J = Record<string, unknown>;
-/** A job-kit-ui/2 sample built from a v1 export by adding the v2 optional fields from the contract. */
-export function v2Sample(scope = "bathroom_full"): J {
-  const v1 = loadExport(scope);
+/** A synthetic job-kit-ui/2 sample built from the pinned v1 export by adding the v2 optional fields. Stable on purpose. */
+export function v2Sample(): J {
+  const v1 = loadV1();
   const out = structuredClone(v1) as J;
   out.format = "job-kit-ui/2";
   out.finish_levels = [

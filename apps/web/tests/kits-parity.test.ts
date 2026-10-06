@@ -13,6 +13,7 @@ import type { Scalar } from "@/lib/kits/model";
 interface Case {
   scope_id: string; case: string; answers: Record<string, Scalar>; measurements: Record<string, string>;
   lines: Record<string, { quantity: string; unit: string; option: string | null }>;
+  assumptions: Array<[string, string, string]>;
   values: Record<string, string>;
   rules: Record<string, { applies: boolean; missing: string[]; clashing: string[] }>;
 }
@@ -21,11 +22,14 @@ const kits = bundledKits().filter(isReady);
 const specFor = (scopeId: string) => kits.find((k) => k.result.spec.scope.scopeId === scopeId)!.result.spec;
 
 describe("parity with the Python resolver", () => {
-  it("the fixture covers every bundled scope at defaults", () => {
+  it("the fixture covers every bundled scope at defaults and, where there is a finish level, at budget and premium", () => {
     const scopes = kits.map((k) => k.result.spec.scope.scopeId).sort();
     expect(fixture.cases.filter((c) => c.case === "defaults").map((c) => c.scope_id).sort()).toEqual(scopes);
+    for (const k of kits) if (k.result.spec.questions.some((q) => q.id === "finish_level")) {
+      for (const name of ["finish_budget", "finish_premium"]) expect(fixture.cases.some((c) => c.scope_id === k.result.spec.scope.scopeId && c.case === name), `${k.key} ${name}`).toBe(true);
+    }
   });
-  it.each(fixture.cases.map((c) => [c.scope_id, c.case, c] as const))("%s at %s: same lines, quantities, options, values and rules", (_s, _c, c) => {
+  it.each(fixture.cases.map((c) => [c.scope_id, c.case, c] as const))("%s at %s: same lines, quantities, options, values, rules and assumptions", (_s, _c, c) => {
     const spec = specFor(c.scope_id);
     const res = resolveKit(spec, parametersFor(spec.market), { answers: c.answers, measurements: c.measurements });
     expect(res.errors).toEqual([]);
@@ -34,6 +38,7 @@ describe("parity with the Python resolver", () => {
     expect(Object.keys(got)).toEqual(Object.keys(c.lines)); // same order as Python
     expect(Object.fromEntries(Object.entries(res.values).map(([k, v]) => [k, v.toString()]))).toEqual(c.values);
     expect(Object.fromEntries(res.rules.map((r) => [r.rule.id, { applies: r.applies, missing: r.missing, clashing: r.clashing }]))).toEqual(c.rules);
+    expect(res.assumptions.map((a) => [a.kind, a.key, a.value])).toEqual(c.assumptions);
   });
 });
 

@@ -1,0 +1,11 @@
+import { launch } from "./cdp.mjs";
+const b = await launch(9366);
+await b.size(1280, 900);
+await b.go("http://127.0.0.1:3201/index.html#/kits");
+await b.sleep(1200);
+console.log((await b.text()).slice(0, 400).replace(/\n+/g, " | "));
+await b.size(390, 844);
+console.log(JSON.stringify(await b.overflow()));
+await b.shot(process.env.OUT + "/kits-demo-check.png");
+console.log("logs", b.logs.slice(0, 5));
+b.close();

@@ -4,7 +4,7 @@
 // (tests/kits-parity.test.ts) checks this against a fixture written by the Python resolver.
 import { Dec } from "./decimal";
 import { FormulaError, evaluate, holds } from "./formula";
-import { FINISH_QUESTION_ID, type KitLine, type KitModule, type KitOption, type KitSpec, type Rule, type Scalar, type Tag } from "./model";
+import { FINISH_QUESTION_ID, UNKNOWN_ANSWER, optionLabel, type KitLine, type KitModule, type KitQuestion, type KitOption, type KitSpec, type Rule, type Scalar, type Tag } from "./model";
 
 export const COUNT_UNITS = new Set(["nr", "cartridge", "pack", "kit", "roll", "item", "pair"]);
 
@@ -24,6 +24,8 @@ export interface ResolvedLineView {
   option: KitOption | null; optionSource: OptionSource | null;
 }
 export interface RuleView { rule: Rule; applies: boolean; missing: string[]; clashing: string[] }
+/** Same entries, order and value text as Python `ResolvedKit.assumptions` (source default_template). */
+export interface AssumptionView { kind: "question" | "option" | "allowance"; key: string; value: string; label: string }
 export interface Resolution {
   answers: Record<string, Scalar>;
   values: Record<string, Dec>;
@@ -31,16 +33,45 @@ export interface Resolution {
   modules: KitModule[];
   rules: RuleView[];
   usedAllowances: string[];
+  assumptions: AssumptionView[];
   errors: string[];
 }
 
 class MissingValue extends Error {}
 
-/** Defaults, then the person's answers, then the scope's fixed answers (which always win). */
+const text = (v: Scalar): string => (typeof v === "boolean" ? (v ? "true" : "false") : v);
+
+/** The value used for evaluation: "unknown" becomes the question's unknown.maps_to (Python `map_unknown`). */
+export function mapUnknown(q: KitQuestion, v: Scalar): Scalar {
+  return q.unknown && v === UNKNOWN_ANSWER ? q.unknown.mapsTo : v;
+}
+export const isUnknownAnswer = (q: KitQuestion, answers: Record<string, Scalar>): boolean => !!q.unknown && answers[q.id] === UNKNOWN_ANSWER;
+
+/** Python `resolve_answers`: answers (with "unknown" mapped), else defaults; fixed answers always win.
+ *  Invalid answers fall back to the default here instead of raising, because the UI only offers valid ones. */
+export function answersWithAssumptions(spec: KitSpec, answers: Record<string, Scalar>): { full: Record<string, Scalar>; assumed: AssumptionView[] } {
+  const assumed: AssumptionView[] = [];
+  const mapped: Record<string, Scalar> = {};
+  for (const [key, value] of Object.entries(answers)) {
+    if (key in spec.fixedAnswers) continue;
+    const q = spec.questions.find((x) => x.id === key);
+    if (!q) continue;
+    const v = mapUnknown(q, value);
+    if (!q.options.some((o) => o.value === v)) continue;
+    mapped[key] = v;
+    if (q.unknown && value === UNKNOWN_ANSWER) assumed.push({ kind: "question", key, value: text(v), label: `${q.unknown.label}: treated as ${optionLabel(q, v)}` });
+  }
+  const full: Record<string, Scalar> = {};
+  for (const q of spec.questions) {
+    if (q.id in mapped) { full[q.id] = mapped[q.id]; continue; }
+    full[q.id] = q.default;
+    assumed.push({ kind: "question", key: q.id, value: text(q.default), label: optionLabel(q, q.default) });
+  }
+  return { full: { ...full, ...spec.fixedAnswers }, assumed };
+}
+
 export function fullAnswers(spec: KitSpec, answers: Record<string, Scalar>): Record<string, Scalar> {
-  const out: Record<string, Scalar> = {};
-  for (const q of spec.questions) out[q.id] = q.id in answers && q.options.some((o) => o.value === answers[q.id]) ? answers[q.id] : q.default;
-  return { ...out, ...spec.fixedAnswers };
+  return answersWithAssumptions(spec, answers).full;
 }
 
 export function allowanceDefaults(spec: KitSpec): Record<string, string> {
@@ -72,6 +103,8 @@ export function makeValues(spec: KitSpec, params: Record<string, string>, input:
   const overrides = input.allowances ?? {};
   const computed: Record<string, Dec> = {};
   const used: string[] = [];
+  /** Allowances taken from the template (not overridden): these are assumptions, as in Python. */
+  const assumedAllowances: string[] = [];
   const stack = new Set<string>();
   const get = (name: string): Dec => {
     if (name in computed) return computed[name];
@@ -85,14 +118,14 @@ export function makeValues(spec: KitSpec, params: Record<string, string>, input:
         if (typed === undefined || typed.trim() === "") throw new MissingValue(name);
         v = parseInput(name, typed);
       } else if (name in overrides) { used.push(name); v = parseInput(name, overrides[name]); }
-      else if (name in allowances) { used.push(name); v = parseInput(name, allowances[name]); }
+      else if (name in allowances) { used.push(name); assumedAllowances.push(name); v = parseInput(name, allowances[name]); }
       else if (derived.has(name)) v = evaluate(derived.get(name)!.formula, get, allNamesOf(spec, params));
       else throw new MissingValue(name);
       computed[name] = v;
       return v;
     } finally { stack.delete(name); }
   };
-  return { get, computed, used };
+  return { get, computed, used, assumedAllowances };
 }
 
 function parseInput(name: string, raw: string): Dec {
@@ -113,9 +146,10 @@ function allNamesOf(spec: KitSpec, params: Record<string, string>): Set<string> 
 }
 
 export function resolveKit(spec: KitSpec, params: Record<string, string>, input: KitInput): Resolution {
-  const answers = fullAnswers(spec, input.answers);
+  const { full: answers, assumed } = answersWithAssumptions(spec, input.answers);
   const finish = finishLevelOf(spec, input.answers);
-  const { get, computed, used } = makeValues(spec, params, input);
+  const { get, computed, used, assumedAllowances } = makeValues(spec, params, input);
+  const optionAssumptions: AssumptionView[] = [];
   const names = allNamesOf(spec, params);
   const errors: string[] = [];
   const lines: ResolvedLineView[] = [];
@@ -140,6 +174,7 @@ export function resolveKit(spec: KitSpec, params: Record<string, string>, input:
         error = e instanceof MissingValue ? `needs ${e.message}` : (e as Error).message;
       }
       lines.push({ line, module: m, quantity, error, option, optionSource: source });
+      if (option && source !== "you") optionAssumptions.push({ kind: "option", key: line.id, value: option.id, label: option.label });
     }
     if (any) modules.push(m);
   }
@@ -148,7 +183,11 @@ export function resolveKit(spec: KitSpec, params: Record<string, string>, input:
     if (!truth(rule.when, `rule ${rule.id}`)) return { rule, applies: false, missing: [], clashing: [] };
     return { rule, applies: true, missing: rule.requires.filter((x) => !active.has(x)), clashing: rule.excludes.filter((x) => active.has(x)) };
   });
-  return { answers, values: computed, lines, modules, rules, usedAllowances: [...new Set(used)], errors };
+  const allowanceAssumptions: AssumptionView[] = spec.reviewDefaults
+    .filter((r) => r.kind === "allowance" && assumedAllowances.includes(r.key))
+    .map((r) => ({ kind: "allowance", key: r.key, value: String(r.default), label: r.label }));
+  return { answers, values: computed, lines, modules, rules, usedAllowances: [...new Set(used)],
+    assumptions: [...assumed, ...optionAssumptions, ...allowanceAssumptions], errors };
 }
 
 /** Values of derived quantities that need only the measurements (shown live on the measure step). */

@@ -3,7 +3,7 @@
 import { Dec } from "./decimal";
 import { allLines, optionLabel, questionById, type KitOption, type KitSpec, type PriceBand, type Scalar } from "./model";
 import { allowanceDefaults, type Resolution } from "./resolve";
-import { lineState, type TriState, type WizardState } from "./state";
+import { lineState, unknownIds, type TriState, type WizardState } from "./state";
 
 // ------------------------------------------------------------------ assumption ledger
 
@@ -20,7 +20,8 @@ export function ledger(spec: KitSpec, s: WizardState, res: Resolution): LedgerIt
       const q = questionById(spec, rd.key);
       if (!q || q.id in spec.fixedAnswers) continue;
       const v = res.answers[q.id];
-      out.push({ kind: "question", key: q.id, label: rd.label, valueLabel: optionLabel(q, v), changed: q.id in s.answers && s.answers[q.id] !== q.default, unit: null, active: true });
+      const dontKnow = unknownIds(spec, s.answers).includes(q.id);
+      out.push({ kind: "question", key: q.id, label: rd.label, valueLabel: dontKnow && q.unknown ? `${q.unknown.label} (assumed ${optionLabel(q, v)})` : optionLabel(q, v), changed: q.id in s.answers && s.answers[q.id] !== q.default, unit: null, active: true });
     } else if (rd.kind === "option") {
       const rl = activeLines.get(rd.key);
       const line = allLines(spec).find((x) => x.id === rd.key);
@@ -45,7 +46,8 @@ export function completeness(spec: KitSpec, s: WizardState, res: Resolution): Ch
   if (spec.measurements.length) out.push(missing.length ? { level: "block", text: `Measure ${missing.map((m) => m.label.toLowerCase()).join(", ")}.` } : { level: "ok", text: "All measurements entered." });
   const defaulted = spec.upfrontQuestions.filter((id) => !(id in s.answers));
   out.push(defaulted.length ? { level: "warn", text: `${defaulted.length} upfront question${defaulted.length === 1 ? "" : "s"} left at the default.` } : { level: "ok", text: "Upfront questions answered." });
-  if (s.unknown.length) out.push({ level: "warn", text: `You answered "don't know" ${s.unknown.length === 1 ? "once" : `${s.unknown.length} times`}; the kit assumes the safe choice. Confirm on site.` });
+  const unk = unknownIds(spec, s.answers);
+  if (unk.length) out.push({ level: "warn", text: `You answered "don't know" ${unk.length === 1 ? "once" : `${unk.length} times`}; the kit assumes the safe choice. Confirm on site.` });
   const broken = res.lines.filter((x) => x.error);
   if (broken.length) out.push({ level: "block", text: `${broken.length} line${broken.length === 1 ? "" : "s"} could not be calculated: ${broken.slice(0, 3).map((x) => `${x.line.description} (${x.error})`).join("; ")}.` });
   for (const e of res.errors) out.push({ level: "block", text: e });
@@ -151,7 +153,7 @@ export function rfqDraft(spec: KitSpec, s: WizardState, res: Resolution): RfqDra
     lines.push({ line_id: x.line.id, module: x.module.id, description: x.line.description, spec: x.option?.spec ?? x.line.spec,
       quantity: x.quantity ? x.quantity.toPlain(3) : "", unit: x.line.unit, option: x.option?.id ?? null, assumption_source: spec.assumptionSource });
   }
-  const assumptions = ledger(spec, s, res).filter((l) => l.active && !l.changed).map((l) => `${l.label}: ${l.valueLabel} (template default)`);
+  const assumptions = assumptionTexts(spec, res).map((a) => `${a.what}: ${a.value} (${spec.assumptionSource})`);
   return {
     kind: "job_kit_rfq_draft",
     kit: { scope_id: spec.scope.scopeId, version: spec.scope.version, library_version: spec.libraryVersion, format: spec.sourceFormat, status: spec.status, label: spec.label },
@@ -159,4 +161,19 @@ export function rfqDraft(spec: KitSpec, s: WizardState, res: Resolution): RfqDra
     lines, not_needed: notNeeded, already_have: have, assumptions,
     rules_unmet: res.rules.filter((r) => r.applies && (r.missing.length || r.clashing.length)).map((r) => r.rule.id),
   };
+}
+
+// ------------------------------------------------------------------ assumptions (same list as Python)
+
+export interface AssumptionText { kind: string; key: string; what: string; value: string }
+/** res.assumptions in words: question text, line description or allowance label, and the value assumed. */
+export function assumptionTexts(spec: KitSpec, res: Resolution): AssumptionText[] {
+  const lines = new Map(allLines(spec).map((x) => [x.id, x]));
+  const allowances = new Map(spec.reviewDefaults.filter((r) => r.kind === "allowance").map((r) => [r.key, r]));
+  return res.assumptions.map((a) => {
+    if (a.kind === "question") return { ...a, what: questionById(spec, a.key)?.text.replace(/\?$/, "") ?? a.key, value: a.label };
+    if (a.kind === "option") return { ...a, what: lines.get(a.key)?.description ?? a.key, value: a.label };
+    const r = allowances.get(a.key);
+    return { ...a, what: r?.label ?? a.key, value: `${a.value}${r?.unit ? ` ${r.unit}` : ""}` };
+  });
 }

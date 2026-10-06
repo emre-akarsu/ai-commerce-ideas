@@ -1,7 +1,7 @@
 import { FlatCompat } from "@eslint/eslintrc";
 const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
 const config = [
-  { ignores: [".next/**", "node_modules/**", "next-env.d.ts"] },
+  { ignores: [".next/**", "node_modules/**", "next-env.d.ts", "demo-dist/**"] },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     // Spec §4 / R6: vendor- and request-derived text is rendered as plain text only.
