@@ -31,7 +31,7 @@ class KitError(ValueError):
 
 def conjoin(*conditions: str | None) -> str | None:
     """`a and b` over the given conditions; None when there is none (always true)."""
-    parts = [c for c in conditions if c]
+    parts = list(dict.fromkeys(c for c in conditions if c))
     if not parts:
         return None
     if len(parts) == 1:
@@ -119,6 +119,7 @@ class Line:
     with_module: tuple[str, ...] = ()
     optional: bool = False
     forced_by: dict[str, str] | None = None
+    forced_provenance: Provenance = ()
     help: str | None = None
     # Conditions of the with_module modules this line depends on in its scope (set by the
     # loader): the line is active only while one of those modules is active.

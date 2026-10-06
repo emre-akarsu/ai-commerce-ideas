@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.consumables
 module: consumables
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Consumables and fixings
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -35,12 +36,68 @@ lines:
     url: https://heatandplumb.com/media/ideal-standard/fitting-instructions/file-512508.pdf
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
+  options:
+  - id: own_brand
+    label: Own-brand sanitary silicone
+    spec: Sanitary silicone sealant with fungicide, white, 300 ml
+    tags:
+    - budget
+    default: false
+    provenance:
+    - source_title: B&Q sanitary sealant 300 ml listing (Oct 2026)
+      url: https://www.diy.com/departments/unibond-white-silicone-based-bathroom-kitchen-sanitary-sealant-300ml/1474132_BQ.prd
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: anti_mould
+    label: Branded anti-mould silicone
+    spec: Anti-mould sanitary silicone sealant, white, 300 ml
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: A branded anti-mould white silicone is the usual retail pick; no ranks were found.
+    price_band:
+      min: '9'
+      max: '13'
+      currency: GBP
+      per: 300 ml cartridge
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: B&Q sanitary sealant 300 ml listing (Oct 2026)
+      url: https://www.diy.com/departments/unibond-white-silicone-based-bathroom-kitchen-sanitary-sealant-300ml/1474132_BQ.prd
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: enhanced
+    label: Enhanced anti-mould silicone
+    spec: Enhanced anti-mould or colour-matched sanitary silicone, 300 ml
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '15'
+      max: '15'
+      currency: GBP
+      per: 300 ml cartridge
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: B&Q enhanced sanitary sealant 300 ml listing (Oct 2026)
+      url: https://www.diy.com/departments/unibond-triple-protect-white-silicone-based-bathroom-kitchen-sanitary-sealant-300ml/1474147_BQ.prd
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Mapei coloured grouts and sealants (product descriptions)
+      url: https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
 - id: cs_clear_sealant_wc
   description: Clear sealant at the WC base
   spec: Clear silicone sealant
   unit: cartridge
   quantity: '1'
-  when: wc_type == 'close_coupled'
+  when: wc_type != 'wall_hung'
   uniclass_pr:
     code: Pr_30_31_76_77
     title: Silicone construction joint sealants
@@ -75,6 +132,37 @@ lines:
     url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
     licence: all-rights-reserved-facts-only
     evidence_quality: retailer
+  options:
+  - id: ptfe
+    label: PTFE tape
+    spec: Drinking-water approved PTFE tape, for threaded joints only
+    tags:
+    - budget
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: PTFE tape on threads is the usual default.
+    provenance:
+    - source_title: 'Toolstation how-to: using PTFE tape on threaded joints'
+      url: https://www.toolstation.com/help-and-advice/how-to-guides/how-to-use-ptfe-tape
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: 'DIYnot forum thread: no sealant on compression fittings (quoting the fitting maker)'
+      url: https://www.diynot.com/diy/goto/post?id=1363418
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
+  - id: compound
+    label: Jointing compound
+    spec: Drinking-water approved non-setting jointing compound, for threaded joints
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: 'DIYnot forum thread: no sealant on compression fittings (quoting the fitting maker)'
+      url: https://www.diynot.com/diy/goto/post?id=1363418
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
+  help: 'Nothing goes on compression olives: the fitting makers advise against it.'
 - id: cs_plumbing_sundries
   description: Plumbing sundries allowance
   spec: Small fittings, washers and connectors not listed elsewhere
@@ -90,7 +178,7 @@ lines:
   spec: Plastic packers
   unit: pack
   quantity: '1'
-  when: wc_type == 'close_coupled'
+  when: wc_type != 'wall_hung'
   provenance:
   - source_title: 'Wickes how-to guide: installing a toilet'
     url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
@@ -121,6 +209,47 @@ lines:
     url: https://images.victorianplumbing.co.uk/products/ideal-standard-white-1700-x-800mm-0th-double-ended-idealcast-bath/instructions/is_idealcast_e002301_iguide_en.pdf
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
+  options:
+  - id: basic_plug
+    label: Basic wall plugs
+    spec: Plastic wall plugs 7 x 30 mm with stainless or zinc-plated screws
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '9.29'
+      max: '9.29'
+      currency: GBP
+      per: pack of 300 plugs
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix plasterboard wall plugs category (review counts, Oct 2026)
+      url: https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: universal_plug
+    label: Universal wall plugs
+    spec: Universal two-component wall plugs 6 x 30 mm and 8 x 40 mm with stainless or zinc-plated screws
+    tags:
+    - most_used
+    default: true
+    evidence_grade: B
+    why_default: Universal two-component plugs have the most reviews at one merchant.
+    price_band:
+      min: '4.99'
+      max: '7.99'
+      currency: GBP
+      per: pack of 100 plugs
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix plasterboard wall plugs category (review counts, Oct 2026)
+      url: https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: cs_fixings_stud
   description: Fixings for wall-mounted fittings in stud walls
   spec: Cavity fixings rated for the fitting load, or screws into noggins
@@ -140,6 +269,55 @@ lines:
     url: https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
+  forced_by:
+    text: Hollow (stud) walls need cavity-rated fixings, or screws into noggins.
+    source:
+      source_title: Screwfix plasterboard wall plugs category (review counts, Oct 2026)
+      url: https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  options:
+  - id: universal_plug
+    label: Universal plugs (light loads)
+    spec: Universal two-component wall plugs that also grip in plasterboard, for light loads; screws into
+      noggins for heavy items
+    tags:
+    - most_used
+    default: true
+    evidence_grade: B
+    why_default: The universal plug works in hollow walls and has the most reviews at one merchant.
+    price_band:
+      min: '4.99'
+      max: '7.99'
+      currency: GBP
+      per: pack of 100 plugs
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix plasterboard wall plugs category (review counts, Oct 2026)
+      url: https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: heavy_cavity
+    label: Heavy-duty cavity fixings
+    spec: Heavy-duty universal plasterboard cavity fixings for higher loads
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '12.19'
+      max: '12.19'
+      currency: GBP
+      per: pack of 10
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix plasterboard wall plugs category (review counts, Oct 2026)
+      url: https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: cs_pattress
   description: Pattress or noggins behind a wall-hung basin on a stud wall
   spec: Plywood pattress or timber noggins fixed between studs

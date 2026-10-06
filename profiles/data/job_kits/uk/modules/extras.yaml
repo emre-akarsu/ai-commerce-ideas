@@ -1,0 +1,234 @@
+# Module: Paid extras (off by default)
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
+# Added in v0.3.0. Every line here is a paid add-on and is off by default.
+id: uk.module.extras
+module: extras
+version: 0.3.0
+market: uk
+title: Paid extras (off by default)
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: ex_ufh_mat
+  description: Electric underfloor heating mat
+  spec: 150 W/m2 electric underfloor heating mat for laying in tile adhesive
+  unit: m2
+  quantity: ufh_mat_m2
+  when: add_underfloor_heating and floor_finish == 'tiled'
+  provenance:
+  - source_title: Screwfix electric underfloor heating mat 1 m2 listing (Oct 2026)
+    url: https://www.screwfix.com/p/klima-electric-underfloor-heating-mat-1m-/75399
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Electrical4less budget 150 W/m2 underfloor heating mats (Oct 2026)
+    url: https://www.electrical4less.co.uk/product-tag/budget-electric-floor-heating-mat/
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  options:
+  - id: budget_mat
+    label: Budget mat
+    spec: 150 W/m2 electric underfloor heating mat, budget brand
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '28.74'
+      max: '28.74'
+      currency: GBP
+      per: m2
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Electrical4less budget 150 W/m2 underfloor heating mats (Oct 2026)
+      url: https://www.electrical4less.co.uk/product-tag/budget-electric-floor-heating-mat/
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: merchant_mat
+    label: Merchant mat
+    spec: 150 W/m2 electric underfloor heating mat, merchant range
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: A merchant 150 W/m2 mat is the common DIY pick; it is only fitted if you add it.
+    price_band:
+      min: '50.99'
+      max: '50.99'
+      currency: GBP
+      per: m2
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix electric underfloor heating mat 1 m2 listing (Oct 2026)
+      url: https://www.screwfix.com/p/klima-electric-underfloor-heating-mat-1m-/75399
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  help: Only fitted under a tiled floor. Needs flexible adhesive and grout and an electrician.
+- id: ex_ufh_thermostat
+  description: Thermostat for the underfloor heating
+  spec: Thermostat with floor probe for electric underfloor heating
+  unit: nr
+  quantity: '1'
+  when: add_underfloor_heating and floor_finish == 'tiled'
+  provenance:
+  - source_title: Screwfix electric underfloor heating mat 1 m2 listing (Oct 2026)
+    url: https://www.screwfix.com/p/klima-electric-underfloor-heating-mat-1m-/75399
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: hamuch electric underfloor heating cost page (kit with Wi-Fi thermostat; price not reliable)
+    url: https://www.hamuch.com/cost/electric-underfloor-heating/bathgate
+    licence: unknown-copyright-facts-only
+    evidence_quality: search_snippet
+- id: ex_ufh_connection
+  description: Electrical connection for the underfloor heating
+  spec: Circuit and connection for the heating mat and thermostat by a registered electrician (notifiable
+    work in a bathroom)
+  unit: item
+  quantity: '1'
+  kind: service
+  when: add_underfloor_heating and floor_finish == 'tiled'
+  provenance:
+  - source_title: Approved Document P 2013 (electrical safety, dwellings)
+    url: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/441872/BR_PDF_AD_P_2013.pdf
+    licence: OGL-3.0-unconfirmed
+    evidence_quality: standard
+- id: ex_led_mirror
+  description: LED mirror with demister
+  spec: Illuminated LED mirror with demister pad and built-in shaver socket
+  unit: nr
+  quantity: '1'
+  when: add_led_mirror
+  provenance:
+  - source_title: Screwfix LED mirror 600 x 800 mm with demister and shaver socket listing (Oct 2026)
+    url: https://www.screwfix.com/p/kansas-rectangular-bathroom-mirror-with-3360lm-led-light-600mm-x-800mm/433an
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  options:
+  - id: small
+    label: LED mirror 390 x 500 mm
+    spec: Illuminated LED mirror about 390 x 500 mm, demister and shaver socket
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '117.99'
+      max: '117.99'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix LED mirror 390 x 500 mm with demister and shaver socket listing (Oct 2026)
+      url: https://www.screwfix.com/p/light-tech-mirrors-atlanta-rectangular-illuminated-led-mirror-with-1100lm-led-light-390mm-x-500mm/965ty
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: standard
+    label: LED mirror 600 x 800 mm
+    spec: Illuminated LED mirror 600 x 800 mm, demister and shaver socket
+    tags:
+    - most_used
+    default: true
+    evidence_grade: D
+    why_default: 600 x 800 mm is the common mid-range size; no sales data was found, and the mirror is
+      only fitted if you add it.
+    price_band:
+      min: '143'
+      max: '171'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix LED mirror 600 x 800 mm with demister and shaver socket listing (Oct 2026)
+      url: https://www.screwfix.com/p/kansas-rectangular-bathroom-mirror-with-3360lm-led-light-600mm-x-800mm/433an
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Screwfix LED mirror 600 x 800 mm listing (Oct 2026)
+      url: https://www.screwfix.com/p/florida-rectangular-bathroom-mirror-with-3380lm-led-light-600mm-x-800mm/623an
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: large_cct
+    label: LED mirror 1200 x 600 mm
+    spec: Illuminated LED mirror 1200 x 600 mm, selectable colour temperature, demister and shaver socket
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '370.84'
+      max: '370.84'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix LED mirror 1200 x 600 mm colour-selectable listing (Oct 2026)
+      url: https://www.screwfix.com/p/sensio-glimmer-pro-rectangular-seamless-edge-cct-mirror-with-3015lm-led-light-1200mm-x-600mm/165pe
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+- id: ex_led_mirror_connection
+  description: Electrical connection for the LED mirror
+  spec: Fixed wiring to the mirror by a registered electrician (work in a bathroom special location)
+  unit: item
+  quantity: '1'
+  kind: service
+  when: add_led_mirror
+  provenance:
+  - source_title: Approved Document P 2013 (electrical safety, dwellings)
+    url: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/441872/BR_PDF_AD_P_2013.pdf
+    licence: OGL-3.0-unconfirmed
+    evidence_quality: standard
+rules:
+- id: underfloor_heating_on_tiles
+  when: add_underfloor_heating and floor_finish == 'tiled'
+  requires:
+  - ex_ufh_mat
+  - ex_ufh_thermostat
+  - ex_ufh_connection
+  - tl_floor_tiles
+  - tl_floor_adhesive
+  - tl_floor_grout
+  excludes:
+  - fl_safety_vinyl
+  rationale: Electric underfloor heating goes under tiles in flexible adhesive and grout, with a thermostat
+    and an electrician.
+  provenance:
+  - source_title: Trade2Base bathroom flooring options and pricing (8 June 2026)
+    url: https://www.trade2base.com/blog/bathroom-flooring-options-pricing-uk
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: 'Weber: tiling plywood (S1 up to 400 x 400, S2 above)'
+    url: https://www.uk.weber/tile-fixing/tiling-plywood
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+  - source_title: Approved Document P 2013 (electrical safety, dwellings)
+    url: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/441872/BR_PDF_AD_P_2013.pdf
+    licence: OGL-3.0-unconfirmed
+    evidence_quality: standard
+- id: led_mirror_replaces_shaver_socket
+  when: add_led_mirror
+  requires:
+  - ex_led_mirror
+  - ex_led_mirror_connection
+  excludes:
+  - el_shaver_socket
+  rationale: The LED mirror has its own shaver socket, so no separate socket is fitted; the mirror needs
+    an electrician.
+  provenance:
+  - source_title: Screwfix LED mirror 600 x 800 mm with demister and shaver socket listing (Oct 2026)
+    url: https://www.screwfix.com/p/kansas-rectangular-bathroom-mirror-with-3360lm-led-light-600mm-x-800mm/433an
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Approved Document P 2013 (electrical safety, dwellings)
+    url: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/441872/BR_PDF_AD_P_2013.pdf
+    licence: OGL-3.0-unconfirmed
+    evidence_quality: standard

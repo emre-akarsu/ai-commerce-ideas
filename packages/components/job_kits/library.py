@@ -10,9 +10,21 @@ from typing import Any
 
 from .export import dumps, ui_spec
 from .formula import condition_names
+from .impact import question_impact
 from .loader import LibraryData, load_library_data, scope_domains, scope_value_names
-from .model import KitError, Module, Question, ResolvedKit, Scope, ScopeQuestion
+from .model import (
+    FINISH_LEVEL_QUESTION,
+    UNKNOWN_ANSWER,
+    KitError,
+    Module,
+    Question,
+    ResolvedKit,
+    Scope,
+    ScopeQuestion,
+)
 from .resolver import resolve_scope
+
+EXHAUSTIVE_LIMIT = 2000
 
 
 class JobKitLibrary:
@@ -69,23 +81,21 @@ class JobKitLibrary:
 
     # ------------------------------------------------------------------ question budget
 
+    @property
+    def finish_levels(self) -> list[dict[str, str]]:
+        return [dict(x) for x in self._data.meta.get("finish_levels") or ()]
+
     def condition_questions(self, scope_id: str) -> set[str]:
         scope = self.scope(scope_id)
-        exprs = [m.when for m in scope.modules] + [x.when for m in scope.modules for x in m.lines]
-        exprs += [r.when for r in scope.rules]
+        exprs = [m.when for m in scope.modules]
+        exprs += [x.effective_when for m in scope.modules for x in m.lines]
+        exprs += [r.effective_when for r in scope.rules]
         return set().union(*(condition_names(e) for e in exprs if e))
 
     def question_impact(self, scope_id: str, question_id: str) -> int:
-        """Number of lines whose inclusion (module or line condition) or lookup row depends on
-        the question."""
-        count = 0
-        for m in self.scope(scope_id).modules:
-            module_names = condition_names(m.when) if m.when else set()
-            for x in m.lines:
-                names = module_names | (condition_names(x.when) if x.when else set())
-                lookup = x.spec_lookup is not None and x.spec_lookup["key"] == question_id
-                count += question_id in names or lookup
-        return count
+        """Lines whose activity or lookup row depends on the question; for finish_level, lines
+        whose option changes with the level (see impact.py)."""
+        return question_impact(self.scope(scope_id), question_id)
 
     def lookup_only_questions(self, scope_id: str) -> list[ScopeQuestion]:
         used = self.condition_questions(scope_id)
@@ -108,6 +118,35 @@ class JobKitLibrary:
         for d in self._combination_axes(scope_id)[1]:
             count *= len(d)
         return count
+
+    def answer_domain(self, scope_id: str, question_id: str) -> tuple[Any, ...]:
+        """The answers a user can give: the option values, plus "unknown" if offered."""
+        q = next(q for q in self.scope(scope_id).questions if q.id == question_id)
+        extra = (UNKNOWN_ANSWER,) if q.question.unknown is not None else ()
+        return q.question.values + extra
+
+    def coverage_answer_sets(self, scope_id: str) -> list[dict[str, Any]]:
+        """Answer sets that the tests resolve for every scope.
+
+        Every combination of every question (with "unknown" where offered) when that is at most
+        EXHAUSTIVE_LIMIT sets. Otherwise: finish_level x every upfront answer (review questions at
+        their defaults), plus every pair of values of every two questions (all-pairs coverage,
+        which includes each single flip of a review default)."""
+        qs = [q.id for q in self.scope(scope_id).questions]
+        domains = {q: self.answer_domain(scope_id, q) for q in qs}
+        total = 1
+        for d in domains.values():
+            total *= len(d)
+        if total <= EXHAUSTIVE_LIMIT:
+            return [dict(zip(qs, v, strict=True)) for v in itertools.product(*domains.values())]
+        upfront = [q.id for q in self.scope(scope_id).questions if q.ask == "upfront"]
+        axes = list(dict.fromkeys([FINISH_LEVEL_QUESTION, *upfront]))
+        axes = [a for a in axes if a in domains]
+        out = [dict(zip(axes, v, strict=True))
+               for v in itertools.product(*(domains[a] for a in axes))]
+        for a, b in itertools.combinations(qs, 2):
+            out.extend({a: va, b: vb} for va in domains[a] for vb in domains[b])
+        return out
 
     # ------------------------------------------------------------------ resolve and export
 

@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.adaptations
 module: adaptations
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Accessibility adaptations
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -45,6 +46,14 @@ lines:
     url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  forced_by:
+    text: 'Approved Document M M4(3): walls must carry {wall_reinforcement_kn_m2} kN/m2 where rails and
+      a seat are fixed.'
+    source:
+      source_title: Approved Document M Vol 1, 2015 incl. 2016 amendments
+      url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
+      licence: OGL-3.0
+      evidence_quality: standard
 - id: ad_shower_seat
   description: Wall-mounted fold-down shower seat
   spec: Fold-down shower seat for wall fixing
@@ -92,6 +101,14 @@ lines:
     url: https://independent4life.co.uk/triton-elina-exposed-concentric-tmv3-mixer-shower-with-grab-riser-kit
     licence: unknown-copyright-facts-only
     evidence_quality: retailer
+  forced_by:
+    text: Adaptation work for vulnerable users uses a TMV3-approved valve, set to the specification's
+      temperature ({basin_blend_max_c} degC here).
+    source:
+      source_title: 'Altecnic: TMV2 and TMV3, what do you know about them'
+      url: https://www.altecnic.co.uk/tmv2-and-tmv3-what-do-you-know-about-them/
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
 rules:
 - id: rails_need_reinforcement
   requires:

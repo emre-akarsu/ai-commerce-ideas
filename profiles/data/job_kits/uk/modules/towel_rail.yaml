@@ -1,0 +1,154 @@
+# Module: Heated towel rail
+# synthetic/illustrative seed — not licensed data; tradesperson review required
+# Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
+# Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
+# names appear only in example_note fields. Provenance URLs are sources read in
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
+# Added in v0.3.0 from the top-picks research.
+id: uk.module.towel_rail
+module: towel_rail
+version: 0.3.0
+market: uk
+title: Heated towel rail
+label: synthetic/illustrative seed — not licensed data; tradesperson review required
+status: needs_tradesperson_review
+lines:
+- id: tr_towel_rail
+  description: Plumbed heated towel rail
+  spec: Chrome ladder towel rail 500 x 800 mm, 22 mm bars, plumbed to the heating, with a pair of radiator
+    valves
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Selco straight chrome heated towel rail 500 x 800 mm listing (Oct 2026)
+    url: https://www.selcobw.com/straight-chrome-heated-towel-rail-500-x-800mm-355020063
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: ManoMano chrome ladder heated towel rail 500 x 800 mm listing
+    url: https://www.manomano.co.uk/p/ladder-heated-towel-rail-500-x-800mm-bathroom-radiator-chrome-finish-79245842
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  options:
+  - id: chrome_500x800
+    label: Chrome ladder 500 x 800 mm
+    spec: Straight chrome ladder towel rail 500 x 800 mm, 22 mm bars, plumbed to the heating
+    tags:
+    - budget
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: A plumbed 500 x 800 mm chrome ladder is the common merchant default.
+    price_band:
+      min: '40'
+      max: '65'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Selco straight chrome heated towel rail 500 x 800 mm listing (Oct 2026)
+      url: https://www.selcobw.com/straight-chrome-heated-towel-rail-500-x-800mm-355020063
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: ManoMano chrome ladder heated towel rail 500 x 800 mm listing
+      url: https://www.manomano.co.uk/p/ladder-heated-towel-rail-500-x-800mm-bathroom-radiator-chrome-finish-79245842
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: chrome_500x1100
+    label: Chrome ladder 500 x 1100 mm
+    spec: Curved chrome ladder towel rail 500 x 1100 mm, plumbed to the heating
+    tags: []
+    default: false
+    provenance:
+    - source_title: Victorian Plumbing chrome curved ladder towel rail 500 x 1100 mm listing
+      url: https://www.victorianplumbing.co.uk/chrome-curved-ladder-heated-towel-rail-500-x-1100mm
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  help: Needs a heating circuit nearby; an electric-only rail needs an electrician instead.
+- id: tr_dual_fuel_kit
+  description: Dual-fuel kit for the towel rail
+  spec: Heating element with T-piece for dual-fuel use, sized for the rail
+  unit: kit
+  quantity: '1'
+  when: add_towel_rail_dual_fuel
+  provenance:
+  - source_title: Victorian Plumbing dual-fuel heating element with T-piece listing
+    url: https://victorianplumbing.co.uk/heating-element-with-t-piece-for-duel-fuel-400w-stainless-steel
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Sanctuary Bathrooms standard dual-fuel kit listing
+    url: https://www.sanctuary-bathrooms.co.uk/the-sussex-range-by-jis-standard-dual-fuel-kit
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  options:
+  - id: element_t_piece
+    label: Element with T-piece
+    spec: Fixed-output heating element with T-piece for dual-fuel use
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: An element with T-piece is the usual dual-fuel kit.
+    price_band:
+      min: '32.95'
+      max: '64.27'
+      currency: GBP
+      per: kit
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Victorian Plumbing dual-fuel heating element with T-piece listing
+      url: https://victorianplumbing.co.uk/heating-element-with-t-piece-for-duel-fuel-400w-stainless-steel
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Sanctuary Bathrooms standard dual-fuel kit listing
+      url: https://www.sanctuary-bathrooms.co.uk/the-sussex-range-by-jis-standard-dual-fuel-kit
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: thermostatic_element
+    label: Thermostatic element
+    spec: Thermostatic heating element kit with touch controls, for dual-fuel use
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '285'
+      max: '285'
+      currency: GBP
+      per: kit
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: ManoMano touch-thermostatic dual-fuel towel rail kit 1000 W listing
+      url: https://www.manomano.co.uk/p/talus-dual-fuel-towel-rail-kit-1000w-touch-thermostatic-91937044
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+- id: tr_dual_fuel_connection
+  description: Electrical connection for the towel rail element
+  spec: Fused connection for the heating element by a registered electrician (notifiable work in a bathroom)
+  unit: item
+  quantity: '1'
+  kind: service
+  when: add_towel_rail_dual_fuel
+  provenance:
+  - source_title: Approved Document P 2013 (electrical safety, dwellings)
+    url: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/441872/BR_PDF_AD_P_2013.pdf
+    licence: OGL-3.0-unconfirmed
+    evidence_quality: standard
+rules:
+- id: dual_fuel_needs_electrician
+  when: add_towel_rail_dual_fuel
+  requires:
+  - tr_dual_fuel_kit
+  - tr_dual_fuel_connection
+  - tr_towel_rail
+  rationale: A dual-fuel element adds electrical work in a bathroom, which needs an electrician.
+  provenance:
+  - source_title: Approved Document P 2013 (electrical safety, dwellings)
+    url: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/441872/BR_PDF_AD_P_2013.pdf
+    licence: OGL-3.0-unconfirmed
+    evidence_quality: standard

@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.basin
 module: basin
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Basin
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -59,6 +60,22 @@ lines:
     url: https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf
     licence: OGL-3.0
     evidence_quality: standard
+- id: sw_basin_vanity
+  description: Basin on a vanity unit
+  spec: Ceramic basin on a floor-standing or wall-hung vanity unit, 600-800 mm wide, tap holes to suit
+    taps
+  unit: nr
+  quantity: '1'
+  when: basin_mount == 'vanity'
+  provenance:
+  - source_title: Bathroom Mountain vanity unit sizes
+    url: https://www.bathroommountain.co.uk/inspiration-and-advice/vanity-unit-sizes/
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Bathroom City pedestal basin buying guide
+    url: https://www.bathroomcity.co.uk/blog/pedestal-basin-buying-guide
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
 - id: sw_basin_taps
   description: Basin taps or basin mixer
   spec: Pair of basin pillar taps or a basin mixer, lever handles
@@ -81,34 +98,55 @@ lines:
   options:
   - id: pillar_pair
     label: Pair of pillar taps
-    spec: Pair of basin pillar taps, lever handles
-    tags: []
-    default: true
+    spec: Pair of basin pillar taps, lever handles, for a two-tap-hole basin
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '17.99'
+      max: '29.99'
+      currency: GBP
+      per: pair
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
     provenance:
-    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
-        (Sell2Wales tender attachment)
-      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    - source_title: Screwfix commercial lever basin pillar taps (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/commercial-chrome-89-5mm-lever-2-tap-holes-basin-pillar-tap/52504
       licence: unknown-copyright-facts-only
-      evidence_quality: public_spec
-    - source_title: Broadland Housing Association affordable housing specification, March 2023
-      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+      evidence_quality: search_snippet
+    - source_title: Screwfix cloakroom lever basin pillar taps (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/swirl-essential-chrome-108mm-cloakroom-lever-2-tap-holes-basin-pillar-tap/21559
       licence: unknown-copyright-facts-only
-      evidence_quality: public_spec
+      evidence_quality: search_snippet
   - id: mixer
     label: Basin mixer
-    spec: Single basin mixer tap, lever handle
-    tags: []
-    default: false
+    spec: Single-lever mono basin mixer with click waste, chrome, for a one-tap-hole basin
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: Most mid-range basin taps listed are chrome mono mixers; pillar taps now sit at the budget
+      end.
+    price_band:
+      min: '39.99'
+      max: '59.99'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
     provenance:
-    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
-        (Sell2Wales tender attachment)
-      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    - source_title: Screwfix mono basin mixer with clicker waste (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/swirl-ola-chrome-152mm-standard-lever-mono-basin-mixer-tap-with-clicker-waste/2315p
       licence: unknown-copyright-facts-only
-      evidence_quality: public_spec
-    - source_title: Broadland Housing Association affordable housing specification, March 2023
-      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+      evidence_quality: search_snippet
+    - source_title: Screwfix cloakroom mono basin mixer with clicker waste (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/ideal-standard-cerabase-chrome-silver-122mm-cloakroom-lever-mono-basin-mixer-tap-with-clicker-waste/281kc
       licence: unknown-copyright-facts-only
-      evidence_quality: public_spec
+      evidence_quality: search_snippet
+  help: The basin's tap holes must match the taps (one hole for a mixer, two for pillar taps). On a gravity
+    hot-water system choose low-pressure or universal taps.
 - id: sw_basin_waste
   description: Basin waste with plug
   spec: Basin waste, slotted if the basin has an overflow, unslotted otherwise
@@ -150,8 +188,19 @@ lines:
   - id: bottle
     label: Bottle trap
     spec: Bottle trap {basin_trap_mm} mm with {basin_trap_seal_mm} mm seal
-    tags: []
+    tags:
+    - most_used
     default: true
+    evidence_grade: B
+    why_default: 32 mm bottle and tubular traps from one maker have the most reviews at one merchant.
+    price_band:
+      min: '6.49'
+      max: '7.88'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
     provenance:
     - source_title: McAlpine A10 bottle trap 32 mm x 75 mm (Travis Perkins listing)
       url: https://www.travisperkins.co.uk/mcalpine-a10-seal-bottle-trap-32mm-x-75mm/p/960845
@@ -162,17 +211,69 @@ lines:
       url: https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes
       licence: unknown-copyright-facts-only
       evidence_quality: retailer
+    - source_title: Screwfix traps category (181 products, review counts, Oct 2026)
+      url: https://www.screwfix.com/c/heating-plumbing/traps/cat831610
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Travis Perkins 32 mm adjustable bottle trap listing (75 mm seal)
+      url: https://www.travisperkins.co.uk/traps/mcalpine-a10a-adjustable-bottle-trap-32mm/p/961543
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
   - id: tubular
     label: Tubular trap
     spec: Tubular trap {basin_trap_mm} mm with {basin_trap_seal_mm} mm seal
-    tags: []
+    tags:
+    - most_used
     default: false
+    price_band:
+      min: '8.49'
+      max: '8.49'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
     provenance:
     - source_title: McAlpine SB10 tubular S-trap 32 mm x 75 mm (Travis Perkins listing)
       url: https://www.travisperkins.co.uk/mcalpine-sb10-seal-s-trap-32mm-x-75mm/p/960851
       licence: unknown-copyright-facts-only
       evidence_quality: retailer
     - *id001
+    - source_title: Screwfix traps category (181 products, review counts, Oct 2026)
+      url: https://www.screwfix.com/c/heating-plumbing/traps/cat831610
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: own_brand
+    label: Budget trap
+    spec: Plain plastic {basin_trap_mm} mm trap with {basin_trap_seal_mm} mm seal
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '3'
+      max: '6'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix traps category (181 products, review counts, Oct 2026)
+      url: https://www.screwfix.com/c/heating-plumbing/traps/cat831610
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: chrome_bottle
+    label: Chrome bottle trap
+    spec: Chrome-finish {basin_trap_mm} mm bottle trap with {basin_trap_seal_mm} mm seal, for an exposed
+      basin waste
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: Screwfix traps category (181 products, review counts, Oct 2026)
+      url: https://www.screwfix.com/c/heating-plumbing/traps/cat831610
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: sw_tap_connectors
   description: Flexible tap connectors
   spec: 15 mm x 1/2 inch flexible tap connectors (if the taps have no tails)
@@ -187,6 +288,50 @@ lines:
     url: https://www.bristan.com/product-files/576949/fitting-instructions.pdf
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
+  options:
+  - id: braided
+    label: Braided connectors
+    spec: 15 mm x 1/2 inch x 300 mm stainless-braided flexible tap connectors, compression end, drinking-water
+      approved
+    tags:
+    - budget
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: The plain braided compression connector is the usual merchant line.
+    price_band:
+      min: '1.86'
+      max: '2.14'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix 15 mm x 1/2 inch x 300 mm braided tap connector (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/essentials-flexible-tap-connector-15mm-x-1-2-x-300mm/63404
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  - id: push_fit_end
+    label: Push-fit connectors
+    spec: 15 mm x 1/2 inch x 300 mm flexible tap connectors with a push-fit end
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '14.50'
+      max: '14.50'
+      currency: GBP
+      per: pair
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix flexible hoses category (push-fit tap connectors, search snippet)
+      url: https://www.screwfix.com/c/heating-plumbing/flexible-hoses/cat831572
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  help: 'Many mono mixers come with their own tails: check the tap before ordering.'
 rules:
 - id: basin
   requires:
@@ -250,3 +395,16 @@ rules:
     url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
+- id: basin_vanity
+  when: basin_mount == 'vanity'
+  requires:
+  - sw_basin_vanity
+  excludes:
+  - sw_basin_pedestal
+  - sw_basin_wall_hung
+  rationale: A vanity basin replaces the pedestal or wall-hung basin.
+  provenance:
+  - source_title: Bathroom Mountain vanity unit sizes
+    url: https://www.bathroommountain.co.uk/inspiration-and-advice/vanity-unit-sizes/
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer

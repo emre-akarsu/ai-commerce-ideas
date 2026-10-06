@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.wc
 module: wc
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: WC
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -36,6 +37,86 @@ lines:
     url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  options:
+  - id: standard
+    label: Standard bowl
+    spec: Floor-standing close-coupled WC pan with a standard rimmed bowl, horizontal outlet, floor fixing
+      kit
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '59.49'
+      max: '76.49'
+      currency: GBP
+      per: WC set (pan, cistern, seat)
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix compact rimless close-coupled toilet listing (promotional price, Oct 2026)
+      url: https://www.screwfix.com/p/swirl-enz-soft-close-compact-rimless-toilet-with-cistern-dual-flush-4-5ltr/655cr
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Screwfix slim rimless close-coupled toilet listing (promotional price, Oct 2026)
+      url: https://www.screwfix.com/p/swirl-caldew-soft-close-slim-vortex-rimless-toilet-with-cistern-dual-flush-4-5ltr/753CR
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: rimless
+    label: Rimless bowl
+    spec: Floor-standing close-coupled WC pan with a rimless bowl, horizontal outlet, floor fixing kit
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: Close-coupled is the usual UK WC, and about 132 of about 310 close-coupled pans at one
+      retailer are rimless.
+    price_band:
+      min: '119'
+      max: '139'
+      currency: GBP
+      per: WC set (pan, cistern, seat)
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct
+        2026)
+      url: https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Screwfix close-coupled rimless soft-close toilet listing (Oct 2026)
+      url: https://www.screwfix.com/p/trade-soft-close-close-coupled-rimless-toilet-dual-flush-6-4ltr/165ch
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Screwfix close-coupled rimless toilet with thermoset seat listing (Oct 2026)
+      url: https://www.screwfix.com/p/trade-soft-close-close-coupled-rimless-toilet-dual-flush-6-4ltr/876CH
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  help: Prices are for a whole set (pan, cistern and seat). Back-to-wall and wall-hung are chosen with
+    the WC type question.
+- id: sw_wc_pan_comfort_height
+  description: Comfort-height close-coupled WC pan
+  spec: Floor-standing close-coupled WC pan, comfort height (seat about 430-480 mm), rimless bowl, horizontal
+    outlet, floor fixing kit
+  unit: nr
+  quantity: '1'
+  when: wc_type == 'close_coupled' and wc_height == 'comfort'
+  optional: true
+  provenance:
+  - source_title: Bathroom Mountain guide to toilet heights
+    url: https://www.bathroommountain.co.uk/inspiration-and-advice/toilet-heights
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: 'Durovin Bathrooms: is a comfort height toilet right for me'
+    url: https://www.durovinbathrooms.co.uk/blog/post/is-a-comfort-height-toilet-right-for-me
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct
+      2026)
+    url: https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
 - id: sw_wc_cistern
   description: Close-coupled cistern
   spec: Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings
@@ -71,12 +152,52 @@ lines:
     url: https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
+- id: sw_wc_pan_back_to_wall
+  description: Back-to-wall WC pan
+  spec: Back-to-wall WC pan, horizontal outlet, floor fixing kit, to sit against a furniture unit or boxed-in
+    wall
+  unit: nr
+  quantity: '1'
+  when: wc_type == 'back_to_wall'
+  provenance:
+  - source_title: Wickes Siena bathroom range (close-coupled or back-to-wall pan, 500 mm basins)
+    url: https://www.wickes.co.uk/bathroom/suites/siena
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+  - source_title: Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct
+      2026)
+    url: https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: sw_wc_concealed_cistern
+  description: Concealed cistern with flush button
+  spec: Concealed dual-flush cistern with fittings and a flush button or plate to suit
+  unit: nr
+  quantity: '1'
+  when: wc_type == 'back_to_wall'
+  provenance:
+  - source_title: Wickes Siena bathroom range (close-coupled or back-to-wall pan, 500 mm basins)
+    url: https://www.wickes.co.uk/bathroom/suites/siena
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+- id: sw_wc_btw_unit
+  description: Furniture unit or boxing for the concealed cistern
+  spec: Back-to-wall furniture unit, or framing and moisture-resistant board, with an access panel to
+    the cistern
+  unit: item
+  quantity: '1'
+  when: wc_type == 'back_to_wall'
+  provenance:
+  - source_title: Wickes Siena bathroom range (close-coupled or back-to-wall pan, 500 mm basins)
+    url: https://www.wickes.co.uk/bathroom/suites/siena
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
 - id: sw_wc_pan_connector
   description: WC pan connector to the 110 mm soil
   spec: Pan connector, 110 mm, type to suit the soil outlet (P, S or offset); rigid where alignment allows
   unit: nr
   quantity: '1'
-  when: wc_type == 'close_coupled'
+  when: wc_type != 'wall_hung'
   uniclass_pr:
     code: Pr_40_20_93_93
     title: WC pan connectors
@@ -95,12 +216,62 @@ lines:
     url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  options:
+  - id: rigid
+    label: Rigid connector
+    spec: Rigid 110 mm pan connector, straight or small offset, to suit the soil outlet
+    tags:
+    - budget
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: A rigid connector is the usual choice where the pan and soil pipe line up.
+    price_band:
+      min: '8.23'
+      max: '8.24'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix rigid 20 mm offset pan connector (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/mcalpine-rigid-20mm-offset-toilet-pan-connector-white-120mm/3244p
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+    - source_title: Screwfix pan connectors category (rigid and flexible prices, search snippet)
+      url: https://www.screwfix.com/c/bathrooms-kitchens/pan-connectors/cat2330023
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  - id: flexible
+    label: Flexible connector
+    spec: Flexible adjustable 110 mm pan connector
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '24.77'
+      max: '28.00'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix flexible straight adjustable WC connector (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/mcalpine-flexible-straight-adjustable-wc-connector-white-330-850mm/149CL
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+    - source_title: Screwfix pan connectors category (rigid and flexible prices, search snippet)
+      url: https://www.screwfix.com/c/bathrooms-kitchens/pan-connectors/cat2330023
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
 - id: sw_wc_pan_connector_vertical
   description: WC pan connector for a vertical (floor) soil outlet
   spec: Pan connector, 110 mm, to convert to an S trap or turned P trap
   unit: nr
   quantity: '1'
-  when: wc_type == 'close_coupled' and soil_outlet == 'vertical'
+  when: wc_type != 'wall_hung' and soil_outlet == 'vertical'
   uniclass_pr:
     code: Pr_40_20_93_93
     title: WC pan connectors
@@ -111,6 +282,23 @@ lines:
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
   optional: true
+- id: sw_wc_pan_connector_flexible
+  description: Flexible WC pan connector where the outlet does not line up
+  spec: Flexible adjustable 110 mm pan connector, long enough to reach the soil pipe
+  unit: nr
+  quantity: '1'
+  when: wc_type != 'wall_hung' and pan_alignment == 'offset'
+  optional: true
+  provenance:
+  - source_title: Screwfix flexible straight adjustable WC connector (search snippet, Oct 2026)
+    url: https://www.screwfix.com/p/mcalpine-flexible-straight-adjustable-wc-connector-white-330-850mm/149CL
+    licence: unknown-copyright-facts-only
+    evidence_quality: search_snippet
+  - source_title: Screwfix pan connectors category (rigid and flexible prices, search snippet)
+    url: https://www.screwfix.com/c/bathrooms-kitchens/pan-connectors/cat2330023
+    licence: unknown-copyright-facts-only
+    evidence_quality: search_snippet
+  help: Used when the outlet is offset or its position is not known.
 - id: sw_wc_frame
   description: Concealed WC frame with cistern
   spec: Wall-hung WC frame with concealed cistern, 90 mm outlet bend and 90/110 mm adaptor, pan fixing
@@ -193,6 +381,34 @@ lines:
     url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  options:
+  - id: standard_close
+    label: Standard seat
+    spec: WC seat and cover to suit the pan, standard hinges
+    tags:
+    - budget
+    default: false
+    provenance:
+    - source_title: Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct
+        2026)
+      url: https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: soft_close
+    label: Soft-close seat
+    spec: WC seat and cover to suit the pan, soft-close hinges
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: About 253 of the close-coupled WCs at one retailer have soft-close seats, against 48
+      with standard seats.
+    provenance:
+    - source_title: Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct
+        2026)
+      url: https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: sw_wc_frame_boxing
   description: Boxing-in to enclose the WC frame
   spec: Timber or metal framing and moisture-resistant board to enclose the frame
@@ -261,3 +477,24 @@ rules:
     url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+- id: back_to_wall_wc
+  when: wc_type == 'back_to_wall'
+  requires:
+  - sw_wc_pan_back_to_wall
+  - sw_wc_concealed_cistern
+  - sw_wc_btw_unit
+  - sw_wc_seat
+  - ff_iv_wc
+  excludes:
+  - sw_wc_frame
+  - sw_wc_flush_plate
+  - sw_wc_pan_wall_hung
+  - sw_wc_pan_close_coupled
+  - sw_wc_cistern
+  rationale: A back-to-wall WC needs its pan, a concealed cistern with a flush button, a unit or boxing
+    to hide it, a seat and an isolating valve; no frame.
+  provenance:
+  - source_title: Wickes Siena bathroom range (close-coupled or back-to-wall pan, 500 mm basins)
+    url: https://www.wickes.co.uk/bathroom/suites/siena
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer

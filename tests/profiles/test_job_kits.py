@@ -22,13 +22,16 @@ from components.job_kits.formula import check_condition, check_formula, formula_
 ROOT = Path(__file__).resolve().parents[2]
 KIT_DIR = ROOT / "profiles" / "data" / "job_kits" / "uk"
 README = ROOT / "profiles" / "data" / "job_kits" / "README.md"
-NOTES_DIR = ROOT / "research_notes" / "UK refurbishment job templates data"
+CHANGELOG = ROOT / "profiles" / "data" / "job_kits" / "CHANGELOG.md"
+NOTES_DIRS = (ROOT / "research_notes" / "UK refurbishment job templates data",
+              ROOT / "research_notes" / "UK refurbishment top picks by option")
+TOP_PICKS_DIR = NOTES_DIRS[1]
 SCOPES = ("full", "cloakroom", "wc_only", "wet_room")
 SCOPE_IDS = tuple(f"bathroom_{s}" for s in SCOPES)
 MODULES = ("strip_out", "partition", "first_fix_plumbing", "wc", "basin", "bath", "shower",
            "shower_enclosure", "floor_drainage", "waterproofing", "tiling", "flooring",
            "electrics", "ventilation", "heating", "adaptations", "accessories", "consumables",
-           "decorating", "waste")
+           "decorating", "waste", "towel_rail", "extras")
 DATA_FILES = ("library", "questions", "parameters", *(f"modules/{m}" for m in MODULES),
               *(f"scopes/{s}" for s in SCOPE_IDS))
 
@@ -73,8 +76,9 @@ def library() -> JobKitLibrary:
     return load_library(KIT_DIR)
 
 
-def notes_text() -> str:
-    return "\n".join(p.read_text(encoding="utf-8") for p in sorted(NOTES_DIR.glob("*.md")))
+def notes_text(dirs: tuple[Path, ...] = NOTES_DIRS) -> str:
+    return "\n".join(p.read_text(encoding="utf-8")
+                     for d in dirs for p in sorted(d.glob("*.md")))
 
 
 def uniclass_verified(code: str, title: str, notes: str) -> bool:
@@ -113,6 +117,8 @@ def provenance_holders(lib: JobKitLibrary) -> Iterator[tuple[str, list[dict[str,
         yield f"lookups.{k}", v["provenance"]
     for line in all_lines(lib):
         yield f"line {line.id}", list(line.provenance)
+        if line.forced_by:
+            yield f"forced_by {line.id}", list(line.forced_provenance)
         for o in line.options:
             yield f"option {line.id}.{o.id}", list(o.provenance)
     for scope_id in lib.scope_ids():
@@ -183,6 +189,8 @@ def test_every_line_option_rule_scope_and_parameter_cites_an_allowed_source(
 def test_lines_and_options_are_generic_specs_without_brand_names(library: JobKitLibrary) -> None:
     for line in all_lines(library):
         texts = [line.description, line.spec] + [f"{o.label} {o.spec}" for o in line.options]
+        texts += [o.why_default or "" for o in line.options]
+        texts += [line.help or "", (line.forced_by or {}).get("text", "")]
         for text in texts:
             hits = [b for b in BRANDS if re.search(rf"\b{re.escape(b.strip())}\b", text.lower())]
             assert not hits, (line.id, hits)
@@ -219,7 +227,7 @@ def test_each_line_is_defined_once_in_exactly_one_module(library: JobKitLibrary)
             assert line.id not in seen, (line.id, seen.get(line.id), module.id)
             seen[line.id] = module.id
             assert line.module == module.id
-    assert len(seen) >= 120
+    assert len(seen) >= 139
     used = {sm.id for s in library.scope_ids() for sm in library.scope(s).modules}
     assert used == set(library.modules), set(library.modules) - used
 
@@ -321,6 +329,16 @@ def test_every_bank_question_has_a_default_and_every_option_a_label() -> None:
             assert all(isinstance(v, str) for v in values), qid
 
 
+UPFRONT = {
+    "bathroom_full": ["shower_location", "hot_water_system", "finish_level"],
+    "bathroom_cloakroom": ["basin_mount", "openable_window", "finish_level"],
+    "bathroom_wc_only": ["wc_type", "pan_alignment", "wc_height"],
+    "bathroom_wet_room": ["floor_construction", "adaptation", "hot_water_system"],
+}
+PAID_ADD_ONS = ("add_underfloor_heating", "add_led_mirror", "add_towel_rail_dual_fuel")
+WIDGETS = {"cards", "segmented", "toggle", "select"}
+
+
 @pytest.mark.parametrize("scope_id", SCOPE_IDS)
 def test_question_budget_at_most_three_upfront(library: JobKitLibrary, scope_id: str) -> None:
     scope = library.scope(scope_id)
@@ -334,15 +352,68 @@ def test_question_budget_at_most_three_upfront(library: JobKitLibrary, scope_id:
 
 
 @pytest.mark.parametrize("scope_id", SCOPE_IDS)
-def test_question_priority_is_its_impact_and_upfront_ones_have_the_most(
+def test_upfront_questions_follow_the_report_and_each_has_a_reason(
+        library: JobKitLibrary, scope_id: str) -> None:
+    scope = library.scope(scope_id)
+    upfront = [q for q in scope.questions if q.ask == "upfront"]
+    assert [q.id for q in upfront] == UPFRONT[scope_id]
+    for q in upfront:
+        assert q.reason_upfront and q.reason_upfront.strip(), q.id
+    for q in scope.questions:
+        if q.ask == "on_review":
+            assert q.reason_upfront is None, q.id
+
+
+@pytest.mark.parametrize("scope_id", SCOPE_IDS)
+def test_question_priority_is_its_computed_impact_and_every_question_matters(
         library: JobKitLibrary, scope_id: str) -> None:
     scope = library.scope(scope_id)
     for q in scope.questions:
         assert q.priority == library.question_impact(scope_id, q.id), (q.id, q.priority)
         assert q.priority >= 1, f"{q.id} changes nothing: drop it"
-    upfront = [q.priority for q in scope.questions if q.ask == "upfront"]
-    review = [q.priority for q in scope.questions if q.ask == "on_review"]
-    assert not review or min(upfront) >= max(review), (upfront, review)
+
+
+def test_scope_yaml_does_not_hand_write_priority() -> None:
+    for scope_id in SCOPE_IDS:
+        for q in load(f"scopes/{scope_id}")["questions"]:
+            assert "priority" not in q, (scope_id, q["id"])
+
+
+@pytest.mark.parametrize("scope_id", SCOPE_IDS)
+def test_every_scope_has_the_global_finish_level_question(library: JobKitLibrary,
+                                                          scope_id: str) -> None:
+    q = next(q for q in library.scope(scope_id).questions if q.id == "finish_level")
+    assert q.question.values == ("budget", "most_used", "premium")
+    assert q.default == "most_used"
+    assert [f["id"] for f in library.finish_levels] == ["budget", "most_used", "premium"]
+    assert all(f["label"] and f["description"] for f in library.finish_levels)
+
+
+def test_question_widgets_help_and_unknown_choices() -> None:
+    bank = load("questions")["questions"]
+    for qid, q in bank.items():
+        assert q.get("widget") in WIDGETS, qid
+        if "unknown" in q:
+            assert q["unknown"]["label"].strip(), qid
+            assert q["unknown"]["maps_to"] in [o["value"] for o in q["options"]], qid
+            assert "unknown" not in [o["value"] for o in q["options"]], qid
+    assert bank["hot_water_system"]["unknown"]["maps_to"] == "gravity"
+    assert bank["hot_water_system"]["default"] == "gravity"
+    assert bank["pan_alignment"]["unknown"]["maps_to"] == "offset"
+    assert bank["floor_construction"]["unknown"]["maps_to"] == "timber"
+    assert bank["shower_type"]["default"] == "auto"
+
+
+@pytest.mark.parametrize("scope_id", SCOPE_IDS)
+def test_paid_add_ons_default_off(library: JobKitLibrary, scope_id: str) -> None:
+    scope = library.scope(scope_id)
+    for q in scope.questions:
+        if q.id in PAID_ADD_ONS:
+            assert q.default is False and q.ask == "on_review", q.id
+    for sm in scope.modules:
+        if sm.id in {"extras"}:
+            for line in sm.lines:
+                assert line.effective_when and "add_" in line.effective_when, line.id
 
 
 @pytest.mark.parametrize("scope_id", SCOPE_IDS)
@@ -377,11 +448,81 @@ def test_line_options_have_one_default_labels_and_allowed_tags(library: JobKitLi
         ids = [o.id for o in line.options]
         assert len(ids) == len(set(ids)) >= 2, line.id
         assert line.default_option in ids, line.id
+        default = next(o for o in line.options if o.id == line.default_option)
+        assert "premium" not in default.tags, line.id
+        if any("most_used" in o.tags for o in line.options):
+            assert "most_used" in default.tags, line.id
+            assert default.evidence_grade in {"A", "B", "C", "D"}, line.id
+            why = default.why_default or ""
+            assert why.endswith(".") and ". " not in why, (line.id, "one plain sentence")
         for o in line.options:
             assert o.label.strip() and o.spec.strip(), (line.id, o.id)
             assert set(o.tags) <= TAGS, (line.id, o.id, o.tags)
             assert o.provenance, (line.id, o.id)
-    assert n >= 5
+            assert o.evidence_grade in {None, "A", "B", "C", "D"}, (line.id, o.id)
+    assert n >= 40
+
+
+def test_option_tags_are_researched_on_the_lines_the_report_covers(
+        library: JobKitLibrary) -> None:
+    """Each kit line that maps to a row of the report's consolidated defaults table offers
+    tagged options (most_used default), unless a rule fixes it (forced_by instead)."""
+    tagged = {"nw_studs", "nw_board_screws", "cs_fixings_solid", "cs_fixings_stud",
+              "sw_wc_pan_close_coupled", "sw_wc_seat", "sw_bath", "sh_tray", "sh_enclosure",
+              "sh_bath_screen_or_curtain", "sh_electric_unit", "sh_mixer_valve",
+              "sw_basin_taps", "sw_bath_taps", "ff_pipe_15", "ff_iv_basin", "sw_tap_connectors",
+              "sw_basin_trap", "sw_wc_pan_connector", "ff_waste_32", "ff_waste_40",
+              "cs_thread_sealant", "tl_wall_tiles", "tl_floor_tiles", "tl_wall_adhesive",
+              "tl_wall_grout", "cs_sanitary_silicone", "wp_tanking_kit", "tl_trim",
+              "dc_emulsion", "vn_fan", "vn_duct", "el_light", "el_shaver_socket",
+              "tr_towel_rail", "ex_led_mirror", "ex_ufh_mat"}
+    lines = {line.id: line for m in library.modules.values() for line in m.lines}
+    for line_id in tagged:
+        line = lines[line_id]
+        assert any("most_used" in o.tags for o in line.options), line_id
+    forced = {"nw_board", "wp_backer_board", "wp_backer_screws", "wp_tanking_kit",
+              "tl_wall_adhesive", "tl_floor_adhesive", "tl_wall_grout", "tl_floor_grout",
+              "tl_wall_primer", "vn_fan", "vn_duct", "el_shower_isolator", "el_shower_rcbo",
+              "el_shower_cable", "el_part_p_notification", "sh_mixer_valve", "cs_fixings_stud",
+              "ad_blending_valve", "ad_grab_rails"}
+    for line_id in forced:
+        f = lines[line_id].forced_by
+        assert f and f["text"].strip() and f["source_url"].startswith("https://"), line_id
+        assert lines[line_id].forced_provenance[0]["url"] == f["source_url"], line_id
+
+
+def test_price_bands_are_dated_observations_found_in_the_notes(library: JobKitLibrary) -> None:
+    notes = notes_text((TOP_PICKS_DIR,))
+    n = 0
+    for line in all_lines(library):
+        for o in line.options:
+            band = o.price_band
+            if band is None:
+                continue
+            n += 1
+            assert band["currency"] == "GBP" and band["vat"] in {"inc", "ex"}, (line.id, o.id)
+            assert band["observed_on"] == "2026-10-06", (line.id, o.id)
+            assert band["basis"] == "observed retail price, not verified", (line.id, o.id)
+            assert Decimal(band["min"]) <= Decimal(band["max"]), (line.id, o.id)
+            assert f"£{band['min']}" in notes, (line.id, o.id, band["min"])
+            assert any(f"{p}{band['max']}" in notes for p in ("£", "-", "–")), (
+                line.id, o.id, band["max"])
+    assert n >= 40
+
+
+def test_no_hard_coded_currency_outside_price_bands() -> None:
+    """Prices live only in price_band (dated observations); line text never carries money."""
+    for name in DATA_FILES:
+        text = (KIT_DIR / f"{name}.yaml").read_text(encoding="utf-8")
+        assert "£" not in text, name
+
+
+def test_changelog_describes_the_v1_to_v2_export_change() -> None:
+    text = CHANGELOG.read_text(encoding="utf-8")
+    for must in ("job-kit-ui/1", "job-kit-ui/2", "additive", "finish_levels", "schema_changes",
+                 "reason_upfront", "unknown", "impact", "evidence_grade", "why_default",
+                 "price_band", "forced_by", "help", "widget"):
+        assert must in text, must
 
 
 def test_option_schema_rejects_two_defaults_and_unknown_tags(tmp_path: Path) -> None:
@@ -389,7 +530,7 @@ def test_option_schema_rejects_two_defaults_and_unknown_tags(tmp_path: Path) -> 
 
     from components.job_kits import KitError
 
-    for mutate in ("two_defaults", "bad_tag"):
+    for mutate in ("two_defaults", "bad_tag", "premium_default", "bad_grade", "bad_price"):
         lib_dir = tmp_path / mutate
         shutil.copytree(KIT_DIR, lib_dir, ignore=shutil.ignore_patterns("export"))
         path = lib_dir / "modules" / "basin.yaml"
@@ -398,6 +539,13 @@ def test_option_schema_rejects_two_defaults_and_unknown_tags(tmp_path: Path) -> 
         if mutate == "two_defaults":
             for o in line["options"]:
                 o["default"] = True
+        elif mutate == "premium_default":
+            for o in line["options"]:
+                o["tags"] = ["premium"] if o["default"] else []
+        elif mutate == "bad_grade":
+            line["options"][1]["evidence_grade"] = "E"
+        elif mutate == "bad_price":
+            line["options"][1]["price_band"]["currency"] = "EUR"
         else:
             line["options"][0]["tags"] = ["cheapest"]
         path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True),
@@ -424,6 +572,7 @@ def test_wall_hung_wc_needs_frame_plate_and_pan_but_no_separate_110mm_connector(
         library: JobKitLibrary) -> None:
     for scope_id in ("bathroom_full", "bathroom_cloakroom", "bathroom_wc_only"):
         rule = next(r for r in library.scope(scope_id).rules if r.id == "wall_hung_wc")
+        assert rule.effective_when == "wc_type == 'wall_hung'"
         assert rule.when == "wc_type == 'wall_hung'"
         assert {"sw_wc_frame", "sw_wc_flush_plate", "sw_wc_pan_wall_hung"} <= set(rule.requires)
         assert "sw_wc_pan_connector" in rule.excludes
@@ -443,6 +592,19 @@ def test_electric_shower_rule_and_circuit_lookup(library: JobKitLibrary) -> None
             expect = next(s for s in sizes if Decimal(s) >= manufacturer_min
                           and Decimal(capacity[s][method]) >= mcb)
             assert chosen == expect, (kw, method, chosen, expect)
+
+
+def test_forced_rules_are_rules_not_choices(library: JobKitLibrary) -> None:
+    full = library.scope("bathroom_full")
+    rules = {r.id: r for r in full.rules}
+    assert rules["no_pump_on_pressurised_hot_water"].excludes == ("sh_shower_pump",)
+    assert "unvented" in (rules["no_pump_on_pressurised_hot_water"].when or "")
+    assert "wp_tanking_kit" in rules["tanking_and_backer"].requires
+    assert {"el_shower_isolator", "el_shower_rcbo", "el_shower_cable"} <= set(
+        rules["electric_shower_auto"].requires)
+    assert "el_shaver_socket" in rules["led_mirror_replaces_shaver_socket"].excludes
+    tank = next(x for m in full.modules for x in m.lines if x.id == "wp_tanking_kit")
+    assert not [o.id for o in tank.options if "budget" in o.tags], "no compliant budget tanking"
 
 
 def test_extractor_rule_requires_isolator_duct_and_condensation_trap(

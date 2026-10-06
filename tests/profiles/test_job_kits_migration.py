@@ -5,6 +5,12 @@ were deleted. For each old template and its new scope, these tests check that ev
 its text, unit, formula, provenance and classification; that for every combination of the old
 variants the new scope activates the same old lines (new lines may be added); and that every old
 rule is kept unchanged and still holds.
+
+Library 0.3.0 (top-picks research) changed a few old lines and rules on purpose. Each change is
+listed in INTENDED_CHANGES with its reason (also in profiles/data/job_kits/CHANGELOG.md); every
+other field must still be identical, and the activation test below stays strict: for every old
+combination the old lines are active exactly as before and every old rule, as written in v0.1.0,
+still holds.
 """
 
 from __future__ import annotations
@@ -28,6 +34,20 @@ TEMPLATES = tuple(LEGACY["templates"])
 LINE_FIELDS = ("description", "spec", "unit", "quantity", "kind", "provenance", "uniclass_pr",
                "etim_class", "example_note", "spec_lookup")
 RULE_FIELDS = ("when", "requires", "excludes", "rationale", "provenance", "uses_lookup")
+INTENDED_CHANGES: dict[tuple[str, str, str], str] = {
+    ("bathroom_full", "el_light", "quantity"): "3-4 downlights (light_points allowance)",
+    ("bathroom_cloakroom", "el_light", "quantity"): "downlights (light_points allowance, 1)",
+    ("wet_room", "el_light", "quantity"): "3-4 downlights (light_points allowance)",
+    ("bathroom_cloakroom", "sw_basin_pedestal", "spec"): "compact 400-500 mm cloakroom basin",
+    ("wc_replacement", "close_coupled_wc", "requires"): "the pan depends on wc_height",
+    ("wc_replacement", "close_coupled_wc", "rationale"): "the pan depends on wc_height",
+    ("wc_replacement", "close_coupled_wc", "provenance"): "height sources added",
+    ("wc_replacement", "pan_connector_horizontal", "when"): "rigid only when aligned",
+    ("wc_replacement", "pan_connector_horizontal", "excludes"): "flexible connector line",
+    ("wc_replacement", "pan_connector_vertical", "when"): "rigid only when aligned",
+    ("wc_replacement", "pan_connector_vertical", "excludes"): "flexible connector line",
+    ("wet_room", "wet_room_basin", "when"): "blending valve only for an adaptation",
+}
 
 
 @pytest.fixture(scope="module")
@@ -87,6 +107,8 @@ def test_every_old_line_is_in_the_scope_with_identical_content(library: JobKitLi
         content = LEGACY["line_contents"][x["content"]]
         line = new[line_id]
         for field in LINE_FIELDS:
+            if (template, line_id, field) in INTENDED_CHANGES:
+                continue
             got = getattr(line, field)
             got = list(got) if isinstance(got, tuple) else got
             assert got == content.get(field), (line_id, field)
@@ -116,10 +138,31 @@ def test_old_rules_are_kept_unchanged(library: JobKitLibrary, template: str) -> 
     for r in old["rules"]:
         assert r["id"] in new, r["id"]
         for field in RULE_FIELDS:
+            if (template, r["id"], field) in INTENDED_CHANGES:
+                continue
             got = getattr(new[r["id"]], field)
             got = list(got) if isinstance(got, tuple) else got
             assert got == (r.get(field) if field not in {"requires", "excludes"}
                            else r.get(field, [])), (r["id"], field)
+
+
+def test_every_intended_change_is_real_and_documented(library: JobKitLibrary) -> None:
+    changelog = (ROOT / "profiles" / "data" / "job_kits" / "CHANGELOG.md").read_text("utf-8")
+    for (template, item, field), reason in INTENDED_CHANGES.items():
+        assert reason.strip()
+        old = LEGACY["templates"][template]
+        scope = library.scope(scope_id(template))
+        if item in old["lines"]:
+            content = LEGACY["line_contents"][old["lines"][item]["content"]]
+            new_line = next(x for m in scope.modules for x in m.lines if x.id == item)
+            assert getattr(new_line, field) != content.get(field), (template, item, field)
+        else:
+            old_rule = next(r for r in old["rules"] if r["id"] == item)
+            new_rule = next(r for r in scope.rules if r.id == item)
+            got = getattr(new_rule, field)
+            got = list(got) if isinstance(got, tuple) else got
+            assert got != old_rule.get(field, [] if field in {"requires", "excludes"} else None)
+        assert item in changelog, item
 
 
 @pytest.mark.parametrize("template", TEMPLATES)

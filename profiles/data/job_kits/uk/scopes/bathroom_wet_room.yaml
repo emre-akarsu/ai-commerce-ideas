@@ -3,13 +3,14 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.bathroom.wet_room
 scope_id: bathroom_wet_room
 job_type: bathroom
 scope: wet_room
 replaces: uk.wet_room
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Wet room / level-access shower conversion
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -50,40 +51,42 @@ job_provenance:
   licence: unknown-copyright-facts-only
   evidence_quality: public_spec
 questions:
+- id: floor_construction
+  ask: upfront
+  reason_upfront: A timber or concrete floor changes the former support, the deck and the adhesive class;
+    'don't know' maps to timber, the stricter case.
+- id: adaptation
+  ask: upfront
+  default: true
+  reason_upfront: An adaptation switches on the Approved Document M items (rails, wall reinforcement,
+    blending valve, curtain) and changes about a dozen lines.
+- id: hot_water_system
+  ask: upfront
+  reason_upfront: The hot-water system decides the shower type and valve pressure rating, and a wrong
+    guess is a compliance failure; 'don't know' maps safely to an electric shower.
 - id: layout_change
-  ask: upfront
-  priority: 9
+  ask: on_review
 - id: wc_type
-  ask: upfront
-  priority: 11
+  ask: on_review
 - id: shower_type
-  ask: upfront
-  priority: 9
+  ask: on_review
 - id: shower_kw
   ask: on_review
-  priority: 2
   default: '9.5'
 - id: wall_type
   ask: on_review
-  priority: 3
 - id: joint_system
   ask: on_review
-  priority: 4
-- id: floor_construction
-  ask: on_review
-  priority: 2
 - id: drainage
   ask: on_review
-  priority: 2
 - id: floor_finish
   ask: on_review
-  priority: 6
 - id: shower_seat
   ask: on_review
-  priority: 1
 - id: replace_radiator
   ask: on_review
-  priority: 3
+- id: finish_level
+  ask: on_review
 fixed_answers:
   basin_mount: wall_hung
 measurements:
@@ -184,6 +187,11 @@ allowances:
     unit: m2
     label: Shower wall area to tank
     description: Shower-zone wall area to tank.
+  light_points:
+    value: '3'
+    unit: nr
+    label: Ceiling lights
+    description: Number of downlights.
 derived:
   tanked_m2:
     formula: floor_m2 + shower_wall_tanked_m2
@@ -205,10 +213,12 @@ modules:
     tl_floor_tiles:
       spec: Slip-resistant floor tiles suited to a wet-room floor laid to falls; slip rating set by the
         specifier
+      option_spec_note: suited to a wet-room floor laid to falls; slip rating set by the specifier
 - module: flooring
   include_lines:
   - fl_vinyl_trim
 - module: adaptations
+  when: adaptation
 - module: heating
   when: replace_radiator
 - module: wc
@@ -235,6 +245,8 @@ modules:
         url: https://www.nottinghamshire.gov.uk/media/1731835/levelaccessshowerfactsheet.pdf
         licence: unknown-copyright-facts-only
         evidence_quality: public_spec
+      option_spec_note: pan height at least {accessible_wc_pan_min_height_mm} mm where M4(3) applies;
+        avoid a side outlet so a wheeled commode fits
     sw_wc_flush_lever:
       spec: Flush actuator to suit the cistern; on the front of the cistern on the transfer side (M4(3))
       provenance:
@@ -301,15 +313,22 @@ modules:
         url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
         licence: unknown-copyright-facts-only
         evidence_quality: public_spec
+      option_spec_note: lever handles for limited grip
 - module: shower
   overrides:
     sh_electric_unit:
       spec: Electric shower, rating per the shower_kw answer, mains cold feed only, 15 mm inlet; controls
         at about {shower_control_height_mm} mm, riser reaching low for seated use
+      option_spec_note: controls at about {shower_control_height_mm} mm, riser reaching low for seated
+        use
     sh_mixer_valve:
       spec: Thermostatic bar valve, {shower_valve_inlet_centres_mm} mm inlet centres with offset connectors,
         rated for the household water system pressure; controls at about {shower_control_height_mm} mm,
         riser reaching low for seated use
+      option_spec_note: controls at about {shower_control_height_mm} mm, riser reaching low for seated
+        use
+  include_lines:
+  - sh_wet_room_panel
 - module: ventilation
   include_lines:
   - vn_humidistat_control
@@ -336,6 +355,7 @@ rules:
     url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  when: adaptation
 - id: floor_tiled
   when: floor_finish == 'tiled'
   requires:
@@ -371,5 +391,34 @@ rules:
   - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
       (Sell2Wales tender attachment)
     url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: wet_room_screen
+  when: not adaptation
+  requires:
+  - sh_wet_room_panel
+  excludes:
+  - ad_curtain_rail
+  rationale: A wet room that is not an adaptation uses a fixed glass panel; the adaptation specifications
+    prefer a curtain.
+  provenance:
+  - source_title: 'Sanctuary Bathrooms: shower glass thickness 6 mm, 8 mm or 10 mm'
+    url: https://www.sanctuary-bathrooms.co.uk/blog/shower-glass-thickness-6mm-8mm-10mm
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: adapted_wet_room_curtain
+  when: adaptation
+  requires:
+  - ad_curtain_rail
+  excludes:
+  - sh_wet_room_panel
+  rationale: An adapted wet room uses a curtain and rail, not glass.
+  provenance:
+  - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
+    url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec

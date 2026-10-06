@@ -3,13 +3,14 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.bathroom.wc_only
 scope_id: bathroom_wc_only
 job_type: bathroom
 scope: wc_only
 replaces: uk.wc_replacement
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: WC replacement
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -44,16 +45,23 @@ job_provenance:
 questions:
 - id: wc_type
   ask: upfront
-  priority: 11
-- id: soil_outlet
+  reason_upfront: Close-coupled, back-to-wall or wall-hung changes the pan, cistern, frame or unit and
+    boxing lines.
+- id: pan_alignment
   ask: upfront
-  priority: 2
+  reason_upfront: Whether the outlet lines up decides a rigid or flexible connector; 'not sure' maps to
+    flexible, which fits either way.
+- id: wc_height
+  ask: upfront
+  reason_upfront: Standard or comfort height changes the pan itself and matters for less mobile users.
+- id: soil_outlet
+  ask: on_review
 - id: wall_type
   ask: on_review
-  priority: 2
 - id: joint_system
-  ask: upfront
-  priority: 4
+  ask: on_review
+- id: finish_level
+  ask: on_review
 fixed_answers: {}
 measurements: []
 allowances:
@@ -92,9 +100,15 @@ modules:
       description: WC pan connector for a horizontal soil outlet
       spec: Pan connector, 110 mm, straight or offset for a horizontal outlet (P trap); rigid where alignment
         allows
-      when: wc_type == 'close_coupled' and soil_outlet == 'horizontal'
+      when: wc_type != 'wall_hung' and soil_outlet == 'horizontal' and pan_alignment == 'aligned'
+    sw_wc_pan_connector_vertical:
+      when: wc_type != 'wall_hung' and soil_outlet == 'vertical' and pan_alignment == 'aligned'
+    sw_wc_pan_close_coupled:
+      when: wc_type == 'close_coupled' and wc_height == 'standard'
   include_lines:
   - sw_wc_pan_connector_vertical
+  - sw_wc_pan_connector_flexible
+  - sw_wc_pan_comfort_height
 - module: consumables
   overrides:
     cs_clear_sealant_wc:
@@ -103,11 +117,12 @@ modules:
 - module: waste
 rules:
 - id: pan_connector_horizontal
-  when: wc_type == 'close_coupled' and soil_outlet == 'horizontal'
+  when: wc_type != 'wall_hung' and soil_outlet == 'horizontal' and pan_alignment == 'aligned'
   requires:
   - sw_wc_pan_connector
   excludes:
   - sw_wc_pan_connector_vertical
+  - sw_wc_pan_connector_flexible
   rationale: 'The connector depends on the soil position: horizontal outlet to P trap.'
   provenance:
   - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
@@ -115,11 +130,12 @@ rules:
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
 - id: pan_connector_vertical
-  when: wc_type == 'close_coupled' and soil_outlet == 'vertical'
+  when: wc_type != 'wall_hung' and soil_outlet == 'vertical' and pan_alignment == 'aligned'
   requires:
   - sw_wc_pan_connector_vertical
   excludes:
   - sw_wc_pan_connector
+  - sw_wc_pan_connector_flexible
   rationale: 'The connector depends on the soil position: S or turned P trap.'
   provenance:
   - source_title: Armitage Shanks Contour 21 close-coupled WC suite data sheet
@@ -153,4 +169,85 @@ rules:
   - source_title: 'Wickes how-to guide: installing a toilet'
     url: https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet
     licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+- id: back_to_wall_consumables
+  when: wc_type == 'back_to_wall'
+  requires:
+  - cs_wc_packers
+  - cs_clear_sealant_wc
+  - cs_thread_sealant
+  rationale: 'A back-to-wall pan is floor-fixed like a close-coupled pan: packers, silicone and PTFE.'
+  provenance:
+  - source_title: Wickes Siena bathroom range (close-coupled or back-to-wall pan, 500 mm basins)
+    url: https://www.wickes.co.uk/bathroom/suites/siena
+    licence: all-rights-reserved-facts-only
+    evidence_quality: retailer
+- id: pan_connector_offset
+  when: wc_type != 'wall_hung' and pan_alignment == 'offset'
+  requires:
+  - sw_wc_pan_connector_flexible
+  excludes:
+  - sw_wc_pan_connector
+  - sw_wc_pan_connector_vertical
+  rationale: Where the outlet is offset or its position is not known, a flexible connector replaces the
+    rigid one.
+  provenance:
+  - source_title: Screwfix pan connectors category (rigid and flexible prices, search snippet)
+    url: https://www.screwfix.com/c/bathrooms-kitchens/pan-connectors/cat2330023
+    licence: unknown-copyright-facts-only
+    evidence_quality: search_snippet
+  - source_title: Screwfix flexible straight adjustable WC connector (search snippet, Oct 2026)
+    url: https://www.screwfix.com/p/mcalpine-flexible-straight-adjustable-wc-connector-white-330-850mm/149CL
+    licence: unknown-copyright-facts-only
+    evidence_quality: search_snippet
+- id: close_coupled_wc
+  when: wc_type == 'close_coupled'
+  requires:
+  - sw_wc_cistern
+  - sw_wc_seat
+  - sw_wc_flush_lever
+  - ff_iv_wc
+  excludes:
+  - sw_wc_frame
+  - sw_wc_flush_plate
+  - sw_wc_pan_wall_hung
+  rationale: A close-coupled WC needs a pan of the chosen height, its cistern, seat, flush lever and an
+    isolating valve; no frame.
+  provenance:
+  - source_title: Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct
+      2026)
+    url: https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: Bathroom Mountain guide to toilet heights
+    url: https://www.bathroommountain.co.uk/inspiration-and-advice/toilet-heights
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: wc_height_standard
+  when: wc_type == 'close_coupled' and wc_height == 'standard'
+  requires:
+  - sw_wc_pan_close_coupled
+  excludes:
+  - sw_wc_pan_comfort_height
+  rationale: A standard-height close-coupled WC uses the standard pan.
+  provenance:
+  - source_title: Bathroom Mountain guide to toilet heights
+    url: https://www.bathroommountain.co.uk/inspiration-and-advice/toilet-heights
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+- id: wc_height_comfort
+  when: wc_type == 'close_coupled' and wc_height == 'comfort'
+  requires:
+  - sw_wc_pan_comfort_height
+  excludes:
+  - sw_wc_pan_close_coupled
+  rationale: A comfort-height close-coupled WC uses the comfort-height pan.
+  provenance:
+  - source_title: Bathroom Mountain guide to toilet heights
+    url: https://www.bathroommountain.co.uk/inspiration-and-advice/toilet-heights
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  - source_title: 'Durovin Bathrooms: is a comfort height toilet right for me'
+    url: https://www.durovinbathrooms.co.uk/blog/post/is-a-comfort-height-toilet-right-for-me
+    licence: unknown-copyright-facts-only
     evidence_quality: retailer

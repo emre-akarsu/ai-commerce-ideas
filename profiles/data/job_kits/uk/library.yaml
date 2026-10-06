@@ -4,7 +4,7 @@
 # Hierarchy: job_type -> scope (scopes/<job_type>_<scope>.yaml) -> module (modules/<module>.yaml)
 # -> line. Resolver: packages/components/job_kits/. Checked by tests/profiles/test_job_kits*.py.
 id: uk.job_kit_library
-version: 0.2.0
+version: 0.3.0
 market: uk
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
 status: needs_tradesperson_review
@@ -18,6 +18,19 @@ assumption_source: default_template
 parameters_file: parameters.yaml
 questions_file: questions.yaml
 max_upfront_questions: 3
+finish_levels:
+- id: budget
+  label: Budget
+  description: The cheapest option that still meets the rules, where the research found one. Lines without
+    a budget option keep the standard pick.
+- id: most_used
+  label: Standard
+  description: The option the research found most used, and compliant. This is the default; it is labelled
+    'most used' only where the evidence grade is B or better.
+- id: premium
+  label: Premium
+  description: A higher-specification option where the research found one. Never pre-selected; paid add-ons
+    stay off even at this level.
 classification_attribution:
   uniclass: Uniclass 2015 © NBS, CC BY-ND 4.0 (https://uniclass.thenbs.com/download). Pr and Ss tables
     v1.43 (July 2026). Codes and titles are stored verbatim as checked live in the research notes; nothing

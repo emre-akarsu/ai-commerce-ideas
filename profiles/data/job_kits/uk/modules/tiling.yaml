@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.tiling
 module: tiling
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Tiling
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -31,6 +32,72 @@ lines:
     url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  options:
+  - id: value_600x300
+    label: Value tiles
+    spec: Ceramic or porcelain wall tiles 600 x 300 mm, value range
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '12'
+      max: '15'
+      currency: GBP
+      per: m2
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Wickes bathroom wall and floor tiles category (219 products, review counts, Oct 2026)
+      url: https://www.wickes.co.uk/Products/Tiles/Bathroom-Wall+Floor-Tiles/c/1000801
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+  - id: standard_300x600
+    label: Standard tiles
+    spec: Ceramic or porcelain wall tiles 300 x 600 mm, mid range
+    tags:
+    - most_used
+    default: true
+    evidence_grade: B
+    why_default: 300 x 600 mm is the common size in the largest merchant tile range checked, by product
+      counts.
+    price_band:
+      min: '15'
+      max: '30'
+      currency: GBP
+      per: m2
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Wickes bathroom wall and floor tiles category (219 products, review counts, Oct 2026)
+      url: https://www.wickes.co.uk/Products/Tiles/Bathroom-Wall+Floor-Tiles/c/1000801
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+    - source_title: Trade2Base bathroom flooring options and pricing (8 June 2026)
+      url: https://www.trade2base.com/blog/bathroom-flooring-options-pricing-uk
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: designer
+    label: Designer tiles
+    spec: Designer or large-format porcelain wall tiles
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '38.15'
+      max: '49.96'
+      currency: GBP
+      per: m2
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Victorian Plumbing 300 x 600 mm designer wall and floor tile (search snippet, Oct
+        2026)
+      url: https://www.victorianplumbing.co.uk/stonehouse-studio-jardine-gloss-blue-marble-effect-wall-and-floor-tiles-300-x-600mm
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
 - id: tl_wall_adhesive
   description: Wall tile adhesive
   spec: Cementitious tile adhesive for walls
@@ -53,6 +120,57 @@ lines:
     url: https://www.wickes.co.uk/how-to-guides/tiling/tile-a-wall
     licence: all-rights-reserved-facts-only
     evidence_quality: retailer
+  forced_by: &id001
+    text: Tiles over 300 x 300 mm, porcelain and floors need a cement powder adhesive, not a ready-mixed
+      tub; timber floors and underfloor heating need flexible S1 (S2 over 400 x 400 mm).
+    source:
+      source_title: 'Topps Tiles knowledge base: which tile adhesive to use (search snippet; page 403
+        on fetch)'
+      url: https://www.toppstiles.co.uk/knowledge-base/what-tile-adhesive-to-use
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  options:
+  - id: flexible_s1
+    label: Flexible S1 powder
+    spec: Flexible S1 cement powder tile adhesive for walls, standard or rapid set, 20 kg bags
+    tags:
+    - most_used
+    default: true
+    evidence_grade: B
+    why_default: Flexible S1 powder is the default the rules allow, and the most-reviewed adhesive at
+      one merchant (669 reviews).
+    price_band:
+      min: '19'
+      max: '25'
+      currency: GBP
+      per: 20 kg bag
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Wickes tile adhesives category (34 products, review counts, Oct 2026)
+      url: https://www.wickes.co.uk/Products/Tiles/Tile-Adhesives/c/1000877
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+    - source_title: Wickes grey tile adhesive listings (search snippet, Oct 2026)
+      url: https://www.wickes.co.uk/featured/mapei-grey-tile-adhesive
+      licence: all-rights-reserved-facts-only
+      evidence_quality: search_snippet
+    - source_title: Pro Tiler Tools flexible S1 wall and floor adhesive listing
+      url: https://www.protilertools.co.uk/product/bal-spf-s1-standard-setting-flexible-wall---floor-adhesive-white-20kg
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: s2
+    label: Highly flexible S2 powder
+    spec: Highly flexible S2 or fibre-reinforced cement powder tile adhesive for walls, 20 kg bags
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: 'Weber: tiling plywood (S1 up to 400 x 400, S2 above)'
+      url: https://www.uk.weber/tile-fixing/tiling-plywood
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
 - id: tl_wall_grout
   description: Wall grout
   spec: Water-resistant cementitious grout
@@ -76,6 +194,55 @@ lines:
     url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  forced_by: &id002
+    text: Flexible adhesive needs a flexible grout.
+    source:
+      source_title: Mapei coloured grouts and sealants (product descriptions)
+      url: https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  options:
+  - id: flexible
+    label: Flexible mould-resistant grout
+    spec: Flexible, water-repellent, mould-resistant cement grout for walls
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: A flexible mould-resistant cement grout is the trade default and matches the flexible
+      adhesive.
+    price_band:
+      min: '15.25'
+      max: '22.19'
+      currency: GBP
+      per: 5 kg
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Selco flexible mould-resistant grout 5 kg listing (Oct 2026)
+      url: https://www.selcobw.com/mapei-ultracolor-plus-5kg-527732496p
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Mapei coloured grouts and sealants (product descriptions)
+      url: https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: epoxy
+    label: Epoxy grout
+    spec: Epoxy grout for walls
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: Mapei coloured grouts and sealants (product descriptions)
+      url: https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: 'Tilers Forums thread: epoxy vs flexible cement grout'
+      url: https://tilersforums.com/threads/kerapoxy-vs-ultracolor-plus.48814
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
 - id: tl_spacers
   description: Tile spacers
   spec: Tile spacers to suit the grout joint
@@ -112,9 +279,21 @@ lines:
   options:
   - id: plastic
     label: Plastic trim
-    spec: Plastic tile trim to suit tile thickness
-    tags: []
+    spec: White uPVC round-edge tile trim to suit tile thickness
+    tags:
+    - budget
+    - most_used
     default: true
+    evidence_grade: D
+    why_default: White uPVC round edge is the cheap common trim; no sales data was found.
+    price_band:
+      min: '9.61'
+      max: '10.64'
+      currency: GBP
+      per: 2.5 m length
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
     provenance:
     - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
         (Sell2Wales tender attachment)
@@ -125,11 +304,24 @@ lines:
       url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
       licence: unknown-copyright-facts-only
       evidence_quality: public_spec
+    - source_title: Travis Perkins white uPVC round-edge tile trim 2.5 m listing
+      url: https://www.travisperkins.co.uk/tiling-tools-and-accessories/genesis-10mm-white-round-edge-tile-trim-etr108-01/p/873805
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
   - id: metal
     label: Metal trim
-    spec: Metal tile trim to suit tile thickness
-    tags: []
+    spec: Chrome or brushed aluminium straight-edge tile trim to suit tile thickness
+    tags:
+    - most_used
     default: false
+    price_band:
+      min: '9.90'
+      max: '15.83'
+      currency: GBP
+      per: 2.5 m length
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
     provenance:
     - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
         (Sell2Wales tender attachment)
@@ -140,6 +332,11 @@ lines:
       url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
       licence: unknown-copyright-facts-only
       evidence_quality: public_spec
+    - source_title: Pro Tiler Tools polished chrome aluminium straight-edge trim 2.5 m listing
+      url: https://www.protilertools.co.uk/product/genesis-straight-edge-polished-chrome-aluminium-tile-trim-esa-25m
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  help: Trim depth must match the tile plus the adhesive bed.
 - id: tl_wall_primer
   description: Primer for the tiled wall substrate
   spec: Tile primer suited to the substrate
@@ -154,6 +351,13 @@ lines:
     url: https://ardex.co.nz/products/Tiling/Multiprime/Multiprime%20Datasheet%2012.10.20.pdf
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
+  forced_by:
+    text: Gypsum plaster, plasterboard and anhydrite need a primer before a cement-based adhesive.
+    source:
+      source_title: Victorian Plumbing acrylic tile primer listing (use on gypsum and anhydrite)
+      url: https://www.victorianplumbing.co.uk/mapei-primer-g
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: tl_floor_tiles
   description: Floor tiles
   spec: Slip-resistant ceramic or porcelain floor tiles
@@ -173,6 +377,71 @@ lines:
     url: https://www.north-norfolk.gov.uk/media/9723/advice-sheet-for-adapting-bathrooms.pdf
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  options:
+  - id: value_porcelain
+    label: Value porcelain
+    spec: Slip-resistant porcelain floor tiles, value range
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '12'
+      max: '15'
+      currency: GBP
+      per: m2
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Wickes bathroom wall and floor tiles category (219 products, review counts, Oct 2026)
+      url: https://www.wickes.co.uk/Products/Tiles/Bathroom-Wall+Floor-Tiles/c/1000801
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+  - id: porcelain_600
+    label: Porcelain 600 x 600 mm
+    spec: Slip-resistant porcelain floor tiles 600 x 600 mm
+    tags:
+    - most_used
+    default: true
+    evidence_grade: B
+    why_default: Tiles are the most popular UK bathroom floor, and porcelain is denser and suits underfloor
+      heating.
+    price_band:
+      min: '15'
+      max: '30'
+      currency: GBP
+      per: m2
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Wickes bathroom wall and floor tiles category (219 products, review counts, Oct 2026)
+      url: https://www.wickes.co.uk/Products/Tiles/Bathroom-Wall+Floor-Tiles/c/1000801
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+    - source_title: Trade2Base bathroom flooring options and pricing (8 June 2026)
+      url: https://www.trade2base.com/blog/bathroom-flooring-options-pricing-uk
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: large_format
+    label: Large-format porcelain
+    spec: Slip-resistant large-format porcelain floor tiles
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '20'
+      max: '50'
+      currency: GBP
+      per: m2
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Trade2Base bathroom flooring options and pricing (8 June 2026)
+      url: https://www.trade2base.com/blog/bathroom-flooring-options-pricing-uk
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: tl_floor_adhesive
   description: Floor tile adhesive
   spec: Cementitious floor tile adhesive
@@ -192,6 +461,49 @@ lines:
     url: https://www.skroutz.gr/s/12196759/Mapei-Keraflex-Maxi-S1-Klebstoff-Kacheln-23kg.html
     licence: unknown-copyright-facts-only
     evidence_quality: retailer
+  forced_by: *id001
+  options:
+  - id: flexible_s1
+    label: Flexible S1 powder
+    spec: Flexible S1 cement powder tile adhesive for floors, standard or rapid set, 20 kg bags
+    tags:
+    - most_used
+    default: true
+    evidence_grade: B
+    why_default: Flexible S1 powder is the default the rules allow, and the most-reviewed adhesive at
+      one merchant (669 reviews).
+    price_band:
+      min: '19'
+      max: '25'
+      currency: GBP
+      per: 20 kg bag
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Wickes tile adhesives category (34 products, review counts, Oct 2026)
+      url: https://www.wickes.co.uk/Products/Tiles/Tile-Adhesives/c/1000877
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+    - source_title: Wickes grey tile adhesive listings (search snippet, Oct 2026)
+      url: https://www.wickes.co.uk/featured/mapei-grey-tile-adhesive
+      licence: all-rights-reserved-facts-only
+      evidence_quality: search_snippet
+    - source_title: Pro Tiler Tools flexible S1 wall and floor adhesive listing
+      url: https://www.protilertools.co.uk/product/bal-spf-s1-standard-setting-flexible-wall---floor-adhesive-white-20kg
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: s2
+    label: Highly flexible S2 powder
+    spec: Highly flexible S2 or fibre-reinforced cement powder tile adhesive for floors, 20 kg bags
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: 'Weber: tiling plywood (S1 up to 400 x 400, S2 above)'
+      url: https://www.uk.weber/tile-fixing/tiling-plywood
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
 - id: tl_floor_grout
   description: Floor grout
   spec: Cementitious floor grout
@@ -211,6 +523,49 @@ lines:
     url: https://www.middleeast.weber/files/sodamco/2025-11/TDS_weberjoint-weberjoint_thick.pdf
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
+  forced_by: *id002
+  options:
+  - id: flexible
+    label: Flexible mould-resistant grout
+    spec: Flexible, water-repellent, mould-resistant cement grout for floors
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: A flexible mould-resistant cement grout is the trade default and matches the flexible
+      adhesive.
+    price_band:
+      min: '15.25'
+      max: '22.19'
+      currency: GBP
+      per: 5 kg
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Selco flexible mould-resistant grout 5 kg listing (Oct 2026)
+      url: https://www.selcobw.com/mapei-ultracolor-plus-5kg-527732496p
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Mapei coloured grouts and sealants (product descriptions)
+      url: https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: epoxy
+    label: Epoxy grout
+    spec: Epoxy grout for floors
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: Mapei coloured grouts and sealants (product descriptions)
+      url: https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+    - source_title: 'Tilers Forums thread: epoxy vs flexible cement grout'
+      url: https://tilersforums.com/threads/kerapoxy-vs-ultracolor-plus.48814
+      licence: unknown-copyright-facts-only
+      evidence_quality: forum
 rules:
 - id: wall_tiling
   requires:

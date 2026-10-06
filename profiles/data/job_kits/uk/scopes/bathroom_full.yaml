@@ -3,13 +3,14 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.bathroom.full
 scope_id: bathroom_full
 job_type: bathroom
 scope: full
 replaces: uk.bathroom_full
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Full bathroom refit (bath, basin, WC, shower)
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -52,33 +53,40 @@ job_provenance:
   licence: unknown-copyright-facts-only
   evidence_quality: public_spec
 questions:
+- id: shower_location
+  ask: upfront
+  reason_upfront: Bath only, shower over the bath or a separate enclosure changes the tray, enclosure,
+    tanking and shower lines.
+- id: hot_water_system
+  ask: upfront
+  reason_upfront: The hot-water system decides the shower type and valve pressure rating, and a wrong
+    guess is a compliance failure; 'don't know' maps safely to an electric shower.
+- id: finish_level
+  ask: upfront
+  reason_upfront: One answer sets the budget, standard or premium option on every line at once.
 - id: layout_change
-  ask: upfront
-  priority: 9
+  ask: on_review
 - id: wc_type
-  ask: upfront
-  priority: 11
+  ask: on_review
 - id: shower_type
-  ask: upfront
-  priority: 9
+  ask: on_review
 - id: shower_kw
   ask: on_review
-  priority: 2
-- id: shower_location
-  ask: on_review
-  priority: 5
 - id: basin_mount
   ask: on_review
-  priority: 3
 - id: wall_type
   ask: on_review
-  priority: 3
 - id: joint_system
   ask: on_review
-  priority: 4
 - id: floor_finish
   ask: on_review
-  priority: 5
+  default: tiled
+- id: add_underfloor_heating
+  ask: on_review
+- id: add_led_mirror
+  ask: on_review
+- id: add_towel_rail_dual_fuel
+  ask: on_review
 fixed_answers: {}
 measurements:
 - id: room_width_m
@@ -178,6 +186,16 @@ allowances:
     unit: m
     label: Room height
     description: Room (ceiling) height.
+  light_points:
+    value: '3'
+    unit: nr
+    label: Ceiling lights
+    description: Number of downlights (3-4 is typical for a bathroom).
+  ufh_mat_m2:
+    value: '2'
+    unit: m2
+    label: Underfloor heating mat area
+    description: Free floor area to heat (only used if underfloor heating is added).
 derived: {}
 modules:
 - module: strip_out
@@ -185,7 +203,10 @@ modules:
   when: layout_change
 - module: first_fix_plumbing
 - module: electrics
+  include_lines:
+  - el_shaver_socket
 - module: waterproofing
+  when: shower_location != 'none'
 - module: tiling
 - module: flooring
 - module: bath
@@ -193,9 +214,12 @@ modules:
 - module: wc
 - module: accessories
 - module: shower
+  when: shower_location != 'none'
 - module: shower_enclosure
 - module: ventilation
+- module: towel_rail
 - module: consumables
 - module: decorating
 - module: waste
+- module: extras
 rules: []

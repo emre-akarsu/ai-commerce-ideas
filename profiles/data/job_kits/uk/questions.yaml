@@ -3,7 +3,7 @@
 # Plain data: edit it directly. Schema: profiles/data/job_kits/README.md. Each question is defined
 # once here; a scope lists the ones it uses with `ask` (upfront or on_review) and `priority`.
 id: uk.job_kit_questions
-version: 0.2.0
+version: 0.3.0
 market: uk
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
 status: needs_tradesperson_review
@@ -17,15 +17,21 @@ questions:
     - value: true
       label: Yes, new partition or moved fittings
     default: false
+    widget: toggle
   wc_type:
     type: enum
     question: WC type?
     options:
     - value: close_coupled
       label: Close-coupled (cistern on the pan)
+    - value: back_to_wall
+      label: Back-to-wall pan with a concealed cistern
     - value: wall_hung
       label: Wall-hung pan on a concealed frame
     default: close_coupled
+    widget: cards
+    help: Close-coupled is the usual UK replacement. Back-to-wall and wall-hung hide the cistern and need
+      boxing or a frame.
   soil_outlet:
     type: enum
     question: Where does the soil pipe leave the pan position?
@@ -35,6 +41,7 @@ questions:
     - value: vertical
       label: Through the floor (vertical)
     default: horizontal
+    widget: segmented
   basin_mount:
     type: enum
     question: Basin type?
@@ -43,16 +50,24 @@ questions:
       label: Basin on a pedestal
     - value: wall_hung
       label: Wall-hung basin
+    - value: vanity
+      label: Basin on a vanity unit
     default: pedestal
+    widget: cards
   shower_type:
     type: enum
     question: Shower type?
     options:
+    - value: auto
+      label: Standard for my hot water (mixer on a combi or unvented cylinder, electric otherwise)
     - value: electric
       label: Electric shower
     - value: mixer
       label: Mixer shower (hot and cold feeds)
-    default: electric
+    default: auto
+    widget: segmented
+    help: An electric shower heats cold mains water, so it suits any home. A mixer needs a valve rated
+      for the hot-water pressure.
   shower_kw:
     type: enum
     question: Electric shower rating in kW (selects the circuit lookup row; ignored for a mixer shower)?
@@ -72,15 +87,21 @@ questions:
     - value: '10.5'
       label: 10.5 kW
     default: '8.5'
+    widget: select
+    help: Match the existing circuit. 8.5 kW usually runs on 6 mm2 cable and a 40 A breaker; 9.5 kW and
+      above usually needs 10 mm2 and 45 A. An electrician confirms.
   shower_location:
     type: enum
-    question: Where is the shower?
+    question: Bath and shower layout?
     options:
     - value: over_bath
-      label: Over the bath
+      label: Bath with a shower over it
     - value: enclosure
-      label: Separate enclosure with a tray
+      label: Bath plus a separate shower enclosure
+    - value: none
+      label: Bath only, no shower
     default: over_bath
+    widget: cards
   wall_type:
     type: enum
     question: Main wall construction where fittings are fixed?
@@ -90,6 +111,7 @@ questions:
     - value: stud
       label: Stud (timber or metal frame)
     default: solid
+    widget: segmented
   joint_system:
     type: enum
     question: Pipe joint system for new pipework?
@@ -101,6 +123,9 @@ questions:
     - value: solder
       label: Solder-ring
     default: compression
+    widget: segmented
+    help: Compression where joints stay exposed or must come apart, push-fit on concealed plastic runs;
+      solder is the low-cost trade option.
   floor_finish:
     type: enum
     question: Floor finish?
@@ -110,6 +135,7 @@ questions:
     - value: tiled
       label: Floor tiles
     default: sheet_vinyl
+    widget: segmented
   floor_construction:
     type: enum
     question: Floor construction under the shower?
@@ -119,6 +145,12 @@ questions:
     - value: concrete
       label: Concrete
     default: timber
+    widget: segmented
+    unknown:
+      label: Don't know
+      maps_to: timber
+    help: Timber floors need a supported deck under the former and flexible adhesive. If unsure, the kit
+      assumes timber.
   drainage:
     type: enum
     question: Can the gully drain by gravity, or is a pump needed?
@@ -128,6 +160,7 @@ questions:
     - value: pumped
       label: Pumped
     default: gravity
+    widget: segmented
   shower_seat:
     type: bool
     question: Fit a wall-mounted fold-down shower seat?
@@ -137,6 +170,7 @@ questions:
     - value: true
       label: Fit a fold-down seat
     default: false
+    widget: toggle
   replace_radiator:
     type: bool
     question: Replace the radiator with a low surface temperature one?
@@ -146,3 +180,121 @@ questions:
     - value: true
       label: Replace with a low surface temperature radiator
     default: false
+    widget: toggle
+  hot_water_system:
+    type: enum
+    question: How is hot water supplied?
+    options:
+    - value: combi
+      label: Combi boiler (no hot-water tank)
+    - value: unvented
+      label: Unvented cylinder (mains pressure)
+    - value: gravity
+      label: Tank in the loft (gravity)
+    default: gravity
+    widget: cards
+    help: This sets the shower type and the valve pressure rating. If you do not know, the kit assumes
+      a gravity system and an electric shower, which fits any home but needs an electrician.
+    unknown:
+      label: Don't know
+      maps_to: gravity
+  finish_level:
+    type: enum
+    question: Finish level?
+    options:
+    - value: budget
+      label: Budget
+    - value: most_used
+      label: Standard
+    - value: premium
+      label: Premium
+    default: most_used
+    widget: cards
+    help: Sets every line that has budget, standard and premium options at once. Each line stays changeable
+      on the review screen. Paid extras stay off.
+  adaptation:
+    type: bool
+    question: Is this an adaptation for a disabled or older user?
+    options:
+    - value: false
+      label: No, a standard wet room
+    - value: true
+      label: Yes, an adapted wet room (Approved Document M M4(3) items)
+    default: false
+    widget: toggle
+    help: Adds grab rails, wall reinforcement, a curtain in place of glass and a thermostatic blending
+      valve on the basin.
+  openable_window:
+    type: bool
+    question: Is there an openable window?
+    options:
+    - value: false
+      label: No openable window
+    - value: true
+      label: Yes, an openable window
+    default: false
+    widget: toggle
+    help: A fan is needed either way. Without an openable window the fan must run on for at least {extract_overrun_min}
+      minutes after the room is left.
+    unknown:
+      label: Don't know
+      maps_to: false
+  pan_alignment:
+    type: enum
+    question: Does the new pan outlet line up with the soil pipe?
+    options:
+    - value: aligned
+      label: Lines up (rigid connector)
+    - value: offset
+      label: Offset (flexible connector)
+    default: aligned
+    widget: segmented
+    help: If you are not sure, the kit uses a flexible connector, which fits either way.
+    unknown:
+      label: Not sure
+      maps_to: offset
+  wc_height:
+    type: enum
+    question: WC pan height?
+    options:
+    - value: standard
+      label: Standard height (about 400 mm to the seat)
+    - value: comfort
+      label: Comfort height (about 430-480 mm)
+    default: standard
+    widget: segmented
+    help: Comfort height suits taller or less mobile users. Applies to close-coupled pans.
+  add_underfloor_heating:
+    type: bool
+    question: Add electric underfloor heating (tiled floor)?
+    options:
+    - value: false
+      label: 'No'
+    - value: true
+      label: 'Add: Electric underfloor heating (tiled floor)'
+    default: false
+    widget: toggle
+    help: A paid extra that needs an electrician, a thermostat and flexible adhesive. Only fitted under
+      a tiled floor. Off unless you add it.
+  add_led_mirror:
+    type: bool
+    question: Add lED mirror with demister?
+    options:
+    - value: false
+      label: 'No'
+    - value: true
+      label: 'Add: LED mirror with demister'
+    default: false
+    widget: toggle
+    help: A paid extra that needs an electrician. Off unless you add it.
+  add_towel_rail_dual_fuel:
+    type: bool
+    question: Add dual-fuel kit for the towel rail?
+    options:
+    - value: false
+      label: 'No'
+    - value: true
+      label: 'Add: Dual-fuel kit for the towel rail'
+    default: false
+    widget: toggle
+    help: A paid extra that needs an electrician. Off unless you add it.

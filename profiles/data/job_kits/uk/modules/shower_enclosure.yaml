@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.shower_enclosure
 module: shower_enclosure
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Shower enclosure or bath screen
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -31,6 +32,68 @@ lines:
     url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  options:
+  - id: acrylic
+    label: Acrylic tray
+    spec: Acrylic or ABS shower tray, 800 or 900 mm, {shower_tray_waste_mm} mm outlet
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '120'
+      max: '180'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Bathroom Mountain shower tray guide (sizes, materials, cost ranges)
+      url: https://www.bathroommountain.co.uk/inspiration-and-advice/best-shower-trays/
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: stone_resin
+    label: Stone resin tray, low profile
+    spec: Stone resin shower tray, about 45 mm low profile, 1200 x 800 mm (or 900 x 900 mm quadrant),
+      {shower_tray_waste_mm} mm outlet
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: One retailer guide calls stone resin the leading material, and 1200 x 800 mm is widely
+      stocked.
+    price_band:
+      min: '180'
+      max: '300'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Bathroom Mountain shower tray guide (sizes, materials, cost ranges)
+      url: https://www.bathroommountain.co.uk/inspiration-and-advice/best-shower-trays/
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: anti_slip_large
+    label: Large anti-slip tray
+    spec: Textured anti-slip stone resin tray, 1400 x 900 mm or larger, {shower_tray_waste_mm} mm outlet
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '180'
+      max: '440'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Bathroom Mountain shower tray guide (sizes, materials, cost ranges)
+      url: https://www.bathroommountain.co.uk/inspiration-and-advice/best-shower-trays/
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: sh_tray_waste
   description: Shower tray waste and trap
   spec: '{shower_tray_waste_mm} mm shower waste with trap (low-profile where there is no void)'
@@ -69,6 +132,56 @@ lines:
     url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  options:
+  - id: framed_4_6mm
+    label: Framed enclosure, 4-6 mm glass
+    spec: Framed quadrant or door enclosure with 4-6 mm glass to match the tray, fixings for the wall
+      type
+    tags:
+    - budget
+    default: false
+    provenance:
+    - source_title: 'Sanctuary Bathrooms: shower glass thickness 6 mm, 8 mm or 10 mm'
+      url: https://www.sanctuary-bathrooms.co.uk/blog/shower-glass-thickness-6mm-8mm-10mm
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: six_mm
+    label: 6 mm sliding door or quadrant
+    spec: 6 mm toughened glass sliding door or quadrant enclosure to match the tray, fixings for the wall
+      type
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: 6 mm is the typical shower glass and the mid-price band.
+    price_band:
+      min: '339.95'
+      max: '529.95'
+      currency: GBP
+      per: enclosure
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: 'Sanctuary Bathrooms: shower glass thickness 6 mm, 8 mm or 10 mm'
+      url: https://www.sanctuary-bathrooms.co.uk/blog/shower-glass-thickness-6mm-8mm-10mm
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Victorian Plumbing 6 mm glass shower enclosure range (search snippet, Oct 2026)
+      url: https://victorianplumbing.co.uk/shower-enclosures/ranges/6mm-glass-shower-enclosures
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  - id: walk_in_8_10mm
+    label: Walk-in panel, 8-10 mm glass
+    spec: Frameless 8-10 mm walk-in glass panel on a 1200 x 800 mm or larger tray
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: 'Sanctuary Bathrooms: shower glass thickness 6 mm, 8 mm or 10 mm'
+      url: https://www.sanctuary-bathrooms.co.uk/blog/shower-glass-thickness-6mm-8mm-10mm
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: sh_bath_screen_or_curtain
   description: Bath screen or shower curtain and rail
   spec: Over-bath glass screen, or curtain with rail or pole
@@ -92,9 +205,12 @@ lines:
   options:
   - id: screen
     label: Glass bath screen
-    spec: Over-bath glass screen
-    tags: []
+    spec: 6 mm toughened glass hinged over-bath screen
+    tags:
+    - most_used
     default: true
+    evidence_grade: C
+    why_default: Suite bundles usually pair a bath shower mixer with a 6 mm bath screen.
     provenance:
     - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
         (Sell2Wales tender attachment)
@@ -105,6 +221,14 @@ lines:
       url: https://www.canterbury.gov.uk/sites/default/files/2026-06/Void%20Lettable%20Standard%20policy.pdf
       licence: unknown-copyright-facts-only
       evidence_quality: public_spec
+    - source_title: 'Sanctuary Bathrooms: shower glass thickness 6 mm, 8 mm or 10 mm'
+      url: https://www.sanctuary-bathrooms.co.uk/blog/shower-glass-thickness-6mm-8mm-10mm
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: bestbuilders.co.uk bathroom suite comparison (aggregator, Jul 2026)
+      url: https://www.bestbuilders.co.uk/guides/compare/compare-bathroom-suites-best-value-options-in-2026-uk
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
   - id: curtain
     label: Curtain and rail
     spec: Shower curtain with rail or pole

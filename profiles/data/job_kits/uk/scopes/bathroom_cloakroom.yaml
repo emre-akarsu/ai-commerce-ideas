@@ -3,13 +3,14 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.bathroom.cloakroom
 scope_id: bathroom_cloakroom
 job_type: bathroom
 scope: cloakroom
 replaces: uk.bathroom_cloakroom
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Cloakroom refit (WC and basin)
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -46,24 +47,28 @@ job_provenance:
   licence: unknown-copyright-facts-only
   evidence_quality: public_spec
 questions:
-- id: layout_change
-  ask: upfront
-  priority: 9
-- id: wc_type
-  ask: upfront
-  priority: 11
 - id: basin_mount
+  ask: upfront
+  reason_upfront: A compact pedestal, wall-hung basin or small vanity changes the basin, fixings and wall
+    support.
+- id: openable_window
+  ask: upfront
+  reason_upfront: Without an openable window the fan must run on after the room is left, which changes
+    the fan set-up.
+- id: finish_level
+  ask: upfront
+  reason_upfront: One answer sets the budget, standard or premium option on every line at once.
+- id: layout_change
   ask: on_review
-  priority: 3
+- id: wc_type
+  ask: on_review
 - id: wall_type
   ask: on_review
-  priority: 3
 - id: joint_system
   ask: on_review
-  priority: 4
 - id: floor_finish
-  ask: upfront
-  priority: 5
+  ask: on_review
+  default: tiled
 fixed_answers: {}
 measurements:
 - id: room_width_m
@@ -143,6 +148,11 @@ allowances:
     unit: m
     label: Room height
     description: Room (ceiling) height.
+  light_points:
+    value: '1'
+    unit: nr
+    label: Ceiling lights
+    description: Number of downlights.
 derived:
   wall_tiled_m2:
     formula: room_width_m * tiled_height_m
@@ -164,20 +174,45 @@ modules:
     tl_wall_tiles:
       spec: Ceramic or porcelain wall tiles for the splashback, about {splashback_height_mm} mm high above
         the basin
+      option_spec_note: splashback about {splashback_height_mm} mm high above the basin
 - module: flooring
 - module: wc
 - module: basin
   overrides:
     sw_basin_taps:
       spec: Single basin mixer or pair of pillar taps, lever handles
-      default_option: mixer
+    sw_basin_pedestal:
+      spec: Compact ceramic washbasin 400-500 mm with full pedestal, tap holes to suit taps
+    sw_basin_vanity:
+      spec: Compact basin on a cloakroom vanity unit, 400-550 mm wide, tap holes to suit taps
 - module: ventilation
   overrides:
     vn_fan:
       spec: Extract fan rated at least {sanitary_extract_l_s} l/s, run-on at least {extract_overrun_min}
         min where there is no openable window; humidistat control optional; low-voltage (SELV) model if
         inside a bathroom zone
+      forced_by:
+        text: 'Approved Document F: a WC needs {sanitary_extract_l_s} l/s extract; with no openable window
+          the fan runs on at least {extract_overrun_min} min.'
+        source:
+          source_title: Approved Document F Vol 1, 2021 edition (ventilation), Table 1.1
+          url: https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf
+          licence: OGL-3.0-unconfirmed
+          evidence_quality: standard
+  include_lines:
+  - vn_overrun_commissioning
 - module: consumables
 - module: decorating
 - module: waste
-rules: []
+rules:
+- id: windowless_fan_overrun
+  when: not openable_window
+  requires:
+  - vn_fan
+  - vn_overrun_commissioning
+  rationale: With no openable window the fan must run on after the room is left (Approved Document F).
+  provenance:
+  - source_title: Approved Document F Vol 1, 2021 edition (ventilation), Table 1.1
+    url: https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf
+    licence: OGL-3.0-unconfirmed
+    evidence_quality: standard

@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.accessories
 module: accessories
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Accessories
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -26,4 +27,14 @@ lines:
     url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+- id: sw_towel_ring
+  description: Towel ring
+  spec: Wall-mounted chrome towel ring
+  unit: nr
+  quantity: '1'
+  provenance:
+  - source_title: Screwfix no-drill chrome towel ring listing (Oct 2026)
+    url: https://www.screwfix.com/p/croydex-stick-n-lock-towel-ring-chrome/733jj
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
 rules: []

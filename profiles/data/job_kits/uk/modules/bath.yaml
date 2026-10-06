@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.bath
 module: bath
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Bath
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -35,6 +36,67 @@ lines:
     url: https://assets.publishing.service.gov.uk/media/5a7968b740f0b63d72fc5926/138355.pdf
     licence: OGL-3.0
     evidence_quality: public_spec
+  options:
+  - id: acrylic_standard
+    label: Acrylic bath, standard
+    spec: Single-ended acrylic bath 1700 x 700 mm, standard thickness, with legs
+    tags:
+    - budget
+    default: false
+    provenance:
+    - source_title: 'Sanctuary Bathrooms: understanding bath sizes'
+      url: https://www.sanctuary-bathrooms.co.uk/blog/understanding-bath-sizes/
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: bestbuilders.co.uk bathroom suite comparison (aggregator, Jul 2026)
+      url: https://www.bestbuilders.co.uk/guides/compare/compare-bathroom-suites-best-value-options-in-2026-uk
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: acrylic_reinforced
+    label: Acrylic bath, reinforced
+    spec: Single-ended reinforced acrylic bath 1700 x 700 mm, with legs
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: 1700 x 700 mm is the UK standard size, and retailers sell more acrylic than steel baths.
+    provenance:
+    - source_title: 'Sanctuary Bathrooms: understanding bath sizes'
+      url: https://www.sanctuary-bathrooms.co.uk/blog/understanding-bath-sizes/
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: 'Drench: acrylic or steel baths buying guide'
+      url: https://www.drench.co.uk/blog/buying-guides/acrylic-or-steel-baths
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: steel
+    label: Enamelled steel bath
+    spec: Single-ended enamelled steel bath 1700 x 700 mm, slip-resistant base
+    tags: []
+    default: false
+    provenance:
+    - source_title: Camden Council social housing bathroom specification (search snippet; PDF returned
+        503)
+      url: https://camdocs.camden.gov.uk/CMWebDrawer/Record/10566578/file/document
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+    - source_title: 'Drench: acrylic or steel baths buying guide'
+      url: https://www.drench.co.uk/blog/buying-guides/acrylic-or-steel-baths
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: double_ended
+    label: Double-ended bath
+    spec: Double-ended reinforced acrylic bath 1700 x 750 mm, centre waste
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: 'Sanctuary Bathrooms: understanding bath sizes'
+      url: https://www.sanctuary-bathrooms.co.uk/blog/understanding-bath-sizes/
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  help: Some social landlords specify enamelled steel or a slip-resistant base; choose the steel option
+    for that.
 - id: sw_bath_legs
   description: Bath leg set (if not supplied with the bath)
   spec: Adjustable leg set to suit the bath
@@ -158,34 +220,50 @@ lines:
   options:
   - id: pillar_pair
     label: Pair of pillar taps
-    spec: Pair of bath pillar taps, lever handles
-    tags: []
-    default: true
+    spec: Pair of bath pillar taps
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '29.99'
+      max: '29.99'
+      currency: GBP
+      per: pair
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
     provenance:
-    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
-        (Sell2Wales tender attachment)
-      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    - source_title: Screwfix bath pillar taps, pair (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/swirl-traditional-pillar-bath-taps-1-pair/93716
       licence: unknown-copyright-facts-only
-      evidence_quality: public_spec
-    - source_title: Broadland Housing Association affordable housing specification, March 2023
-      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
-      licence: unknown-copyright-facts-only
-      evidence_quality: public_spec
+      evidence_quality: search_snippet
   - id: mixer
     label: Bath mixer
-    spec: Bath mixer tap, lever handles
-    tags: []
-    default: false
+    spec: Deck-mounted bath mixer, lever handles (a bath shower mixer where the shower is over the bath)
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: A deck bath mixer is the usual mid-range bath tap in the listings.
+    price_band:
+      min: '54.99'
+      max: '144.99'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
     provenance:
-    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
-        (Sell2Wales tender attachment)
-      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    - source_title: Screwfix lever bath shower mixer (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/commercial-chrome-100mm-lever-bath-shower-mixer-tap/25843
       licence: unknown-copyright-facts-only
-      evidence_quality: public_spec
-    - source_title: Broadland Housing Association affordable housing specification, March 2023
-      url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
+      evidence_quality: search_snippet
+    - source_title: Screwfix deck-mounted bath shower mixer (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/bristan-lever-chrome-95mm-deck-mounted-dual-control-manual-shower-mixer-tap/889je
       licence: unknown-copyright-facts-only
-      evidence_quality: public_spec
+      evidence_quality: search_snippet
+  help: In a new dwelling the bath outlet must be limited to 48 degC (Part G), usually with an in-line
+    blending valve.
 rules:
 - id: bath
   requires:

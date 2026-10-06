@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.electrics
 module: electrics
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Electrics
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -16,7 +17,7 @@ lines:
   description: Bathroom ceiling light
   spec: Sealed ceiling luminaire rated for the bathroom zone (dust and splash proof), LED
   unit: nr
-  quantity: '1'
+  quantity: light_points
   provenance:
   - source_title: Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)
     url: https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf
@@ -27,6 +28,64 @@ lines:
     url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  options:
+  - id: basic_downlight
+    label: Fire-rated downlight, basic
+    spec: Fixed fire-rated LED downlight, IP65, about 5 W
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '6.00'
+      max: '6.00'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix fire-rated IP65 LED downlight 5 W listing (Oct 2026)
+      url: https://www.screwfix.com/p/luceco-ftype-essence-flat-fixed-cylinder-fire-rated-led-downlight-white-5w-515lm/253kl
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: ip65_fire_rated
+    label: Fire-rated IP65 downlight
+    spec: Fixed fire-rated LED downlight, IP65, 6-7 W, warm white or selectable colour temperature
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: Fire-rated IP65 downlights cover zone 1 and a ceiling with a room or loft above; the
+      pick rests on merchant listings, not sales data.
+    price_band:
+      min: '7.00'
+      max: '8.59'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix fire-rated IP65 LED downlight 6 W listing (Oct 2026)
+      url: https://www.screwfix.com/p/saxby-cosmoseco-v3-fixed-fire-rated-led-recessed-downlight-white-6w-500lm/150RE
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Screwfix fire-rated colour-selectable LED downlight 7 W listing (Oct 2026)
+      url: https://www.screwfix.com/p/4lite-fixed-fire-rated-led-cct-downlight-matt-white-7w-640-730lm/516GG
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: zone1_premium
+    label: Zone 1 downlight, 30/60/90 min
+    spec: Fixed fire-rated LED downlight for zone 1, IP65, rated for 30, 60 or 90 minute ceilings
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: Screwfix zone 1 fire-rated (30/60/90 min) LED downlight listing
+      url: https://www.screwfix.com/p/collingwood-h2-lite-500-fixed-fire-rated-led-downlight-matt-white-5w-500lm/791KR
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  help: The number of downlights is an allowance you can change on review.
 - id: el_fan_isolator
   description: Isolator for the extractor fan
   spec: Local isolator switching all poles, contact gap at least {isolator_contact_gap_mm} mm (fused where
@@ -56,7 +115,7 @@ lines:
     mm in both poles, mechanical OFF indicator, wired without plug or socket (pull-cord with neon is common)'
   unit: nr
   quantity: '1'
-  when: shower_type == 'electric'
+  when: shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')
   provenance:
   - source_title: Triton T70Z electric shower installation guide
     url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
@@ -73,13 +132,21 @@ lines:
     evidence_quality: public_spec
   with_module:
   - shower
+  forced_by: &id001
+    text: Electric shower circuits need {electric_shower_rcd_ma} mA RCD protection, a {electric_shower_isolator_a}
+      A double-pole isolator and a breaker and cable sized for the kW rating; work in a bathroom is notifiable.
+    source:
+      source_title: Triton T70Z electric shower installation guide
+      url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
 - id: el_shower_rcbo
   description: Shower circuit protective device
   spec: '{electric_shower_rcd_ma} mA RCD protection with an MCB rated per the lookup row (an RCBO does
     both)'
   unit: nr
   quantity: '1'
-  when: shower_type == 'electric'
+  when: shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')
   spec_lookup:
     table: electric_shower_circuit
     key: shower_kw
@@ -94,13 +161,14 @@ lines:
     evidence_quality: manufacturer_doc
   with_module:
   - shower
+  forced_by: *id001
 - id: el_shower_cable
   description: Shower circuit cable
   spec: Twin and earth sized per the lookup row for the installation method; not below {electric_shower_cable_min_mm2}
     mm2
   unit: m
   quantity: shower_cable_run_m
-  when: shower_type == 'electric'
+  when: shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')
   spec_lookup:
     table: electric_shower_circuit
     key: shower_kw
@@ -111,13 +179,14 @@ lines:
     evidence_quality: manufacturer_doc
   with_module:
   - shower
+  forced_by: *id001
 - id: el_part_p_notification
   description: Notification and certificate for the new shower circuit
   spec: Electrical Installation Certificate and building control notification (new circuit in a special
     location), by a registered electrician
   unit: item
   quantity: '1'
-  when: shower_type == 'electric'
+  when: shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')
   kind: service
   provenance:
   - source_title: Approved Document P 2013 (electrical safety, dwellings)
@@ -130,4 +199,66 @@ lines:
     evidence_quality: public_spec
   with_module:
   - shower
+  forced_by:
+    text: A new circuit in a bathroom is notifiable building work in England.
+    source:
+      source_title: Approved Document P 2013 (electrical safety, dwellings)
+      url: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/441872/BR_PDF_AD_P_2013.pdf
+      licence: OGL-3.0-unconfirmed
+      evidence_quality: standard
+- id: el_shaver_socket
+  description: Shaver socket
+  spec: 2-gang dual-voltage (115/230 V) shaver socket
+  unit: nr
+  quantity: '1'
+  when: not add_led_mirror
+  optional: true
+  provenance:
+  - source_title: Screwfix 2-gang dual-voltage shaver socket listing (Oct 2026)
+    url: https://www.screwfix.com/p/british-general-nexus-metal-2-gang-dual-voltage-shaver-socket-115-240v-polished-chrome/385ft
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
+  options:
+  - id: standard_plate
+    label: Shaver socket
+    spec: 2-gang dual-voltage shaver socket, raised metal plate
+    tags:
+    - budget
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: The plain dual-voltage socket is the usual merchant line.
+    price_band:
+      min: '19.99'
+      max: '19.99'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix 2-gang dual-voltage shaver socket listing (Oct 2026)
+      url: https://www.screwfix.com/p/british-general-nexus-metal-2-gang-dual-voltage-shaver-socket-115-240v-polished-chrome/385ft
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: flat_plate
+    label: Shaver socket, flat plate
+    spec: 2-gang dual-voltage shaver socket, screwless flat plate
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '29.99'
+      max: '29.99'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix flat-plate dual-voltage shaver socket listing (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/knightsbridge-2-gang-dual-voltage-shaver-socket-115-v-230v-polished-chrome-with-black-inserts/113ty
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  help: Left out when the LED mirror (which has its own socket) is added.
 rules: []

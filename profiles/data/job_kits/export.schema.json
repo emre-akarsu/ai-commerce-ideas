@@ -1,135 +1,692 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "job-kit-ui/1",
-  "title": "Job-kit UI spec (one scope)",
-  "description": "Written by scripts/export_job_kits.py from profiles/data/job_kits/<market>/. Synthetic/illustrative seed data; not licensed; tradesperson review required.",
+  "$id": "job-kit-ui/2",
+  "title": "Job-kit UI spec (one scope), job-kit-ui/1 and job-kit-ui/2",
+  "description": "Written by scripts/export_job_kits.py from profiles/data/job_kits/<market>/. Synthetic/illustrative seed data; not licensed; tradesperson review required. job-kit-ui/2 is additive over job-kit-ui/1: every v1 field keeps its name and meaning, and the v2 fields are optional here so that v1 documents still validate (see profiles/data/job_kits/CHANGELOG.md).",
   "type": "object",
   "additionalProperties": false,
-  "required": ["format", "label", "status", "library_version", "market", "assumption_source", "scope",
-               "max_upfront_questions", "upfront_questions", "questions", "fixed_answers",
-               "review_defaults", "measurements", "derived", "modules", "rules"],
+  "required": [
+    "format",
+    "label",
+    "status",
+    "library_version",
+    "market",
+    "assumption_source",
+    "scope",
+    "max_upfront_questions",
+    "upfront_questions",
+    "questions",
+    "fixed_answers",
+    "review_defaults",
+    "measurements",
+    "derived",
+    "modules",
+    "rules"
+  ],
   "properties": {
-    "format": {"const": "job-kit-ui/1"},
-    "label": {"type": "string"},
-    "status": {"enum": ["needs_tradesperson_review", "reviewed"]},
-    "library_version": {"type": "string"},
-    "market": {"type": "string"},
-    "assumption_source": {"const": "default_template"},
+    "format": {
+      "enum": [
+        "job-kit-ui/1",
+        "job-kit-ui/2"
+      ]
+    },
+    "label": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "needs_tradesperson_review",
+        "reviewed"
+      ]
+    },
+    "library_version": {
+      "type": "string"
+    },
+    "market": {
+      "type": "string"
+    },
+    "assumption_source": {
+      "const": "default_template"
+    },
     "scope": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["scope_id", "id", "job_type", "scope", "title", "description", "version"],
+      "required": [
+        "scope_id",
+        "id",
+        "job_type",
+        "scope",
+        "title",
+        "description",
+        "version"
+      ],
       "properties": {
-        "scope_id": {"type": "string"}, "id": {"type": "string"}, "job_type": {"type": "string"},
-        "scope": {"type": "string"}, "title": {"type": "string"},
-        "description": {"type": "string"}, "version": {"type": "string"}
+        "scope_id": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "job_type": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
       }
     },
-    "max_upfront_questions": {"type": "integer", "minimum": 1},
-    "upfront_questions": {"type": "array", "maxItems": 3, "items": {"type": "string"}},
-    "questions": {"type": "array", "items": {"$ref": "#/$defs/question"}},
-    "fixed_answers": {"type": "object"},
-    "review_defaults": {"type": "array", "items": {"$ref": "#/$defs/review_default"}},
-    "measurements": {"type": "array", "maxItems": 3, "items": {"$ref": "#/$defs/measurement"}},
-    "derived": {"type": "array", "items": {"$ref": "#/$defs/derived"}},
-    "modules": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/module"}},
-    "rules": {"type": "array", "items": {"$ref": "#/$defs/rule"}}
+    "max_upfront_questions": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "upfront_questions": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "string"
+      }
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/question"
+      }
+    },
+    "fixed_answers": {
+      "type": "object"
+    },
+    "review_defaults": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/review_default"
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/$defs/measurement"
+      }
+    },
+    "derived": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/derived"
+      }
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/module"
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rule"
+      }
+    },
+    "finish_levels": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/$defs/finish_level"
+      }
+    },
+    "schema_changes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
   },
   "$defs": {
-    "value": {"type": ["string", "boolean"]},
+    "value": {
+      "type": [
+        "string",
+        "boolean"
+      ]
+    },
     "question": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "question", "type", "ask", "priority", "default", "options"],
+      "required": [
+        "id",
+        "question",
+        "type",
+        "ask",
+        "priority",
+        "default",
+        "options"
+      ],
       "properties": {
-        "id": {"type": "string"}, "question": {"type": "string"},
-        "type": {"enum": ["bool", "enum"]}, "ask": {"enum": ["upfront", "on_review"]},
-        "priority": {"type": "integer", "minimum": 0}, "default": {"$ref": "#/$defs/value"},
-        "options": {"type": "array", "minItems": 2, "items": {
-          "type": "object", "additionalProperties": false, "required": ["value", "label"],
-          "properties": {"value": {"$ref": "#/$defs/value"}, "label": {"type": "string"}}}}
+        "id": {
+          "type": "string"
+        },
+        "question": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "bool",
+            "enum"
+          ]
+        },
+        "ask": {
+          "enum": [
+            "upfront",
+            "on_review"
+          ]
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "default": {
+          "$ref": "#/$defs/value"
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "label"
+            ],
+            "properties": {
+              "value": {
+                "$ref": "#/$defs/value"
+              },
+              "label": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "help": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "widget": {
+          "enum": [
+            "cards",
+            "segmented",
+            "toggle",
+            "select",
+            null
+          ]
+        },
+        "reason_upfront": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unknown": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "label",
+            "maps_to"
+          ],
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "maps_to": {
+              "$ref": "#/$defs/value"
+            }
+          }
+        },
+        "impact": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "review_default": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "key", "label", "default", "default_label", "unit"],
+      "required": [
+        "kind",
+        "key",
+        "label",
+        "default",
+        "default_label",
+        "unit"
+      ],
       "properties": {
-        "kind": {"enum": ["question", "option", "allowance"]}, "key": {"type": "string"},
-        "label": {"type": "string"}, "default": {"$ref": "#/$defs/value"},
-        "default_label": {"type": "string"}, "unit": {"type": ["string", "null"]}
+        "kind": {
+          "enum": [
+            "question",
+            "option",
+            "allowance"
+          ]
+        },
+        "key": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "default": {
+          "$ref": "#/$defs/value"
+        },
+        "default_label": {
+          "type": "string"
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "measurement": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "label", "unit", "description", "sample"],
+      "required": [
+        "id",
+        "label",
+        "unit",
+        "description",
+        "sample"
+      ],
       "properties": {
-        "id": {"enum": ["room_width_m", "room_length_m", "tiled_height_m"]},
-        "label": {"type": "string"}, "unit": {"const": "m"}, "description": {"type": "string"},
-        "sample": {"type": "string"}
+        "id": {
+          "enum": [
+            "room_width_m",
+            "room_length_m",
+            "tiled_height_m"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "unit": {
+          "const": "m"
+        },
+        "description": {
+          "type": "string"
+        },
+        "sample": {
+          "type": "string"
+        }
       }
     },
     "derived": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "formula", "unit", "description"],
-      "properties": {"id": {"type": "string"}, "formula": {"type": "string"},
-                     "unit": {"type": "string"}, "description": {"type": "string"}}
+      "required": [
+        "id",
+        "formula",
+        "unit",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "formula": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
     },
     "provenance": {
       "type": "array",
       "minItems": 1,
       "items": {
-        "type": "object", "additionalProperties": false,
-        "required": ["source_title", "url", "licence", "evidence_quality"],
-        "properties": {"source_title": {"type": "string"}, "url": {"type": "string"},
-                       "licence": {"type": "string"}, "evidence_quality": {"type": "string"}}
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_title",
+          "url",
+          "licence",
+          "evidence_quality"
+        ],
+        "properties": {
+          "source_title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "licence": {
+            "type": "string"
+          },
+          "evidence_quality": {
+            "type": "string"
+          }
+        }
       }
     },
     "option": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "label", "spec", "tags", "default", "provenance"],
+      "required": [
+        "id",
+        "label",
+        "spec",
+        "tags",
+        "default",
+        "provenance"
+      ],
       "properties": {
-        "id": {"type": "string"}, "label": {"type": "string"}, "spec": {"type": "string"},
-        "tags": {"type": "array", "items": {"enum": ["budget", "most_used", "premium"]}},
-        "default": {"type": "boolean"}, "provenance": {"$ref": "#/$defs/provenance"}
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "spec": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "budget",
+              "most_used",
+              "premium"
+            ]
+          }
+        },
+        "default": {
+          "type": "boolean"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        },
+        "evidence_grade": {
+          "enum": [
+            "A",
+            "B",
+            "C",
+            "D",
+            null
+          ]
+        },
+        "why_default": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "price_band": {
+          "$ref": "#/$defs/price_band_or_null"
+        }
       }
     },
     "line": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "description", "spec", "unit", "quantity_formula", "when", "kind", "lookup",
-                   "default_option", "options", "provenance"],
+      "required": [
+        "id",
+        "description",
+        "spec",
+        "unit",
+        "quantity_formula",
+        "when",
+        "kind",
+        "lookup",
+        "default_option",
+        "options",
+        "provenance"
+      ],
       "properties": {
-        "id": {"type": "string"}, "description": {"type": "string"}, "spec": {"type": "string"},
-        "unit": {"enum": ["nr", "m", "m2", "kg", "l", "cartridge", "pack", "kit", "roll", "item", "pair"]},
-        "quantity_formula": {"type": "string"}, "when": {"type": ["string", "null"]},
-        "kind": {"type": ["string", "null"]},
-        "lookup": {"type": ["object", "null"], "additionalProperties": false,
-                   "properties": {"table": {"type": "string"}, "key": {"type": "string"}}},
-        "default_option": {"type": ["string", "null"]},
-        "options": {"type": "array", "items": {"$ref": "#/$defs/option"}},
-        "provenance": {"$ref": "#/$defs/provenance"}
+        "id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "spec": {
+          "type": "string"
+        },
+        "unit": {
+          "enum": [
+            "nr",
+            "m",
+            "m2",
+            "kg",
+            "l",
+            "cartridge",
+            "pack",
+            "kit",
+            "roll",
+            "item",
+            "pair"
+          ]
+        },
+        "quantity_formula": {
+          "type": "string"
+        },
+        "when": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lookup": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "table": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          }
+        },
+        "default_option": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/option"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        },
+        "forced_by": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "text",
+            "source_url"
+          ],
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "source_url": {
+              "type": "string"
+            }
+          }
+        },
+        "help": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "module": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "title", "when", "lines"],
-      "properties": {"id": {"type": "string"}, "title": {"type": "string"},
-                     "when": {"type": ["string", "null"]},
-                     "lines": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/line"}}}
+      "required": [
+        "id",
+        "title",
+        "when",
+        "lines"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "when": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lines": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/line"
+          }
+        }
+      }
     },
     "rule": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "when", "requires", "excludes", "rationale"],
-      "properties": {"id": {"type": "string"}, "when": {"type": ["string", "null"]},
-                     "requires": {"type": "array", "items": {"type": "string"}},
-                     "excludes": {"type": "array", "items": {"type": "string"}},
-                     "rationale": {"type": "string"}}
+      "required": [
+        "id",
+        "when",
+        "requires",
+        "excludes",
+        "rationale"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "when": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "requires": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excludes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "finish_level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "budget",
+            "most_used",
+            "premium"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "price_band_or_null": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "max",
+        "currency",
+        "per",
+        "vat",
+        "observed_on",
+        "basis"
+      ],
+      "properties": {
+        "min": {
+          "type": "string"
+        },
+        "max": {
+          "type": "string"
+        },
+        "currency": {
+          "const": "GBP"
+        },
+        "per": {
+          "type": "string"
+        },
+        "vat": {
+          "enum": [
+            "inc",
+            "ex"
+          ]
+        },
+        "observed_on": {
+          "type": "string"
+        },
+        "basis": {
+          "const": "observed retail price, not verified"
+        }
+      }
     }
   }
 }

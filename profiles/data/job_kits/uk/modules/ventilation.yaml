@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.ventilation
 module: ventilation
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Ventilation
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -37,6 +38,85 @@ lines:
     url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  options:
+  - id: timer
+    label: Axial fan with timer
+    spec: 100 mm axial extract fan with overrun timer
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '22.99'
+      max: '22.99'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix bathroom extractor fans category (search snippet, Oct 2026)
+      url: https://www.screwfix.com/c/bathrooms-kitchens/bathroom-extractor-fans/cat840654
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  - id: humidistat_timer
+    label: Axial fan with humidistat and timer
+    spec: 100 mm axial extract fan with humidistat and overrun timer
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: A 100 mm axial fan with humidistat and timer meets the extract rate without relying on
+      the user; the pick rests on a merchant label, not sales data.
+    price_band:
+      min: '46.49'
+      max: '46.49'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix 100 mm axial fan with humidistat and timer listing (Oct 2026)
+      url: https://www.screwfix.com/p/manrose-cqf100ht-100mm-4-axial-bathroom-extractor-fan-with-humidistat-timer-white-240v/768GY
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Bathroom Mountain bathroom ventilation guide (Approved Document F rates)
+      url: https://www.bathroommountain.co.uk/inspiration-and-advice/bathroom-ventilation
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: continuous
+    label: Continuous-running quiet fan
+    spec: 100 mm continuous-running low-energy extract fan (dMEV type), quiet
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '99.99'
+      max: '148.00'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix continuous-running 100 mm fan listing (Oct 2026)
+      url: https://www.screwfix.com/p/vent-axia-479088-100mm-4-axial-bathroom-extractor-fan-with-timer-white-240v/954gy
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Screwfix continuous-running 100 mm fan with humidistat listing (Oct 2026)
+      url: https://www.screwfix.com/p/vent-axia-479089-100mm-4-axial-bathroom-extractor-fan-with-humidistat-timer-white-240v/870gy
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  forced_by:
+    text: 'Approved Document F: a bathroom needs {bathroom_extract_l_s} l/s intermittent (or continuous)
+      extract and a WC {sanitary_extract_l_s} l/s; with no openable window the fan runs on at least {extract_overrun_min}
+      min.'
+    source:
+      source_title: Approved Document F Vol 1, 2021 edition (ventilation), Table 1.1
+      url: https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf
+      licence: OGL-3.0-unconfirmed
+      evidence_quality: standard
+  help: A low-voltage (SELV) fan is needed if the fan sits inside a bathroom zone.
 - id: vn_duct
   description: Extract duct
   spec: '{extract_duct_diameter_mm} mm duct, rigid or flexible'
@@ -47,6 +127,39 @@ lines:
     url: https://assets.cef.co.uk/downloads/pdg/vent_axia_439253_instructions/vent_axia_439253_instructions.pdf
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
+  options:
+  - id: rigid_short_flex
+    label: Rigid duct with short flexible end
+    spec: '{extract_duct_diameter_mm} mm rigid duct for the main run, flexible only as the final connection'
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: Guidance limits flexible duct to a short, taut final connection; rigid duct is the usual
+      main run.
+    provenance:
+    - source_title: 'LABC Warranty technical blog: insulating extraction ducts (flexible duct limits)'
+      url: https://www.labcwarranty.co.uk/technical-blog/insulating-extraction-ducts
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  - id: insulated_rigid
+    label: Insulated rigid duct
+    spec: '{extract_duct_diameter_mm} mm insulated rigid duct, for runs through a cold loft'
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: 'LABC Warranty technical blog: insulating extraction ducts (flexible duct limits)'
+      url: https://www.labcwarranty.co.uk/technical-blog/insulating-extraction-ducts
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
+  forced_by:
+    text: Flexible duct only as the final connection, at most 1.5 m and pulled taut.
+    source:
+      source_title: 'LABC Warranty technical blog: insulating extraction ducts (flexible duct limits)'
+      url: https://www.labcwarranty.co.uk/technical-blog/insulating-extraction-ducts
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
 - id: vn_wall_or_roof_terminal
   description: External terminal for the duct
   spec: Through-wall kit or roof terminal with external grille to suit the duct
@@ -97,6 +210,19 @@ lines:
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
   optional: true
+- id: vn_overrun_commissioning
+  description: Set the fan run-on for a room with no openable window
+  spec: 'Set and check the fan overrun: at least {extract_overrun_min} minutes after the room is left'
+  unit: item
+  quantity: '1'
+  kind: service
+  when: not openable_window
+  optional: true
+  provenance:
+  - source_title: Approved Document F Vol 1, 2021 edition (ventilation), Table 1.1
+    url: https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf
+    licence: OGL-3.0-unconfirmed
+    evidence_quality: standard
 rules:
 - id: extractor_fan
   requires:

@@ -1,8 +1,8 @@
 {
-  "format": "job-kit-ui/1",
+  "format": "job-kit-ui/2",
   "label": "synthetic/illustrative seed — not licensed data; tradesperson review required",
   "status": "needs_tradesperson_review",
-  "library_version": "0.2.0",
+  "library_version": "0.3.0",
   "market": "uk",
   "assumption_source": "default_template",
   "scope": {
@@ -12,13 +12,13 @@
     "scope": "wc_only",
     "title": "WC replacement",
     "description": "Replace one WC like for like (close-coupled) or with a wall-hung pan on a concealed frame. Separate WC replacement is its own line in council kitchen and bathroom programmes.",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "max_upfront_questions": 3,
   "upfront_questions": [
     "wc_type",
-    "soil_outlet",
-    "joint_system"
+    "pan_alignment",
+    "wc_height"
   ],
   "questions": [
     {
@@ -26,7 +26,7 @@
       "question": "WC type?",
       "type": "enum",
       "ask": "upfront",
-      "priority": 11,
+      "priority": 16,
       "default": "close_coupled",
       "options": [
         {
@@ -34,16 +34,74 @@
           "label": "Close-coupled (cistern on the pan)"
         },
         {
+          "value": "back_to_wall",
+          "label": "Back-to-wall pan with a concealed cistern"
+        },
+        {
           "value": "wall_hung",
           "label": "Wall-hung pan on a concealed frame"
         }
-      ]
+      ],
+      "help": "Close-coupled is the usual UK replacement. Back-to-wall and wall-hung hide the cistern and need boxing or a frame.",
+      "widget": "cards",
+      "reason_upfront": "Close-coupled, back-to-wall or wall-hung changes the pan, cistern, frame or unit and boxing lines.",
+      "unknown": null,
+      "impact": 16
+    },
+    {
+      "id": "pan_alignment",
+      "question": "Does the new pan outlet line up with the soil pipe?",
+      "type": "enum",
+      "ask": "upfront",
+      "priority": 3,
+      "default": "aligned",
+      "options": [
+        {
+          "value": "aligned",
+          "label": "Lines up (rigid connector)"
+        },
+        {
+          "value": "offset",
+          "label": "Offset (flexible connector)"
+        }
+      ],
+      "help": "If you are not sure, the kit uses a flexible connector, which fits either way.",
+      "widget": "segmented",
+      "reason_upfront": "Whether the outlet lines up decides a rigid or flexible connector; 'not sure' maps to flexible, which fits either way.",
+      "unknown": {
+        "label": "Not sure",
+        "maps_to": "offset"
+      },
+      "impact": 3
+    },
+    {
+      "id": "wc_height",
+      "question": "WC pan height?",
+      "type": "enum",
+      "ask": "upfront",
+      "priority": 2,
+      "default": "standard",
+      "options": [
+        {
+          "value": "standard",
+          "label": "Standard height (about 400 mm to the seat)"
+        },
+        {
+          "value": "comfort",
+          "label": "Comfort height (about 430-480 mm)"
+        }
+      ],
+      "help": "Comfort height suits taller or less mobile users. Applies to close-coupled pans.",
+      "widget": "segmented",
+      "reason_upfront": "Standard or comfort height changes the pan itself and matters for less mobile users.",
+      "unknown": null,
+      "impact": 2
     },
     {
       "id": "soil_outlet",
       "question": "Where does the soil pipe leave the pan position?",
       "type": "enum",
-      "ask": "upfront",
+      "ask": "on_review",
       "priority": 2,
       "default": "horizontal",
       "options": [
@@ -55,7 +113,12 @@
           "value": "vertical",
           "label": "Through the floor (vertical)"
         }
-      ]
+      ],
+      "help": null,
+      "widget": "segmented",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 2
     },
     {
       "id": "wall_type",
@@ -73,13 +136,18 @@
           "value": "stud",
           "label": "Stud (timber or metal frame)"
         }
-      ]
+      ],
+      "help": null,
+      "widget": "segmented",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 2
     },
     {
       "id": "joint_system",
       "question": "Pipe joint system for new pipework?",
       "type": "enum",
-      "ask": "upfront",
+      "ask": "on_review",
       "priority": 4,
       "default": "compression",
       "options": [
@@ -95,11 +163,51 @@
           "value": "solder",
           "label": "Solder-ring"
         }
-      ]
+      ],
+      "help": "Compression where joints stay exposed or must come apart, push-fit on concealed plastic runs; solder is the low-cost trade option.",
+      "widget": "segmented",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 4
+    },
+    {
+      "id": "finish_level",
+      "question": "Finish level?",
+      "type": "enum",
+      "ask": "on_review",
+      "priority": 10,
+      "default": "most_used",
+      "options": [
+        {
+          "value": "budget",
+          "label": "Budget"
+        },
+        {
+          "value": "most_used",
+          "label": "Standard"
+        },
+        {
+          "value": "premium",
+          "label": "Premium"
+        }
+      ],
+      "help": "Sets every line that has budget, standard and premium options at once. Each line stays changeable on the review screen. Paid extras stay off.",
+      "widget": "cards",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 10
     }
   ],
   "fixed_answers": {},
   "review_defaults": [
+    {
+      "kind": "question",
+      "key": "soil_outlet",
+      "label": "Where does the soil pipe leave the pan position?",
+      "default": "horizontal",
+      "default_label": "Through the wall (horizontal)",
+      "unit": null
+    },
     {
       "kind": "question",
       "key": "wall_type",
@@ -109,11 +217,99 @@
       "unit": null
     },
     {
+      "kind": "question",
+      "key": "joint_system",
+      "label": "Pipe joint system for new pipework?",
+      "default": "compression",
+      "default_label": "Compression",
+      "unit": null
+    },
+    {
+      "kind": "question",
+      "key": "finish_level",
+      "label": "Finish level?",
+      "default": "most_used",
+      "default_label": "Standard",
+      "unit": null
+    },
+    {
       "kind": "option",
       "key": "ff_pipe_15",
       "label": "Hot and cold supply pipe",
       "default": "copper",
       "default_label": "Copper",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "ff_iv_wc",
+      "label": "Isolating valves on the WC cistern feed(s)",
+      "default": "slotted",
+      "default_label": "Slotted isolating valve",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "sw_wc_pan_close_coupled",
+      "label": "Close-coupled WC pan",
+      "default": "rimless",
+      "default_label": "Rimless bowl",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "sw_wc_pan_connector",
+      "label": "WC pan connector for a horizontal soil outlet",
+      "default": "rigid",
+      "default_label": "Rigid connector",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "sw_wc_seat",
+      "label": "WC seat and cover",
+      "default": "soft_close",
+      "default_label": "Soft-close seat",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "cs_sanitary_silicone",
+      "label": "Sanitary silicone sealant",
+      "default": "anti_mould",
+      "default_label": "Branded anti-mould silicone",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "cs_thread_sealant",
+      "label": "Thread sealant for threaded joints",
+      "default": "ptfe",
+      "default_label": "PTFE tape",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "cs_fixings_solid",
+      "label": "Fixings for wall-mounted fittings in solid walls",
+      "default": "universal_plug",
+      "default_label": "Universal wall plugs",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "cs_fixings_stud",
+      "label": "Fixings for wall-mounted fittings in stud walls",
+      "default": "universal_plug",
+      "default_label": "Universal plugs (light loads)",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "dc_emulsion",
+      "label": "Emulsion for walls and ceiling",
+      "default": "bathroom_soft_sheen",
+      "default_label": "Bathroom soft sheen",
       "unit": null
     },
     {
@@ -194,7 +390,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "so_protection",
@@ -214,7 +412,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "so_remove_fittings",
@@ -240,7 +440,9 @@
               "licence": "OGL-3.0",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -263,44 +465,90 @@
             {
               "id": "copper",
               "label": "Copper",
-              "spec": "15 mm copper supply pipe",
-              "tags": [],
+              "spec": "15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder)",
+              "tags": [
+                "most_used"
+              ],
               "default": true,
               "provenance": [
                 {
-                  "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
-                  "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+                  "source_title": "Heating & Ventilating Review: installer pipe survey, copper preferred (2007)",
+                  "url": "https://www.heatingandventilating.net/pipes-and-fittings-survey-finds-copper-is-installers-choice",
                   "licence": "unknown-copyright-facts-only",
                   "evidence_quality": "public_spec"
-                },
-                {
-                  "source_title": "Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)",
-                  "url": "https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0",
-                  "licence": "manufacturer-doc-facts-only",
-                  "evidence_quality": "manufacturer_doc"
                 }
-              ]
+              ],
+              "evidence_grade": "D",
+              "why_default": "Copper is the traditional trade default for exposed runs; the only share data is a 2007 installer survey.",
+              "price_band": null
             },
             {
               "id": "plastic",
-              "label": "Plastic",
-              "spec": "15 mm plastic supply pipe, with pipe inserts where the pipe maker requires them",
-              "tags": [],
+              "label": "Plastic barrier pipe",
+              "spec": "15 mm plastic barrier pipe in a coil, with pipe inserts at every joint, for concealed runs",
+              "tags": [
+                "budget"
+              ],
               "default": false,
               "provenance": [
                 {
-                  "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
-                  "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+                  "source_title": "Screwfix PE-X barrier pipe 15 mm x 100 m coil (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/jg-speedfit-pe-x-barrier-pipe-15mm-x-100m/69170",
                   "licence": "unknown-copyright-facts-only",
-                  "evidence_quality": "public_spec"
+                  "evidence_quality": "retailer"
                 },
                 {
-                  "source_title": "Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)",
-                  "url": "https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0",
-                  "licence": "manufacturer-doc-facts-only",
-                  "evidence_quality": "manufacturer_doc"
+                  "source_title": "Screwfix PE-X barrier pipe 15 mm x 3 m, 10-pack (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/jg-speedfit-15bpex-10-3l-push-fit-pe-x-barrier-pipes-15mm-x-3m-white-10-pack/86066",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
                 }
-              ]
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "1.65",
+                "max": "1.85",
+                "currency": "GBP",
+                "per": "m",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "pb_demountable",
+              "label": "Demountable plastic barrier pipe",
+              "spec": "15 mm polybutylene barrier pipe with demountable push-fit joints, for concealed runs",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix polybutylene barrier pipe 15 mm x 3 m (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/hep2o-hxx03-15ws-push-fit-barrier-pipe-15mm-x-3m-white/6009f",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Screwfix polybutylene barrier pipe 15 mm x 3 m, 10-pack (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/hep2o-hxx03-15w-push-fit-polybutylene-barrier-pipes-15mm-x-3m-white-10-pack/5445f",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "2.69",
+                "max": "2.86",
+                "currency": "GBP",
+                "per": "m",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
             }
           ],
           "provenance": [
@@ -316,7 +564,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": "Plastic pipe must stay the maker's set distance from the boiler. Copper on exposed runs, plastic on concealed runs is common."
         },
         {
           "id": "ff_pipe_clips",
@@ -336,7 +586,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_fittings_compression",
@@ -362,7 +614,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_fittings_push_fit",
@@ -382,7 +636,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_fittings_solder",
@@ -402,7 +658,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_flux",
@@ -422,7 +680,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_iv_wc",
@@ -430,11 +690,61 @@
           "spec": "15 mm isolating valve, screwdriver-operated, compression or fibre-washer type",
           "unit": "nr",
           "quantity_formula": "1",
-          "when": "wc_type == 'close_coupled'",
+          "when": "wc_type != 'wall_hung'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "slotted",
+          "options": [
+            {
+              "id": "slotted",
+              "label": "Slotted isolating valve",
+              "spec": "15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated",
+              "tags": [
+                "budget",
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix 15 mm slotted full-bore isolating valve (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/flomasta-full-bore-isolating-valve-15mm/46860",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "The cheap screwdriver valve is the usual fitting under basins and WCs.",
+              "price_band": {
+                "min": "3.55",
+                "max": "3.55",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "lever",
+              "label": "Lever isolating valve",
+              "spec": "15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a tool",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "BES lever-operated 15 mm chrome isolating valve listing",
+                  "url": "https://www.bes.co.uk/lever-operated-isolating-valve-black-handle-15mm-chrome-23660",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
@@ -442,7 +752,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -457,11 +769,86 @@
           "spec": "Floor-standing close-coupled WC pan, horizontal outlet, with floor fixing kit",
           "unit": "nr",
           "quantity_formula": "1",
-          "when": "wc_type == 'close_coupled'",
+          "when": "wc_type == 'close_coupled' and wc_height == 'standard'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "rimless",
+          "options": [
+            {
+              "id": "standard",
+              "label": "Standard bowl",
+              "spec": "Floor-standing close-coupled WC pan with a standard rimmed bowl, horizontal outlet, floor fixing kit",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix compact rimless close-coupled toilet listing (promotional price, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/swirl-enz-soft-close-compact-rimless-toilet-with-cistern-dual-flush-4-5ltr/655cr",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Screwfix slim rimless close-coupled toilet listing (promotional price, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/swirl-caldew-soft-close-slim-vortex-rimless-toilet-with-cistern-dual-flush-4-5ltr/753CR",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "59.49",
+                "max": "76.49",
+                "currency": "GBP",
+                "per": "WC set (pan, cistern, seat)",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "rimless",
+              "label": "Rimless bowl",
+              "spec": "Floor-standing close-coupled WC pan with a rimless bowl, horizontal outlet, floor fixing kit",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct 2026)",
+                  "url": "https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Screwfix close-coupled rimless soft-close toilet listing (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/trade-soft-close-close-coupled-rimless-toilet-dual-flush-6-4ltr/165ch",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Screwfix close-coupled rimless toilet with thermoset seat listing (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/trade-soft-close-close-coupled-rimless-toilet-dual-flush-6-4ltr/876CH",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "Close-coupled is the usual UK WC, and about 132 of about 310 close-coupled pans at one retailer are rimless.",
+              "price_band": {
+                "min": "119",
+                "max": "139",
+                "currency": "GBP",
+                "per": "WC set (pan, cistern, seat)",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Armitage Shanks Contour 21 close-coupled WC suite data sheet",
@@ -475,7 +862,43 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": "Prices are for a whole set (pan, cistern and seat). Back-to-wall and wall-hung are chosen with the WC type question."
+        },
+        {
+          "id": "sw_wc_pan_comfort_height",
+          "description": "Comfort-height close-coupled WC pan",
+          "spec": "Floor-standing close-coupled WC pan, comfort height (seat about 430-480 mm), rimless bowl, horizontal outlet, floor fixing kit",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'close_coupled' and wc_height == 'comfort'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Bathroom Mountain guide to toilet heights",
+              "url": "https://www.bathroommountain.co.uk/inspiration-and-advice/toilet-heights",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            },
+            {
+              "source_title": "Durovin Bathrooms: is a comfort height toilet right for me",
+              "url": "https://www.durovinbathrooms.co.uk/blog/post/is-a-comfort-height-toilet-right-for-me",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            },
+            {
+              "source_title": "Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct 2026)",
+              "url": "https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_cistern",
@@ -501,7 +924,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_flush_lever",
@@ -521,7 +946,81 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
+        },
+        {
+          "id": "sw_wc_pan_back_to_wall",
+          "description": "Back-to-wall WC pan",
+          "spec": "Back-to-wall WC pan, horizontal outlet, floor fixing kit, to sit against a furniture unit or boxed-in wall",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'back_to_wall'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Wickes Siena bathroom range (close-coupled or back-to-wall pan, 500 mm basins)",
+              "url": "https://www.wickes.co.uk/bathroom/suites/siena",
+              "licence": "all-rights-reserved-facts-only",
+              "evidence_quality": "retailer"
+            },
+            {
+              "source_title": "Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct 2026)",
+              "url": "https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ],
+          "forced_by": null,
+          "help": null
+        },
+        {
+          "id": "sw_wc_concealed_cistern",
+          "description": "Concealed cistern with flush button",
+          "spec": "Concealed dual-flush cistern with fittings and a flush button or plate to suit",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'back_to_wall'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Wickes Siena bathroom range (close-coupled or back-to-wall pan, 500 mm basins)",
+              "url": "https://www.wickes.co.uk/bathroom/suites/siena",
+              "licence": "all-rights-reserved-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ],
+          "forced_by": null,
+          "help": null
+        },
+        {
+          "id": "sw_wc_btw_unit",
+          "description": "Furniture unit or boxing for the concealed cistern",
+          "spec": "Back-to-wall furniture unit, or framing and moisture-resistant board, with an access panel to the cistern",
+          "unit": "item",
+          "quantity_formula": "1",
+          "when": "wc_type == 'back_to_wall'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Wickes Siena bathroom range (close-coupled or back-to-wall pan, 500 mm basins)",
+              "url": "https://www.wickes.co.uk/bathroom/suites/siena",
+              "licence": "all-rights-reserved-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_pan_connector",
@@ -529,11 +1028,81 @@
           "spec": "Pan connector, 110 mm, straight or offset for a horizontal outlet (P trap); rigid where alignment allows",
           "unit": "nr",
           "quantity_formula": "1",
-          "when": "wc_type == 'close_coupled' and soil_outlet == 'horizontal'",
+          "when": "wc_type != 'wall_hung' and soil_outlet == 'horizontal' and pan_alignment == 'aligned'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "rigid",
+          "options": [
+            {
+              "id": "rigid",
+              "label": "Rigid connector",
+              "spec": "Rigid 110 mm pan connector, straight or small offset, to suit the soil outlet",
+              "tags": [
+                "budget",
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix rigid 20 mm offset pan connector (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/mcalpine-rigid-20mm-offset-toilet-pan-connector-white-120mm/3244p",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                },
+                {
+                  "source_title": "Screwfix pan connectors category (rigid and flexible prices, search snippet)",
+                  "url": "https://www.screwfix.com/c/bathrooms-kitchens/pan-connectors/cat2330023",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "A rigid connector is the usual choice where the pan and soil pipe line up.",
+              "price_band": {
+                "min": "8.23",
+                "max": "8.24",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "flexible",
+              "label": "Flexible connector",
+              "spec": "Flexible adjustable 110 mm pan connector",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix flexible straight adjustable WC connector (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/mcalpine-flexible-straight-adjustable-wc-connector-white-330-850mm/149CL",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                },
+                {
+                  "source_title": "Screwfix pan connectors category (rigid and flexible prices, search snippet)",
+                  "url": "https://www.screwfix.com/c/bathrooms-kitchens/pan-connectors/cat2330023",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "24.77",
+                "max": "28.00",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Armitage Shanks Contour 21 close-coupled WC suite data sheet",
@@ -553,7 +1122,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_pan_connector_vertical",
@@ -561,7 +1132,7 @@
           "spec": "Pan connector, 110 mm, to convert to an S trap or turned P trap",
           "unit": "nr",
           "quantity_formula": "1",
-          "when": "wc_type == 'close_coupled' and soil_outlet == 'vertical'",
+          "when": "wc_type != 'wall_hung' and soil_outlet == 'vertical' and pan_alignment == 'aligned'",
           "kind": null,
           "lookup": null,
           "default_option": null,
@@ -573,7 +1144,37 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
+        },
+        {
+          "id": "sw_wc_pan_connector_flexible",
+          "description": "Flexible WC pan connector where the outlet does not line up",
+          "spec": "Flexible adjustable 110 mm pan connector, long enough to reach the soil pipe",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type != 'wall_hung' and pan_alignment == 'offset'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Screwfix flexible straight adjustable WC connector (search snippet, Oct 2026)",
+              "url": "https://www.screwfix.com/p/mcalpine-flexible-straight-adjustable-wc-connector-white-330-850mm/149CL",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "search_snippet"
+            },
+            {
+              "source_title": "Screwfix pan connectors category (rigid and flexible prices, search snippet)",
+              "url": "https://www.screwfix.com/c/bathrooms-kitchens/pan-connectors/cat2330023",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "search_snippet"
+            }
+          ],
+          "forced_by": null,
+          "help": "Used when the outlet is offset or its position is not known."
         },
         {
           "id": "sw_wc_frame",
@@ -599,7 +1200,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_flush_plate",
@@ -625,7 +1228,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_pan_wall_hung",
@@ -651,7 +1256,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "search_snippet"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_seat",
@@ -662,8 +1269,49 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "soft_close",
+          "options": [
+            {
+              "id": "standard_close",
+              "label": "Standard seat",
+              "spec": "WC seat and cover to suit the pan, standard hinges",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct 2026)",
+                  "url": "https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            },
+            {
+              "id": "soft_close",
+              "label": "Soft-close seat",
+              "spec": "WC seat and cover to suit the pan, soft-close hinges",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct 2026)",
+                  "url": "https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "About 253 of the close-coupled WCs at one retailer have soft-close seats, against 48 with standard seats.",
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Armitage Shanks Contour 21 close-coupled WC suite data sheet",
@@ -677,7 +1325,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_frame_boxing",
@@ -697,7 +1347,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -715,8 +1367,91 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "anti_mould",
+          "options": [
+            {
+              "id": "own_brand",
+              "label": "Own-brand sanitary silicone",
+              "spec": "Sanitary silicone sealant with fungicide, white, 300 ml",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "B&Q sanitary sealant 300 ml listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/unibond-white-silicone-based-bathroom-kitchen-sanitary-sealant-300ml/1474132_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            },
+            {
+              "id": "anti_mould",
+              "label": "Branded anti-mould silicone",
+              "spec": "Anti-mould sanitary silicone sealant, white, 300 ml",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "B&Q sanitary sealant 300 ml listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/unibond-white-silicone-based-bathroom-kitchen-sanitary-sealant-300ml/1474132_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "A branded anti-mould white silicone is the usual retail pick; no ranks were found.",
+              "price_band": {
+                "min": "9",
+                "max": "13",
+                "currency": "GBP",
+                "per": "300 ml cartridge",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "enhanced",
+              "label": "Enhanced anti-mould silicone",
+              "spec": "Enhanced anti-mould or colour-matched sanitary silicone, 300 ml",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "B&Q enhanced sanitary sealant 300 ml listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/unibond-triple-protect-white-silicone-based-bathroom-kitchen-sanitary-sealant-300ml/1474147_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Mapei coloured grouts and sealants (product descriptions)",
+                  "url": "https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants",
+                  "licence": "manufacturer-doc-facts-only",
+                  "evidence_quality": "manufacturer_doc"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "15",
+                "max": "15",
+                "currency": "GBP",
+                "per": "300 ml cartridge",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Truly PVC: estimating silicone cartridge yield",
@@ -736,7 +1471,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "cs_clear_sealant_wc",
@@ -762,7 +1499,9 @@
               "licence": "all-rights-reserved-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "cs_thread_sealant",
@@ -773,8 +1512,56 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "ptfe",
+          "options": [
+            {
+              "id": "ptfe",
+              "label": "PTFE tape",
+              "spec": "Drinking-water approved PTFE tape, for threaded joints only",
+              "tags": [
+                "budget",
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Toolstation how-to: using PTFE tape on threaded joints",
+                  "url": "https://www.toolstation.com/help-and-advice/how-to-guides/how-to-use-ptfe-tape",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "DIYnot forum thread: no sealant on compression fittings (quoting the fitting maker)",
+                  "url": "https://www.diynot.com/diy/goto/post?id=1363418",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "forum"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "PTFE tape on threads is the usual default.",
+              "price_band": null
+            },
+            {
+              "id": "compound",
+              "label": "Jointing compound",
+              "spec": "Drinking-water approved non-setting jointing compound, for threaded joints",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "DIYnot forum thread: no sealant on compression fittings (quoting the fitting maker)",
+                  "url": "https://www.diynot.com/diy/goto/post?id=1363418",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "forum"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Mira Reflex bar valve installation guide 1196840-W2-C",
@@ -788,7 +1575,9 @@
               "licence": "all-rights-reserved-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": "Nothing goes on compression olives: the fitting makers advise against it."
         },
         {
           "id": "cs_plumbing_sundries",
@@ -808,7 +1597,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "cs_wc_packers",
@@ -816,7 +1607,7 @@
           "spec": "Plastic packers",
           "unit": "pack",
           "quantity_formula": "1",
-          "when": "wc_type == 'close_coupled'",
+          "when": "wc_type != 'wall_hung'",
           "kind": null,
           "lookup": null,
           "default_option": null,
@@ -828,7 +1619,9 @@
               "licence": "all-rights-reserved-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "cs_fixings_solid",
@@ -839,8 +1632,65 @@
           "when": "wall_type == 'solid'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "universal_plug",
+          "options": [
+            {
+              "id": "basic_plug",
+              "label": "Basic wall plugs",
+              "spec": "Plastic wall plugs 7 x 30 mm with stainless or zinc-plated screws",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix plasterboard wall plugs category (review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "9.29",
+                "max": "9.29",
+                "currency": "GBP",
+                "per": "pack of 300 plugs",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "universal_plug",
+              "label": "Universal wall plugs",
+              "spec": "Universal two-component wall plugs 6 x 30 mm and 8 x 40 mm with stainless or zinc-plated screws",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix plasterboard wall plugs category (review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "B",
+              "why_default": "Universal two-component plugs have the most reviews at one merchant.",
+              "price_band": {
+                "min": "4.99",
+                "max": "7.99",
+                "currency": "GBP",
+                "per": "pack of 100 plugs",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Mira Discovery bar mixer installation guide",
@@ -854,7 +1704,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "cs_fixings_stud",
@@ -865,8 +1717,65 @@
           "when": "wall_type == 'stud'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "universal_plug",
+          "options": [
+            {
+              "id": "universal_plug",
+              "label": "Universal plugs (light loads)",
+              "spec": "Universal two-component wall plugs that also grip in plasterboard, for light loads; screws into noggins for heavy items",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix plasterboard wall plugs category (review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "B",
+              "why_default": "The universal plug works in hollow walls and has the most reviews at one merchant.",
+              "price_band": {
+                "min": "4.99",
+                "max": "7.99",
+                "currency": "GBP",
+                "per": "pack of 100 plugs",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "heavy_cavity",
+              "label": "Heavy-duty cavity fixings",
+              "spec": "Heavy-duty universal plasterboard cavity fixings for higher loads",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix plasterboard wall plugs category (review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "12.19",
+                "max": "12.19",
+                "currency": "GBP",
+                "per": "pack of 10",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Mira Reflex bar valve installation guide 1196840-W2-C",
@@ -880,7 +1789,12 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Hollow (stud) walls need cavity-rated fixings, or screws into noggins.",
+            "source_url": "https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001"
+          },
+          "help": null
         }
       ]
     },
@@ -898,8 +1812,89 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "bathroom_soft_sheen",
+          "options": [
+            {
+              "id": "standard_soft_sheen",
+              "label": "Standard soft sheen",
+              "spec": "Standard soft sheen or vinyl silk emulsion, white",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "B&Q bathroom soft sheen emulsion 2.5 l listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/dulux-easycare-pure-brilliant-white-soft-sheen-emulsion-paint-2-5l/125825_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            },
+            {
+              "id": "bathroom_soft_sheen",
+              "label": "Bathroom soft sheen",
+              "spec": "Bathroom soft sheen emulsion, moisture and mould resistant, white",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "B&Q bathroom soft sheen emulsion 2.5 l listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/dulux-easycare-pure-brilliant-white-soft-sheen-emulsion-paint-2-5l/125825_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "B&Q bathroom soft sheen emulsion, colour, 2.5 l listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/dulux-easycare-bathroom-blush-pink-soft-sheen-emulsion-paint-2-5l/1914751_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Next Day Paint bathroom soft sheen emulsion listing (moisture and mould resistance)",
+                  "url": "https://nextdaypaint.co.uk/products/dulux-easycare-bathroom-soft-sheen-emulsion-paint",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "A bathroom-specific soft sheen is the usual retail pick for wet rooms.",
+              "price_band": {
+                "min": "24",
+                "max": "28",
+                "currency": "GBP",
+                "per": "2.5 l tin",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "anti_condensation",
+              "label": "Anti-condensation paint",
+              "spec": "Anti-condensation or specialist anti-mould bathroom paint",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "B&Q bathroom soft sheen emulsion 2.5 l listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/dulux-easycare-pure-brilliant-white-soft-sheen-emulsion-paint-2-5l/125825_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)",
@@ -919,7 +1914,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "dc_woodwork_paint",
@@ -945,7 +1942,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "dc_filler",
@@ -965,7 +1964,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "dc_sundries",
@@ -985,7 +1986,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -1012,7 +2015,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ws_rubble_sacks",
@@ -1032,7 +2037,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     }
@@ -1097,7 +2104,6 @@
       "id": "close_coupled_wc",
       "when": "wc_type == 'close_coupled'",
       "requires": [
-        "sw_wc_pan_close_coupled",
         "sw_wc_cistern",
         "sw_wc_seat",
         "sw_wc_flush_lever",
@@ -1108,7 +2114,26 @@
         "sw_wc_flush_plate",
         "sw_wc_pan_wall_hung"
       ],
-      "rationale": "A close-coupled suite is bought as pan, cistern, seat and lever, plus a pan connector chosen by the soil outlet and an isolating valve on the cistern feed."
+      "rationale": "A close-coupled WC needs a pan of the chosen height, its cistern, seat, flush lever and an isolating valve; no frame."
+    },
+    {
+      "id": "back_to_wall_wc",
+      "when": "wc_type == 'back_to_wall'",
+      "requires": [
+        "sw_wc_pan_back_to_wall",
+        "sw_wc_concealed_cistern",
+        "sw_wc_btw_unit",
+        "sw_wc_seat",
+        "ff_iv_wc"
+      ],
+      "excludes": [
+        "sw_wc_frame",
+        "sw_wc_flush_plate",
+        "sw_wc_pan_wall_hung",
+        "sw_wc_pan_close_coupled",
+        "sw_wc_cistern"
+      ],
+      "rationale": "A back-to-wall WC needs its pan, a concealed cistern with a flush button, a unit or boxing to hide it, a seat and an isolating valve; no frame."
     },
     {
       "id": "stud_wall_fixings",
@@ -1134,23 +2159,25 @@
     },
     {
       "id": "pan_connector_horizontal",
-      "when": "wc_type == 'close_coupled' and soil_outlet == 'horizontal'",
+      "when": "wc_type != 'wall_hung' and soil_outlet == 'horizontal' and pan_alignment == 'aligned'",
       "requires": [
         "sw_wc_pan_connector"
       ],
       "excludes": [
-        "sw_wc_pan_connector_vertical"
+        "sw_wc_pan_connector_vertical",
+        "sw_wc_pan_connector_flexible"
       ],
       "rationale": "The connector depends on the soil position: horizontal outlet to P trap."
     },
     {
       "id": "pan_connector_vertical",
-      "when": "wc_type == 'close_coupled' and soil_outlet == 'vertical'",
+      "when": "wc_type != 'wall_hung' and soil_outlet == 'vertical' and pan_alignment == 'aligned'",
       "requires": [
         "sw_wc_pan_connector_vertical"
       ],
       "excludes": [
-        "sw_wc_pan_connector"
+        "sw_wc_pan_connector",
+        "sw_wc_pan_connector_flexible"
       ],
       "rationale": "The connector depends on the soil position: S or turned P trap."
     },
@@ -1174,6 +2201,76 @@
       ],
       "excludes": [],
       "rationale": "Pan installation needs packers, silicone and PTFE."
+    },
+    {
+      "id": "back_to_wall_consumables",
+      "when": "wc_type == 'back_to_wall'",
+      "requires": [
+        "cs_wc_packers",
+        "cs_clear_sealant_wc",
+        "cs_thread_sealant"
+      ],
+      "excludes": [],
+      "rationale": "A back-to-wall pan is floor-fixed like a close-coupled pan: packers, silicone and PTFE."
+    },
+    {
+      "id": "pan_connector_offset",
+      "when": "wc_type != 'wall_hung' and pan_alignment == 'offset'",
+      "requires": [
+        "sw_wc_pan_connector_flexible"
+      ],
+      "excludes": [
+        "sw_wc_pan_connector",
+        "sw_wc_pan_connector_vertical"
+      ],
+      "rationale": "Where the outlet is offset or its position is not known, a flexible connector replaces the rigid one."
+    },
+    {
+      "id": "wc_height_standard",
+      "when": "wc_type == 'close_coupled' and wc_height == 'standard'",
+      "requires": [
+        "sw_wc_pan_close_coupled"
+      ],
+      "excludes": [
+        "sw_wc_pan_comfort_height"
+      ],
+      "rationale": "A standard-height close-coupled WC uses the standard pan."
+    },
+    {
+      "id": "wc_height_comfort",
+      "when": "wc_type == 'close_coupled' and wc_height == 'comfort'",
+      "requires": [
+        "sw_wc_pan_comfort_height"
+      ],
+      "excludes": [
+        "sw_wc_pan_close_coupled"
+      ],
+      "rationale": "A comfort-height close-coupled WC uses the comfort-height pan."
     }
+  ],
+  "finish_levels": [
+    {
+      "id": "budget",
+      "label": "Budget",
+      "description": "The cheapest option that still meets the rules, where the research found one. Lines without a budget option keep the standard pick."
+    },
+    {
+      "id": "most_used",
+      "label": "Standard",
+      "description": "The option the research found most used, and compliant. This is the default; it is labelled 'most used' only where the evidence grade is B or better."
+    },
+    {
+      "id": "premium",
+      "label": "Premium",
+      "description": "A higher-specification option where the research found one. Never pre-selected; paid add-ons stay off even at this level."
+    }
+  ],
+  "schema_changes": [
+    "job-kit-ui/2 is additive over job-kit-ui/1: every v1 field keeps its name and meaning.",
+    "Top level: finish_levels [{id, label, description}] and schema_changes [string].",
+    "Question: help, widget (cards|segmented|toggle|select), reason_upfront, unknown {label, maps_to} (answer \"unknown\" resolves to maps_to) and impact (equal to priority).",
+    "Line option: evidence_grade (A-D), why_default and price_band {min, max, currency, per, vat, observed_on, basis} (prices are dated observations, not quotes).",
+    "Line: forced_by {text, source_url} (a rule fixes this line; explain it, do not offer a choice) and help.",
+    "finish_level selects on every line with options the option tagged with that level if present (the line default when it carries the tag), otherwise the line default."
   ]
 }

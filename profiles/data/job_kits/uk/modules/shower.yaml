@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.shower
 module: shower
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Shower
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -17,7 +18,7 @@ lines:
   spec: Electric shower, rating per the shower_kw answer, mains cold feed only, 15 mm inlet
   unit: nr
   quantity: '1'
-  when: shower_type == 'electric'
+  when: shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')
   example_note: Head and hose are supplied with the units cited
   provenance:
   - source_title: Triton T70Z electric shower installation guide
@@ -33,13 +34,81 @@ lines:
     url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  options:
+  - id: basic
+    label: Basic electric shower
+    spec: Electric shower, rating per the shower_kw answer, mains cold feed only, 15 mm inlet; basic controls,
+      not thermostatic
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '79'
+      max: '112'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    example_note: e.g. entry models at one merchant
+    provenance:
+    - source_title: Wickes electric showers category (ratings, review counts, prices, Oct 2026)
+      url: https://www.wickes.co.uk/Products/Bathrooms/Showers-Enclosures/Showers/Electric-Showers/c/1001035
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+  - id: mid
+    label: Electric shower with phased shutdown
+    spec: Electric shower, rating per the shower_kw answer, mains cold feed only, 15 mm inlet; phased
+      shutdown and multi-entry cable and water inlets
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: Mid-range 8.5-9.5 kW units carry the most reviews at one merchant; sales evidence on
+      kW conflicts, so the rating follows the circuit.
+    price_band:
+      min: '109'
+      max: '250'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Wickes electric showers category (ratings, review counts, prices, Oct 2026)
+      url: https://www.wickes.co.uk/Products/Bathrooms/Showers-Enclosures/Showers/Electric-Showers/c/1001035
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+    - source_title: QS Supplies electric shower buying guide (8.5 kW and circuit sizes)
+      url: https://www.qssupplies.co.uk/how-to-choose-the-right-electric-shower-for-your-home.html
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: thermostatic
+    label: Thermostatic electric shower
+    spec: Thermostatic electric shower, rating per the shower_kw answer, mains cold feed only, 15 mm inlet
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '250'
+      max: '480'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Wickes electric showers category (ratings, review counts, prices, Oct 2026)
+      url: https://www.wickes.co.uk/Products/Bathrooms/Showers-Enclosures/Showers/Electric-Showers/c/1001035
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
 - id: sh_mixer_valve
   description: Thermostatic bar mixer valve
   spec: Thermostatic bar valve, {shower_valve_inlet_centres_mm} mm inlet centres with offset connectors,
     rated for the household water system pressure
   unit: nr
   quantity: '1'
-  when: shower_type == 'mixer'
+  when: shower_type == 'mixer' or (shower_type == 'auto' and hot_water_system in ('combi', 'unvented'))
   uniclass_pr:
     code: Pr_40_20_87_80
     title: Shower thermostatic valves
@@ -57,12 +126,90 @@ lines:
     url: https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf
     licence: unknown-copyright-facts-only
     evidence_quality: public_spec
+  options:
+  - id: own_brand_kit
+    label: Thermostatic bar valve kit, basic
+    spec: Thermostatic bar valve kit with riser, {shower_valve_inlet_centres_mm} mm inlet centres with
+      offset connectors, rated for the hot-water system pressure
+    tags:
+    - budget
+    default: false
+    price_band:
+      min: '59.49'
+      max: '69.99'
+      currency: GBP
+      per: kit
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix own-brand HP rear-fed thermostatic shower kit (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/swirl-bonda-hp-rear-fed-exposed-chrome-thermostatic-shower-kit/645XX?tc=VC1
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  - id: bar_riser
+    label: Thermostatic bar valve with riser
+    spec: Thermostatic bar valve with riser kit, {shower_valve_inlet_centres_mm} mm inlet centres with
+      offset connectors, rated for the hot-water system pressure
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: A branded thermostatic bar valve with riser is the usual refit on a combi or unvented
+      system; only prices, not ranks, were found.
+    price_band:
+      min: '109.99'
+      max: '119.99'
+      currency: GBP
+      per: kit
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix HP/Combi thermostatic bar mixer with riser kit (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/bristan-frenzy-hp-combi-flexible-exposed-chrome-plated-thermostatic-bar-mixer-shower-with-riser-kit/377ew
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+    - source_title: Screwfix rear-fed exposed thermostatic shower (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/highlife-bathrooms-nairn-series-2-rear-fed-exposed-chrome-thermostatic-shower/246HL
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  - id: bar_diverter_overhead
+    label: Thermostatic bar valve with overhead shower
+    spec: Thermostatic bar valve with diverter, riser and overhead shower, {shower_valve_inlet_centres_mm}
+      mm inlet centres, rated for the hot-water system pressure
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '219.99'
+      max: '219.99'
+      currency: GBP
+      per: kit
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix thermostatic bar mixer with riser and diverter (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/bristan-craze-rear-fed-exposed-chrome-thermostatic-bar-mixer-shower-with-adjustable-riser-kit-diverter/834rh
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  forced_by:
+    text: 'The valve must match the hot-water pressure: a high-pressure (combi) valve on a combi or unvented
+      system, a low-pressure valve or a pump on a gravity system. Never fit a power (pumped) shower to
+      a combi or unvented system.'
+    source:
+      source_title: United Utilities / LJMU, Water and Energy Efficient Showers project report (2007,
+        hosted by Waterwise)
+      url: https://database.waterwise.org.uk/wp-content/uploads/2019/09/United-Utilities_Water-and-Energy-Efficient-Showers_Project-Report.pdf
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
 - id: sh_riser_kit
   description: Riser rail, hose and handset (if not bundled with the valve)
   spec: Riser rail kit with hose and handset
   unit: nr
   quantity: '1'
-  when: shower_type == 'mixer'
+  when: shower_type == 'mixer' or (shower_type == 'auto' and hot_water_system in ('combi', 'unvented'))
   uniclass_pr:
     code: Pr_40_20_87_76
     title: Shower heads
@@ -76,6 +223,32 @@ lines:
     url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
+- id: sh_shower_pump
+  description: Shower pump for a mixer on a gravity system
+  spec: Twin-impeller shower pump sized for the valve, fed from the cylinder and cold tank; omit only
+    if a low-pressure-rated valve gives enough flow
+  unit: nr
+  quantity: '1'
+  when: hot_water_system == 'gravity' and shower_type == 'mixer'
+  provenance:
+  - source_title: United Utilities / LJMU, Water and Energy Efficient Showers project report (2007, hosted
+      by Waterwise)
+    url: https://database.waterwise.org.uk/wp-content/uploads/2019/09/United-Utilities_Water-and-Energy-Efficient-Showers_Project-Report.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  help: Gravity systems give low pressure. An electric shower avoids the pump.
+- id: sh_wet_room_panel
+  description: Fixed glass wet-room panel
+  spec: Fixed 8-10 mm toughened glass wet-room panel with wall profile and support arm
+  unit: nr
+  quantity: '1'
+  when: not adaptation
+  optional: true
+  provenance:
+  - source_title: 'Sanctuary Bathrooms: shower glass thickness 6 mm, 8 mm or 10 mm'
+    url: https://www.sanctuary-bathrooms.co.uk/blog/shower-glass-thickness-6mm-8mm-10mm
+    licence: unknown-copyright-facts-only
+    evidence_quality: retailer
 rules:
 - id: electric_shower
   when: shower_type == 'electric'
@@ -135,3 +308,72 @@ rules:
     url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
+- id: electric_shower_auto
+  when: shower_type == 'auto' and hot_water_system == 'gravity'
+  requires:
+  - sh_electric_unit
+  - el_shower_isolator
+  - el_shower_rcbo
+  - el_shower_cable
+  - el_part_p_notification
+  - ff_iv_shower_electric
+  excludes:
+  - sh_mixer_valve
+  - ff_iv_shower_mixer
+  - sh_shower_pump
+  rationale: With a gravity (or unknown) hot-water system the standard shower is electric, which needs
+    its own circuit and no hot feed.
+  provenance:
+  - source_title: United Utilities / LJMU, Water and Energy Efficient Showers project report (2007, hosted
+      by Waterwise)
+    url: https://database.waterwise.org.uk/wp-content/uploads/2019/09/United-Utilities_Water-and-Energy-Efficient-Showers_Project-Report.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+  - source_title: Triton T70Z electric shower installation guide
+    url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
+    licence: manufacturer-doc-facts-only
+    evidence_quality: manufacturer_doc
+- id: mixer_shower_auto
+  when: shower_type == 'auto' and hot_water_system in ('combi', 'unvented')
+  requires:
+  - sh_mixer_valve
+  - sh_riser_kit
+  - ff_iv_shower_mixer
+  - cs_thread_sealant
+  excludes:
+  - el_shower_isolator
+  - el_shower_rcbo
+  - el_shower_cable
+  - sh_electric_unit
+  - sh_shower_pump
+  rationale: With a combi or unvented system the standard shower is a thermostatic bar mixer; no shower
+    circuit and no pump.
+  provenance:
+  - source_title: United Utilities / LJMU, Water and Energy Efficient Showers project report (2007, hosted
+      by Waterwise)
+    url: https://database.waterwise.org.uk/wp-content/uploads/2019/09/United-Utilities_Water-and-Energy-Efficient-Showers_Project-Report.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: no_pump_on_pressurised_hot_water
+  when: hot_water_system in ('combi', 'unvented')
+  excludes:
+  - sh_shower_pump
+  rationale: A shower pump or power shower must not be fitted to a combi boiler or an unvented cylinder.
+  provenance:
+  - source_title: United Utilities / LJMU, Water and Energy Efficient Showers project report (2007, hosted
+      by Waterwise)
+    url: https://database.waterwise.org.uk/wp-content/uploads/2019/09/United-Utilities_Water-and-Energy-Efficient-Showers_Project-Report.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec
+- id: gravity_mixer_needs_pump
+  when: hot_water_system == 'gravity' and shower_type == 'mixer'
+  requires:
+  - sh_shower_pump
+  - sh_mixer_valve
+  rationale: A mixer on a gravity system needs a pump (or a low-pressure valve, which the line notes).
+  provenance:
+  - source_title: United Utilities / LJMU, Water and Energy Efficient Showers project report (2007, hosted
+      by Waterwise)
+    url: https://database.waterwise.org.uk/wp-content/uploads/2019/09/United-Utilities_Water-and-Energy-Efficient-Showers_Project-Report.pdf
+    licence: unknown-copyright-facts-only
+    evidence_quality: public_spec

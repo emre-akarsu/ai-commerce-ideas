@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.decorating
 module: decorating
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Decorating
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -31,6 +32,58 @@ lines:
     url: https://www.duluxtradepaintexpert.co.uk/en/products/dulux-trade-vinyl-matt
     licence: manufacturer-doc-facts-only
     evidence_quality: manufacturer_doc
+  options:
+  - id: standard_soft_sheen
+    label: Standard soft sheen
+    spec: Standard soft sheen or vinyl silk emulsion, white
+    tags:
+    - budget
+    default: false
+    provenance:
+    - source_title: B&Q bathroom soft sheen emulsion 2.5 l listing (Oct 2026)
+      url: https://www.diy.com/departments/dulux-easycare-pure-brilliant-white-soft-sheen-emulsion-paint-2-5l/125825_BQ.prd
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: bathroom_soft_sheen
+    label: Bathroom soft sheen
+    spec: Bathroom soft sheen emulsion, moisture and mould resistant, white
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: A bathroom-specific soft sheen is the usual retail pick for wet rooms.
+    price_band:
+      min: '24'
+      max: '28'
+      currency: GBP
+      per: 2.5 l tin
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: B&Q bathroom soft sheen emulsion 2.5 l listing (Oct 2026)
+      url: https://www.diy.com/departments/dulux-easycare-pure-brilliant-white-soft-sheen-emulsion-paint-2-5l/125825_BQ.prd
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: B&Q bathroom soft sheen emulsion, colour, 2.5 l listing (Oct 2026)
+      url: https://www.diy.com/departments/dulux-easycare-bathroom-blush-pink-soft-sheen-emulsion-paint-2-5l/1914751_BQ.prd
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Next Day Paint bathroom soft sheen emulsion listing (moisture and mould resistance)
+      url: https://nextdaypaint.co.uk/products/dulux-easycare-bathroom-soft-sheen-emulsion-paint
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: anti_condensation
+    label: Anti-condensation paint
+    spec: Anti-condensation or specialist anti-mould bathroom paint
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: B&Q bathroom soft sheen emulsion 2.5 l listing (Oct 2026)
+      url: https://www.diy.com/departments/dulux-easycare-pure-brilliant-white-soft-sheen-emulsion-paint-2-5l/125825_BQ.prd
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: dc_woodwork_paint
   description: Undercoat and gloss for woodwork
   spec: Undercoat and gloss

@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.partition
 module: partition
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: New stud partition
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -26,6 +27,51 @@ lines:
     url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
     licence: unknown-copyright-facts-only
     evidence_quality: retailer
+  options:
+  - id: cls_38x63
+    label: 38 x 63 mm studs
+    spec: Regularised C16 studwork timber 38 x 63 mm at {stud_centres_mm} mm centres, cut to partition
+      height
+    tags:
+    - budget
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: 38 x 63 mm regularised timber is the usual domestic stud for a light partition.
+    price_band:
+      min: '3.40'
+      max: '3.85'
+      currency: GBP
+      per: 2.4 m length
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Wickes CLS studwork timber 38 x 63 x 2400 mm (Oct 2026)
+      url: https://www.wickes.co.uk/p/107177
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+    - source_title: 'Harlow Bros: what size timber to use for studwork'
+      url: https://www.harlowbros.co.uk/blog/post/what-size-timber-should-i-use-for-studwork
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: cls_38x89
+    label: 38 x 89 mm studs
+    spec: Regularised C16 studwork timber 38 x 89 mm at {stud_centres_mm} mm centres, for a taller wall
+      or one carrying a basin or WC frame
+    tags: []
+    default: false
+    provenance:
+    - source_title: Wickes CLS studwork timber 38 x 89 x 2400 mm
+      url: https://www2.wickes.co.uk/Wickes-Studwork-CLS-Timber---38-x-89-x-2400mm/p/107713
+      licence: all-rights-reserved-facts-only
+      evidence_quality: retailer
+    - source_title: 'Harlow Bros: what size timber to use for studwork'
+      url: https://www.harlowbros.co.uk/blog/post/what-size-timber-should-i-use-for-studwork
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  help: Metal C-studs are a common alternative but need their own track, screws and fixings, so this kit
+    does not offer them.
 - id: nw_plates
   description: Head and sole plates
   spec: Timber to match studs, head and sole plates
@@ -96,6 +142,14 @@ lines:
     url: https://www.british-gypsum.com/technical-support/self-help-tools/faqs/what-are-screw-fixing-centres-partitions-ceilings-encasements
     licence: manufacturer-doc-facts-only
     evidence_quality: search_snippet
+  forced_by:
+    text: Bathroom walls and ceilings outside the splash zone use moisture-resistant board. Inside the
+      shower zone, tiles go on a backer board (see waterproofing).
+    source:
+      source_title: Materials Market 12.5 mm moisture-resistant tapered-edge board listing
+      url: https://materialsmarket.com/products/12-5mm-gyproc-moisture-resistant-board-tapered-edge-plasterboard-2400mm-x-1200mm
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: nw_board_screws
   description: Plasterboard screws
   spec: Drywall screws 25-38 mm for timber studs
@@ -114,6 +168,47 @@ lines:
     url: https://www.screwfix.com/guides/building-doors/carpentry-timber/how-to-build-a-stud-wall
     licence: unknown-copyright-facts-only
     evidence_quality: retailer
+  options:
+  - id: coarse_38
+    label: Loose drywall screws
+    spec: Drywall screws 3.5 x 38 mm, bugle head, coarse thread, for 12.5 mm board on timber studs
+    tags:
+    - most_used
+    default: true
+    evidence_grade: B
+    why_default: The top-selling plasterboard screws at one merchant, by review count.
+    price_band:
+      min: '7.49'
+      max: '8.98'
+      currency: GBP
+      per: pack of 1000
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix plasterboard screws category (bestseller order and review counts, Oct 2026)
+      url: https://www.screwfix.com/c/screws-nails-fixings/plasterboard-screws/cat840050
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: collated_38
+    label: Collated drywall screws
+    spec: Collated drywall screws 3.5 x 38 mm on a strip, for an autofeed screwdriver
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '18.29'
+      max: '18.99'
+      currency: GBP
+      per: pack of 1000
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix collated 3.5 x 38 mm drywall screws, 1000-pack (search snippet)
+      url: https://www.screwfix.com/p/easydrive-phillips-bugle-fine-twin-thread-collated-thread-forming-drywall-screws-3-5mm-x-38mm-1000-pack/11657
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
 - id: nw_insulation
   description: Acoustic insulation between studs
   spec: Mineral wool partition roll to suit stud depth

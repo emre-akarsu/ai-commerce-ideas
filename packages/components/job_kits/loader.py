@@ -19,9 +19,16 @@ from typing import Any
 import yaml
 
 from .formula import FormulaError, check_condition, check_formula, formula_names
+from .impact import question_impact
 from .model import (
     ASK_MODES,
+    EVIDENCE_GRADES,
+    FINISH_LEVEL_QUESTION,
+    FINISH_LEVELS,
     OPTION_TAGS,
+    PRICE_BASIS,
+    UNKNOWN_ANSWER,
+    WIDGETS,
     Allowance,
     Derived,
     KitError,
@@ -31,6 +38,7 @@ from .model import (
     Module,
     Question,
     QuestionOption,
+    QuestionUnknown,
     Rule,
     Scope,
     ScopeModule,
@@ -39,7 +47,10 @@ from .model import (
 
 LINE_OVERRIDE_FIELDS = frozenset({"description", "spec", "unit", "quantity", "when", "kind",
                                   "provenance", "uniclass_pr", "etim_class", "example_note",
-                                  "spec_lookup", "default_option"})
+                                  "spec_lookup", "default_option", "forced_by", "help",
+                                  "option_spec_note"})
+PRICE_BAND_FIELDS = frozenset({"min", "max", "currency", "per", "vat", "observed_on", "basis"})
+PRICE_OBSERVED_ON = "2026-10-06"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -95,12 +106,44 @@ def parse_question(qid: str, raw: Mapping[str, Any]) -> Question:
     _require("default" in raw and raw["default"] in values and isinstance(raw["default"], expect),
              f"question {qid}: default must be one of its options")
     _require(str(raw.get("question", "")).strip() != "", f"question {qid}: no question text")
-    return Question(qid, qtype, raw["question"], options, raw["default"])  # type: ignore[arg-type]
+    widget = raw.get("widget")
+    _require(widget is None or widget in WIDGETS, f"question {qid}: widget must be in {WIDGETS}")
+    unknown = _parse_unknown(qid, raw.get("unknown"), values, expect)
+    if qid == FINISH_LEVEL_QUESTION:
+        _require(qtype == "enum" and tuple(values) == FINISH_LEVELS,
+                 f"question {qid}: values must be {FINISH_LEVELS}")
+    return Question(qid, qtype, raw["question"], options, raw["default"],  # type: ignore[arg-type]
+                    help=_text_or_none(raw.get("help")), widget=widget, unknown=unknown)
+
+
+def _text_or_none(value: Any) -> str | None:
+    text = str(value).strip() if value is not None else ""
+    return text or None
+
+
+def _parse_unknown(qid: str, raw: Mapping[str, Any] | None, values: list[Any],
+                   expect: type) -> QuestionUnknown | None:
+    if raw is None:
+        return None
+    label = str(raw.get("label", "")).strip()
+    maps_to = raw.get("maps_to")
+    _require(bool(label), f"question {qid}: unknown needs a label")
+    _require(maps_to in values and isinstance(maps_to, expect),
+             f"question {qid}: unknown.maps_to must be one of its options")
+    _require(UNKNOWN_ANSWER not in values, f"question {qid}: {UNKNOWN_ANSWER!r} is reserved")
+    return QuestionUnknown(label, maps_to)  # type: ignore[arg-type]  # checked above
 
 
 def valid_answer(q: Question, value: Any) -> bool:
     expect = bool if q.type == "bool" else str
     return isinstance(value, expect) and value in q.values
+
+
+def map_unknown(q: Question, value: Any) -> Any:
+    """The answer the resolver uses: "unknown" becomes the question's unknown.maps_to."""
+    if q.unknown is not None and isinstance(value, str) and value == UNKNOWN_ANSWER:
+        return q.unknown.maps_to
+    return value
 
 
 # --------------------------------------------------------------------------- lines and modules
@@ -110,17 +153,68 @@ def parse_options(line_id: str, raw: Iterable[Mapping[str, Any]]) -> tuple[LineO
     options = tuple(LineOption(
         id=o["id"], label=str(o.get("label", "")).strip(), spec=str(o.get("spec", "")).strip(),
         tags=tuple(o.get("tags") or ()), default=o.get("default") is True,
-        provenance=tuple(o.get("provenance") or ())) for o in raw)
+        provenance=tuple(o.get("provenance") or ()),
+        evidence_grade=o.get("evidence_grade"), why_default=_text_or_none(o.get("why_default")),
+        price_band=parse_price_band(f"{line_id}.{o['id']}", o.get("price_band")),
+        example_note=o.get("example_note")) for o in raw)
     if not options:
         return ()
     ids = [o.id for o in options]
     _require(len(ids) >= 2 and len(ids) == len(set(ids)), f"{line_id}: option ids")
     _require(sum(o.default for o in options) == 1, f"{line_id}: exactly one default option")
     for o in options:
-        _require(bool(o.label and o.spec), f"{line_id}.{o.id}: label and spec required")
-        _require(set(o.tags) <= OPTION_TAGS, f"{line_id}.{o.id}: tags must be in {OPTION_TAGS}")
-        _require(bool(o.provenance), f"{line_id}.{o.id}: provenance required")
+        where = f"{line_id}.{o.id}"
+        _require(bool(o.label and o.spec), f"{where}: label and spec required")
+        _require(set(o.tags) <= OPTION_TAGS, f"{where}: tags must be in {OPTION_TAGS}")
+        _require(bool(o.provenance), f"{where}: provenance required")
+        _require(o.evidence_grade is None or o.evidence_grade in EVIDENCE_GRADES,
+                 f"{where}: evidence_grade must be one of {sorted(EVIDENCE_GRADES)}")
+    check_default_option(line_id, options)
     return options
+
+
+def check_default_option(line_id: str, options: tuple[LineOption, ...]) -> None:
+    """The default is never premium; where an option is tagged most_used, the default is one."""
+    default = next(o for o in options if o.default)
+    _require("premium" not in default.tags, f"{line_id}: a premium option cannot be the default")
+    if any("most_used" in o.tags for o in options):
+        _require("most_used" in default.tags, f"{line_id}: the default must be tagged most_used")
+        _require(default.evidence_grade is not None and default.why_default is not None,
+                 f"{line_id}: a most_used default needs evidence_grade and why_default")
+
+
+def parse_price_band(where: str, raw: Mapping[str, Any] | None) -> dict[str, Any] | None:
+    """Observed retail prices (R5: Decimal strings with explicit currency, VAT basis and unit)."""
+    if raw is None:
+        return None
+    _require(set(raw) == PRICE_BAND_FIELDS, f"{where}: price_band fields {sorted(raw)}")
+    _require(all(isinstance(raw[k], str) for k in PRICE_BAND_FIELDS),
+             f"{where}: price_band values must be strings")
+    low, high = to_decimal(raw["min"], f"{where}.min"), to_decimal(raw["max"], f"{where}.max")
+    _require(Decimal(0) < low <= high, f"{where}: price_band needs 0 < min <= max")
+    _require(raw["currency"] == "GBP" and raw["vat"] in {"inc", "ex"},
+             f"{where}: price_band currency GBP and vat inc or ex")
+    _require(raw["observed_on"] == PRICE_OBSERVED_ON and raw["basis"] == PRICE_BASIS,
+             f"{where}: price_band observed_on and basis")
+    _require(bool(raw["per"].strip()), f"{where}: price_band per")
+    return {k: raw[k] for k in ("min", "max", "currency", "per", "vat", "observed_on", "basis")}
+
+
+PROVENANCE_FIELDS = frozenset({"source_title", "url", "licence", "evidence_quality"})
+
+
+def parse_forced_by(line_id: str, raw: Mapping[str, Any] | None
+                    ) -> tuple[dict[str, str] | None, tuple[dict[str, Any], ...]]:
+    """`forced_by: {text, source: {source_title, url, licence, evidence_quality}}` in YAML;
+    the line keeps {text, source_url} and the source as its own provenance entry."""
+    if raw is None:
+        return None, ()
+    _require(set(raw) == {"text", "source"}, f"{line_id}: forced_by needs text and source")
+    source = raw["source"]
+    _require(isinstance(source, Mapping) and PROVENANCE_FIELDS <= set(source),
+             f"{line_id}: forced_by.source needs {sorted(PROVENANCE_FIELDS)}")
+    _require(bool(str(raw["text"]).strip()), f"{line_id}: forced_by text")
+    return {"text": str(raw["text"]).strip(), "source_url": source["url"]}, (dict(source),)
 
 
 def parse_line(raw: Mapping[str, Any], module_id: str) -> Line:
@@ -129,13 +223,16 @@ def parse_line(raw: Mapping[str, Any], module_id: str) -> Line:
     _require(bool(raw.get("provenance")), f"{lid}: provenance required")
     options = parse_options(lid, raw.get("options") or ())
     default = next((o.id for o in options if o.default), None)
-    return Line(
+    line = Line(
         id=lid, module=module_id, description=raw["description"], spec=raw["spec"],
         unit=raw["unit"], quantity=raw["quantity"], provenance=tuple(raw["provenance"]),
         when=raw.get("when"), kind=raw.get("kind"), uniclass_pr=raw.get("uniclass_pr"),
         etim_class=raw.get("etim_class"), example_note=raw.get("example_note"),
         spec_lookup=raw.get("spec_lookup"), options=options, default_option=default,
-        with_module=tuple(raw.get("with_module") or ()), optional=raw.get("optional") is True)
+        with_module=tuple(raw.get("with_module") or ()), optional=raw.get("optional") is True,
+        help=_text_or_none(raw.get("help")))
+    forced, source = parse_forced_by(lid, raw.get("forced_by"))
+    return dataclasses.replace(line, forced_by=forced, forced_provenance=source)
 
 
 def parse_rule(raw: Mapping[str, Any], origin: str) -> Rule:
@@ -167,12 +264,36 @@ def apply_override(line: Line, override: Mapping[str, Any]) -> Line:
     if "provenance" in changes:
         changes["provenance"] = tuple(changes["provenance"])
     if "default_option" in changes:
-        _require(changes["default_option"] in [o.id for o in line.options],
+        chosen = changes["default_option"]
+        _require(chosen in [o.id for o in line.options],
                  f"{line.id}: default_option must be one of its options")
+        options = tuple(dataclasses.replace(o, default=o.id == chosen) for o in line.options)
+        check_default_option(line.id, options)
+        changes["options"] = options
+    note = changes.pop("option_spec_note", None)
+    if note is not None:
+        _require(bool(line.options), f"{line.id}: option_spec_note needs options")
+        changes["options"] = tuple(dataclasses.replace(o, spec=f"{o.spec}; {note}")
+                                   for o in changes.get("options", line.options))
+    if "forced_by" in changes:
+        changes["forced_by"], changes["forced_provenance"] = parse_forced_by(
+            line.id, changes["forced_by"])
     return dataclasses.replace(line, **changes)
 
 
-def scope_lines(module: Module, entry: Mapping[str, Any], included: set[str]) -> tuple[Line, ...]:
+def context_when(line: Line, module_whens: Mapping[str, str | None]) -> str | None:
+    """A with_module line is active while any of its included with_module modules is active."""
+    if not line.with_module:
+        return None
+    whens = [module_whens[m] for m in line.with_module if m in module_whens]
+    if any(w is None for w in whens):
+        return None
+    return " or ".join(f"({w})" for w in whens) if len(whens) > 1 else whens[0]
+
+
+def scope_lines(module: Module, entry: Mapping[str, Any],
+                module_whens: Mapping[str, str | None]) -> tuple[Line, ...]:
+    included = set(module_whens)
     overrides: Mapping[str, Any] = entry.get("overrides") or {}
     include = set(entry.get("include_lines") or ())
     known = {x.id for x in module.lines}
@@ -185,15 +306,17 @@ def scope_lines(module: Module, entry: Mapping[str, Any], included: set[str]) ->
             continue
         if line.optional and line.id not in include:
             continue
-        out.append(apply_override(line, overrides.get(line.id) or {}))
+        line = apply_override(line, overrides.get(line.id) or {})
+        out.append(dataclasses.replace(line, context_when=context_when(line, module_whens)))
     return tuple(out)
 
 
-def merge_rules(modules: Iterable[Module], scope_rules: Iterable[Rule]) -> tuple[Rule, ...]:
+def merge_rules(modules: Iterable[Module], scope_rules: Iterable[Rule],
+                module_whens: Mapping[str, str | None]) -> tuple[Rule, ...]:
     rules: dict[str, Rule] = {}
     for module in modules:
         for r in module.rules:
-            rules[r.id] = r
+            rules[r.id] = dataclasses.replace(r, module_when=module_whens[module.id])
     for r in scope_rules:
         rules[r.id] = r  # a scope rule with the same id replaces the module rule in place
     return tuple(rules.values())
@@ -208,7 +331,11 @@ def scope_questions(raw: Iterable[Mapping[str, Any]], bank: Mapping[str, Questio
         question = bank[q["id"]]
         default = q.get("default", question.default)
         _require(valid_answer(question, default), f"{sid}.{q['id']}: invalid default")
-        out.append(ScopeQuestion(question, q["ask"], int(q.get("priority", 0)), default))
+        reason = _text_or_none(q.get("reason_upfront"))
+        _require(q["ask"] != "upfront" or reason is not None,
+                 f"{sid}.{q['id']}: an upfront question needs reason_upfront")
+        _require("priority" not in q, f"{sid}.{q['id']}: priority is computed (impact)")
+        out.append(ScopeQuestion(question, q["ask"], 0, default, reason))
     ids = [q.id for q in out]
     _require(len(ids) == len(set(ids)), f"{sid}: duplicate questions")
     upfront = sum(q.ask == "upfront" for q in out)
@@ -257,10 +384,11 @@ def parse_scope(path: Path, meta: Mapping[str, Any], bank: Mapping[str, Question
     sid = raw["scope_id"]
     _require(path.stem == sid == f"{raw['job_type']}_{raw['scope']}", f"{path.name}: scope id")
     entries = raw.get("modules") or []
-    included = {e["module"] for e in entries}
-    _require(included <= set(modules), f"{sid}: unknown modules {included - set(modules)}")
+    module_whens = {e["module"]: e.get("when") for e in entries}
+    _require(set(module_whens) <= set(modules),
+             f"{sid}: unknown modules {set(module_whens) - set(modules)}")
     smods = tuple(ScopeModule(e["module"], e.get("title", modules[e["module"]].title),
-                              e.get("when"), scope_lines(modules[e["module"]], e, included))
+                              e.get("when"), scope_lines(modules[e["module"]], e, module_whens))
                   for e in entries)
     ids = [x.id for m in smods for x in m.lines]
     _require(len(ids) == len(set(ids)), f"{sid}: a line appears in two modules")
@@ -284,7 +412,8 @@ def parse_scope(path: Path, meta: Mapping[str, Any], bank: Mapping[str, Question
                                   int(meta["max_upfront_questions"]), sid),
         fixed_answers=dict(raw.get("fixed_answers") or {}), measurements=measurements,
         allowances=allowances, derived=reachable_derived(lines, derived, shadowed, sid),
-        modules=smods, rules=merge_rules((modules[e["module"]] for e in entries), scope_rules))
+        modules=smods,
+        rules=merge_rules((modules[e["module"]] for e in entries), scope_rules, module_whens))
 
 
 def _measurement_meta(meta: Mapping[str, Any], mid: str) -> dict[str, str]:
@@ -327,12 +456,12 @@ def validate_scope(scope: Scope, bank: Mapping[str, Question], parameters: Mappi
                 check_condition(m.when, domains)
             for x in m.lines:
                 check_formula(x.quantity, names)
-                if x.when:
-                    check_condition(x.when, domains)
+                if x.effective_when:
+                    check_condition(x.effective_when, domains)
                 _check_lookup(x, domains, lookups, sid)
         for r in scope.rules:
-            if r.when:
-                check_condition(r.when, domains)
+            if r.effective_when:
+                check_condition(r.effective_when, domains)
     except FormulaError as exc:
         raise KitError(f"{sid}: {exc}") from exc
     line_ids = {x.id for m in scope.modules for x in m.lines}
@@ -353,12 +482,24 @@ def _check_lookup(line: Line, domains: Mapping[str, tuple[Any, ...]],
     _require(set(domains[lk["key"]]) <= set(table["rows"]), f"{sid}.{line.id}: lookup rows")
 
 
+def with_impact(scope: Scope) -> Scope:
+    """Set each question's priority to its impact (see impact.py)."""
+    questions = tuple(dataclasses.replace(q, priority=question_impact(scope, q.id))
+                      for q in scope.questions)
+    return dataclasses.replace(scope, questions=questions)
+
+
 # --------------------------------------------------------------------------- entry point
 
 
 def load_library_data(path: str | Path) -> LibraryData:
     root = Path(path)
     meta = read_yaml(root / "library.yaml")
+    levels = meta.get("finish_levels") or []
+    _require([f.get("id") for f in levels] == list(FINISH_LEVELS)
+             and all(str(f.get("label", "")).strip() and str(f.get("description", "")).strip()
+                     for f in levels),
+             f"library.yaml: finish_levels must be {FINISH_LEVELS} with label and description")
     params_raw = read_yaml(root / meta.get("parameters_file", "parameters.yaml"))
     parameters = {k: to_decimal(v["value"], f"parameters.{k}")
                   for k, v in params_raw["parameters"].items()}
@@ -373,5 +514,5 @@ def load_library_data(path: str | Path) -> LibraryData:
         for name in jt["scopes"]:
             scope = parse_scope(root / "scopes" / f"{job_type}_{name}.yaml", meta, bank, modules)
             validate_scope(scope, bank, parameters, lookups)
-            scopes[scope.scope_id] = scope
+            scopes[scope.scope_id] = with_impact(scope)
     return LibraryData(root, meta, parameters, lookups, bank, modules, scopes)

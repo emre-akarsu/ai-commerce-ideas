@@ -1,8 +1,8 @@
 {
-  "format": "job-kit-ui/1",
+  "format": "job-kit-ui/2",
   "label": "synthetic/illustrative seed — not licensed data; tradesperson review required",
   "status": "needs_tradesperson_review",
-  "library_version": "0.2.0",
+  "library_version": "0.3.0",
   "market": "uk",
   "assumption_source": "default_template",
   "scope": {
@@ -12,20 +12,99 @@
     "scope": "wet_room",
     "title": "Wet room / level-access shower conversion",
     "description": "Replace a bath with a level-access shower in a wet room: former and gully laid to falls, tanked floor and shower walls, slip-resistant floor, grab rails, WC and wall-hung basin. Structure follows one council DFG level-access specification; requirement items follow Approved Document M (M4(3) where it applies) and council OT guidance.",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "max_upfront_questions": 3,
   "upfront_questions": [
-    "layout_change",
-    "wc_type",
-    "shower_type"
+    "floor_construction",
+    "adaptation",
+    "hot_water_system"
   ],
   "questions": [
+    {
+      "id": "floor_construction",
+      "question": "Floor construction under the shower?",
+      "type": "enum",
+      "ask": "upfront",
+      "priority": 2,
+      "default": "timber",
+      "options": [
+        {
+          "value": "timber",
+          "label": "Timber joists"
+        },
+        {
+          "value": "concrete",
+          "label": "Concrete"
+        }
+      ],
+      "help": "Timber floors need a supported deck under the former and flexible adhesive. If unsure, the kit assumes timber.",
+      "widget": "segmented",
+      "reason_upfront": "A timber or concrete floor changes the former support, the deck and the adhesive class; 'don't know' maps to timber, the stricter case.",
+      "unknown": {
+        "label": "Don't know",
+        "maps_to": "timber"
+      },
+      "impact": 2
+    },
+    {
+      "id": "adaptation",
+      "question": "Is this an adaptation for a disabled or older user?",
+      "type": "bool",
+      "ask": "upfront",
+      "priority": 6,
+      "default": true,
+      "options": [
+        {
+          "value": false,
+          "label": "No, a standard wet room"
+        },
+        {
+          "value": true,
+          "label": "Yes, an adapted wet room (Approved Document M M4(3) items)"
+        }
+      ],
+      "help": "Adds grab rails, wall reinforcement, a curtain in place of glass and a thermostatic blending valve on the basin.",
+      "widget": "toggle",
+      "reason_upfront": "An adaptation switches on the Approved Document M items (rails, wall reinforcement, blending valve, curtain) and changes about a dozen lines.",
+      "unknown": null,
+      "impact": 6
+    },
+    {
+      "id": "hot_water_system",
+      "question": "How is hot water supplied?",
+      "type": "enum",
+      "ask": "upfront",
+      "priority": 10,
+      "default": "gravity",
+      "options": [
+        {
+          "value": "combi",
+          "label": "Combi boiler (no hot-water tank)"
+        },
+        {
+          "value": "unvented",
+          "label": "Unvented cylinder (mains pressure)"
+        },
+        {
+          "value": "gravity",
+          "label": "Tank in the loft (gravity)"
+        }
+      ],
+      "help": "This sets the shower type and the valve pressure rating. If you do not know, the kit assumes a gravity system and an electric shower, which fits any home but needs an electrician.",
+      "widget": "cards",
+      "reason_upfront": "The hot-water system decides the shower type and valve pressure rating, and a wrong guess is a compliance failure; 'don't know' maps safely to an electric shower.",
+      "unknown": {
+        "label": "Don't know",
+        "maps_to": "gravity"
+      },
+      "impact": 10
+    },
     {
       "id": "layout_change",
       "question": "Is the layout changing (new stud partition, moved fittings)?",
       "type": "bool",
-      "ask": "upfront",
+      "ask": "on_review",
       "priority": 9,
       "default": false,
       "options": [
@@ -37,14 +116,19 @@
           "value": true,
           "label": "Yes, new partition or moved fittings"
         }
-      ]
+      ],
+      "help": null,
+      "widget": "toggle",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 9
     },
     {
       "id": "wc_type",
       "question": "WC type?",
       "type": "enum",
-      "ask": "upfront",
-      "priority": 11,
+      "ask": "on_review",
+      "priority": 14,
       "default": "close_coupled",
       "options": [
         {
@@ -52,19 +136,32 @@
           "label": "Close-coupled (cistern on the pan)"
         },
         {
+          "value": "back_to_wall",
+          "label": "Back-to-wall pan with a concealed cistern"
+        },
+        {
           "value": "wall_hung",
           "label": "Wall-hung pan on a concealed frame"
         }
-      ]
+      ],
+      "help": "Close-coupled is the usual UK replacement. Back-to-wall and wall-hung hide the cistern and need boxing or a frame.",
+      "widget": "cards",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 14
     },
     {
       "id": "shower_type",
       "question": "Shower type?",
       "type": "enum",
-      "ask": "upfront",
-      "priority": 9,
-      "default": "electric",
+      "ask": "on_review",
+      "priority": 10,
+      "default": "auto",
       "options": [
+        {
+          "value": "auto",
+          "label": "Standard for my hot water (mixer on a combi or unvented cylinder, electric otherwise)"
+        },
         {
           "value": "electric",
           "label": "Electric shower"
@@ -73,7 +170,12 @@
           "value": "mixer",
           "label": "Mixer shower (hot and cold feeds)"
         }
-      ]
+      ],
+      "help": "An electric shower heats cold mains water, so it suits any home. A mixer needs a valve rated for the hot-water pressure.",
+      "widget": "segmented",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 10
     },
     {
       "id": "shower_kw",
@@ -111,7 +213,12 @@
           "value": "10.5",
           "label": "10.5 kW"
         }
-      ]
+      ],
+      "help": "Match the existing circuit. 8.5 kW usually runs on 6 mm2 cable and a 40 A breaker; 9.5 kW and above usually needs 10 mm2 and 45 A. An electrician confirms.",
+      "widget": "select",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 2
     },
     {
       "id": "wall_type",
@@ -129,7 +236,12 @@
           "value": "stud",
           "label": "Stud (timber or metal frame)"
         }
-      ]
+      ],
+      "help": null,
+      "widget": "segmented",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 3
     },
     {
       "id": "joint_system",
@@ -151,25 +263,12 @@
           "value": "solder",
           "label": "Solder-ring"
         }
-      ]
-    },
-    {
-      "id": "floor_construction",
-      "question": "Floor construction under the shower?",
-      "type": "enum",
-      "ask": "on_review",
-      "priority": 2,
-      "default": "timber",
-      "options": [
-        {
-          "value": "timber",
-          "label": "Timber joists"
-        },
-        {
-          "value": "concrete",
-          "label": "Concrete"
-        }
-      ]
+      ],
+      "help": "Compression where joints stay exposed or must come apart, push-fit on concealed plastic runs; solder is the low-cost trade option.",
+      "widget": "segmented",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 4
     },
     {
       "id": "drainage",
@@ -187,7 +286,12 @@
           "value": "pumped",
           "label": "Pumped"
         }
-      ]
+      ],
+      "help": null,
+      "widget": "segmented",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 2
     },
     {
       "id": "floor_finish",
@@ -205,7 +309,12 @@
           "value": "tiled",
           "label": "Floor tiles"
         }
-      ]
+      ],
+      "help": null,
+      "widget": "segmented",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 6
     },
     {
       "id": "shower_seat",
@@ -223,7 +332,12 @@
           "value": true,
           "label": "Fit a fold-down seat"
         }
-      ]
+      ],
+      "help": null,
+      "widget": "toggle",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 1
     },
     {
       "id": "replace_radiator",
@@ -241,13 +355,69 @@
           "value": true,
           "label": "Replace with a low surface temperature radiator"
         }
-      ]
+      ],
+      "help": null,
+      "widget": "toggle",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 3
+    },
+    {
+      "id": "finish_level",
+      "question": "Finish level?",
+      "type": "enum",
+      "ask": "on_review",
+      "priority": 30,
+      "default": "most_used",
+      "options": [
+        {
+          "value": "budget",
+          "label": "Budget"
+        },
+        {
+          "value": "most_used",
+          "label": "Standard"
+        },
+        {
+          "value": "premium",
+          "label": "Premium"
+        }
+      ],
+      "help": "Sets every line that has budget, standard and premium options at once. Each line stays changeable on the review screen. Paid extras stay off.",
+      "widget": "cards",
+      "reason_upfront": null,
+      "unknown": null,
+      "impact": 30
     }
   ],
   "fixed_answers": {
     "basin_mount": "wall_hung"
   },
   "review_defaults": [
+    {
+      "kind": "question",
+      "key": "layout_change",
+      "label": "Is the layout changing (new stud partition, moved fittings)?",
+      "default": false,
+      "default_label": "No, same layout",
+      "unit": null
+    },
+    {
+      "kind": "question",
+      "key": "wc_type",
+      "label": "WC type?",
+      "default": "close_coupled",
+      "default_label": "Close-coupled (cistern on the pan)",
+      "unit": null
+    },
+    {
+      "kind": "question",
+      "key": "shower_type",
+      "label": "Shower type?",
+      "default": "auto",
+      "default_label": "Standard for my hot water (mixer on a combi or unvented cylinder, electric otherwise)",
+      "unit": null
+    },
     {
       "kind": "question",
       "key": "shower_kw",
@@ -270,14 +440,6 @@
       "label": "Pipe joint system for new pipework?",
       "default": "compression",
       "default_label": "Compression",
-      "unit": null
-    },
-    {
-      "kind": "question",
-      "key": "floor_construction",
-      "label": "Floor construction under the shower?",
-      "default": "timber",
-      "default_label": "Timber joists",
       "unit": null
     },
     {
@@ -313,11 +475,115 @@
       "unit": null
     },
     {
+      "kind": "question",
+      "key": "finish_level",
+      "label": "Finish level?",
+      "default": "most_used",
+      "default_label": "Standard",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "nw_studs",
+      "label": "Timber studs for the new partition",
+      "default": "cls_38x63",
+      "default_label": "38 x 63 mm studs",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "nw_board_screws",
+      "label": "Plasterboard screws",
+      "default": "coarse_38",
+      "default_label": "Loose drywall screws",
+      "unit": null
+    },
+    {
       "kind": "option",
       "key": "ff_pipe_15",
       "label": "Hot and cold supply pipe",
       "default": "copper",
       "default_label": "Copper",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "ff_iv_basin",
+      "label": "Isolating valves on the basin feed(s)",
+      "default": "slotted",
+      "default_label": "Slotted isolating valve",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "ff_iv_wc",
+      "label": "Isolating valves on the WC cistern feed(s)",
+      "default": "slotted",
+      "default_label": "Slotted isolating valve",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "ff_iv_shower_mixer",
+      "label": "Isolating valves on the shower mixer feed(s)",
+      "default": "slotted",
+      "default_label": "Slotted isolating valve",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "ff_iv_shower_electric",
+      "label": "Isolating valves on the electric shower feed(s)",
+      "default": "slotted",
+      "default_label": "Slotted isolating valve",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "ff_waste_32",
+      "label": "Basin waste pipe",
+      "default": "solvent_weld",
+      "default_label": "Solvent-weld waste",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "el_light",
+      "label": "Bathroom ceiling light",
+      "default": "ip65_fire_rated",
+      "default_label": "Fire-rated IP65 downlight",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "wp_tanking_kit",
+      "label": "Liquid tanking kit for shower walls (and floor in a wet room)",
+      "default": "liquid_kit",
+      "default_label": "Liquid tanking kit",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "tl_wall_tiles",
+      "label": "Wall tiles",
+      "default": "standard_300x600",
+      "default_label": "Standard tiles",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "tl_wall_adhesive",
+      "label": "Wall tile adhesive",
+      "default": "flexible_s1",
+      "default_label": "Flexible S1 powder",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "tl_wall_grout",
+      "label": "Wall grout",
+      "default": "flexible",
+      "default_label": "Flexible mould-resistant grout",
       "unit": null
     },
     {
@@ -330,10 +596,58 @@
     },
     {
       "kind": "option",
+      "key": "tl_floor_tiles",
+      "label": "Floor tiles",
+      "default": "porcelain_600",
+      "default_label": "Porcelain 600 x 600 mm",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "tl_floor_adhesive",
+      "label": "Floor tile adhesive",
+      "default": "flexible_s1",
+      "default_label": "Flexible S1 powder",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "tl_floor_grout",
+      "label": "Floor grout",
+      "default": "flexible",
+      "default_label": "Flexible mould-resistant grout",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "sw_wc_pan_close_coupled",
+      "label": "Close-coupled WC pan",
+      "default": "rimless",
+      "default_label": "Rimless bowl",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "sw_wc_pan_connector",
+      "label": "WC pan connector to the 110 mm soil",
+      "default": "rigid",
+      "default_label": "Rigid connector",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "sw_wc_seat",
+      "label": "WC seat and cover",
+      "default": "soft_close",
+      "default_label": "Soft-close seat",
+      "unit": null
+    },
+    {
+      "kind": "option",
       "key": "sw_basin_taps",
       "label": "Basin taps or basin mixer",
-      "default": "pillar_pair",
-      "default_label": "Pair of pillar taps",
+      "default": "mixer",
+      "default_label": "Basin mixer",
       "unit": null
     },
     {
@@ -342,6 +656,86 @@
       "label": "Basin trap",
       "default": "bottle",
       "default_label": "Bottle trap",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "sw_tap_connectors",
+      "label": "Flexible tap connectors",
+      "default": "braided",
+      "default_label": "Braided connectors",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "sh_electric_unit",
+      "label": "Electric shower unit with head and hose",
+      "default": "mid",
+      "default_label": "Electric shower with phased shutdown",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "sh_mixer_valve",
+      "label": "Thermostatic bar mixer valve",
+      "default": "bar_riser",
+      "default_label": "Thermostatic bar valve with riser",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "vn_fan",
+      "label": "Extractor fan with run-on timer",
+      "default": "humidistat_timer",
+      "default_label": "Axial fan with humidistat and timer",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "vn_duct",
+      "label": "Extract duct",
+      "default": "rigid_short_flex",
+      "default_label": "Rigid duct with short flexible end",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "cs_sanitary_silicone",
+      "label": "Sanitary silicone sealant",
+      "default": "anti_mould",
+      "default_label": "Branded anti-mould silicone",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "cs_thread_sealant",
+      "label": "Thread sealant for threaded joints",
+      "default": "ptfe",
+      "default_label": "PTFE tape",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "cs_fixings_solid",
+      "label": "Fixings for wall-mounted fittings in solid walls",
+      "default": "universal_plug",
+      "default_label": "Universal wall plugs",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "cs_fixings_stud",
+      "label": "Fixings for wall-mounted fittings in stud walls",
+      "default": "universal_plug",
+      "default_label": "Universal plugs (light loads)",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "dc_emulsion",
+      "label": "Emulsion for walls and ceiling",
+      "default": "bathroom_soft_sheen",
+      "default_label": "Bathroom soft sheen",
       "unit": null
     },
     {
@@ -487,6 +881,14 @@
       "default": "6",
       "default_label": "6 m2",
       "unit": "m2"
+    },
+    {
+      "kind": "allowance",
+      "key": "light_points",
+      "label": "Ceiling lights",
+      "default": "3",
+      "default_label": "3 nr",
+      "unit": "nr"
     }
   ],
   "measurements": [
@@ -646,7 +1048,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "so_protection",
@@ -666,7 +1070,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "so_remove_fittings",
@@ -692,7 +1098,9 @@
               "licence": "OGL-3.0",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -710,8 +1118,68 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "cls_38x63",
+          "options": [
+            {
+              "id": "cls_38x63",
+              "label": "38 x 63 mm studs",
+              "spec": "Regularised C16 studwork timber 38 x 63 mm at 600 mm centres, cut to partition height",
+              "tags": [
+                "budget",
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Wickes CLS studwork timber 38 x 63 x 2400 mm (Oct 2026)",
+                  "url": "https://www.wickes.co.uk/p/107177",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Harlow Bros: what size timber to use for studwork",
+                  "url": "https://www.harlowbros.co.uk/blog/post/what-size-timber-should-i-use-for-studwork",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "38 x 63 mm regularised timber is the usual domestic stud for a light partition.",
+              "price_band": {
+                "min": "3.40",
+                "max": "3.85",
+                "currency": "GBP",
+                "per": "2.4 m length",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "cls_38x89",
+              "label": "38 x 89 mm studs",
+              "spec": "Regularised C16 studwork timber 38 x 89 mm at 600 mm centres, for a taller wall or one carrying a basin or WC frame",
+              "tags": [],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Wickes CLS studwork timber 38 x 89 x 2400 mm",
+                  "url": "https://www2.wickes.co.uk/Wickes-Studwork-CLS-Timber---38-x-89-x-2400mm/p/107713",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Harlow Bros: what size timber to use for studwork",
+                  "url": "https://www.harlowbros.co.uk/blog/post/what-size-timber-should-i-use-for-studwork",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Screwfix guide: how to build a stud wall",
@@ -719,7 +1187,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": "Metal C-studs are a common alternative but need their own track, screws and fixings, so this kit does not offer them."
         },
         {
           "id": "nw_plates",
@@ -739,7 +1209,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "nw_noggins",
@@ -759,7 +1231,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "nw_timber_screws",
@@ -779,7 +1253,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "nw_board",
@@ -805,7 +1281,12 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "search_snippet"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Bathroom walls and ceilings outside the splash zone use moisture-resistant board. Inside the shower zone, tiles go on a backer board (see waterproofing).",
+            "source_url": "https://materialsmarket.com/products/12-5mm-gyproc-moisture-resistant-board-tapered-edge-plasterboard-2400mm-x-1200mm"
+          },
+          "help": null
         },
         {
           "id": "nw_board_screws",
@@ -816,8 +1297,65 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "coarse_38",
+          "options": [
+            {
+              "id": "coarse_38",
+              "label": "Loose drywall screws",
+              "spec": "Drywall screws 3.5 x 38 mm, bugle head, coarse thread, for 12.5 mm board on timber studs",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix plasterboard screws category (bestseller order and review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/screws-nails-fixings/plasterboard-screws/cat840050",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "B",
+              "why_default": "The top-selling plasterboard screws at one merchant, by review count.",
+              "price_band": {
+                "min": "7.49",
+                "max": "8.98",
+                "currency": "GBP",
+                "per": "pack of 1000",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "collated_38",
+              "label": "Collated drywall screws",
+              "spec": "Collated drywall screws 3.5 x 38 mm on a strip, for an autofeed screwdriver",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix collated 3.5 x 38 mm drywall screws, 1000-pack (search snippet)",
+                  "url": "https://www.screwfix.com/p/easydrive-phillips-bugle-fine-twin-thread-collated-thread-forming-drywall-screws-3-5mm-x-38mm-1000-pack/11657",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "18.29",
+                "max": "18.99",
+                "currency": "GBP",
+                "per": "pack of 1000",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "British Gypsum FAQ: screw fixing centres (search snippet; page 403 when fetched)",
@@ -831,7 +1369,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "nw_insulation",
@@ -851,7 +1391,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "nw_joint_tape",
@@ -871,7 +1413,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "nw_jointing_compound",
@@ -891,7 +1435,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "search_snippet"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -930,7 +1476,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "dr_gully_trap",
@@ -950,7 +1498,9 @@
               "licence": "OGL-3.0",
               "evidence_quality": "standard"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "dr_waste_pipe",
@@ -976,7 +1526,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "dr_timber_support",
@@ -996,7 +1548,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "dr_screed",
@@ -1016,7 +1570,9 @@
               "licence": "OGL-3.0",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "dr_pump",
@@ -1042,7 +1598,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "dr_pump_supply",
@@ -1062,7 +1620,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -1085,44 +1645,90 @@
             {
               "id": "copper",
               "label": "Copper",
-              "spec": "15 mm copper supply pipe",
-              "tags": [],
+              "spec": "15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder)",
+              "tags": [
+                "most_used"
+              ],
               "default": true,
               "provenance": [
                 {
-                  "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
-                  "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+                  "source_title": "Heating & Ventilating Review: installer pipe survey, copper preferred (2007)",
+                  "url": "https://www.heatingandventilating.net/pipes-and-fittings-survey-finds-copper-is-installers-choice",
                   "licence": "unknown-copyright-facts-only",
                   "evidence_quality": "public_spec"
-                },
-                {
-                  "source_title": "Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)",
-                  "url": "https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0",
-                  "licence": "manufacturer-doc-facts-only",
-                  "evidence_quality": "manufacturer_doc"
                 }
-              ]
+              ],
+              "evidence_grade": "D",
+              "why_default": "Copper is the traditional trade default for exposed runs; the only share data is a 2007 installer survey.",
+              "price_band": null
             },
             {
               "id": "plastic",
-              "label": "Plastic",
-              "spec": "15 mm plastic supply pipe, with pipe inserts where the pipe maker requires them",
-              "tags": [],
+              "label": "Plastic barrier pipe",
+              "spec": "15 mm plastic barrier pipe in a coil, with pipe inserts at every joint, for concealed runs",
+              "tags": [
+                "budget"
+              ],
               "default": false,
               "provenance": [
                 {
-                  "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
-                  "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+                  "source_title": "Screwfix PE-X barrier pipe 15 mm x 100 m coil (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/jg-speedfit-pe-x-barrier-pipe-15mm-x-100m/69170",
                   "licence": "unknown-copyright-facts-only",
-                  "evidence_quality": "public_spec"
+                  "evidence_quality": "retailer"
                 },
                 {
-                  "source_title": "Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)",
-                  "url": "https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0",
-                  "licence": "manufacturer-doc-facts-only",
-                  "evidence_quality": "manufacturer_doc"
+                  "source_title": "Screwfix PE-X barrier pipe 15 mm x 3 m, 10-pack (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/jg-speedfit-15bpex-10-3l-push-fit-pe-x-barrier-pipes-15mm-x-3m-white-10-pack/86066",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
                 }
-              ]
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "1.65",
+                "max": "1.85",
+                "currency": "GBP",
+                "per": "m",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "pb_demountable",
+              "label": "Demountable plastic barrier pipe",
+              "spec": "15 mm polybutylene barrier pipe with demountable push-fit joints, for concealed runs",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix polybutylene barrier pipe 15 mm x 3 m (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/hep2o-hxx03-15ws-push-fit-barrier-pipe-15mm-x-3m-white/6009f",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Screwfix polybutylene barrier pipe 15 mm x 3 m, 10-pack (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/hep2o-hxx03-15w-push-fit-polybutylene-barrier-pipes-15mm-x-3m-white-10-pack/5445f",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "2.69",
+                "max": "2.86",
+                "currency": "GBP",
+                "per": "m",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
             }
           ],
           "provenance": [
@@ -1138,7 +1744,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": "Plastic pipe must stay the maker's set distance from the boiler. Copper on exposed runs, plastic on concealed runs is common."
         },
         {
           "id": "ff_pipe_clips",
@@ -1158,7 +1766,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_fittings_compression",
@@ -1184,7 +1794,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_fittings_push_fit",
@@ -1204,7 +1816,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_fittings_solder",
@@ -1224,7 +1838,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_flux",
@@ -1244,7 +1860,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_iv_basin",
@@ -1255,8 +1873,58 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "slotted",
+          "options": [
+            {
+              "id": "slotted",
+              "label": "Slotted isolating valve",
+              "spec": "15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated",
+              "tags": [
+                "budget",
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix 15 mm slotted full-bore isolating valve (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/flomasta-full-bore-isolating-valve-15mm/46860",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "The cheap screwdriver valve is the usual fitting under basins and WCs.",
+              "price_band": {
+                "min": "3.55",
+                "max": "3.55",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "lever",
+              "label": "Lever isolating valve",
+              "spec": "15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a tool",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "BES lever-operated 15 mm chrome isolating valve listing",
+                  "url": "https://www.bes.co.uk/lever-operated-isolating-valve-black-handle-15mm-chrome-23660",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
@@ -1270,7 +1938,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_iv_wc",
@@ -1278,11 +1948,61 @@
           "spec": "15 mm isolating valve, screwdriver-operated, compression or fibre-washer type",
           "unit": "nr",
           "quantity_formula": "1",
-          "when": "wc_type == 'close_coupled'",
+          "when": "wc_type != 'wall_hung'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "slotted",
+          "options": [
+            {
+              "id": "slotted",
+              "label": "Slotted isolating valve",
+              "spec": "15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated",
+              "tags": [
+                "budget",
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix 15 mm slotted full-bore isolating valve (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/flomasta-full-bore-isolating-valve-15mm/46860",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "The cheap screwdriver valve is the usual fitting under basins and WCs.",
+              "price_band": {
+                "min": "3.55",
+                "max": "3.55",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "lever",
+              "label": "Lever isolating valve",
+              "spec": "15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a tool",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "BES lever-operated 15 mm chrome isolating valve listing",
+                  "url": "https://www.bes.co.uk/lever-operated-isolating-valve-black-handle-15mm-chrome-23660",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
@@ -1290,7 +2010,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_iv_shower_mixer",
@@ -1298,11 +2020,61 @@
           "spec": "15 mm isolating valve, screwdriver-operated, compression or fibre-washer type",
           "unit": "nr",
           "quantity_formula": "2",
-          "when": "shower_type == 'mixer'",
+          "when": "shower_type == 'mixer' or (shower_type == 'auto' and hot_water_system in ('combi', 'unvented'))",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "slotted",
+          "options": [
+            {
+              "id": "slotted",
+              "label": "Slotted isolating valve",
+              "spec": "15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated",
+              "tags": [
+                "budget",
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix 15 mm slotted full-bore isolating valve (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/flomasta-full-bore-isolating-valve-15mm/46860",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "The cheap screwdriver valve is the usual fitting under basins and WCs.",
+              "price_band": {
+                "min": "3.55",
+                "max": "3.55",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "lever",
+              "label": "Lever isolating valve",
+              "spec": "15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a tool",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "BES lever-operated 15 mm chrome isolating valve listing",
+                  "url": "https://www.bes.co.uk/lever-operated-isolating-valve-black-handle-15mm-chrome-23660",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Mira Reflex bar valve installation guide 1196840-W2-C",
@@ -1316,7 +2088,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_iv_shower_electric",
@@ -1324,11 +2098,61 @@
           "spec": "15 mm isolating valve, screwdriver-operated, compression or fibre-washer type",
           "unit": "nr",
           "quantity_formula": "1",
-          "when": "shower_type == 'electric'",
+          "when": "shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "slotted",
+          "options": [
+            {
+              "id": "slotted",
+              "label": "Slotted isolating valve",
+              "spec": "15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated",
+              "tags": [
+                "budget",
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix 15 mm slotted full-bore isolating valve (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/flomasta-full-bore-isolating-valve-15mm/46860",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "The cheap screwdriver valve is the usual fitting under basins and WCs.",
+              "price_band": {
+                "min": "3.55",
+                "max": "3.55",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "lever",
+              "label": "Lever isolating valve",
+              "spec": "15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a tool",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "BES lever-operated 15 mm chrome isolating valve listing",
+                  "url": "https://www.bes.co.uk/lever-operated-isolating-valve-black-handle-15mm-chrome-23660",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Triton T70Z electric shower installation guide",
@@ -1342,7 +2166,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_waste_32",
@@ -1353,8 +2179,61 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "solvent_weld",
+          "options": [
+            {
+              "id": "solvent_weld",
+              "label": "Solvent-weld waste",
+              "spec": "32 mm solvent-weld waste pipe (ABS or PVC-U) and fittings",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "JDP: push-fit vs solvent weld waste",
+                  "url": "https://www.jdpipes.co.uk/knowledge/above-ground/push-fit-vs-solvent-weld.html",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Gutter Supplies: push-fit and solvent weld waste pipes explained",
+                  "url": "https://guttersupplies.co.uk/soil-and-waste/push-fit-and-solvent-weld-waste-pipes-explaining-the-differences",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "Trade guides call solvent weld the professional default, and it suits runs that could be knocked.",
+              "price_band": null
+            },
+            {
+              "id": "push_fit",
+              "label": "Push-fit waste",
+              "spec": "32 mm push-fit polypropylene waste pipe and ring-seal fittings",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "JDP: push-fit vs solvent weld waste",
+                  "url": "https://www.jdpipes.co.uk/knowledge/above-ground/push-fit-vs-solvent-weld.html",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Gutter Supplies: push-fit and solvent weld waste pipes explained",
+                  "url": "https://guttersupplies.co.uk/soil-and-waste/push-fit-and-solvent-weld-waste-pipes-explaining-the-differences",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Summary of Approved Document H trap and pipe sizes (drainagepipe.co.uk; secondary)",
@@ -1362,7 +2241,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ff_waste_fittings",
@@ -1382,7 +2263,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -1396,12 +2279,95 @@
           "description": "Bathroom ceiling light",
           "spec": "Sealed ceiling luminaire rated for the bathroom zone (dust and splash proof), LED",
           "unit": "nr",
-          "quantity_formula": "1",
+          "quantity_formula": "light_points",
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "ip65_fire_rated",
+          "options": [
+            {
+              "id": "basic_downlight",
+              "label": "Fire-rated downlight, basic",
+              "spec": "Fixed fire-rated LED downlight, IP65, about 5 W",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix fire-rated IP65 LED downlight 5 W listing (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/luceco-ftype-essence-flat-fixed-cylinder-fire-rated-led-downlight-white-5w-515lm/253kl",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "6.00",
+                "max": "6.00",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "ip65_fire_rated",
+              "label": "Fire-rated IP65 downlight",
+              "spec": "Fixed fire-rated LED downlight, IP65, 6-7 W, warm white or selectable colour temperature",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix fire-rated IP65 LED downlight 6 W listing (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/saxby-cosmoseco-v3-fixed-fire-rated-led-recessed-downlight-white-6w-500lm/150RE",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Screwfix fire-rated colour-selectable LED downlight 7 W listing (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/4lite-fixed-fire-rated-led-cct-downlight-matt-white-7w-640-730lm/516GG",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "Fire-rated IP65 downlights cover zone 1 and a ceiling with a room or loft above; the pick rests on merchant listings, not sales data.",
+              "price_band": {
+                "min": "7.00",
+                "max": "8.59",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "zone1_premium",
+              "label": "Zone 1 downlight, 30/60/90 min",
+              "spec": "Fixed fire-rated LED downlight for zone 1, IP65, rated for 30, 60 or 90 minute ceilings",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix zone 1 fire-rated (30/60/90 min) LED downlight listing",
+                  "url": "https://www.screwfix.com/p/collingwood-h2-lite-500-fixed-fire-rated-led-downlight-matt-white-5w-500lm/791KR",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)",
@@ -1415,7 +2381,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": "The number of downlights is an allowance you can change on review."
         },
         {
           "id": "el_fan_isolator",
@@ -1435,7 +2403,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "el_fan_cable",
@@ -1455,7 +2425,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "el_shower_isolator",
@@ -1463,7 +2435,7 @@
           "spec": "45 A double-pole isolating switch, contact gap at least 3 mm in both poles, mechanical OFF indicator, wired without plug or socket (pull-cord with neon is common)",
           "unit": "nr",
           "quantity_formula": "1",
-          "when": "shower_type == 'electric'",
+          "when": "shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')",
           "kind": null,
           "lookup": null,
           "default_option": null,
@@ -1487,7 +2459,12 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Electric shower circuits need 30 mA RCD protection, a 45 A double-pole isolator and a breaker and cable sized for the kW rating; work in a bathroom is notifiable.",
+            "source_url": "https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf"
+          },
+          "help": null
         },
         {
           "id": "el_shower_rcbo",
@@ -1495,7 +2472,7 @@
           "spec": "30 mA RCD protection with an MCB rated per the lookup row (an RCBO does both)",
           "unit": "nr",
           "quantity_formula": "1",
-          "when": "shower_type == 'electric'",
+          "when": "shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')",
           "kind": null,
           "lookup": {
             "table": "electric_shower_circuit",
@@ -1516,7 +2493,12 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Electric shower circuits need 30 mA RCD protection, a 45 A double-pole isolator and a breaker and cable sized for the kW rating; work in a bathroom is notifiable.",
+            "source_url": "https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf"
+          },
+          "help": null
         },
         {
           "id": "el_shower_cable",
@@ -1524,7 +2506,7 @@
           "spec": "Twin and earth sized per the lookup row for the installation method; not below 10 mm2",
           "unit": "m",
           "quantity_formula": "shower_cable_run_m",
-          "when": "shower_type == 'electric'",
+          "when": "shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')",
           "kind": null,
           "lookup": {
             "table": "electric_shower_circuit",
@@ -1539,7 +2521,12 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Electric shower circuits need 30 mA RCD protection, a 45 A double-pole isolator and a breaker and cable sized for the kW rating; work in a bathroom is notifiable.",
+            "source_url": "https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf"
+          },
+          "help": null
         },
         {
           "id": "el_part_p_notification",
@@ -1547,7 +2534,7 @@
           "spec": "Electrical Installation Certificate and building control notification (new circuit in a special location), by a registered electrician",
           "unit": "item",
           "quantity_formula": "1",
-          "when": "shower_type == 'electric'",
+          "when": "shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')",
           "kind": "service",
           "lookup": null,
           "default_option": null,
@@ -1565,7 +2552,12 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "A new circuit in a bathroom is notifiable building work in England.",
+            "source_url": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/441872/BR_PDF_AD_P_2013.pdf"
+          },
+          "help": null
         }
       ]
     },
@@ -1604,7 +2596,12 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "forum"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "No gypsum plasterboard or plaster as the tile substrate in a wet room or power-shower bathroom, and no magnesium oxide boards (NHBC 9.2/06; binding on NHBC new homes, used here as good practice).",
+            "source_url": "https://eu.schluter.com/statics/www_schlueter_gb_2x/downloads/cumulus/D00460_Schlueter_Systems_NHBC_Guidance_UK.pdf"
+          },
+          "help": "Insulated (XPS) boards are lighter and widely used; this kit counts 1200 x 800 mm boards, so a different board size needs the count changed."
         },
         {
           "id": "wp_backer_screws",
@@ -1630,7 +2627,12 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "forum"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Use the board maker's own screws and washers: the whole system must be proven waterproof, not just the board.",
+            "source_url": "https://architectsdatafile.co.uk/?p=354916"
+          },
+          "help": null
         },
         {
           "id": "wp_backer_joint_tape",
@@ -1650,7 +2652,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "forum"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "wp_tanking_kit",
@@ -1661,8 +2665,69 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "liquid_kit",
+          "options": [
+            {
+              "id": "liquid_kit",
+              "label": "Liquid tanking kit",
+              "spec": "Liquid waterproofing membrane kit with primer and reinforcing tape, tested to BS EN 14891",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Selco shower waterproofing kit listing (about 4 m2, Oct 2026)",
+                  "url": "https://www.selcobw.com/mapei-shower-waterproofing-kit-527732527",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Wetrooms Online 5 m2 tanking kit listing (Oct 2026)",
+                  "url": "https://www.wetrooms-online.com/products/mapei-5m-tanking-kit",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Instarmac: tanking kits made compulsory in latest British Standard (BS 5385-1:2018, 18 Sep 2018)",
+                  "url": "https://www.instarmac.co.uk/news/tanking-kits-made-compulsory-in-latest-british-standard/",
+                  "licence": "manufacturer-doc-facts-only",
+                  "evidence_quality": "manufacturer_doc"
+                }
+              ],
+              "evidence_grade": "A",
+              "why_default": "The standard calls for tanking in showers, and a liquid kit with tape is the common way to meet it.",
+              "price_band": {
+                "min": "55.19",
+                "max": "70",
+                "currency": "GBP",
+                "per": "kit (about 4 m2)",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "sheet_membrane",
+              "label": "Sheet membrane system",
+              "spec": "Sheet waterproofing membrane system with matched tape, corners and adhesive",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Instarmac: tanking kits made compulsory in latest British Standard (BS 5385-1:2018, 18 Sep 2018)",
+                  "url": "https://www.instarmac.co.uk/news/tanking-kits-made-compulsory-in-latest-british-standard/",
+                  "licence": "manufacturer-doc-facts-only",
+                  "evidence_quality": "manufacturer_doc"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Shower waterproofing kit listing (Toolstation; Mapei kit contents and coverage)",
@@ -1676,7 +2741,12 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "search_snippet"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "BS 5385-1:2018 recommends a proprietary tanking system in showers and wet rooms; water-resistant adhesive or grout is not a substitute. There is no compliant budget option.",
+            "source_url": "https://www.instarmac.co.uk/news/tanking-kits-made-compulsory-in-latest-british-standard/"
+          },
+          "help": null
         }
       ]
     },
@@ -1694,8 +2764,99 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "standard_300x600",
+          "options": [
+            {
+              "id": "value_600x300",
+              "label": "Value tiles",
+              "spec": "Ceramic or porcelain wall tiles 600 x 300 mm, value range",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Wickes bathroom wall and floor tiles category (219 products, review counts, Oct 2026)",
+                  "url": "https://www.wickes.co.uk/Products/Tiles/Bathroom-Wall+Floor-Tiles/c/1000801",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "12",
+                "max": "15",
+                "currency": "GBP",
+                "per": "m2",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "standard_300x600",
+              "label": "Standard tiles",
+              "spec": "Ceramic or porcelain wall tiles 300 x 600 mm, mid range",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Wickes bathroom wall and floor tiles category (219 products, review counts, Oct 2026)",
+                  "url": "https://www.wickes.co.uk/Products/Tiles/Bathroom-Wall+Floor-Tiles/c/1000801",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Trade2Base bathroom flooring options and pricing (8 June 2026)",
+                  "url": "https://www.trade2base.com/blog/bathroom-flooring-options-pricing-uk",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "B",
+              "why_default": "300 x 600 mm is the common size in the largest merchant tile range checked, by product counts.",
+              "price_band": {
+                "min": "15",
+                "max": "30",
+                "currency": "GBP",
+                "per": "m2",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "designer",
+              "label": "Designer tiles",
+              "spec": "Designer or large-format porcelain wall tiles",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Victorian Plumbing 300 x 600 mm designer wall and floor tile (search snippet, Oct 2026)",
+                  "url": "https://www.victorianplumbing.co.uk/stonehouse-studio-jardine-gloss-blue-marble-effect-wall-and-floor-tiles-300-x-600mm",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "38.15",
+                "max": "49.96",
+                "currency": "GBP",
+                "per": "m2",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Wickes how-to guide: tiling a wall",
@@ -1709,7 +2870,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "tl_wall_adhesive",
@@ -1720,8 +2883,69 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "flexible_s1",
+          "options": [
+            {
+              "id": "flexible_s1",
+              "label": "Flexible S1 powder",
+              "spec": "Flexible S1 cement powder tile adhesive for walls, standard or rapid set, 20 kg bags",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Wickes tile adhesives category (34 products, review counts, Oct 2026)",
+                  "url": "https://www.wickes.co.uk/Products/Tiles/Tile-Adhesives/c/1000877",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Wickes grey tile adhesive listings (search snippet, Oct 2026)",
+                  "url": "https://www.wickes.co.uk/featured/mapei-grey-tile-adhesive",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "search_snippet"
+                },
+                {
+                  "source_title": "Pro Tiler Tools flexible S1 wall and floor adhesive listing",
+                  "url": "https://www.protilertools.co.uk/product/bal-spf-s1-standard-setting-flexible-wall---floor-adhesive-white-20kg",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "B",
+              "why_default": "Flexible S1 powder is the default the rules allow, and the most-reviewed adhesive at one merchant (669 reviews).",
+              "price_band": {
+                "min": "19",
+                "max": "25",
+                "currency": "GBP",
+                "per": "20 kg bag",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "s2",
+              "label": "Highly flexible S2 powder",
+              "spec": "Highly flexible S2 or fibre-reinforced cement powder tile adhesive for walls, 20 kg bags",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Weber: tiling plywood (S1 up to 400 x 400, S2 above)",
+                  "url": "https://www.uk.weber/tile-fixing/tiling-plywood",
+                  "licence": "manufacturer-doc-facts-only",
+                  "evidence_quality": "manufacturer_doc"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Mapei Keraflex Maxi S1 listing quoting the TDS consumption (retailer, secondary)",
@@ -1735,7 +2959,12 @@
               "licence": "all-rights-reserved-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Tiles over 300 x 300 mm, porcelain and floors need a cement powder adhesive, not a ready-mixed tub; timber floors and underfloor heating need flexible S1 (S2 over 400 x 400 mm).",
+            "source_url": "https://www.toppstiles.co.uk/knowledge-base/what-tile-adhesive-to-use"
+          },
+          "help": null
         },
         {
           "id": "tl_wall_grout",
@@ -1746,8 +2975,69 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "flexible",
+          "options": [
+            {
+              "id": "flexible",
+              "label": "Flexible mould-resistant grout",
+              "spec": "Flexible, water-repellent, mould-resistant cement grout for walls",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Selco flexible mould-resistant grout 5 kg listing (Oct 2026)",
+                  "url": "https://www.selcobw.com/mapei-ultracolor-plus-5kg-527732496p",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Mapei coloured grouts and sealants (product descriptions)",
+                  "url": "https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants",
+                  "licence": "manufacturer-doc-facts-only",
+                  "evidence_quality": "manufacturer_doc"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "A flexible mould-resistant cement grout is the trade default and matches the flexible adhesive.",
+              "price_band": {
+                "min": "15.25",
+                "max": "22.19",
+                "currency": "GBP",
+                "per": "5 kg",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "epoxy",
+              "label": "Epoxy grout",
+              "spec": "Epoxy grout for walls",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Mapei coloured grouts and sealants (product descriptions)",
+                  "url": "https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants",
+                  "licence": "manufacturer-doc-facts-only",
+                  "evidence_quality": "manufacturer_doc"
+                },
+                {
+                  "source_title": "Tilers Forums thread: epoxy vs flexible cement grout",
+                  "url": "https://tilersforums.com/threads/kerapoxy-vs-ultracolor-plus.48814",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "forum"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "TilersForums: grout calculation formula attributed to the Weber TDS",
@@ -1767,7 +3057,12 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Flexible adhesive needs a flexible grout.",
+            "source_url": "https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants"
+          },
+          "help": null
         },
         {
           "id": "tl_spacers",
@@ -1787,7 +3082,9 @@
               "licence": "all-rights-reserved-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "tl_trim",
@@ -1803,8 +3100,11 @@
             {
               "id": "plastic",
               "label": "Plastic trim",
-              "spec": "Plastic tile trim to suit tile thickness",
-              "tags": [],
+              "spec": "White uPVC round-edge tile trim to suit tile thickness",
+              "tags": [
+                "budget",
+                "most_used"
+              ],
               "default": true,
               "provenance": [
                 {
@@ -1818,14 +3118,33 @@
                   "url": "https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf",
                   "licence": "unknown-copyright-facts-only",
                   "evidence_quality": "public_spec"
+                },
+                {
+                  "source_title": "Travis Perkins white uPVC round-edge tile trim 2.5 m listing",
+                  "url": "https://www.travisperkins.co.uk/tiling-tools-and-accessories/genesis-10mm-white-round-edge-tile-trim-etr108-01/p/873805",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
                 }
-              ]
+              ],
+              "evidence_grade": "D",
+              "why_default": "White uPVC round edge is the cheap common trim; no sales data was found.",
+              "price_band": {
+                "min": "9.61",
+                "max": "10.64",
+                "currency": "GBP",
+                "per": "2.5 m length",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
             },
             {
               "id": "metal",
               "label": "Metal trim",
-              "spec": "Metal tile trim to suit tile thickness",
-              "tags": [],
+              "spec": "Chrome or brushed aluminium straight-edge tile trim to suit tile thickness",
+              "tags": [
+                "most_used"
+              ],
               "default": false,
               "provenance": [
                 {
@@ -1839,8 +3158,25 @@
                   "url": "https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf",
                   "licence": "unknown-copyright-facts-only",
                   "evidence_quality": "public_spec"
+                },
+                {
+                  "source_title": "Pro Tiler Tools polished chrome aluminium straight-edge trim 2.5 m listing",
+                  "url": "https://www.protilertools.co.uk/product/genesis-straight-edge-polished-chrome-aluminium-tile-trim-esa-25m",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
                 }
-              ]
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "9.90",
+                "max": "15.83",
+                "currency": "GBP",
+                "per": "2.5 m length",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
             }
           ],
           "provenance": [
@@ -1856,7 +3192,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": "Trim depth must match the tile plus the adhesive bed."
         },
         {
           "id": "tl_wall_primer",
@@ -1882,7 +3220,12 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Gypsum plaster, plasterboard and anhydrite need a primer before a cement-based adhesive.",
+            "source_url": "https://www.victorianplumbing.co.uk/mapei-primer-g"
+          },
+          "help": null
         },
         {
           "id": "tl_floor_tiles",
@@ -1893,8 +3236,99 @@
           "when": "floor_finish == 'tiled'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "porcelain_600",
+          "options": [
+            {
+              "id": "value_porcelain",
+              "label": "Value porcelain",
+              "spec": "Slip-resistant porcelain floor tiles, value range; suited to a wet-room floor laid to falls; slip rating set by the specifier",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Wickes bathroom wall and floor tiles category (219 products, review counts, Oct 2026)",
+                  "url": "https://www.wickes.co.uk/Products/Tiles/Bathroom-Wall+Floor-Tiles/c/1000801",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "12",
+                "max": "15",
+                "currency": "GBP",
+                "per": "m2",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "porcelain_600",
+              "label": "Porcelain 600 x 600 mm",
+              "spec": "Slip-resistant porcelain floor tiles 600 x 600 mm; suited to a wet-room floor laid to falls; slip rating set by the specifier",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Wickes bathroom wall and floor tiles category (219 products, review counts, Oct 2026)",
+                  "url": "https://www.wickes.co.uk/Products/Tiles/Bathroom-Wall+Floor-Tiles/c/1000801",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Trade2Base bathroom flooring options and pricing (8 June 2026)",
+                  "url": "https://www.trade2base.com/blog/bathroom-flooring-options-pricing-uk",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "B",
+              "why_default": "Tiles are the most popular UK bathroom floor, and porcelain is denser and suits underfloor heating.",
+              "price_band": {
+                "min": "15",
+                "max": "30",
+                "currency": "GBP",
+                "per": "m2",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "large_format",
+              "label": "Large-format porcelain",
+              "spec": "Slip-resistant large-format porcelain floor tiles; suited to a wet-room floor laid to falls; slip rating set by the specifier",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Trade2Base bathroom flooring options and pricing (8 June 2026)",
+                  "url": "https://www.trade2base.com/blog/bathroom-flooring-options-pricing-uk",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "20",
+                "max": "50",
+                "currency": "GBP",
+                "per": "m2",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Wickes how-to guide: tiling a wall",
@@ -1908,7 +3342,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "tl_floor_adhesive",
@@ -1919,8 +3355,69 @@
           "when": "floor_finish == 'tiled'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "flexible_s1",
+          "options": [
+            {
+              "id": "flexible_s1",
+              "label": "Flexible S1 powder",
+              "spec": "Flexible S1 cement powder tile adhesive for floors, standard or rapid set, 20 kg bags",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Wickes tile adhesives category (34 products, review counts, Oct 2026)",
+                  "url": "https://www.wickes.co.uk/Products/Tiles/Tile-Adhesives/c/1000877",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Wickes grey tile adhesive listings (search snippet, Oct 2026)",
+                  "url": "https://www.wickes.co.uk/featured/mapei-grey-tile-adhesive",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "search_snippet"
+                },
+                {
+                  "source_title": "Pro Tiler Tools flexible S1 wall and floor adhesive listing",
+                  "url": "https://www.protilertools.co.uk/product/bal-spf-s1-standard-setting-flexible-wall---floor-adhesive-white-20kg",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "B",
+              "why_default": "Flexible S1 powder is the default the rules allow, and the most-reviewed adhesive at one merchant (669 reviews).",
+              "price_band": {
+                "min": "19",
+                "max": "25",
+                "currency": "GBP",
+                "per": "20 kg bag",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "s2",
+              "label": "Highly flexible S2 powder",
+              "spec": "Highly flexible S2 or fibre-reinforced cement powder tile adhesive for floors, 20 kg bags",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Weber: tiling plywood (S1 up to 400 x 400, S2 above)",
+                  "url": "https://www.uk.weber/tile-fixing/tiling-plywood",
+                  "licence": "manufacturer-doc-facts-only",
+                  "evidence_quality": "manufacturer_doc"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Mapei Keraflex Maxi S1 listing quoting the TDS consumption (retailer, secondary)",
@@ -1928,7 +3425,12 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Tiles over 300 x 300 mm, porcelain and floors need a cement powder adhesive, not a ready-mixed tub; timber floors and underfloor heating need flexible S1 (S2 over 400 x 400 mm).",
+            "source_url": "https://www.toppstiles.co.uk/knowledge-base/what-tile-adhesive-to-use"
+          },
+          "help": null
         },
         {
           "id": "tl_floor_grout",
@@ -1939,8 +3441,69 @@
           "when": "floor_finish == 'tiled'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "flexible",
+          "options": [
+            {
+              "id": "flexible",
+              "label": "Flexible mould-resistant grout",
+              "spec": "Flexible, water-repellent, mould-resistant cement grout for floors",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Selco flexible mould-resistant grout 5 kg listing (Oct 2026)",
+                  "url": "https://www.selcobw.com/mapei-ultracolor-plus-5kg-527732496p",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Mapei coloured grouts and sealants (product descriptions)",
+                  "url": "https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants",
+                  "licence": "manufacturer-doc-facts-only",
+                  "evidence_quality": "manufacturer_doc"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "A flexible mould-resistant cement grout is the trade default and matches the flexible adhesive.",
+              "price_band": {
+                "min": "15.25",
+                "max": "22.19",
+                "currency": "GBP",
+                "per": "5 kg",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "epoxy",
+              "label": "Epoxy grout",
+              "spec": "Epoxy grout for floors",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Mapei coloured grouts and sealants (product descriptions)",
+                  "url": "https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants",
+                  "licence": "manufacturer-doc-facts-only",
+                  "evidence_quality": "manufacturer_doc"
+                },
+                {
+                  "source_title": "Tilers Forums thread: epoxy vs flexible cement grout",
+                  "url": "https://tilersforums.com/threads/kerapoxy-vs-ultracolor-plus.48814",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "forum"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "TilersForums: grout calculation formula attributed to the Weber TDS",
@@ -1954,7 +3517,12 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Flexible adhesive needs a flexible grout.",
+            "source_url": "https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants"
+          },
+          "help": null
         }
       ]
     },
@@ -1981,7 +3549,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "fl_levelling",
@@ -2001,7 +3571,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "fl_safety_vinyl",
@@ -2033,7 +3605,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "fl_weld_rod",
@@ -2053,7 +3627,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "fl_vinyl_trim",
@@ -2073,14 +3649,16 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
     {
       "id": "adaptations",
       "title": "Accessibility adaptations",
-      "when": null,
+      "when": "adaptation",
       "lines": [
         {
           "id": "ad_wall_reinforcement",
@@ -2100,7 +3678,9 @@
               "licence": "OGL-3.0",
               "evidence_quality": "standard"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ad_grab_rails",
@@ -2132,7 +3712,12 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Approved Document M M4(3): walls must carry 1.5 kN/m2 where rails and a seat are fixed.",
+            "source_url": "https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf"
+          },
+          "help": null
         },
         {
           "id": "ad_shower_seat",
@@ -2158,7 +3743,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ad_curtain_rail",
@@ -2190,7 +3777,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ad_blending_valve",
@@ -2216,7 +3805,12 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Adaptation work for vulnerable users uses a TMV3-approved valve, set to the specification's temperature (38 degC here).",
+            "source_url": "https://www.altecnic.co.uk/tmv2-and-tmv3-what-do-you-know-about-them/"
+          },
+          "help": null
         }
       ]
     },
@@ -2243,7 +3837,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ht_trv",
@@ -2263,7 +3859,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ht_inhibitor",
@@ -2283,7 +3881,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -2301,8 +3901,83 @@
           "when": "wc_type == 'close_coupled'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "rimless",
+          "options": [
+            {
+              "id": "standard",
+              "label": "Standard bowl",
+              "spec": "Floor-standing close-coupled WC pan with a standard rimmed bowl, horizontal outlet, floor fixing kit; pan height at least 400 mm where M4(3) applies; avoid a side outlet so a wheeled commode fits",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix compact rimless close-coupled toilet listing (promotional price, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/swirl-enz-soft-close-compact-rimless-toilet-with-cistern-dual-flush-4-5ltr/655cr",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Screwfix slim rimless close-coupled toilet listing (promotional price, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/swirl-caldew-soft-close-slim-vortex-rimless-toilet-with-cistern-dual-flush-4-5ltr/753CR",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "59.49",
+                "max": "76.49",
+                "currency": "GBP",
+                "per": "WC set (pan, cistern, seat)",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "rimless",
+              "label": "Rimless bowl",
+              "spec": "Floor-standing close-coupled WC pan with a rimless bowl, horizontal outlet, floor fixing kit; pan height at least 400 mm where M4(3) applies; avoid a side outlet so a wheeled commode fits",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct 2026)",
+                  "url": "https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Screwfix close-coupled rimless soft-close toilet listing (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/trade-soft-close-close-coupled-rimless-toilet-dual-flush-6-4ltr/165ch",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Screwfix close-coupled rimless toilet with thermoset seat listing (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/trade-soft-close-close-coupled-rimless-toilet-dual-flush-6-4ltr/876CH",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "Close-coupled is the usual UK WC, and about 132 of about 310 close-coupled pans at one retailer are rimless.",
+              "price_band": {
+                "min": "119",
+                "max": "139",
+                "currency": "GBP",
+                "per": "WC set (pan, cistern, seat)",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Armitage Shanks Contour 21 close-coupled WC suite data sheet",
@@ -2328,7 +4003,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": "Prices are for a whole set (pan, cistern and seat). Back-to-wall and wall-hung are chosen with the WC type question."
         },
         {
           "id": "sw_wc_cistern",
@@ -2354,7 +4031,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_flush_lever",
@@ -2380,7 +4059,81 @@
               "licence": "OGL-3.0",
               "evidence_quality": "standard"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
+        },
+        {
+          "id": "sw_wc_pan_back_to_wall",
+          "description": "Back-to-wall WC pan",
+          "spec": "Back-to-wall WC pan, horizontal outlet, floor fixing kit, to sit against a furniture unit or boxed-in wall",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'back_to_wall'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Wickes Siena bathroom range (close-coupled or back-to-wall pan, 500 mm basins)",
+              "url": "https://www.wickes.co.uk/bathroom/suites/siena",
+              "licence": "all-rights-reserved-facts-only",
+              "evidence_quality": "retailer"
+            },
+            {
+              "source_title": "Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct 2026)",
+              "url": "https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ],
+          "forced_by": null,
+          "help": null
+        },
+        {
+          "id": "sw_wc_concealed_cistern",
+          "description": "Concealed cistern with flush button",
+          "spec": "Concealed dual-flush cistern with fittings and a flush button or plate to suit",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'back_to_wall'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Wickes Siena bathroom range (close-coupled or back-to-wall pan, 500 mm basins)",
+              "url": "https://www.wickes.co.uk/bathroom/suites/siena",
+              "licence": "all-rights-reserved-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ],
+          "forced_by": null,
+          "help": null
+        },
+        {
+          "id": "sw_wc_btw_unit",
+          "description": "Furniture unit or boxing for the concealed cistern",
+          "spec": "Back-to-wall furniture unit, or framing and moisture-resistant board, with an access panel to the cistern",
+          "unit": "item",
+          "quantity_formula": "1",
+          "when": "wc_type == 'back_to_wall'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Wickes Siena bathroom range (close-coupled or back-to-wall pan, 500 mm basins)",
+              "url": "https://www.wickes.co.uk/bathroom/suites/siena",
+              "licence": "all-rights-reserved-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_pan_connector",
@@ -2388,11 +4141,81 @@
           "spec": "Pan connector, 110 mm, type to suit the soil outlet (P, S or offset); rigid where alignment allows",
           "unit": "nr",
           "quantity_formula": "1",
-          "when": "wc_type == 'close_coupled'",
+          "when": "wc_type != 'wall_hung'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "rigid",
+          "options": [
+            {
+              "id": "rigid",
+              "label": "Rigid connector",
+              "spec": "Rigid 110 mm pan connector, straight or small offset, to suit the soil outlet",
+              "tags": [
+                "budget",
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix rigid 20 mm offset pan connector (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/mcalpine-rigid-20mm-offset-toilet-pan-connector-white-120mm/3244p",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                },
+                {
+                  "source_title": "Screwfix pan connectors category (rigid and flexible prices, search snippet)",
+                  "url": "https://www.screwfix.com/c/bathrooms-kitchens/pan-connectors/cat2330023",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "A rigid connector is the usual choice where the pan and soil pipe line up.",
+              "price_band": {
+                "min": "8.23",
+                "max": "8.24",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "flexible",
+              "label": "Flexible connector",
+              "spec": "Flexible adjustable 110 mm pan connector",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix flexible straight adjustable WC connector (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/mcalpine-flexible-straight-adjustable-wc-connector-white-330-850mm/149CL",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                },
+                {
+                  "source_title": "Screwfix pan connectors category (rigid and flexible prices, search snippet)",
+                  "url": "https://www.screwfix.com/c/bathrooms-kitchens/pan-connectors/cat2330023",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "24.77",
+                "max": "28.00",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Armitage Shanks Contour 21 close-coupled WC suite data sheet",
@@ -2412,7 +4235,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_frame",
@@ -2438,7 +4263,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_flush_plate",
@@ -2470,7 +4297,9 @@
               "licence": "OGL-3.0",
               "evidence_quality": "standard"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_pan_wall_hung",
@@ -2508,7 +4337,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_seat",
@@ -2519,8 +4350,49 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "soft_close",
+          "options": [
+            {
+              "id": "standard_close",
+              "label": "Standard seat",
+              "spec": "WC seat and cover to suit the pan, standard hinges",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct 2026)",
+                  "url": "https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            },
+            {
+              "id": "soft_close",
+              "label": "Soft-close seat",
+              "spec": "WC seat and cover to suit the pan, soft-close hinges",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Victorian Plumbing close-coupled toilet buying guide and category counts (viewed Oct 2026)",
+                  "url": "https://www.victorianplumbing.co.uk/buying-guides/toilets/close-coupled-toilets",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "About 253 of the close-coupled WCs at one retailer have soft-close seats, against 48 with standard seats.",
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Armitage Shanks Contour 21 close-coupled WC suite data sheet",
@@ -2534,7 +4406,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_wc_frame_boxing",
@@ -2554,7 +4428,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -2587,7 +4463,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_basin_wall_hung",
@@ -2613,7 +4491,37 @@
               "licence": "OGL-3.0",
               "evidence_quality": "standard"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
+        },
+        {
+          "id": "sw_basin_vanity",
+          "description": "Basin on a vanity unit",
+          "spec": "Ceramic basin on a floor-standing or wall-hung vanity unit, 600-800 mm wide, tap holes to suit taps",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "basin_mount == 'vanity'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Bathroom Mountain vanity unit sizes",
+              "url": "https://www.bathroommountain.co.uk/inspiration-and-advice/vanity-unit-sizes/",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            },
+            {
+              "source_title": "Bathroom City pedestal basin buying guide",
+              "url": "https://www.bathroomcity.co.uk/blog/pedestal-basin-buying-guide",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_basin_taps",
@@ -2624,49 +4532,75 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": "pillar_pair",
+          "default_option": "mixer",
           "options": [
             {
               "id": "pillar_pair",
               "label": "Pair of pillar taps",
-              "spec": "Pair of basin pillar taps, lever handles",
-              "tags": [],
-              "default": true,
+              "spec": "Pair of basin pillar taps, lever handles, for a two-tap-hole basin; lever handles for limited grip",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
               "provenance": [
                 {
-                  "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
-                  "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+                  "source_title": "Screwfix commercial lever basin pillar taps (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/commercial-chrome-89-5mm-lever-2-tap-holes-basin-pillar-tap/52504",
                   "licence": "unknown-copyright-facts-only",
-                  "evidence_quality": "public_spec"
+                  "evidence_quality": "search_snippet"
                 },
                 {
-                  "source_title": "Broadland Housing Association affordable housing specification, March 2023",
-                  "url": "https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf",
+                  "source_title": "Screwfix cloakroom lever basin pillar taps (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/swirl-essential-chrome-108mm-cloakroom-lever-2-tap-holes-basin-pillar-tap/21559",
                   "licence": "unknown-copyright-facts-only",
-                  "evidence_quality": "public_spec"
+                  "evidence_quality": "search_snippet"
                 }
-              ]
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "17.99",
+                "max": "29.99",
+                "currency": "GBP",
+                "per": "pair",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
             },
             {
               "id": "mixer",
               "label": "Basin mixer",
-              "spec": "Single basin mixer tap, lever handle",
-              "tags": [],
-              "default": false,
+              "spec": "Single-lever mono basin mixer with click waste, chrome, for a one-tap-hole basin; lever handles for limited grip",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
               "provenance": [
                 {
-                  "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
-                  "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+                  "source_title": "Screwfix mono basin mixer with clicker waste (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/swirl-ola-chrome-152mm-standard-lever-mono-basin-mixer-tap-with-clicker-waste/2315p",
                   "licence": "unknown-copyright-facts-only",
-                  "evidence_quality": "public_spec"
+                  "evidence_quality": "search_snippet"
                 },
                 {
-                  "source_title": "Broadland Housing Association affordable housing specification, March 2023",
-                  "url": "https://www.north-norfolk.gov.uk/media/8753/broadland-housing-association-affordable-housing-specification.pdf",
+                  "source_title": "Screwfix cloakroom mono basin mixer with clicker waste (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/ideal-standard-cerabase-chrome-silver-122mm-cloakroom-lever-mono-basin-mixer-tap-with-clicker-waste/281kc",
                   "licence": "unknown-copyright-facts-only",
-                  "evidence_quality": "public_spec"
+                  "evidence_quality": "search_snippet"
                 }
-              ]
+              ],
+              "evidence_grade": "C",
+              "why_default": "Most mid-range basin taps listed are chrome mono mixers; pillar taps now sit at the budget end.",
+              "price_band": {
+                "min": "39.99",
+                "max": "59.99",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
             }
           ],
           "provenance": [
@@ -2682,7 +4616,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": "The basin's tap holes must match the taps (one hole for a mixer, two for pillar taps). On a gravity hot-water system choose low-pressure or universal taps."
         },
         {
           "id": "sw_basin_waste",
@@ -2708,7 +4644,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_basin_trap",
@@ -2725,7 +4663,9 @@
               "id": "bottle",
               "label": "Bottle trap",
               "spec": "Bottle trap 32 mm with 75 mm seal",
-              "tags": [],
+              "tags": [
+                "most_used"
+              ],
               "default": true,
               "provenance": [
                 {
@@ -2739,14 +4679,39 @@
                   "url": "https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes",
                   "licence": "unknown-copyright-facts-only",
                   "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Screwfix traps category (181 products, review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/heating-plumbing/traps/cat831610",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Travis Perkins 32 mm adjustable bottle trap listing (75 mm seal)",
+                  "url": "https://www.travisperkins.co.uk/traps/mcalpine-a10a-adjustable-bottle-trap-32mm/p/961543",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
                 }
-              ]
+              ],
+              "evidence_grade": "B",
+              "why_default": "32 mm bottle and tubular traps from one maker have the most reviews at one merchant.",
+              "price_band": {
+                "min": "6.49",
+                "max": "7.88",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
             },
             {
               "id": "tubular",
               "label": "Tubular trap",
               "spec": "Tubular trap 32 mm with 75 mm seal",
-              "tags": [],
+              "tags": [
+                "most_used"
+              ],
               "default": false,
               "provenance": [
                 {
@@ -2760,8 +4725,73 @@
                   "url": "https://drainagepipe.co.uk/soil-and-waste/uk-building-regulations-for-soil-and-waste-pipes",
                   "licence": "unknown-copyright-facts-only",
                   "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Screwfix traps category (181 products, review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/heating-plumbing/traps/cat831610",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
                 }
-              ]
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "8.49",
+                "max": "8.49",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "own_brand",
+              "label": "Budget trap",
+              "spec": "Plain plastic 32 mm trap with 75 mm seal",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix traps category (181 products, review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/heating-plumbing/traps/cat831610",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "3",
+                "max": "6",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "chrome_bottle",
+              "label": "Chrome bottle trap",
+              "spec": "Chrome-finish 32 mm bottle trap with 75 mm seal, for an exposed basin waste",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix traps category (181 products, review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/heating-plumbing/traps/cat831610",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
             }
           ],
           "provenance": [
@@ -2777,7 +4807,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sw_tap_connectors",
@@ -2788,8 +4820,66 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "braided",
+          "options": [
+            {
+              "id": "braided",
+              "label": "Braided connectors",
+              "spec": "15 mm x 1/2 inch x 300 mm stainless-braided flexible tap connectors, compression end, drinking-water approved",
+              "tags": [
+                "budget",
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix 15 mm x 1/2 inch x 300 mm braided tap connector (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/essentials-flexible-tap-connector-15mm-x-1-2-x-300mm/63404",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "The plain braided compression connector is the usual merchant line.",
+              "price_band": {
+                "min": "1.86",
+                "max": "2.14",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "push_fit_end",
+              "label": "Push-fit connectors",
+              "spec": "15 mm x 1/2 inch x 300 mm flexible tap connectors with a push-fit end",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix flexible hoses category (push-fit tap connectors, search snippet)",
+                  "url": "https://www.screwfix.com/c/heating-plumbing/flexible-hoses/cat831572",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "14.50",
+                "max": "14.50",
+                "currency": "GBP",
+                "per": "pair",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Toolstation plumbing category tree",
@@ -2803,7 +4893,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": "Many mono mixers come with their own tails: check the tap before ordering."
         }
       ]
     },
@@ -2818,11 +4910,102 @@
           "spec": "Electric shower, rating per the shower_kw answer, mains cold feed only, 15 mm inlet; controls at about 1000 mm, riser reaching low for seated use",
           "unit": "nr",
           "quantity_formula": "1",
-          "when": "shower_type == 'electric'",
+          "when": "shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "mid",
+          "options": [
+            {
+              "id": "basic",
+              "label": "Basic electric shower",
+              "spec": "Electric shower, rating per the shower_kw answer, mains cold feed only, 15 mm inlet; basic controls, not thermostatic; controls at about 1000 mm, riser reaching low for seated use",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Wickes electric showers category (ratings, review counts, prices, Oct 2026)",
+                  "url": "https://www.wickes.co.uk/Products/Bathrooms/Showers-Enclosures/Showers/Electric-Showers/c/1001035",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "79",
+                "max": "112",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "mid",
+              "label": "Electric shower with phased shutdown",
+              "spec": "Electric shower, rating per the shower_kw answer, mains cold feed only, 15 mm inlet; phased shutdown and multi-entry cable and water inlets; controls at about 1000 mm, riser reaching low for seated use",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Wickes electric showers category (ratings, review counts, prices, Oct 2026)",
+                  "url": "https://www.wickes.co.uk/Products/Bathrooms/Showers-Enclosures/Showers/Electric-Showers/c/1001035",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "QS Supplies electric shower buying guide (8.5 kW and circuit sizes)",
+                  "url": "https://www.qssupplies.co.uk/how-to-choose-the-right-electric-shower-for-your-home.html",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "Mid-range 8.5-9.5 kW units carry the most reviews at one merchant; sales evidence on kW conflicts, so the rating follows the circuit.",
+              "price_band": {
+                "min": "109",
+                "max": "250",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "thermostatic",
+              "label": "Thermostatic electric shower",
+              "spec": "Thermostatic electric shower, rating per the shower_kw answer, mains cold feed only, 15 mm inlet; controls at about 1000 mm, riser reaching low for seated use",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Wickes electric showers category (ratings, review counts, prices, Oct 2026)",
+                  "url": "https://www.wickes.co.uk/Products/Bathrooms/Showers-Enclosures/Showers/Electric-Showers/c/1001035",
+                  "licence": "all-rights-reserved-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "250",
+                "max": "480",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Triton T70Z electric shower installation guide",
@@ -2842,7 +5025,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "sh_mixer_valve",
@@ -2850,11 +5035,102 @@
           "spec": "Thermostatic bar valve, 150 mm inlet centres with offset connectors, rated for the household water system pressure; controls at about 1000 mm, riser reaching low for seated use",
           "unit": "nr",
           "quantity_formula": "1",
-          "when": "shower_type == 'mixer'",
+          "when": "shower_type == 'mixer' or (shower_type == 'auto' and hot_water_system in ('combi', 'unvented'))",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "bar_riser",
+          "options": [
+            {
+              "id": "own_brand_kit",
+              "label": "Thermostatic bar valve kit, basic",
+              "spec": "Thermostatic bar valve kit with riser, 150 mm inlet centres with offset connectors, rated for the hot-water system pressure; controls at about 1000 mm, riser reaching low for seated use",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix own-brand HP rear-fed thermostatic shower kit (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/swirl-bonda-hp-rear-fed-exposed-chrome-thermostatic-shower-kit/645XX?tc=VC1",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "59.49",
+                "max": "69.99",
+                "currency": "GBP",
+                "per": "kit",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "bar_riser",
+              "label": "Thermostatic bar valve with riser",
+              "spec": "Thermostatic bar valve with riser kit, 150 mm inlet centres with offset connectors, rated for the hot-water system pressure; controls at about 1000 mm, riser reaching low for seated use",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix HP/Combi thermostatic bar mixer with riser kit (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/bristan-frenzy-hp-combi-flexible-exposed-chrome-plated-thermostatic-bar-mixer-shower-with-riser-kit/377ew",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                },
+                {
+                  "source_title": "Screwfix rear-fed exposed thermostatic shower (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/highlife-bathrooms-nairn-series-2-rear-fed-exposed-chrome-thermostatic-shower/246HL",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "A branded thermostatic bar valve with riser is the usual refit on a combi or unvented system; only prices, not ranks, were found.",
+              "price_band": {
+                "min": "109.99",
+                "max": "119.99",
+                "currency": "GBP",
+                "per": "kit",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "bar_diverter_overhead",
+              "label": "Thermostatic bar valve with overhead shower",
+              "spec": "Thermostatic bar valve with diverter, riser and overhead shower, 150 mm inlet centres, rated for the hot-water system pressure; controls at about 1000 mm, riser reaching low for seated use",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix thermostatic bar mixer with riser and diverter (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/p/bristan-craze-rear-fed-exposed-chrome-thermostatic-bar-mixer-shower-with-adjustable-riser-kit-diverter/834rh",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "219.99",
+                "max": "219.99",
+                "currency": "GBP",
+                "per": "kit",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Mira Reflex bar valve installation guide 1196840-W2-C",
@@ -2874,7 +5150,12 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "The valve must match the hot-water pressure: a high-pressure (combi) valve on a combi or unvented system, a low-pressure valve or a pump on a gravity system. Never fit a power (pumped) shower to a combi or unvented system.",
+            "source_url": "https://database.waterwise.org.uk/wp-content/uploads/2019/09/United-Utilities_Water-and-Energy-Efficient-Showers_Project-Report.pdf"
+          },
+          "help": null
         },
         {
           "id": "sh_riser_kit",
@@ -2882,7 +5163,7 @@
           "spec": "Riser rail kit with hose and handset",
           "unit": "nr",
           "quantity_formula": "1",
-          "when": "shower_type == 'mixer'",
+          "when": "shower_type == 'mixer' or (shower_type == 'auto' and hot_water_system in ('combi', 'unvented'))",
           "kind": null,
           "lookup": null,
           "default_option": null,
@@ -2900,7 +5181,53 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
+        },
+        {
+          "id": "sh_shower_pump",
+          "description": "Shower pump for a mixer on a gravity system",
+          "spec": "Twin-impeller shower pump sized for the valve, fed from the cylinder and cold tank; omit only if a low-pressure-rated valve gives enough flow",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "hot_water_system == 'gravity' and shower_type == 'mixer'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "United Utilities / LJMU, Water and Energy Efficient Showers project report (2007, hosted by Waterwise)",
+              "url": "https://database.waterwise.org.uk/wp-content/uploads/2019/09/United-Utilities_Water-and-Energy-Efficient-Showers_Project-Report.pdf",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            }
+          ],
+          "forced_by": null,
+          "help": "Gravity systems give low pressure. An electric shower avoids the pump."
+        },
+        {
+          "id": "sh_wet_room_panel",
+          "description": "Fixed glass wet-room panel",
+          "spec": "Fixed 8-10 mm toughened glass wet-room panel with wall profile and support arm",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "not adaptation",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Sanctuary Bathrooms: shower glass thickness 6 mm, 8 mm or 10 mm",
+              "url": "https://www.sanctuary-bathrooms.co.uk/blog/shower-glass-thickness-6mm-8mm-10mm",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -2918,8 +5245,105 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "humidistat_timer",
+          "options": [
+            {
+              "id": "timer",
+              "label": "Axial fan with timer",
+              "spec": "100 mm axial extract fan with overrun timer",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix bathroom extractor fans category (search snippet, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/bathrooms-kitchens/bathroom-extractor-fans/cat840654",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "search_snippet"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "22.99",
+                "max": "22.99",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "humidistat_timer",
+              "label": "Axial fan with humidistat and timer",
+              "spec": "100 mm axial extract fan with humidistat and overrun timer",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix 100 mm axial fan with humidistat and timer listing (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/manrose-cqf100ht-100mm-4-axial-bathroom-extractor-fan-with-humidistat-timer-white-240v/768GY",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Bathroom Mountain bathroom ventilation guide (Approved Document F rates)",
+                  "url": "https://www.bathroommountain.co.uk/inspiration-and-advice/bathroom-ventilation",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "A 100 mm axial fan with humidistat and timer meets the extract rate without relying on the user; the pick rests on a merchant label, not sales data.",
+              "price_band": {
+                "min": "46.49",
+                "max": "46.49",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "continuous",
+              "label": "Continuous-running quiet fan",
+              "spec": "100 mm continuous-running low-energy extract fan (dMEV type), quiet",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix continuous-running 100 mm fan listing (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/vent-axia-479088-100mm-4-axial-bathroom-extractor-fan-with-timer-white-240v/954gy",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Screwfix continuous-running 100 mm fan with humidistat listing (Oct 2026)",
+                  "url": "https://www.screwfix.com/p/vent-axia-479089-100mm-4-axial-bathroom-extractor-fan-with-humidistat-timer-white-240v/870gy",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "99.99",
+                "max": "148.00",
+                "currency": "GBP",
+                "per": "each",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Approved Document F Vol 1, 2021 edition (ventilation), Table 1.1",
@@ -2945,7 +5369,12 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Approved Document F: a bathroom needs 15 l/s intermittent (or continuous) extract and a WC 6 l/s; with no openable window the fan runs on at least 15 min.",
+            "source_url": "https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf"
+          },
+          "help": "A low-voltage (SELV) fan is needed if the fan sits inside a bathroom zone."
         },
         {
           "id": "vn_duct",
@@ -2956,8 +5385,49 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "rigid_short_flex",
+          "options": [
+            {
+              "id": "rigid_short_flex",
+              "label": "Rigid duct with short flexible end",
+              "spec": "100 mm rigid duct for the main run, flexible only as the final connection",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "LABC Warranty technical blog: insulating extraction ducts (flexible duct limits)",
+                  "url": "https://www.labcwarranty.co.uk/technical-blog/insulating-extraction-ducts",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "public_spec"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "Guidance limits flexible duct to a short, taut final connection; rigid duct is the usual main run.",
+              "price_band": null
+            },
+            {
+              "id": "insulated_rigid",
+              "label": "Insulated rigid duct",
+              "spec": "100 mm insulated rigid duct, for runs through a cold loft",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "LABC Warranty technical blog: insulating extraction ducts (flexible duct limits)",
+                  "url": "https://www.labcwarranty.co.uk/technical-blog/insulating-extraction-ducts",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "public_spec"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Vent-Axia Lo-Carbon Quadra installation instructions (CEF-hosted PDF)",
@@ -2965,7 +5435,12 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Flexible duct only as the final connection, at most 1.5 m and pulled taut.",
+            "source_url": "https://www.labcwarranty.co.uk/technical-blog/insulating-extraction-ducts"
+          },
+          "help": null
         },
         {
           "id": "vn_wall_or_roof_terminal",
@@ -2991,7 +5466,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "vn_condensation_trap",
@@ -3011,7 +5488,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "vn_duct_fixings",
@@ -3031,7 +5510,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "vn_humidistat_control",
@@ -3057,7 +5538,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -3075,8 +5558,91 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "anti_mould",
+          "options": [
+            {
+              "id": "own_brand",
+              "label": "Own-brand sanitary silicone",
+              "spec": "Sanitary silicone sealant with fungicide, white, 300 ml",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "B&Q sanitary sealant 300 ml listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/unibond-white-silicone-based-bathroom-kitchen-sanitary-sealant-300ml/1474132_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            },
+            {
+              "id": "anti_mould",
+              "label": "Branded anti-mould silicone",
+              "spec": "Anti-mould sanitary silicone sealant, white, 300 ml",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "B&Q sanitary sealant 300 ml listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/unibond-white-silicone-based-bathroom-kitchen-sanitary-sealant-300ml/1474132_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "A branded anti-mould white silicone is the usual retail pick; no ranks were found.",
+              "price_band": {
+                "min": "9",
+                "max": "13",
+                "currency": "GBP",
+                "per": "300 ml cartridge",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "enhanced",
+              "label": "Enhanced anti-mould silicone",
+              "spec": "Enhanced anti-mould or colour-matched sanitary silicone, 300 ml",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "B&Q enhanced sanitary sealant 300 ml listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/unibond-triple-protect-white-silicone-based-bathroom-kitchen-sanitary-sealant-300ml/1474147_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Mapei coloured grouts and sealants (product descriptions)",
+                  "url": "https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants",
+                  "licence": "manufacturer-doc-facts-only",
+                  "evidence_quality": "manufacturer_doc"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "15",
+                "max": "15",
+                "currency": "GBP",
+                "per": "300 ml cartridge",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Truly PVC: estimating silicone cartridge yield",
@@ -3096,7 +5662,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "cs_clear_sealant_wc",
@@ -3104,7 +5672,7 @@
           "spec": "Clear silicone sealant",
           "unit": "cartridge",
           "quantity_formula": "1",
-          "when": "wc_type == 'close_coupled'",
+          "when": "wc_type != 'wall_hung'",
           "kind": null,
           "lookup": null,
           "default_option": null,
@@ -3122,7 +5690,9 @@
               "licence": "all-rights-reserved-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "cs_thread_sealant",
@@ -3133,8 +5703,56 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "ptfe",
+          "options": [
+            {
+              "id": "ptfe",
+              "label": "PTFE tape",
+              "spec": "Drinking-water approved PTFE tape, for threaded joints only",
+              "tags": [
+                "budget",
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Toolstation how-to: using PTFE tape on threaded joints",
+                  "url": "https://www.toolstation.com/help-and-advice/how-to-guides/how-to-use-ptfe-tape",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "DIYnot forum thread: no sealant on compression fittings (quoting the fitting maker)",
+                  "url": "https://www.diynot.com/diy/goto/post?id=1363418",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "forum"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "PTFE tape on threads is the usual default.",
+              "price_band": null
+            },
+            {
+              "id": "compound",
+              "label": "Jointing compound",
+              "spec": "Drinking-water approved non-setting jointing compound, for threaded joints",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "DIYnot forum thread: no sealant on compression fittings (quoting the fitting maker)",
+                  "url": "https://www.diynot.com/diy/goto/post?id=1363418",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "forum"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Mira Reflex bar valve installation guide 1196840-W2-C",
@@ -3148,7 +5766,9 @@
               "licence": "all-rights-reserved-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": "Nothing goes on compression olives: the fitting makers advise against it."
         },
         {
           "id": "cs_plumbing_sundries",
@@ -3168,7 +5788,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "cs_wc_packers",
@@ -3176,7 +5798,7 @@
           "spec": "Plastic packers",
           "unit": "pack",
           "quantity_formula": "1",
-          "when": "wc_type == 'close_coupled'",
+          "when": "wc_type != 'wall_hung'",
           "kind": null,
           "lookup": null,
           "default_option": null,
@@ -3188,7 +5810,9 @@
               "licence": "all-rights-reserved-facts-only",
               "evidence_quality": "retailer"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "cs_fixings_solid",
@@ -3199,8 +5823,65 @@
           "when": "wall_type == 'solid'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "universal_plug",
+          "options": [
+            {
+              "id": "basic_plug",
+              "label": "Basic wall plugs",
+              "spec": "Plastic wall plugs 7 x 30 mm with stainless or zinc-plated screws",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix plasterboard wall plugs category (review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "9.29",
+                "max": "9.29",
+                "currency": "GBP",
+                "per": "pack of 300 plugs",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "universal_plug",
+              "label": "Universal wall plugs",
+              "spec": "Universal two-component wall plugs 6 x 30 mm and 8 x 40 mm with stainless or zinc-plated screws",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix plasterboard wall plugs category (review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "B",
+              "why_default": "Universal two-component plugs have the most reviews at one merchant.",
+              "price_band": {
+                "min": "4.99",
+                "max": "7.99",
+                "currency": "GBP",
+                "per": "pack of 100 plugs",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Mira Discovery bar mixer installation guide",
@@ -3214,7 +5895,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "cs_fixings_stud",
@@ -3225,8 +5908,65 @@
           "when": "wall_type == 'stud'",
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "universal_plug",
+          "options": [
+            {
+              "id": "universal_plug",
+              "label": "Universal plugs (light loads)",
+              "spec": "Universal two-component wall plugs that also grip in plasterboard, for light loads; screws into noggins for heavy items",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Screwfix plasterboard wall plugs category (review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "B",
+              "why_default": "The universal plug works in hollow walls and has the most reviews at one merchant.",
+              "price_band": {
+                "min": "4.99",
+                "max": "7.99",
+                "currency": "GBP",
+                "per": "pack of 100 plugs",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "heavy_cavity",
+              "label": "Heavy-duty cavity fixings",
+              "spec": "Heavy-duty universal plasterboard cavity fixings for higher loads",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Screwfix plasterboard wall plugs category (review counts, Oct 2026)",
+                  "url": "https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": {
+                "min": "12.19",
+                "max": "12.19",
+                "currency": "GBP",
+                "per": "pack of 10",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            }
+          ],
           "provenance": [
             {
               "source_title": "Mira Reflex bar valve installation guide 1196840-W2-C",
@@ -3240,7 +5980,12 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": {
+            "text": "Hollow (stud) walls need cavity-rated fixings, or screws into noggins.",
+            "source_url": "https://www.screwfix.com/c/screws-nails-fixings/plasterboard-wall-plugs/cat12000001"
+          },
+          "help": null
         },
         {
           "id": "cs_pattress",
@@ -3266,7 +6011,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -3284,8 +6031,89 @@
           "when": null,
           "kind": null,
           "lookup": null,
-          "default_option": null,
-          "options": [],
+          "default_option": "bathroom_soft_sheen",
+          "options": [
+            {
+              "id": "standard_soft_sheen",
+              "label": "Standard soft sheen",
+              "spec": "Standard soft sheen or vinyl silk emulsion, white",
+              "tags": [
+                "budget"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "B&Q bathroom soft sheen emulsion 2.5 l listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/dulux-easycare-pure-brilliant-white-soft-sheen-emulsion-paint-2-5l/125825_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            },
+            {
+              "id": "bathroom_soft_sheen",
+              "label": "Bathroom soft sheen",
+              "spec": "Bathroom soft sheen emulsion, moisture and mould resistant, white",
+              "tags": [
+                "most_used"
+              ],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "B&Q bathroom soft sheen emulsion 2.5 l listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/dulux-easycare-pure-brilliant-white-soft-sheen-emulsion-paint-2-5l/125825_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "B&Q bathroom soft sheen emulsion, colour, 2.5 l listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/dulux-easycare-bathroom-blush-pink-soft-sheen-emulsion-paint-2-5l/1914751_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                },
+                {
+                  "source_title": "Next Day Paint bathroom soft sheen emulsion listing (moisture and mould resistance)",
+                  "url": "https://nextdaypaint.co.uk/products/dulux-easycare-bathroom-soft-sheen-emulsion-paint",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": "C",
+              "why_default": "A bathroom-specific soft sheen is the usual retail pick for wet rooms.",
+              "price_band": {
+                "min": "24",
+                "max": "28",
+                "currency": "GBP",
+                "per": "2.5 l tin",
+                "vat": "inc",
+                "observed_on": "2026-10-06",
+                "basis": "observed retail price, not verified"
+              }
+            },
+            {
+              "id": "anti_condensation",
+              "label": "Anti-condensation paint",
+              "spec": "Anti-condensation or specialist anti-mould bathroom paint",
+              "tags": [
+                "premium"
+              ],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "B&Q bathroom soft sheen emulsion 2.5 l listing (Oct 2026)",
+                  "url": "https://www.diy.com/departments/dulux-easycare-pure-brilliant-white-soft-sheen-emulsion-paint-2-5l/125825_BQ.prd",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "retailer"
+                }
+              ],
+              "evidence_grade": null,
+              "why_default": null,
+              "price_band": null
+            }
+          ],
           "provenance": [
             {
               "source_title": "Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)",
@@ -3305,7 +6133,9 @@
               "licence": "manufacturer-doc-facts-only",
               "evidence_quality": "manufacturer_doc"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "dc_woodwork_paint",
@@ -3331,7 +6161,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "dc_filler",
@@ -3351,7 +6183,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "dc_sundries",
@@ -3371,7 +6205,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     },
@@ -3398,7 +6234,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "public_spec"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         },
         {
           "id": "ws_rubble_sacks",
@@ -3418,7 +6256,9 @@
               "licence": "unknown-copyright-facts-only",
               "evidence_quality": "derived"
             }
-          ]
+          ],
+          "forced_by": null,
+          "help": null
         }
       ]
     }
@@ -3558,7 +6398,7 @@
     },
     {
       "id": "rails_need_reinforcement",
-      "when": null,
+      "when": "adaptation",
       "requires": [
         "ad_grab_rails",
         "ad_wall_reinforcement"
@@ -3568,7 +6408,7 @@
     },
     {
       "id": "seat_needs_reinforcement",
-      "when": "shower_seat",
+      "when": "(shower_seat) and (adaptation)",
       "requires": [
         "ad_shower_seat",
         "ad_wall_reinforcement"
@@ -3621,6 +6461,25 @@
       "rationale": "A close-coupled suite is bought as pan, cistern, seat and lever, plus a pan connector chosen by the soil outlet and an isolating valve on the cistern feed."
     },
     {
+      "id": "back_to_wall_wc",
+      "when": "wc_type == 'back_to_wall'",
+      "requires": [
+        "sw_wc_pan_back_to_wall",
+        "sw_wc_concealed_cistern",
+        "sw_wc_btw_unit",
+        "sw_wc_seat",
+        "ff_iv_wc"
+      ],
+      "excludes": [
+        "sw_wc_frame",
+        "sw_wc_flush_plate",
+        "sw_wc_pan_wall_hung",
+        "sw_wc_pan_close_coupled",
+        "sw_wc_cistern"
+      ],
+      "rationale": "A back-to-wall WC needs its pan, a concealed cistern with a flush button, a unit or boxing to hide it, a seat and an isolating valve; no frame."
+    },
+    {
       "id": "basin",
       "when": null,
       "requires": [
@@ -3665,6 +6524,18 @@
       "rationale": "A wall-hung basin on a stud wall needs backing for its fixings."
     },
     {
+      "id": "basin_vanity",
+      "when": "basin_mount == 'vanity'",
+      "requires": [
+        "sw_basin_vanity"
+      ],
+      "excludes": [
+        "sw_basin_pedestal",
+        "sw_basin_wall_hung"
+      ],
+      "rationale": "A vanity basin replaces the pedestal or wall-hung basin."
+    },
+    {
       "id": "electric_shower",
       "when": "shower_type == 'electric'",
       "requires": [
@@ -3697,6 +6568,61 @@
         "sh_electric_unit"
       ],
       "rationale": "A bar mixer needs isolating valves close to the valve, thread sealant (not supplied) and a riser kit when not bundled; no shower circuit."
+    },
+    {
+      "id": "electric_shower_auto",
+      "when": "shower_type == 'auto' and hot_water_system == 'gravity'",
+      "requires": [
+        "sh_electric_unit",
+        "el_shower_isolator",
+        "el_shower_rcbo",
+        "el_shower_cable",
+        "el_part_p_notification",
+        "ff_iv_shower_electric"
+      ],
+      "excludes": [
+        "sh_mixer_valve",
+        "ff_iv_shower_mixer",
+        "sh_shower_pump"
+      ],
+      "rationale": "With a gravity (or unknown) hot-water system the standard shower is electric, which needs its own circuit and no hot feed."
+    },
+    {
+      "id": "mixer_shower_auto",
+      "when": "shower_type == 'auto' and hot_water_system in ('combi', 'unvented')",
+      "requires": [
+        "sh_mixer_valve",
+        "sh_riser_kit",
+        "ff_iv_shower_mixer",
+        "cs_thread_sealant"
+      ],
+      "excludes": [
+        "el_shower_isolator",
+        "el_shower_rcbo",
+        "el_shower_cable",
+        "sh_electric_unit",
+        "sh_shower_pump"
+      ],
+      "rationale": "With a combi or unvented system the standard shower is a thermostatic bar mixer; no shower circuit and no pump."
+    },
+    {
+      "id": "no_pump_on_pressurised_hot_water",
+      "when": "hot_water_system in ('combi', 'unvented')",
+      "requires": [],
+      "excludes": [
+        "sh_shower_pump"
+      ],
+      "rationale": "A shower pump or power shower must not be fitted to a combi boiler or an unvented cylinder."
+    },
+    {
+      "id": "gravity_mixer_needs_pump",
+      "when": "hot_water_system == 'gravity' and shower_type == 'mixer'",
+      "requires": [
+        "sh_shower_pump",
+        "sh_mixer_valve"
+      ],
+      "excludes": [],
+      "rationale": "A mixer on a gravity system needs a pump (or a low-pressure valve, which the line notes)."
     },
     {
       "id": "extractor_fan",
@@ -3736,13 +6662,60 @@
     },
     {
       "id": "wet_room_basin",
-      "when": null,
+      "when": "adaptation",
       "requires": [
         "sw_basin_wall_hung",
         "ad_blending_valve"
       ],
       "excludes": [],
       "rationale": "M4(3) basins are wall-hung; lever taps help limited grip; basin hot water is blended in the DFG spec cited."
+    },
+    {
+      "id": "wet_room_screen",
+      "when": "not adaptation",
+      "requires": [
+        "sh_wet_room_panel"
+      ],
+      "excludes": [
+        "ad_curtain_rail"
+      ],
+      "rationale": "A wet room that is not an adaptation uses a fixed glass panel; the adaptation specifications prefer a curtain."
+    },
+    {
+      "id": "adapted_wet_room_curtain",
+      "when": "adaptation",
+      "requires": [
+        "ad_curtain_rail"
+      ],
+      "excludes": [
+        "sh_wet_room_panel"
+      ],
+      "rationale": "An adapted wet room uses a curtain and rail, not glass."
     }
+  ],
+  "finish_levels": [
+    {
+      "id": "budget",
+      "label": "Budget",
+      "description": "The cheapest option that still meets the rules, where the research found one. Lines without a budget option keep the standard pick."
+    },
+    {
+      "id": "most_used",
+      "label": "Standard",
+      "description": "The option the research found most used, and compliant. This is the default; it is labelled 'most used' only where the evidence grade is B or better."
+    },
+    {
+      "id": "premium",
+      "label": "Premium",
+      "description": "A higher-specification option where the research found one. Never pre-selected; paid add-ons stay off even at this level."
+    }
+  ],
+  "schema_changes": [
+    "job-kit-ui/2 is additive over job-kit-ui/1: every v1 field keeps its name and meaning.",
+    "Top level: finish_levels [{id, label, description}] and schema_changes [string].",
+    "Question: help, widget (cards|segmented|toggle|select), reason_upfront, unknown {label, maps_to} (answer \"unknown\" resolves to maps_to) and impact (equal to priority).",
+    "Line option: evidence_grade (A-D), why_default and price_band {min, max, currency, per, vat, observed_on, basis} (prices are dated observations, not quotes).",
+    "Line: forced_by {text, source_url} (a rule fixes this line; explain it, do not offer a choice) and help.",
+    "finish_level selects on every line with options the option tagged with that level if present (the line default when it carries the tag), otherwise the line default."
   ]
 }

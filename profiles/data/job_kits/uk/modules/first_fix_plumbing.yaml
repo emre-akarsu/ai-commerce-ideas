@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.first_fix_plumbing
 module: first_fix_plumbing
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: First-fix plumbing
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -30,34 +31,66 @@ lines:
   options:
   - id: copper
     label: Copper
-    spec: 15 mm copper supply pipe
-    tags: []
+    spec: 15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder)
+    tags:
+    - most_used
     default: true
+    evidence_grade: D
+    why_default: Copper is the traditional trade default for exposed runs; the only share data is a 2007
+      installer survey.
     provenance:
-    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
-        (Sell2Wales tender attachment)
-      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    - source_title: 'Heating & Ventilating Review: installer pipe survey, copper preferred (2007)'
+      url: https://www.heatingandventilating.net/pipes-and-fittings-survey-finds-copper-is-installers-choice
       licence: unknown-copyright-facts-only
       evidence_quality: public_spec
-    - source_title: Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)
-      url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
-      licence: manufacturer-doc-facts-only
-      evidence_quality: manufacturer_doc
   - id: plastic
-    label: Plastic
-    spec: 15 mm plastic supply pipe, with pipe inserts where the pipe maker requires them
-    tags: []
+    label: Plastic barrier pipe
+    spec: 15 mm plastic barrier pipe in a coil, with pipe inserts at every joint, for concealed runs
+    tags:
+    - budget
     default: false
+    price_band:
+      min: '1.65'
+      max: '1.85'
+      currency: GBP
+      per: m
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
     provenance:
-    - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
-        (Sell2Wales tender attachment)
-      url: https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193
+    - source_title: Screwfix PE-X barrier pipe 15 mm x 100 m coil (Oct 2026)
+      url: https://www.screwfix.com/p/jg-speedfit-pe-x-barrier-pipe-15mm-x-100m/69170
       licence: unknown-copyright-facts-only
-      evidence_quality: public_spec
-    - source_title: Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)
-      url: https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0
-      licence: manufacturer-doc-facts-only
-      evidence_quality: manufacturer_doc
+      evidence_quality: retailer
+    - source_title: Screwfix PE-X barrier pipe 15 mm x 3 m, 10-pack (Oct 2026)
+      url: https://www.screwfix.com/p/jg-speedfit-15bpex-10-3l-push-fit-pe-x-barrier-pipes-15mm-x-3m-white-10-pack/86066
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: pb_demountable
+    label: Demountable plastic barrier pipe
+    spec: 15 mm polybutylene barrier pipe with demountable push-fit joints, for concealed runs
+    tags:
+    - premium
+    default: false
+    price_band:
+      min: '2.69'
+      max: '2.86'
+      currency: GBP
+      per: m
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix polybutylene barrier pipe 15 mm x 3 m (Oct 2026)
+      url: https://www.screwfix.com/p/hep2o-hxx03-15ws-push-fit-barrier-pipe-15mm-x-3m-white/6009f
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Screwfix polybutylene barrier pipe 15 mm x 3 m, 10-pack (Oct 2026)
+      url: https://www.screwfix.com/p/hep2o-hxx03-15w-push-fit-polybutylene-barrier-pipes-15mm-x-3m-white-10-pack/5445f
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  help: Plastic pipe must stay the maker's set distance from the boiler. Copper on exposed runs, plastic
+    on concealed runs is common.
 - id: ff_pipe_clips
   description: Pipe clips for new runs
   spec: 15 mm pipe clips
@@ -139,6 +172,41 @@ lines:
     evidence_quality: manufacturer_doc
   with_module:
   - basin
+  options:
+  - id: slotted
+    label: Slotted isolating valve
+    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated
+    tags:
+    - budget
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: The cheap screwdriver valve is the usual fitting under basins and WCs.
+    price_band:
+      min: '3.55'
+      max: '3.55'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix 15 mm slotted full-bore isolating valve (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/flomasta-full-bore-isolating-valve-15mm/46860
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  - id: lever
+    label: Lever isolating valve
+    spec: 15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a
+      tool
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: BES lever-operated 15 mm chrome isolating valve listing
+      url: https://www.bes.co.uk/lever-operated-isolating-valve-black-handle-15mm-chrome-23660
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: ff_iv_bath
   description: Isolating valves on the bath tap feed(s)
   spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
@@ -152,12 +220,47 @@ lines:
     evidence_quality: public_spec
   with_module:
   - bath
+  options:
+  - id: slotted
+    label: Slotted isolating valve
+    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated
+    tags:
+    - budget
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: The cheap screwdriver valve is the usual fitting under basins and WCs.
+    price_band:
+      min: '3.55'
+      max: '3.55'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix 15 mm slotted full-bore isolating valve (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/flomasta-full-bore-isolating-valve-15mm/46860
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  - id: lever
+    label: Lever isolating valve
+    spec: 15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a
+      tool
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: BES lever-operated 15 mm chrome isolating valve listing
+      url: https://www.bes.co.uk/lever-operated-isolating-valve-black-handle-15mm-chrome-23660
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: ff_iv_wc
   description: Isolating valves on the WC cistern feed(s)
   spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
   unit: nr
   quantity: '1'
-  when: wc_type == 'close_coupled'
+  when: wc_type != 'wall_hung'
   provenance:
   - source_title: Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025
       (Sell2Wales tender attachment)
@@ -166,12 +269,47 @@ lines:
     evidence_quality: public_spec
   with_module:
   - wc
+  options:
+  - id: slotted
+    label: Slotted isolating valve
+    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated
+    tags:
+    - budget
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: The cheap screwdriver valve is the usual fitting under basins and WCs.
+    price_band:
+      min: '3.55'
+      max: '3.55'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix 15 mm slotted full-bore isolating valve (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/flomasta-full-bore-isolating-valve-15mm/46860
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  - id: lever
+    label: Lever isolating valve
+    spec: 15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a
+      tool
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: BES lever-operated 15 mm chrome isolating valve listing
+      url: https://www.bes.co.uk/lever-operated-isolating-valve-black-handle-15mm-chrome-23660
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: ff_iv_shower_mixer
   description: Isolating valves on the shower mixer feed(s)
   spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
   unit: nr
   quantity: '2'
-  when: shower_type == 'mixer'
+  when: shower_type == 'mixer' or (shower_type == 'auto' and hot_water_system in ('combi', 'unvented'))
   provenance:
   - source_title: Mira Reflex bar valve installation guide 1196840-W2-C
     url: https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf
@@ -183,12 +321,47 @@ lines:
     evidence_quality: manufacturer_doc
   with_module:
   - shower
+  options:
+  - id: slotted
+    label: Slotted isolating valve
+    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated
+    tags:
+    - budget
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: The cheap screwdriver valve is the usual fitting under basins and WCs.
+    price_band:
+      min: '3.55'
+      max: '3.55'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix 15 mm slotted full-bore isolating valve (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/flomasta-full-bore-isolating-valve-15mm/46860
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  - id: lever
+    label: Lever isolating valve
+    spec: 15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a
+      tool
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: BES lever-operated 15 mm chrome isolating valve listing
+      url: https://www.bes.co.uk/lever-operated-isolating-valve-black-handle-15mm-chrome-23660
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: ff_iv_shower_electric
   description: Isolating valves on the electric shower feed(s)
   spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
   unit: nr
   quantity: '1'
-  when: shower_type == 'electric'
+  when: shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')
   provenance:
   - source_title: Triton T70Z electric shower installation guide
     url: https://showerspares.com/downloads/triton-t70z-electric-shower-7.5kw-white-sp7007z.pdf
@@ -203,6 +376,41 @@ lines:
     evidence_quality: public_spec
   with_module:
   - shower
+  options:
+  - id: slotted
+    label: Slotted isolating valve
+    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated
+    tags:
+    - budget
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: The cheap screwdriver valve is the usual fitting under basins and WCs.
+    price_band:
+      min: '3.55'
+      max: '3.55'
+      currency: GBP
+      per: each
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Screwfix 15 mm slotted full-bore isolating valve (search snippet, Oct 2026)
+      url: https://www.screwfix.com/p/flomasta-full-bore-isolating-valve-15mm/46860
+      licence: unknown-copyright-facts-only
+      evidence_quality: search_snippet
+  - id: lever
+    label: Lever isolating valve
+    spec: 15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a
+      tool
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: BES lever-operated 15 mm chrome isolating valve listing
+      url: https://www.bes.co.uk/lever-operated-isolating-valve-black-handle-15mm-chrome-23660
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: ff_waste_32
   description: Basin waste pipe
   spec: 32 mm waste pipe and fittings
@@ -219,6 +427,40 @@ lines:
     evidence_quality: retailer
   with_module:
   - basin
+  options:
+  - id: solvent_weld
+    label: Solvent-weld waste
+    spec: 32 mm solvent-weld waste pipe (ABS or PVC-U) and fittings
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: Trade guides call solvent weld the professional default, and it suits runs that could
+      be knocked.
+    provenance:
+    - source_title: 'JDP: push-fit vs solvent weld waste'
+      url: https://www.jdpipes.co.uk/knowledge/above-ground/push-fit-vs-solvent-weld.html
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: 'Gutter Supplies: push-fit and solvent weld waste pipes explained'
+      url: https://guttersupplies.co.uk/soil-and-waste/push-fit-and-solvent-weld-waste-pipes-explaining-the-differences
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: push_fit
+    label: Push-fit waste
+    spec: 32 mm push-fit polypropylene waste pipe and ring-seal fittings
+    tags:
+    - budget
+    default: false
+    provenance:
+    - source_title: 'JDP: push-fit vs solvent weld waste'
+      url: https://www.jdpipes.co.uk/knowledge/above-ground/push-fit-vs-solvent-weld.html
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: 'Gutter Supplies: push-fit and solvent weld waste pipes explained'
+      url: https://guttersupplies.co.uk/soil-and-waste/push-fit-and-solvent-weld-waste-pipes-explaining-the-differences
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: ff_waste_40
   description: Bath or shower waste pipe
   spec: 40 mm waste pipe and fittings
@@ -240,6 +482,40 @@ lines:
     evidence_quality: public_spec
   with_module:
   - bath
+  options:
+  - id: solvent_weld
+    label: Solvent-weld waste
+    spec: 40 mm solvent-weld waste pipe (ABS or PVC-U) and fittings
+    tags:
+    - most_used
+    default: true
+    evidence_grade: C
+    why_default: Trade guides call solvent weld the professional default, and it suits runs that could
+      be knocked.
+    provenance:
+    - source_title: 'JDP: push-fit vs solvent weld waste'
+      url: https://www.jdpipes.co.uk/knowledge/above-ground/push-fit-vs-solvent-weld.html
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: 'Gutter Supplies: push-fit and solvent weld waste pipes explained'
+      url: https://guttersupplies.co.uk/soil-and-waste/push-fit-and-solvent-weld-waste-pipes-explaining-the-differences
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+  - id: push_fit
+    label: Push-fit waste
+    spec: 40 mm push-fit polypropylene waste pipe and ring-seal fittings
+    tags:
+    - budget
+    default: false
+    provenance:
+    - source_title: 'JDP: push-fit vs solvent weld waste'
+      url: https://www.jdpipes.co.uk/knowledge/above-ground/push-fit-vs-solvent-weld.html
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: 'Gutter Supplies: push-fit and solvent weld waste pipes explained'
+      url: https://guttersupplies.co.uk/soil-and-waste/push-fit-and-solvent-weld-waste-pipes-explaining-the-differences
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
 - id: ff_waste_fittings
   description: Waste fittings allowance (bends, couplers, clips)
   spec: Waste fittings to match the waste pipe system

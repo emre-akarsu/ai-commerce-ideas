@@ -14,8 +14,10 @@ from decimal import Decimal
 from typing import Any
 
 from .formula import condition_truth, evaluate_checked
-from .loader import to_decimal, valid_answer
+from .loader import map_unknown, to_decimal, valid_answer
 from .model import (
+    FINISH_LEVEL_QUESTION,
+    UNKNOWN_ANSWER,
     Assumption,
     KitError,
     Line,
@@ -24,6 +26,7 @@ from .model import (
     ResolvedOption,
     RuleResult,
     Scope,
+    option_for_level,
 )
 
 COUNT_UNITS = frozenset({"nr", "cartridge", "pack", "kit", "roll", "item", "pair"})
@@ -35,8 +38,13 @@ _PLACEHOLDER = re.compile(r"\{(\w+)\}")
 
 def resolve_answers(scope: Scope, answers: Mapping[str, Any]
                     ) -> tuple[dict[str, Any], list[Assumption]]:
-    """Validate answers; fill unanswered questions with their defaults as assumptions."""
+    """Validate answers; fill unanswered questions with their defaults as assumptions.
+
+    A question with an `unknown` choice accepts the answer "unknown": it resolves to the
+    question's `unknown.maps_to` and is recorded as an assumption (the user did not know)."""
     questions = {q.id: q for q in scope.questions}
+    assumed: list[Assumption] = []
+    mapped: dict[str, Any] = {}
     for key, value in answers.items():
         if key in scope.fixed_answers:
             if value != scope.fixed_answers[key] or type(value) is not type(
@@ -45,13 +53,18 @@ def resolve_answers(scope: Scope, answers: Mapping[str, Any]
             continue
         if key not in questions:
             raise KitError(f"unknown question {key!r} for {scope.scope_id}")
-        if not valid_answer(questions[key].question, value):
+        question = questions[key].question
+        mapped[key] = map_unknown(question, value)
+        if not valid_answer(question, mapped[key]):
             raise KitError(f"{value!r} is not an option of {key}")
+        if question.unknown is not None and value == UNKNOWN_ANSWER:
+            assumed.append(Assumption(
+                "question", key, _text(mapped[key]),
+                f"{question.unknown.label}: treated as {question.label_for(mapped[key])}"))
     full: dict[str, Any] = {}
-    assumed: list[Assumption] = []
     for q in scope.questions:
-        if q.id in answers:
-            full[q.id] = answers[q.id]
+        if q.id in mapped:
+            full[q.id] = mapped[q.id]
             continue
         full[q.id] = q.default
         assumed.append(Assumption("question", q.id, _text(q.default),
@@ -124,24 +137,28 @@ class Values:
 
 def active_lines(scope: Scope, answers: Mapping[str, Any]) -> list[Line]:
     return [x for m in scope.modules if condition_truth(m.when, answers)
-            for x in m.lines if condition_truth(x.when, answers)]
+            for x in m.lines if condition_truth(x.effective_when, answers)]
 
 
 def render(text: str, parameters: Mapping[str, Decimal]) -> str:
     return _PLACEHOLDER.sub(lambda m: str(parameters[m.group(1)]), text)
 
 
-def pick_option(line: Line, choices: Mapping[str, str]
+def pick_option(line: Line, choices: Mapping[str, str], level: str | None = None
                 ) -> tuple[ResolvedOption | None, Assumption | None, tuple[dict[str, Any], ...]]:
+    """An explicit choice wins; otherwise the finish level picks (see option_for_level)."""
     if not line.options:
         return None, None, ()
-    chosen = choices.get(line.id, line.default_option)
-    option = next(o for o in line.options if o.id == chosen)
+    if line.id in choices:
+        option = next(o for o in line.options if o.id == choices[line.id])
+    else:
+        option = option_for_level(line, level)  # type: ignore[assignment]
+    assert option is not None
     assumed = None
     if line.id not in choices:
         assumed = Assumption("option", line.id, option.id, option.label)
-    return ResolvedOption(option.id, option.label, option.spec, option.tags), assumed, \
-        option.provenance
+    return ResolvedOption(option.id, option.label, option.spec, option.tags,
+                          option.evidence_grade, option.price_band), assumed, option.provenance
 
 
 def check_choices(scope: Scope, lines: list[Line], choices: Mapping[str, str]) -> None:
@@ -176,18 +193,26 @@ def lookup_row(line: Line, answers: Mapping[str, Any], lookups: Mapping[str, Any
 def resolve_line(line: Line, answers: Mapping[str, Any], choices: Mapping[str, str],
                  get: Callable[[str], Decimal], parameters: Mapping[str, Decimal],
                  lookups: Mapping[str, Any]) -> tuple[ResolvedLine, Assumption | None]:
-    option, assumed, option_prov = pick_option(line, choices)
+    level = answers.get(FINISH_LEVEL_QUESTION)
+    option, assumed, option_prov = pick_option(line, choices, level)
     spec = option.spec if option else line.spec
     if option:
         option = ResolvedOption(option.id, option.label, render(option.spec, parameters),
-                                option.tags)
+                                option.tags, option.evidence_grade, option.price_band)
     resolved = ResolvedLine(
         id=line.id, module=line.module, description=line.description,
         spec=render(spec, parameters), unit=line.unit, quantity=quantity(line, get),
         quantity_formula=line.quantity, provenance=line.provenance + option_prov, option=option,
         kind=line.kind, lookup=lookup_row(line, answers, lookups), uniclass_pr=line.uniclass_pr,
-        etim_class=line.etim_class)
+        etim_class=line.etim_class, forced_by=_render_forced(line.forced_by, parameters))
     return resolved, assumed
+
+
+def _render_forced(forced: dict[str, str] | None, parameters: Mapping[str, Decimal]
+                   ) -> dict[str, str] | None:
+    if forced is None:
+        return None
+    return {"text": render(forced["text"], parameters), "source_url": forced["source_url"]}
 
 
 # --------------------------------------------------------------------------- rules
@@ -197,7 +222,7 @@ def check_rules(scope: Scope, answers: Mapping[str, Any], active: set[str]
                 ) -> tuple[RuleResult, ...]:
     out = []
     for r in scope.rules:
-        if not condition_truth(r.when, answers):
+        if not condition_truth(r.effective_when, answers):
             out.append(RuleResult(r.id, applies=False))
             continue
         missing = tuple(x for x in r.requires if x not in active)

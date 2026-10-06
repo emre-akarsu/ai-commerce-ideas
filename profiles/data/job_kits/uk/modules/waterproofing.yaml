@@ -3,10 +3,11 @@
 # Plain data: edit it directly. Schema and licensing policy: profiles/data/job_kits/README.md.
 # Checked by tests/profiles/test_job_kits*.py and tests/job_kits/. Line wording is our own; brand
 # names appear only in example_note fields. Provenance URLs are sources read in
-# research_notes/UK refurbishment job templates data/ (2026-10-06).
+# research_notes/UK refurbishment job templates data/ and research_notes/UK
+# refurbishment top picks by option/ (2026-10-06).
 id: uk.module.waterproofing
 module: waterproofing
-version: 0.2.0
+version: 0.3.0
 market: uk
 title: Waterproofing and tile backer
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -34,6 +35,16 @@ lines:
     url: https://www.tilersforums.com/threads/hardie-backer-board-info.48531
     licence: unknown-copyright-facts-only
     evidence_quality: forum
+  forced_by:
+    text: No gypsum plasterboard or plaster as the tile substrate in a wet room or power-shower bathroom,
+      and no magnesium oxide boards (NHBC 9.2/06; binding on NHBC new homes, used here as good practice).
+    source:
+      source_title: Schluter Systems NHBC guidance summary (UK)
+      url: https://eu.schluter.com/statics/www_schlueter_gb_2x/downloads/cumulus/D00460_Schlueter_Systems_NHBC_Guidance_UK.pdf
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  help: Insulated (XPS) boards are lighter and widely used; this kit counts 1200 x 800 mm boards, so a
+    different board size needs the count changed.
 - id: wp_backer_screws
   description: Backer board screws and washers
   spec: Corrosion-resistant screws with board washers
@@ -48,6 +59,14 @@ lines:
     url: https://tilersforums.com/threads/marmox-information.48611
     licence: unknown-copyright-facts-only
     evidence_quality: forum
+  forced_by:
+    text: 'Use the board maker''s own screws and washers: the whole system must be proven waterproof,
+      not just the board.'
+    source:
+      source_title: 'Architects Datafile: backer board maker on NHBC 9.2/06 (proven waterproof system)'
+      url: https://architectsdatafile.co.uk/?p=354916
+      licence: unknown-copyright-facts-only
+      evidence_quality: public_spec
 - id: wp_backer_joint_tape
   description: Joint tape for backer board
   spec: Alkali-resistant glass-fibre mesh tape
@@ -72,6 +91,59 @@ lines:
     url: https://camdocs.camden.gov.uk/CMWebDrawer/Record/10781649/file/document
     licence: unknown-copyright-facts-only
     evidence_quality: search_snippet
+  forced_by:
+    text: BS 5385-1:2018 recommends a proprietary tanking system in showers and wet rooms; water-resistant
+      adhesive or grout is not a substitute. There is no compliant budget option.
+    source:
+      source_title: 'Instarmac: tanking kits made compulsory in latest British Standard (BS 5385-1:2018,
+        18 Sep 2018)'
+      url: https://www.instarmac.co.uk/news/tanking-kits-made-compulsory-in-latest-british-standard/
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  options:
+  - id: liquid_kit
+    label: Liquid tanking kit
+    spec: Liquid waterproofing membrane kit with primer and reinforcing tape, tested to BS EN 14891
+    tags:
+    - most_used
+    default: true
+    evidence_grade: A
+    why_default: The standard calls for tanking in showers, and a liquid kit with tape is the common way
+      to meet it.
+    price_band:
+      min: '55.19'
+      max: '70'
+      currency: GBP
+      per: kit (about 4 m2)
+      vat: inc
+      observed_on: '2026-10-06'
+      basis: observed retail price, not verified
+    provenance:
+    - source_title: Selco shower waterproofing kit listing (about 4 m2, Oct 2026)
+      url: https://www.selcobw.com/mapei-shower-waterproofing-kit-527732527
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: Wetrooms Online 5 m2 tanking kit listing (Oct 2026)
+      url: https://www.wetrooms-online.com/products/mapei-5m-tanking-kit
+      licence: unknown-copyright-facts-only
+      evidence_quality: retailer
+    - source_title: 'Instarmac: tanking kits made compulsory in latest British Standard (BS 5385-1:2018,
+        18 Sep 2018)'
+      url: https://www.instarmac.co.uk/news/tanking-kits-made-compulsory-in-latest-british-standard/
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
+  - id: sheet_membrane
+    label: Sheet membrane system
+    spec: Sheet waterproofing membrane system with matched tape, corners and adhesive
+    tags:
+    - premium
+    default: false
+    provenance:
+    - source_title: 'Instarmac: tanking kits made compulsory in latest British Standard (BS 5385-1:2018,
+        18 Sep 2018)'
+      url: https://www.instarmac.co.uk/news/tanking-kits-made-compulsory-in-latest-british-standard/
+      licence: manufacturer-doc-facts-only
+      evidence_quality: manufacturer_doc
 rules:
 - id: tanking_and_backer
   requires:
