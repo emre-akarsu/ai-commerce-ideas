@@ -88,12 +88,12 @@ Out of v1: photo or floor-plan takeoff, conformal ranges (need quote history), m
 | # | Decision | Answer | Consequence for the design |
 |---|---|---|---|
 | 1 | Who is the user | Generic across the three ideas | The principal is a generic "buyer": a household, a contractor, a plant or a company. Persona-specific wording, gates and mandate limits come from the deployment profile. No consumer-only features in the core |
-| 2 | Where price comes from | Use everything available in the UK market | See section 12. Only sources whose terms allow it; terms for several are still unread |
+| 2 | Where price comes from | Use everything available in the UK market | See section 11. Only sources whose terms allow it; terms for several are still unread |
 | 3 | "Mid-size" | London averages as an illustrative example | Size stays a square-metre input. London figures are labelled example data, sourced and dated, never hard-coded and never presented as a price |
 | 4 | Regulated-work stance | Gates block and warn only | Confirmed. The product never advises on compliance |
-| 5 | RFQ targets | All: merchants and tradespeople | Needs the counterparty-reach rules in section 13 before any trade send |
+| 5 | RFQ targets | All: merchants and tradespeople | Needs the counterparty-reach rules in section 12 before any trade send |
 
-## 12. Price sourcing strategy (from `research/intent/04-uk-price-sources.md`)
+## 11. Price sourcing strategy (from `research/intent/04-uk-price-sources.md`)
 
 | Layer | Source | Use |
 |---|---|---|
@@ -105,13 +105,13 @@ Out of v1: photo or floor-plan takeoff, conformal ranges (need quote history), m
 
 No merchant API or punchout documentation was found, so merchant quotes arrive by email RFQ or a customer's own trade account. Marketplace cost guides (MyJobQuote, Book a Builder and similar) are marketing-grade and may be shown only as dated context.
 
-## 13. London worked example and counterparty reach (from `research/intent/05-london-example-and-reach.md`)
+## 12. London worked example and counterparty reach (from `research/intent/05-london-example-and-reach.md`)
 
 - **Illustrative only.** The demo shows a London Victorian-terrace bathroom with third-party guide ranges beside the sourced uplift, each labelled "illustrative example, dated". Five sources give five London uplift ranges (10-20%, 12-18%, 20-30%, 20-40%, 25-40%); the demo shows them side by side and does not average them. Plumber day rates range from 180 to 480 across sources, and one source gave two different electrician ranges two weeks apart. Size figures run from 3-4 m2 to 5-6 m2, so the slot is "floor m2 plus wall m2", asked of the user.
 - **VAT.** 20% standard; 5% and 0% cases per GOV.UK `[opened]`; the domestic reverse charge does not apply to private homeowners (GOV.UK technical guide) `[opened]`; CIS for householders is memory only.
 - **Emailing tradespeople.** Sole traders and ordinary partnerships are individual subscribers under PECR; companies are corporate subscribers (ICO) `[opened]`. No page read says whether a one-to-one RFQ email is "marketing". **Blocker for trade sends:** counsel must confirm before the first send to a sole trader; until then the product refuses sends to unverified individual subscribers and uses opt-in or inbound contact for them. Registers and directories (Checkatrade, MyBuilder, TfL, Gas Safe, NAPIT) were blocked, so the product does not harvest contacts from them; contacts come from the buyer.
 - **Not found:** London sub-regional costs, tile and trade lead times, any merchant confirming emailed RFQs, a labourer rate. ASHE London trade figures sit in a zip file that was not read. Congestion Charge and ULEZ amounts are snippet-only.
 
-## 11. Known weak evidence
+## 13. Known weak evidence
 
 Part F 15 l/s and the 230 L Water Regulations threshold are from snippets; Part P scope and Welsh equivalents were not read; the HSE domestic asbestos page returned 404; Historic England and Gas Safe pages were blocked; party wall notice periods are from memory; the 40/30/30 deposit split is one vendor's suggestion; competitor and checkout claims rest on blocked or single-source pages (`01-market §13`); several paper venues are from memory (`02-academic §9`).
