@@ -83,13 +83,34 @@ Hard blocks: gas work without a Gas Safe line; electrical work in bathroom zones
 
 Out of v1: photo or floor-plan takeoff, conformal ranges (need quote history), merchant APIs (terms not read), other room types, multi-jurisdiction rules beyond England and Wales.
 
-## 10. Decisions for the owner
+## 10. Owner decisions (answered) and what they imply
 
-1. **Who is the user:** a homeowner, a small contractor or landlord, or a refurbishment company buying for clients? Competitors split along this line and the gate wording differs.
-2. **Where price comes from:** user-entered, quote-derived, or a licensed source. BCIS and Spon's are licensed; retailer feeds need terms read. Pick before step 7.
-3. **"Mid-size":** no sourced definition exists. Require square metres and wall and floor areas.
-4. **Regulated-work stance:** confirm that gates only block and warn, and that the product never advises on compliance.
-5. **Scope of trades RFQ:** whether v1 sends to tradespeople at all, or only to merchants.
+| # | Decision | Answer | Consequence for the design |
+|---|---|---|---|
+| 1 | Who is the user | Generic across the three ideas | The principal is a generic "buyer": a household, a contractor, a plant or a company. Persona-specific wording, gates and mandate limits come from the deployment profile. No consumer-only features in the core |
+| 2 | Where price comes from | Use everything available in the UK market | See section 12. Only sources whose terms allow it; terms for several are still unread |
+| 3 | "Mid-size" | London averages as an illustrative example | Size stays a square-metre input. London figures are labelled example data, sourced and dated, never hard-coded and never presented as a price |
+| 4 | Regulated-work stance | Gates block and warn only | Confirmed. The product never advises on compliance |
+| 5 | RFQ targets | All: merchants and tradespeople | Needs the counterparty-reach rules in section 13 before any trade send |
+
+## 12. Price sourcing strategy (from `research/intent/04-uk-price-sources.md`)
+
+| Layer | Source | Use |
+|---|---|---|
+| Escalation and regional adjustment | ONS price indices, DBT materials price indices (monthly), ASHE Table 15 regional pay; all OGL v3 `[opened]` | Adjust a quote-derived or customer-supplied base. They contain no bathroom unit prices, so they cannot be the base |
+| Base prices (v1) | Customer-supplied price lists, quotes received through the product, merchant trade accounts and RFQs | The only lawful base found without a licence |
+| Licensed unit rates (later) | BCIS (terms and price not found), Spon's 2026 (about GBP 185 as a book, snippet) | Needs a licence covering storage and AI use; ask the publisher before building on it |
+| Affiliate and product feeds | Awin feeds are open to any publisher; storage and AI terms unconfirmed | Candidate for product attributes and indicative retail prices after the terms are read |
+| Do not use | Scraping any merchant or marketplace. Every merchant robots.txt read disallows search, basket and checkout; Screwfix and NBS terms ban crawling and text mining | Hard no |
+
+No merchant API or punchout documentation was found, so merchant quotes arrive by email RFQ or a customer's own trade account. Marketplace cost guides (MyJobQuote, Book a Builder and similar) are marketing-grade and may be shown only as dated context.
+
+## 13. London worked example and counterparty reach (from `research/intent/05-london-example-and-reach.md`)
+
+- **Illustrative only.** The demo shows a London Victorian-terrace bathroom with third-party guide ranges beside the sourced uplift, each labelled "illustrative example, dated". Five sources give five London uplift ranges (10-20%, 12-18%, 20-30%, 20-40%, 25-40%); the demo shows them side by side and does not average them. Plumber day rates range from 180 to 480 across sources, and one source gave two different electrician ranges two weeks apart. Size figures run from 3-4 m2 to 5-6 m2, so the slot is "floor m2 plus wall m2", asked of the user.
+- **VAT.** 20% standard; 5% and 0% cases per GOV.UK `[opened]`; the domestic reverse charge does not apply to private homeowners (GOV.UK technical guide) `[opened]`; CIS for householders is memory only.
+- **Emailing tradespeople.** Sole traders and ordinary partnerships are individual subscribers under PECR; companies are corporate subscribers (ICO) `[opened]`. No page read says whether a one-to-one RFQ email is "marketing". **Blocker for trade sends:** counsel must confirm before the first send to a sole trader; until then the product refuses sends to unverified individual subscribers and uses opt-in or inbound contact for them. Registers and directories (Checkatrade, MyBuilder, TfL, Gas Safe, NAPIT) were blocked, so the product does not harvest contacts from them; contacts come from the buyer.
+- **Not found:** London sub-regional costs, tile and trade lead times, any merchant confirming emailed RFQs, a labourer rate. ASHE London trade figures sit in a zip file that was not read. Congestion Charge and ULEZ amounts are snippet-only.
 
 ## 11. Known weak evidence
 
