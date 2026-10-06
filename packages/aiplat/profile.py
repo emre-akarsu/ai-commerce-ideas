@@ -225,6 +225,77 @@ class PartsPolicy(_P):
     require_licensed_sources_in_production: Literal[True] = True
 
 
+MATCHING_SOURCE_KINDS = (
+    "trade_feed",
+    "merchant_api",
+    "affiliate_feed",
+    "search_snapshot",
+    "manual_quote",
+)
+
+
+class MatchingPolicy(_P):
+    """Product matching gate (docs/product/07-product-matching-engine-spec-v2.md).
+
+    v1 prototype defaults: re-tune them on real order lines. The deterministic attribute checks and
+    the review rule for quantity-versus-size ambiguity have no off switch: the judge can rank
+    candidates, never approve alone."""
+
+    auto_accept_min_score: Decimal = Field(default=Decimal("0.75"), ge=Decimal("0.5"), le=1)
+    auto_accept_min_lead: Decimal = Field(default=Decimal("0.05"), ge=0, le=Decimal("0.5"))
+    reject_below_score: Decimal = Field(default=Decimal("0.35"), ge=0, le=Decimal("0.7"))
+    retrieve_top_k: int = Field(default=50, ge=5, le=200)
+    judge_top_k: int = Field(default=5, ge=2, le=10)
+    judge_examples: int = Field(default=3, ge=0, le=10)
+    review_show_top: int = Field(default=3, ge=1, le=10)
+    llm_cost_ceiling_per_1000_lines: Decimal = Field(default=Decimal("1.50"), gt=0)  # base currency
+    require_zero_failed_checks: Literal[True] = True
+    quantity_size_ambiguity_forces_review: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _ordered(self) -> MatchingPolicy:
+        if self.reject_below_score >= self.auto_accept_min_score:
+            raise ValueError("reject_below_score must be below auto_accept_min_score")
+        if self.judge_top_k > self.retrieve_top_k:
+            raise ValueError("judge_top_k cannot exceed retrieve_top_k")
+        return self
+
+
+def _default_offer_ages() -> dict[str, int]:
+    return {
+        "trade_feed": 168,
+        "merchant_api": 24,
+        "affiliate_feed": 48,
+        "search_snapshot": 24,
+        "manual_quote": 720,
+    }
+
+
+class PricingPolicy(_P):
+    """Offer freshness and best-price comparison.
+
+    Offers from a source kind older than its limit never count as a best price. Search snapshots
+    (third-party search results) are indicative only: they can seed a price range but never a quote
+    line, and the kind stays off unless the deployment enables it."""
+
+    max_offer_age_hours: dict[str, int] = Field(default_factory=_default_offer_ages)
+    stale_offers: Literal["exclude_from_best", "flag_only"] = "exclude_from_best"
+    compare_basis: Literal["ex_tax", "inc_tax"] = "ex_tax"
+    include_delivery_in_comparison: bool = True
+    price_outlier_ratio: Decimal = Field(default=Decimal("3"), ge=Decimal("1.5"), le=10)
+    allow_search_snapshot_sources: bool = False
+
+    @field_validator("max_offer_age_hours")
+    @classmethod
+    def _known_kinds(cls, v: dict[str, int]) -> dict[str, int]:
+        for kind, hours in v.items():
+            if kind not in MATCHING_SOURCE_KINDS:
+                raise ValueError(f"unknown offer source kind {kind!r}")
+            if not 1 <= hours <= 24 * 365:
+                raise ValueError(f"max_offer_age_hours[{kind}] must be 1..8760")
+        return v
+
+
 class BillingPolicy(_P):
     currency: str = Field(default="USD", pattern=r"^[A-Z]{3}$")
     price_per_completed_request: Decimal | None = Field(default=None, ge=0)
@@ -253,6 +324,8 @@ class DeploymentProfile(_P):
     comms: CommsPolicy = CommsPolicy()
     tiers: TierPolicy = TierPolicy()
     parts: PartsPolicy = PartsPolicy()
+    matching: MatchingPolicy = MatchingPolicy()
+    pricing: PricingPolicy = PricingPolicy()
     billing: BillingPolicy = BillingPolicy()
     ui: UiPolicy = UiPolicy()
     features: dict[str, bool] = Field(default_factory=dict)

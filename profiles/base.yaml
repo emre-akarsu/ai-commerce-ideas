@@ -13,3 +13,7 @@ tiers: { enabled: [A, B], unlock_c_after_confirmed: 50 }
 parts: { enabled_families: [deep_groove_ball_bearing, v_belt], standards: ["ISO 15"] }
 billing: { free_requests: 10, prices_include_tax: false }
 features: { photo_intake: false, phone_sms_scripts: true, down_now_mode: true }
+# Product matching gate and offer pricing (stage 2). Spec: docs/product/07-product-matching-engine-spec-v2.md.
+# v1 prototype defaults, to be re-tuned on real order lines; the attribute checks have no off switch.
+matching: { auto_accept_min_score: "0.75", auto_accept_min_lead: "0.05", reject_below_score: "0.35", retrieve_top_k: 50, judge_top_k: 5, judge_examples: 3, review_show_top: 3, llm_cost_ceiling_per_1000_lines: "1.50" }
+pricing: { stale_offers: exclude_from_best, compare_basis: ex_tax, include_delivery_in_comparison: true, price_outlier_ratio: "3", allow_search_snapshot_sources: false }
