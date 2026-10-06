@@ -37,6 +37,8 @@ ENTITY_TABLES = (
     "po_drafts",
     "corrections",
     "consent_records",
+    "supplier_profiles",
+    "assumptions",
 )
 # Every table below carries tenant_id and has FORCE ROW LEVEL SECURITY (tenants: id is the tenant).
 TENANT_TABLES = ("tenants", *ENTITY_TABLES, "rule_uses", "events", "event_heads")
@@ -78,6 +80,8 @@ standing_rules = _entity("standing_rules")
 po_drafts = _entity("po_drafts")
 corrections = _entity("corrections")
 consent_records = _entity("consent_records")
+supplier_profiles = _entity("supplier_profiles")
+assumptions = _entity("assumptions")
 
 rule_uses = Table(
     "rule_uses",

@@ -68,3 +68,6 @@ configuration governed any decision. The stamp is part of the hash-chained paylo
 - Vendor-derived strings are returned inert (no HTML) and the UI must render them as text (R6).
 - Cross-tenant ids return 404, never 403 (no existence leak).
 - Business-identity values are looked up by the authenticated tenant only; a tenant never sees or sends another tenant's, and no request field can supply or change them.
+
+## Buy-side RFQ MVP addendum
+Supplier profile and verification, vendor CSV import, the assumption ledger, setup and go-live, the evidence export and the reload-safe prepared-RFQ preview are specified in `api-contract-mvp.md`. Everything above still holds.

@@ -7,7 +7,7 @@ import json
 import threading
 import time
 from collections import OrderedDict
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Collection
 from dataclasses import dataclass
 
 from starlette.requests import Request
@@ -35,11 +35,12 @@ class SecurityMiddleware:
     """Adds security headers to every response and enforces a request body size limit."""
 
     def __init__(
-        self, app: ASGIApp, *, max_body_bytes: int, max_upload_bytes: int, upload_path: str
+        self, app: ASGIApp, *, max_body_bytes: int, max_upload_bytes: int,
+        upload_path: str | Collection[str],
     ) -> None:
-        self.app, self.max_body, self.max_upload, self.upload_path = (
-            app, max_body_bytes, max_upload_bytes, upload_path,
-        )
+        self.app, self.max_body, self.max_upload = app, max_body_bytes, max_upload_bytes
+        self.upload_paths = (
+            frozenset({upload_path}) if isinstance(upload_path, str) else frozenset(upload_path))
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -53,7 +54,7 @@ class SecurityMiddleware:
                 message = {**message, "headers": [*message["headers"], *extra]}
             await send(message)
 
-        limit = self.max_upload if scope["path"] == self.upload_path else self.max_body
+        limit = self.max_upload if scope["path"] in self.upload_paths else self.max_body
         headers = dict(scope["headers"])
         declared = headers.get(b"content-length")
         too_big = False
@@ -157,7 +158,8 @@ def make_idempotency(
     ) -> Response:
         key = request.headers.get("idempotency-key")
         authz = request.headers.get("authorization", "")
-        if request.method not in {"POST", "PATCH"} or not key or not authz.startswith("Bearer "):
+        if (request.method not in {"POST", "PATCH", "PUT"} or not key
+                or not authz.startswith("Bearer ")):
             return await call_next(request)
         try:
             ctx = auth.authenticate(authz[7:].strip())

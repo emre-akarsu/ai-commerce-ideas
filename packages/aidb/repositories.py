@@ -57,6 +57,7 @@ from components.evidence.log import (
     _envelope,
     _to_jsonable,
 )
+from components.suppliers import Assumption, SupplierProfile
 
 from . import models as m
 from .session import bound_tenant, tenant_session
@@ -294,6 +295,16 @@ def _specs() -> dict[str, _Spec[Any]]:
             allow_save=False,
             allow_delete=False,
         ),
+        "supplier_profiles": _model_spec(
+            m.supplier_profiles, "supplier_profile", SupplierProfile,
+            lambda o: {"vendor_id": o.vendor_id, "state": o.verification.state},
+            allow_delete=False,
+        ),
+        "assumptions": _model_spec(
+            m.assumptions, "assumption", Assumption,
+            lambda o: {"request_id": o.request_id, "state": o.status, "created_at": o.created_at},
+            allow_delete=False,
+        ),
         "corrections": _doc_spec(m.corrections, "correction"),
         "consent_records": _doc_spec(m.consent_records, "consent_record"),
     }
@@ -317,6 +328,8 @@ class PgTenantStore:
         self.approvals: PgRepo[Approval] = PgRepo(conn, tenant_id, s["approvals"])
         self.standing_rules: PgRepo[StandingRule] = PgRepo(conn, tenant_id, s["standing_rules"])
         self.po_drafts: PgRepo[PurchaseOrderDraft] = PgRepo(conn, tenant_id, s["po_drafts"])
+        self.profiles: PgRepo[SupplierProfile] = PgRepo(conn, tenant_id, s["supplier_profiles"])
+        self.assumptions: PgRepo[Assumption] = PgRepo(conn, tenant_id, s["assumptions"])
         self.corrections: PgRepo[dict[str, Any]] = PgRepo(conn, tenant_id, s["corrections"])
         self.consents: PgRepo[dict[str, Any]] = PgRepo(conn, tenant_id, s["consent_records"])
 
@@ -466,7 +479,7 @@ class PgEventStore(EventLog):
                     m.event_heads.c.tenant_id == tenant_id
                 )
             ).first()
-        return (int(row.count), str(row.last_hash)) if row else (0, GENESIS_HASH)
+        return (int(row[0]), str(row.last_hash)) if row else (0, GENESIS_HASH)
 
     def first_invalid(
         self, tenant_id: str, *, expected_head: tuple[int, str] | None = None

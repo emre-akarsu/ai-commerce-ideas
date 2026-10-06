@@ -22,6 +22,7 @@ from components.core.fakes import FakeClock, RecordingTransport
 from components.core.store import Store
 from components.evidence.log import EventLog
 from components.purchase_orders.approvals import CapPolicy
+from components.suppliers import SupplierStore
 
 T1, T2 = "tenant-1", "tenant-2"
 # Synthetic, illustrative company particulars (not real companies) for profiles that require the block.
@@ -37,7 +38,13 @@ UK_IDENTITY_T2 = {
     "registered_office": "2 Sample Road, Edinburgh, EH1 1AA",
     "registered_in": "Scotland",
 }
+# States the precision class, so no value is defaulted and the assumption ledger has no critical row.
 REQUEST_TEXT = (
+    "Bearing 6205-2RS, normal clearance CN, precision class P0. "
+    "Manufacturer: SynthCo Alpha MPN: AL6205-2RS. Need 10 pcs by 2026-10-20."
+)
+# The same request without the precision class: P0 is then a defaulted, critical assumption.
+REQUEST_TEXT_DEFAULTED = (
     "Bearing 6205-2RS, normal clearance CN. Manufacturer: SynthCo Alpha MPN: AL6205-2RS. "
     "Need 10 pcs by 2026-10-20."
 )
@@ -64,6 +71,7 @@ class World:
     admin: Ctx
     approver: Ctx
     other_buyer: Ctx
+    suppliers: SupplierStore
 
 
 def build_world(
@@ -71,16 +79,17 @@ def build_world(
 ) -> World:
     clock = FakeClock()
     store = Store()
-    log = EventLog(clock, pii_key=b"k" * 32)
+    log = EventLog(clock, pii_key=b"k" * 32, chain_key=b"c" * 32)
     transport = RecordingTransport()
     notifier = InMemoryNotifier()
+    suppliers = SupplierStore()
     counter = itertools.count(1)
     cfg: dict[str, object] = {"approval_threshold": Decimal("50"), **settings_kw}
     settings = Settings(**cfg)  # type: ignore[arg-type]
     svc = build_in_memory_service(
         clock=clock, store=store, event_log=log, transport=transport, notifier=notifier,
         settings=settings, caps=caps, profile=profile, ids=lambda p: f"{p}-{next(counter):03d}", approval_secret=b"s" * 32,
-        token_gen=lambda: f"reply-{next(counter):03d}",
+        token_gen=lambda: f"reply-{next(counter):03d}", suppliers=suppliers,
     )
     admin = Ctx(T1, "admin-1", Role.ADMIN)
     for vid in ("acme", "bolt"):
@@ -88,11 +97,14 @@ def build_world(
     svc.upsert_vendor(admin, make_vendor("quit", opted_out=True))
     svc.upsert_vendor(admin, make_vendor("nopref", preferred=False))
     svc.upsert_vendor(Ctx(T2, "admin-2", Role.ADMIN), make_vendor("other", tenant=T2))
+    for vid in ("acme", "bolt", "quit", "nopref"):  # suppliers are checked before they can be asked
+        svc.attest_vendor(admin, vid)
+    svc.attest_vendor(Ctx(T2, "admin-2", Role.ADMIN), "other")
     return World(
         svc, clock, store, log, transport, notifier,
         requester=Ctx(T1, "tech-1", Role.REQUESTER), buyer=Ctx(T1, "buyer-1", Role.BUYER),
         admin=admin, approver=Ctx(T1, "approver-1", Role.ADMIN),
-        other_buyer=Ctx(T2, "buyer-9", Role.BUYER),
+        other_buyer=Ctx(T2, "buyer-9", Role.BUYER), suppliers=suppliers,
     )
 
 
