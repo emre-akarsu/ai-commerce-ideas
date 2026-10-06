@@ -1,73 +1,70 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
-import { api } from "@/lib/api";
-import { errMsg, useAsync } from "@/lib/useAsync";
-import { Badge, Button, Card, ErrorNote, H2 } from "@/components/ui/ui";
+import { api, type SetupReadiness } from "@/lib/api";
+import { can } from "@/lib/flow";
+import { invalidate, useQuery } from "@/lib/store";
+import { Badge, Button, Card, EmptyState, ErrorNote, H2, PageHeader, SkeletonRows } from "@/components/ui/ui";
+import { useSession } from "@/components/session";
+import { useProfile } from "@/lib/profile";
+import { useAct } from "@/components/workspace/common";
 
 export default function SetupPage() {
-  const readiness = useAsync(() => api.getSetup(), []);
-  const [err, setErr] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  async function goLive() {
-    setBusy(true);
-    setErr(null);
-    try {
-      await api.goLive();
-      readiness.setData(await api.getSetup());
-    } catch (x) {
-      setErr(errMsg(x));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  if (readiness.loading && !readiness.data) return <p>Loading...</p>;
-  if (readiness.error) return <ErrorNote message={readiness.error} />;
-
-  const data = readiness.data!;
-  const blocked = data.items.filter((i) => i.status === "blocked").map((i) => i.id).join(", ");
-
+  const { role } = useSession();
+  const gate = can(role, "view_setup");
+  const profile = useProfile();
+  const q = useQuery<SetupReadiness>(gate.ok ? "setup" : null, () => api.getSetup());
+  const act = useAct();
+  const [confirmKill, setConfirmKill] = useState(false);
+  if (!gate.ok) return <EmptyState title="Setup is for admins">{gate.reason}</EmptyState>;
+  const s = q.data;
+  const killOn = s?.items.find((i) => i.id === "kill_switch")?.status === "blocked";
+  async function goLive() { const out = await act.run(() => api.goLive(), "Recorded as live."); if (out) invalidate("setup"); }
+  async function setKill(engaged: boolean) { const out = await act.run(() => api.killSwitch(engaged), engaged ? "Sending is switched off." : "Sending is switched on."); if (out) { setConfirmKill(false); invalidate("setup"); } }
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Setup and go-live</h1>
-
-      <Card>
-        <H2>Readiness checklist</H2>
-        <p className="mb-4 text-sm text-slate-600">
-          Status: {data.ready ? <Badge tone="green">Ready</Badge> : <Badge tone="amber">Not ready</Badge>} ·
-          Live: {data.live ? <Badge tone="green">Yes</Badge> : <Badge>No</Badge>}
-        </p>
-        <ul className="space-y-2">
-          {data.items.map((item) => (
-            <li key={item.id} className="flex items-start gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <div className="flex-1">
-                <div className="font-medium">
-                  {item.label} {item.status === "done" && <Badge tone="green">Done</Badge>} {item.status === "todo" && <Badge>TODO</Badge>} {item.status === "blocked" && <Badge tone="red">Blocked</Badge>}
-                </div>
-                <div className="mt-1 text-slate-600">{item.detail}</div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </Card>
-
-      {blocked && (
-        <Card>
-          <p className="text-sm text-red-900">Cannot go live: {blocked} {data.items.filter((i) => i.status === "blocked").length === 1 ? "is" : "are"} blocked.</p>
-        </Card>
+    <div>
+      <PageHeader title="Setup" sub="Get to a safe first send. Each item is checked from the account's real state." />
+      {q.loading && <SkeletonRows n={5} />}
+      {q.error && !s && <ErrorNote message={q.error} />}
+      {s && (
+        <div className="space-y-5">
+          <Card>
+            <H2 aside={s.live ? <Badge tone="green">Recorded as live</Badge> : s.ready ? <Badge tone="blue">Ready</Badge> : <Badge tone="amber">Not ready</Badge>}>Go-live checklist</H2>
+            <ul className="divide-y divide-line">
+              {s.items.map((i) => (
+                <li key={i.id} className="flex flex-wrap items-start justify-between gap-2 py-3">
+                  <div className="min-w-0 flex-1"><p className="font-medium">{i.label}</p><p className="text-sm text-mute">{i.detail}</p>
+                    {i.id === "suppliers" && i.status !== "done" && <Link href="/vendors" className="text-sm font-medium text-accent underline">Go to Suppliers</Link>}</div>
+                  <Badge tone={i.status === "done" ? "green" : i.status === "blocked" ? "red" : "amber"}>{i.status === "done" ? "Done" : i.status === "blocked" ? "Blocked" : "Your turn"}</Badge>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Button onClick={goLive} disabled={act.busy || !s.ready || s.live || !can(role, "go_live").ok}>{s.live ? "Already recorded" : "Record as live"}</Button>
+              <span className="text-sm text-mute">{s.ready ? "Going live is recorded for the audit trail. It does not switch anything on or off in this version, and a second person's confirmation is not required yet." : "Resolve the blocked items first."}</span>
+            </div>
+          </Card>
+          <Card>
+            <H2 aside={<Badge tone={killOn ? "red" : "green"}>{killOn ? "Sending is OFF" : "Sending is on"}</Badge>}>Kill switch</H2>
+            <p className="mb-3 text-sm text-mute">Stops every send for this account at once. Messages already queued are refused. You can turn it back on at any time.</p>
+            {!confirmKill ? <Button variant={killOn ? "secondary" : "danger"} onClick={() => (killOn ? setKill(false) : setConfirmKill(true))} disabled={act.busy}>{killOn ? "Switch sending back on" : "Switch sending off"}</Button> : (
+              <div className="flex flex-wrap items-center gap-3 rounded-md border border-bad bg-bad-soft p-3"><p className="text-sm font-medium">Stop all sending for this account?</p>
+                <Button variant="danger" onClick={() => setKill(true)} disabled={act.busy}>Yes, stop sending</Button><Button variant="ghost" onClick={() => setConfirmKill(false)}>Cancel</Button></div>
+            )}
+          </Card>
+          <Card>
+            <H2>Active profile</H2>
+            <dl className="grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+              <div className="flex gap-2"><dt className="text-mute">Profile</dt><dd className="font-mono">{profile.id}@{profile.digest.slice(0, 12)}</dd></div>
+              <div className="flex gap-2"><dt className="text-mute">Jurisdiction</dt><dd>{profile.legal.jurisdiction || "not set"}</dd></div>
+              <div className="flex gap-2"><dt className="text-mute">Currency</dt><dd>{profile.money.base_currency}</dd></div>
+              <div className="flex gap-2"><dt className="text-mute">Tax</dt><dd>{profile.tax.name} {Number(profile.tax.standard_rate) * 100}%, quotes read as {profile.tax.quote_basis_default.replace("_", "-")} unless stated</dd></div>
+            </dl>
+            {profile.legal.business_identity?.required && <p className="mt-3 text-sm text-mute">Outgoing messages carry: {profile.legal.business_identity.fields.map((f) => profile.legal.business_identity?.labels[f] ?? f).join(", ")}.</p>}
+          </Card>
+          <ErrorNote message={act.error} help={act.help} />
+        </div>
       )}
-
-      <Card>
-        <H2>Go live</H2>
-        <p className="mb-3 text-sm text-slate-600">
-          When ready, record that this account is live and ready for production use. This is recorded for audit purposes; sends are never blocked by this status in this MVP.
-        </p>
-        <ErrorNote message={err} />
-        <Button disabled={!data.ready || busy || data.live} onClick={goLive}>
-          {data.live ? "Already live" : busy ? "Recording..." : "Record go-live"}
-        </Button>
-      </Card>
     </div>
   );
 }

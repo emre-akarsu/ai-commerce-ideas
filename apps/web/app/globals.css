@@ -1,5 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body { @apply bg-slate-50 text-slate-900 antialiased; }
-:focus-visible { @apply outline-2 outline-offset-2 outline-blue-700; }
+
+/* Design tokens. Light is the base; dark redefines the same names. Contrast pairs are chosen for WCAG AA text. */
+:root {
+  --bg: #f3f5f6; --surface: #ffffff; --sunken: #e9edee; --line: #d5dcde; --strong: #aab6b9;
+  --ink: #14201f; --mute: #4a5a5b;
+  --accent: #0b5f67; --accent-ink: #ffffff; --accent-soft: #dcefef;
+  --ok: #1b6b3a; --ok-soft: #dff1e5; --warn: #8a4b00; --warn-soft: #fbecd2; --bad: #a12626; --bad-soft: #f8e1e1;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1516; --surface: #172021; --sunken: #0b1011; --line: #2b3839; --strong: #4a5d5f;
+    --ink: #e7eeee; --mute: #a2b3b4;
+    --accent: #5cc4cc; --accent-ink: #062427; --accent-soft: #123a3e;
+    --ok: #6fd08f; --ok-soft: #14301f; --warn: #f0b95c; --warn-soft: #3a2a0d; --bad: #f19a9a; --bad-soft: #3a1818;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1516; --surface: #172021; --sunken: #0b1011; --line: #2b3839; --strong: #4a5d5f;
+  --ink: #e7eeee; --mute: #a2b3b4;
+  --accent: #5cc4cc; --accent-ink: #062427; --accent-soft: #123a3e;
+  --ok: #6fd08f; --ok-soft: #14301f; --warn: #f0b95c; --warn-soft: #3a2a0d; --bad: #f19a9a; --bad-soft: #3a1818;
+  color-scheme: dark;
+}
+html { font-family: var(--font-sans); }
+body { background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.5; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.num { font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+.skeleton { background: var(--sunken); border-radius: 6px; animation: pulse-soft 1.4s ease-in-out infinite; }

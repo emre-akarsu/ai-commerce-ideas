@@ -1,72 +1,119 @@
 "use client";
+import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
-import { errMsg, useAsync } from "@/lib/useAsync";
-import { Button, Card, ErrorNote, H2 } from "@/components/ui/ui";
-import { copy, useProfile } from "@/lib/profile";
-import { ApproveAndSend, Candidates, Comparison, Questions, Quotes, RfqPanel, SpecCard, Timeline } from "@/components/request-parts";
-import { AssumptionLedger } from "@/components/assumption-ledger";
-import { StepRail, NextActionBar } from "@/components/workspace-layout";
+import { can, humanise, nextAction, stateLabel, requestTitle, STEP_LABEL, STEP_ORDER, stepStatuses, type StepId } from "@/lib/flow";
+import { formatDate, useProfile } from "@/lib/profile";
+import { useQuery } from "@/lib/store";
+import { Badge, Button, Card, ErrorNote, SkeletonRows } from "@/components/ui/ui";
+import { useSession } from "@/components/session";
+import { StepRequest } from "@/components/workspace/step-request";
+import { StepSuppliers } from "@/components/workspace/step-suppliers";
+import { StepSend } from "@/components/workspace/step-send";
+import { StepReplies } from "@/components/workspace/step-replies";
+import { StepCompare } from "@/components/workspace/step-compare";
+import { StepPo } from "@/components/workspace/step-po";
+import { cn } from "@/lib/utils";
+
+function StepRail({ statuses, active, onPick }: { statuses: ReturnType<typeof stepStatuses>; active: StepId; onPick: (s: StepId) => void }) {
+  return (
+    <nav aria-label="Steps" className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
+      <ol className="flex min-w-max items-center gap-1 md:min-w-0">
+        {STEP_ORDER.map((id, i) => {
+          const st = statuses[id]; const on = id === active;
+          return (
+            <li key={id} className="flex items-center gap-1 md:flex-1">
+              <button onClick={() => onPick(id)} aria-current={on ? "step" : undefined}
+                className={cn("flex min-h-target w-full items-center gap-2 rounded-md px-2.5 text-sm hover:bg-sunken", on ? "bg-accent-soft font-semibold text-accent" : "text-ink")}>
+                <span aria-hidden className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                  st === "done" ? "bg-ok text-surface" : st === "current" ? "bg-accent text-accent-ink" : "border border-strong text-mute")}>{st === "done" ? "✓" : i + 1}</span>
+                <span className="whitespace-nowrap">{STEP_LABEL[id]}</span>
+                <span className="sr-only">{st === "done" ? ", done" : st === "current" ? ", needs you" : ", not yet"}</span>
+              </button>
+              {i < STEP_ORDER.length - 1 && <span aria-hidden className="hidden h-px w-3 bg-line md:block" />}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
 
 export default function RequestPage() {
   const { id } = useParams<{ id: string }>();
-  const d = useAsync(() => api.getRequest(id), [id]);
-  const vendors = useAsync(() => api.listVendors(), []);
-  const audit = useAsync(() => api.audit(id).catch(() => null), [id]);
+  const q = useQuery(`request:${id}`, () => api.getRequest(id));
   const profile = useProfile();
-  const [err, setErr] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [po, setPo] = useState(false);
+  const { role } = useSession();
+  const [pick, setPick] = useState<StepId | null>(null);
+  const nextBtn = useRef<HTMLButtonElement>(null);
+  const det = q.data;
 
-  if (d.loading && !d.data) return <p>Loading...</p>;
-  if (!d.data) return <ErrorNote message={d.error ?? "Not found"} />;
-  const det = d.data;
-  const vs = vendors.data ?? [];
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const t = e.target as HTMLElement | null;
+      if (e.key !== "." || e.ctrlKey || e.metaKey || e.altKey || (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) || document.querySelector('[role="dialog"]')) return;
+      e.preventDefault(); nextBtn.current?.focus(); // focus only: pressing is always a deliberate click
+    }
+    window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
-  async function select(qid: string) {
-    setBusy(true); setErr(null);
-    try { d.setData(await api.selectQuote(id, qid)); } catch (x) { setErr(errMsg(x)); } finally { setBusy(false); }
+  if (q.loading) return <div className="space-y-4"><SkeletonRows n={1} /><SkeletonRows n={3} /></div>;
+  if (q.error && !det) return <div className="space-y-3"><ErrorNote message={q.error} /><Link href="/" className="text-sm font-medium text-accent underline">Back to the inbox</Link></div>;
+  if (!det) return null;
+
+  const statuses = stepStatuses(det);
+  const na = nextAction(det);
+  const active: StepId = pick ?? na.step ?? "po";
+  const done = () => setPick(null);
+  const r = det.request;
+  const gate = na.cap ? can(role, na.cap) : { ok: true as const };
+  const props = { det, onDone: done };
+  function goNext() {
+    if (na.step) { setPick(na.step); setTimeout(() => document.getElementById("primary-action")?.focus(), 60); }
   }
-  async function poDraft() {
-    setBusy(true); setErr(null);
-    try {
-      await api.createPoDraft(id);
-      const blob = await api.poDraftCsv(id);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a"); a.href = url; a.download = `po-draft-${id}.csv`; a.click();
-      URL.revokeObjectURL(url); setPo(true);
-    } catch (x) { setErr(errMsg(x)); } finally { setBusy(false); }
-  }
-
-  const completedSteps: Array<"request" | "suppliers" | "approve_send" | "replies" | "compare" | "po"> = [];
-  const approved = det.request.state === "APPROVED" || det.request.state === "PO_DRAFTED";
 
   return (
-    <div className="flex min-h-screen flex-col pb-24">
-      <div className="flex-1">
-        <div className="mx-auto max-w-4xl space-y-4 px-4 py-6">
-          <h1 className="text-2xl font-semibold">{copy(profile, "request.heading", "Request")} {det.request.id}</h1>
-          <StepRail currentStep="request" completedSteps={completedSteps} />
-
-          {profile.legal.notices.length > 0 && (
-            <Card aria-label="Legal notices"><H2>Notices</H2><ul className="list-disc pl-5 text-sm">{profile.legal.notices.map((n) => <li key={n}>{n}</li>)}</ul></Card>
-          )}
-          <ErrorNote message={err ?? d.error} />
-          <SpecCard r={det.request} />
-          <Questions r={det.request} onDone={d.setData} />
-          <AssumptionLedger requestId={id} assumptions={det.assumptions} onUpdated={() => d.reload()} />
-          <Candidates list={det.candidates} />
-          <RfqPanel r={det.request} vendors={vs} candidates={det.candidates} />
-          <ApproveAndSend rfqs={[]} onSent={() => {}} busy={null} err={null} />
-          <Quotes quotes={det.quotes} vendors={vs} comparison={det.comparison} canSelect={!!det.comparison || det.quotes.length > 0} onSelect={select} busy={busy} />
-          {det.comparison && <Comparison c={det.comparison} vendors={vs} />}
-          {det.pending_approvals.length > 0 && <Card><H2>Waiting for approval</H2><p className="text-sm">{det.pending_approvals.length} approval(s) pending. Approvers get a link to decide.</p></Card>}
-          {approved && <Card><H2>Purchase order draft</H2><Button onClick={poDraft} disabled={busy}>Create and download PO draft (CSV)</Button>{po && <p className="mt-2 text-sm">Downloaded. This is a draft; nothing has been ordered.</p>}</Card>}
-          <Timeline events={audit.data?.events ?? det.events} chainValid={audit.data?.chain_valid ?? det.chain_valid} />
+    <div>
+      <p className="mb-2 text-sm"><Link href="/" className="font-medium text-accent hover:underline">&larr; Inbox</Link></p>
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="truncate text-xl font-semibold tracking-tight md:text-2xl">{requestTitle(r, det.candidates)}</h1>
+          <p className="mt-0.5 text-sm text-mute">{r.id}{r.need_by ? ` · needed by ${formatDate(profile, r.need_by)}` : ""}{r.site ? ` · ${r.site}` : ""}{r.work_order_ref ? ` · ${r.work_order_ref}` : ""}</p>
         </div>
+        <div className="flex flex-wrap items-center gap-2">{r.down_now && <Badge tone="red">Machine down</Badge>}{r.criticality && <Badge tone="amber">Safety critical</Badge>}<Badge tone="gray">{stateLabel(r.state)}</Badge></div>
       </div>
-      <NextActionBar det={det} onAction={() => {}} busy={busy} />
+      <StepRail statuses={statuses} active={active} onPick={setPick} />
+      <div className="mt-5 pb-24" aria-live="polite">
+        {active === "request" && <StepRequest {...props} />}
+        {active === "suppliers" && <StepSuppliers {...props} />}
+        {active === "send" && <StepSend {...props} />}
+        {active === "replies" && <StepReplies {...props} />}
+        {active === "compare" && <StepCompare {...props} />}
+        {active === "po" && <StepPo {...props} />}
+        <details className="mt-6 text-sm">
+          <summary className="min-h-target cursor-pointer py-2 font-medium text-accent">History ({det.events.length})</summary>
+          <ul className="divide-y divide-line rounded-md border border-line bg-surface">
+            {det.events.map((e) => <li key={e.id} className="flex flex-wrap justify-between gap-2 px-3 py-2"><span>{humanise(e.type.replace(".", " "))}</span><span className="text-xs text-mute">{e.actor} · {formatDate(profile, e.ts)}</span></li>)}
+            {det.events.length === 0 && <li className="px-3 py-2 text-mute">No events yet.</li>}
+          </ul>
+        </details>
+      </div>
+      {na.step && (
+        <div className="fixed inset-x-0 bottom-14 z-20 border-t border-line bg-surface/95 px-4 py-2.5 backdrop-blur md:bottom-0 md:left-[232px]">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 md:px-2">
+            <div className="min-w-0">
+              <p className="text-xs uppercase tracking-wide text-mute">{na.waitingOn ? `Waiting on ${na.waitingOn}` : "Next"}</p>
+              <p className="truncate text-sm font-semibold">{na.label}</p>
+              <p className="hidden truncate text-xs text-mute sm:block">{gate.ok ? na.detail : gate.reason}</p>
+            </div>
+            {active === na.step
+              ? <span className="text-sm text-mute">You are on this step</span>
+              : <Button ref={nextBtn} variant={na.waitingOn ? "secondary" : "primary"} onClick={goNext}>{na.waitingOn ? `View ${STEP_LABEL[na.step].toLowerCase()}` : `Go to ${STEP_LABEL[na.step].toLowerCase()}`}</Button>}
+          </div>
+        </div>
+      )}
+      {!na.step && <Card className="mt-4 text-sm text-mute">{na.detail}</Card>}
     </div>
   );
 }

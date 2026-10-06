@@ -68,7 +68,7 @@ describe("mock profile", () => {
   it("mock profile has exactly the public keys", async () => {
     const p = await api.profile();
     expect(Object.keys(p).sort()).toEqual(["digest", "features", "id", "lead_time", "legal", "locale", "money", "parts", "tax", "tiers", "ui"]);
-    expect(Object.keys(p.legal).sort()).toEqual(["jurisdiction", "notices"]);
+    expect(Object.keys(p.legal).sort()).toEqual(["business_identity", "jurisdiction", "notices"]);
   });
   it("can serve the uk example profile", async () => {
     process.env.NEXT_PUBLIC_MOCK_PROFILE = "uk";

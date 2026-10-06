@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { api, ApiError, setTokenProvider } from "@/lib/api";
+import { mockApprovalToken, mockReset } from "@/lib/mock";
 import { assertDeployable, buildCsp } from "../security-policy.mjs";
 
 const ok = (b: unknown) => new Response(JSON.stringify(b), { status: 200 });
@@ -40,7 +41,7 @@ describe("mock mode", () => {
   beforeEach(() => { process.env.NEXT_PUBLIC_API_MOCK = "1"; });
   it("serves example data without fetch", async () => {
     const f = vi.fn(); vi.stubGlobal("fetch", f);
-    const d = await api.getRequest("x");
+    const d = await api.getRequest("rq-1004");
     expect(d.candidates[0].synthetic).toBe(true);
     expect((await api.listVendors()).length).toBeGreaterThan(0);
     expect(f).not.toHaveBeenCalled();
@@ -64,13 +65,14 @@ describe("safety", () => {
 });
 
 describe("approval contract (mock matches ApprovalLinkView / DecisionResult)", () => {
-  beforeEach(() => { process.env.NEXT_PUBLIC_API_MOCK = "1"; });
+  beforeEach(() => { process.env.NEXT_PUBLIC_API_MOCK = "1"; mockReset(); });
   it("mock approval link has every field the page needs", async () => {
-    const v = await api.approvalLink("t");
+    const t = mockApprovalToken("rq-1007")!;
+    const v = await api.approvalLink(t);
     expect(Object.keys(v).sort()).toEqual(["action_options", "currency", "expires_at", "flags", "lead_time_days", "note",
       "offered_mpn", "offered_tier", "part_summary", "quantity", "quote_id", "request_id", "review_notes", "tax_basis", "tax_rate",
       "total", "unit_price_each", "unit_price_quoted", "vendor"]);
-    const d = await api.decide("t", "approve");
+    const d = await api.decide(t, "approve");
     expect(Object.keys(d).sort()).toEqual(["decision", "request_id", "state"]);
   });
 });
