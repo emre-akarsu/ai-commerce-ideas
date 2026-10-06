@@ -996,6 +996,27 @@
         "title": "MoneyIn",
         "type": "object"
       },
+      "OpenQuestion": {
+        "additionalProperties": false,
+        "properties": {
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionField"
+            },
+            "title": "Fields",
+            "type": "array"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "OpenQuestion",
+        "type": "object"
+      },
       "PendingApproval": {
         "additionalProperties": false,
         "properties": {
@@ -1517,6 +1538,28 @@
         "title": "PurchaseOrderDraft",
         "type": "object"
       },
+      "QuestionField": {
+        "additionalProperties": false,
+        "description": "An attribute an answer is keyed by, and the values accepted for it (empty: free text).",
+        "properties": {
+          "allowed_values": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Values",
+            "type": "array"
+          },
+          "attribute": {
+            "title": "Attribute",
+            "type": "string"
+          }
+        },
+        "required": [
+          "attribute"
+        ],
+        "title": "QuestionField",
+        "type": "object"
+      },
       "Quote": {
         "additionalProperties": false,
         "properties": {
@@ -1940,6 +1983,13 @@
               }
             ],
             "title": "Need By"
+          },
+          "open_question_details": {
+            "items": {
+              "$ref": "#/components/schemas/OpenQuestion"
+            },
+            "title": "Open Question Details",
+            "type": "array"
           },
           "open_questions": {
             "items": {

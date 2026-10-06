@@ -51,10 +51,12 @@ function Composer() {
           onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) e.currentTarget.form?.requestSubmit(); }}
           placeholder="4 x 6205-2RS bearings for the packing line, needed by Friday" className={inputCls} />
       </Field>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <Field label="Quantity" hint="The agent does not read this from the text."><input name="quantity" type="number" min={1} inputMode="numeric" className={inputCls} disabled={!gate.ok} /></Field>
+        <Field label="Needed by"><input name="need_by" type="date" className={inputCls} disabled={!gate.ok} /></Field>
+      </div>
       {more && (
         <div className="mt-3 grid gap-3 sm:grid-cols-4">
-          <Field label="Quantity"><input name="quantity" type="number" min={1} inputMode="numeric" className={inputCls} /></Field>
-          <Field label="Needed by"><input name="need_by" type="date" className={inputCls} /></Field>
           <Field label="Deliver to"><input name="site" maxLength={200} className={inputCls} /></Field>
           <Field label="Work order"><input name="wo" maxLength={60} className={inputCls} /></Field>
           <label className="flex min-h-target items-center gap-2 text-sm"><input name="down_now" type="checkbox" className="h-5 w-5" /> Machine is down now</label>
@@ -63,7 +65,7 @@ function Composer() {
       )}
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={!gate.ok || busy || !text.trim()}>{busy ? "Starting..." : "Start request"}</Button>
-        <button type="button" onClick={() => setMore((v) => !v)} className="min-h-target text-sm font-medium text-accent underline-offset-2 hover:underline" aria-expanded={more}>{more ? "Fewer details" : "Add quantity, date, site"}</button>
+        <button type="button" onClick={() => setMore((v) => !v)} className="min-h-target text-sm font-medium text-accent underline-offset-2 hover:underline" aria-expanded={more}>{more ? "Fewer details" : "Add site, work order, urgency"}</button>
       </div>
       <div className="mt-3"><ErrorNote message={err} /></div>
     </form>

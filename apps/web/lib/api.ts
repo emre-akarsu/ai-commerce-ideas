@@ -11,10 +11,12 @@ export type Authenticity = "verified" | "vendor_claimed" | "unknown";
 export interface Attribute {
   name: string; value: string; unit: string | null; source: AttrSource; source_ref: string; confidence: number;
 }
+export interface QuestionField { attribute: string; allowed_values: string[] }
+export interface OpenQuestion { text: string; fields: QuestionField[] }
 export interface RequestView {
   id: string; state: string; family: string | null; attributes: Record<string, Attribute>;
   quantity: number | null; need_by: string | null; site: string | null; work_order_ref: string | null;
-  criticality: boolean; down_now: boolean; open_questions: string[]; questions_asked: number; created_at: string | null;
+  criticality: boolean; down_now: boolean; open_questions: string[]; open_question_details?: OpenQuestion[]; questions_asked: number; created_at: string | null;
 }
 export interface CandidateView {
   mpn: string; manufacturer: string; tier: Tier; basis: string; basis_source: string; basis_date: string | null;

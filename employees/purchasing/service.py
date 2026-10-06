@@ -115,8 +115,10 @@ from .views import (
     AuditView,
     DecisionResult,
     ImportSummary,
+    OpenQuestion,
     PendingApproval,
     PreparedRFQ,
+    QuestionField,
     QuoteView,
     RequestDetail,
     RequestView,
@@ -459,6 +461,24 @@ def _total(quote: Quote, quantity: int) -> Decimal:
 # ---------------------------------------------------------------- the service
 
 
+def _open_question_details(r: Request) -> list[OpenQuestion]:
+    """For each open question sentence, the attribute fields an answer must be keyed by. A sentence several
+    attributes share (the three dimensions) lists them all; the family question answers ``family``."""
+    out: list[OpenQuestion] = []
+    spec = get_family(r.family) if r.family else None
+    for text in r.open_questions:
+        fields: list[QuestionField] = []
+        if spec is None:
+            fields.append(QuestionField(attribute="family", allowed_values=list(list_families())))
+        else:
+            for attr, q in spec.questions.items():
+                if q == text:
+                    fields.append(QuestionField(
+                        attribute=attr, allowed_values=list(spec.allowed_values.get(attr, ()))))
+        out.append(OpenQuestion(text=text, fields=fields))
+    return out
+
+
 class PurchasingService(MvpOps):
     def __init__(
         self,
@@ -614,6 +634,7 @@ class PurchasingService(MvpOps):
             id=r.id, state=r.state, family=r.family, attributes=dict(r.attributes),
             quantity=r.quantity, need_by=r.need_by, site=r.site, work_order_ref=r.work_order_ref,
             criticality=r.criticality, down_now=r.down_now, open_questions=list(r.open_questions),
+            open_question_details=_open_question_details(r),
             questions_asked=r.questions_asked, created_at=r.created_at,
         )
 

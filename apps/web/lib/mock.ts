@@ -4,7 +4,7 @@
 // refusals the server does (unverified or suppressed supplier, open critical assumption, hash mismatch,
 // kill switch, role) so the UI's error handling is exercised for real.
 import type {
-  ApprovalLinkView, AssumptionView, Attribute, CandidateView, ComparisonView, EventView, PreparedRFQ, PublicProfile,
+  ApprovalLinkView, AssumptionView, Attribute, CandidateView, OpenQuestion, ComparisonView, EventView, PreparedRFQ, PublicProfile,
   QuoteView, RequestDetail, RequestView, RfqSummary, SetupReadiness, VendorImportResult, VendorProfile, VendorViewExtended,
 } from "./api";
 import { ApiError } from "./errors";
@@ -61,6 +61,8 @@ function log(state: MockState, request_id: string | null, actor: string, type: s
   state.headHash = hash;
 }
 
+const CLEARANCE_Q = "Which radial internal clearance does it need: Normal (CN, no suffix), C3, or another class (C2, C4, C5)?";
+const clearanceQ = (): OpenQuestion[] => [{ text: CLEARANCE_Q, fields: [{ attribute: "internal_clearance", allowed_values: ["C2", "CN", "C3", "C4", "C5"] }] }];
 const attr = (name: string, value: string, unit: string | null, source: Attribute["source"], ref: string, confidence: number): Attribute =>
   ({ name, value, unit, source, source_ref: ref, confidence });
 const prof = (p: Partial<VendorProfile> = {}): VendorProfile => ({
@@ -113,7 +115,7 @@ const mkQuote = (id: string, rfq_id: string, vendor_id: string, over: Partial<Qu
 
 function fresh(): MockState {
   const s: MockState = { role: "admin", tick: 0, seq: 100, killSwitch: false, live: false, vendors: seedVendors(), requests: [], prepared: {}, events: [], headHash: ZERO, replyCursor: 0 };
-  const r1 = mkRequest("rq-1001", "NEEDS_INFO", { quantity: 4, need_by: "2026-10-20", open_questions: ["shaft_tolerance_class"], questions_asked: 1, attributes: { bore_mm: BEARING_ATTRS().bore_mm } }, { candidates: [] });
+  const r1 = mkRequest("rq-1001", "NEEDS_INFO", { quantity: 4, need_by: "2026-10-20", open_questions: [CLEARANCE_Q], open_question_details: clearanceQ(), questions_asked: 1, attributes: { bore_mm: BEARING_ATTRS().bore_mm } }, { candidates: [] });
   const r2 = mkRequest("rq-1002", "SPEC_CONFIRMED", { family: "v_belt", quantity: 2, need_by: "2026-10-16", attributes: {
     section: attr("section", "B", null, "model_inference", "inferred from 'B42'", 0.6), length_in: attr("length_in", "42", "in", "user_input", "request text", 1) } }, {
     candidates: [{ mpn: "B42", manufacturer: "SYNTH-MFR-C", tier: "A", basis: "same_mpn", basis_source: "SYNTHETIC-TEST-SOURCE", basis_date: "2026-01-01", evidence: [], caveats: [], mismatches: [], synthetic: true }],
@@ -294,7 +296,8 @@ export function mockHandle(method: string, path: string, body?: unknown): unknow
     const id = `rq-${1000 + S.requests.length + 1}`;
     const r = mkRequest(id, "NEEDS_INFO", { family: belt ? "v_belt" : "deep_groove_ball_bearing", quantity: (b?.quantity as number) ?? null, need_by: (b?.need_by as string) ?? null,
       site: (b?.site as string) ?? null, work_order_ref: (b?.work_order_ref as string) ?? null, down_now: Boolean(b?.down_now), criticality: Boolean(b?.criticality),
-      open_questions: [belt ? "belt_section" : "shaft_tolerance_class"], questions_asked: 1, attributes: { description: attr("description", text.slice(0, 120), null, "user_input", "your request", 1) } }, { candidates: [] });
+      open_questions: [belt ? "Which belt section is it (A, B, C, SPA, SPB)?" : CLEARANCE_Q], questions_asked: 1,
+      open_question_details: belt ? [{ text: "Which belt section is it (A, B, C, SPA, SPB)?", fields: [{ attribute: "section", allowed_values: ["A", "B", "C", "SPA", "SPB"] }] }] : clearanceQ(), attributes: { description: attr("description", text.slice(0, 120), null, "user_input", "your request", 1) } }, { candidates: [] });
     S.requests.unshift(r); log(S, id, "user:requester", "request.created", { state: "NEEDS_INFO" });
     return detailOf(S, r);
   }
@@ -303,8 +306,11 @@ export function mockHandle(method: string, path: string, body?: unknown): unknow
     needRole("answer"); const r = reqOf(S, dec(m[1]));
     if (r.view.state !== "NEEDS_INFO") conflict(`request is ${r.view.state}, not waiting for answers`);
     const answers = (b?.answers ?? {}) as Record<string, string>;
+    const known = new Set((r.view.open_question_details ?? []).flatMap((d) => d.fields.map((f) => f.attribute)));
+    for (const k of Object.keys(answers)) if (!known.has(k)) conflict(`unknown attribute '${k}'`);
     for (const [k, v] of Object.entries(answers)) r.view.attributes[k] = attr(k, String(v).slice(0, 60), null, "user_input", "your answer", 1);
-    r.view.open_questions = r.view.open_questions.filter((q) => !(q in answers));
+    const left = (r.view.open_question_details ?? []).filter((d) => !d.fields.every((f) => f.attribute in answers));
+    r.view.open_question_details = left; r.view.open_questions = left.map((d) => d.text);
     if (r.view.open_questions.length === 0) {
       r.view.state = "SPEC_CONFIRMED"; r.candidates = BEARING_CANDS();
       r.assumptions = [asm(nid(S, "as"), r.view.id, "Seal type is 2RS (inferred from the description)", "model_inference", true, "open", "critical attribute"),
@@ -318,7 +324,7 @@ export function mockHandle(method: string, path: string, body?: unknown): unknow
     needRole("confirm_assumption"); const r = reqOf(S, dec(m[1])); const a = r.assumptions.find((x) => x.id === dec(m![2]));
     if (!a) throw new ApiError(404, "not_found", "no such assumption");
     a.status = m[3] === "confirm" ? "confirmed" : "invalidated"; a.resolved_by = "user:requester"; a.resolved_at = stamp(S);
-    if (a.status === "invalidated") { r.view.state = "NEEDS_INFO"; r.view.open_questions = [...new Set([...r.view.open_questions, "seal"])]; }
+    if (a.status === "invalidated") { r.view.state = "NEEDS_INFO"; const t = "Is the bearing open, metal-shielded or rubber contact-sealed?"; r.view.open_questions = [t]; r.view.open_question_details = [{ text: t, fields: [{ attribute: "seal_type", allowed_values: ["open", "shield", "contact_seal"] }] }]; }
     log(S, r.view.id, "user:requester", `assumption.${a.status}`, { assumption: a.id });
     return detailOf(S, r);
   }

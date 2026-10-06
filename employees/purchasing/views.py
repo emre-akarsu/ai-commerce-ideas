@@ -32,6 +32,18 @@ class _V(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class QuestionField(_V):
+    """An attribute an answer is keyed by, and the values accepted for it (empty: free text)."""
+
+    attribute: str
+    allowed_values: list[str] = Field(default_factory=list)
+
+
+class OpenQuestion(_V):
+    text: str
+    fields: list[QuestionField] = Field(default_factory=list)
+
+
 class RequestView(_V):
     id: str
     state: RequestState
@@ -44,6 +56,7 @@ class RequestView(_V):
     criticality: bool
     down_now: bool
     open_questions: list[str]
+    open_question_details: list[OpenQuestion] = Field(default_factory=list)
     questions_asked: int
     created_at: datetime | None
 

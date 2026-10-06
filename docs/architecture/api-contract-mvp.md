@@ -80,3 +80,11 @@ PO PDF export (CSV exists), accounting sync, second-approver flow changes, enfor
 | GET | `/v1/requests/{id}/rfqs/prepared` | buyer+ | Returns `PreparedRFQ[]` for the request's RFQs that are prepared and not yet sent, re-rendered from stored state so the approver always sees the exact bytes that will be sent. `mime_hash` must equal what `rfqs/prepare` returned for the same stored RFQ and what `approve-send` verifies; if the bytes cannot be reproduced exactly the endpoint returns an empty list (the UI then asks the user to prepare again). Read-only: it never changes state and never sends. Cross-tenant ids return 404 |
 
 Reason: `prepare` returns the previews once, and `RequestDetail.rfqs` carries only summaries, so a page reload would otherwise lose the text the human must approve.
+
+## 8. Structured open questions (added during the build)
+
+`RequestView.open_questions` stays a list of plain sentences. `RequestView.open_question_details` is added, in the same order:
+`[{text: string, fields: [{attribute: string, allowed_values: string[]}]}]`. `POST /v1/requests/{id}/answers` is keyed by the
+`attribute` names, never by the sentence. A sentence several attributes share (the three bearing dimensions) lists every attribute it covers, so
+the client shows one input per attribute. The family question answers `family` with the registered families as `allowed_values`. An empty
+`allowed_values` means free text. Additive: existing clients that read only `open_questions` keep working.

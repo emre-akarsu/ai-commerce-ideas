@@ -18,7 +18,11 @@ describe("the whole flow runs through the mock, with the server's refusals", () 
     expect(nextAction(d).label).toBe("Answer 1 question");
 
     await refused(api.prepareRfqs(id, ["v1"]), 409, /spec is not confirmed/);
-    d = await api.answer(id, { shaft_tolerance_class: "h6" });
+    const f = d.request.open_question_details![0].fields[0];
+    expect(f.attribute).toBe("internal_clearance");
+    expect(f.allowed_values).toContain("CN");
+    await refused(api.answer(id, { [d.request.open_questions[0]]: "CN" }), 409, /unknown attribute/);   // keyed by sentence: refused
+    d = await api.answer(id, { [f.attribute]: "CN" });
     expect(d.request.state).toBe("SPEC_CONFIRMED");
     const crit = d.assumptions!.filter((a) => a.critical && a.status === "open");
     expect(crit).toHaveLength(1);

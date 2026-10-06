@@ -21,10 +21,14 @@ export function StepRequest({ det, onDone }: StepProps) {
   const open = assumptions.filter((a) => a.status === "open");
   const openNonCritical = open.filter((a) => !a.critical);
 
+  // Each answer is keyed by the attribute the server named; a sentence several attributes share gets one input each.
+  const questions = r.open_question_details && r.open_question_details.length > 0
+    ? r.open_question_details
+    : r.open_questions.map((text) => ({ text, fields: [{ attribute: text, allowed_values: [] as string[] }] }));
   async function sendAnswers(e: React.FormEvent) {
     e.preventDefault();
     const answers: Record<string, string> = {};
-    for (const q of r.open_questions) { const v = (vals[q] ?? "").trim(); if (v) answers[q] = v; }
+    for (const q of questions) for (const f of q.fields) { const v = (vals[f.attribute] ?? "").trim(); if (v) answers[f.attribute] = v; }
     if (Object.keys(answers).length === 0) return;
     const d = await answer.run(() => api.answer(r.id, answers), "Answers saved.");
     if (d) { setVals({}); touch(r.id); onDone(); }
@@ -66,14 +70,27 @@ export function StepRequest({ det, onDone }: StepProps) {
 
       {r.open_questions.length > 0 && (
         <Card>
-          <H2>{r.open_questions.length === 1 ? "One question" : `${r.open_questions.length} questions`}</H2>
+          <H2>{questions.length === 1 ? "One question" : `${questions.length} questions`}</H2>
           <p className="mb-3 text-sm text-mute">Only what changes the part or the price. If you do not know, leave it blank and say so in the request.</p>
-          <form onSubmit={sendAnswers} className="space-y-3">
-            {r.open_questions.map((q, i) => (
-              <label key={q} className="block text-sm font-medium">{humanise(q)}
-                <input value={vals[q] ?? ""} onChange={(e) => setVals((v) => ({ ...v, [q]: e.target.value }))} maxLength={120} disabled={!gateAnswer.ok}
-                  autoFocus={i === 0} id={i === 0 ? "primary-action" : undefined} className={`${inputCls} mt-1 font-normal`} />
-              </label>
+          <form onSubmit={sendAnswers} className="space-y-4">
+            {questions.map((q, qi) => (
+              <fieldset key={q.text} className="space-y-2">
+                <legend className="text-sm font-medium">{q.text}</legend>
+                {q.fields.map((f, fi) => (
+                  <label key={f.attribute} className="block text-sm">
+                    {q.fields.length > 1 || f.attribute !== q.text ? <span className="text-mute">{humanise(f.attribute)}</span> : <span className="sr-only">Your answer</span>}
+                    {f.allowed_values.length > 0 ? (
+                      <select value={vals[f.attribute] ?? ""} onChange={(e) => setVals((v) => ({ ...v, [f.attribute]: e.target.value }))} disabled={!gateAnswer.ok}
+                        id={qi === 0 && fi === 0 ? "primary-action" : undefined} className={`${inputCls} mt-1`}>
+                        <option value="">Choose one</option>{f.allowed_values.map((x) => <option key={x} value={x}>{x}</option>)}
+                      </select>
+                    ) : (
+                      <input value={vals[f.attribute] ?? ""} onChange={(e) => setVals((v) => ({ ...v, [f.attribute]: e.target.value }))} maxLength={120} disabled={!gateAnswer.ok}
+                        id={qi === 0 && fi === 0 ? "primary-action" : undefined} className={`${inputCls} mt-1`} />
+                    )}
+                  </label>
+                ))}
+              </fieldset>
             ))}
             <div className="flex flex-wrap items-center gap-3">
               <Button type="submit" disabled={answer.busy || !gateAnswer.ok || Object.values(vals).every((v) => !v.trim())}>{answer.busy ? "Saving..." : "Save answers"}</Button>
