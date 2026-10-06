@@ -1,6 +1,7 @@
 // Typed client for docs/architecture/api-contract.md (v1). Types mirror packages/components/core/domain.py.
 // Decimals arrive as strings; enums as their values; dates ISO-8601.
 import { mockHandle } from "./mock";
+import { ApiError } from "./errors";
 
 export type Tier = "A" | "B" | "C" | "D";
 export type AttrSource =
@@ -49,7 +50,7 @@ export interface PendingApproval { id: string; kind: string; quote_id?: string |
 export interface RequestDetail {
   request: RequestView; candidates: CandidateView[]; rfqs: RfqSummary[]; quotes: QuoteView[];
   comparison: ComparisonView | null; events: EventView[]; pending_approvals: PendingApproval[];
-  chain_valid?: boolean;
+  assumptions?: AssumptionView[]; chain_valid?: boolean;
 }
 export interface NewRequestInput {
   text: string; quantity?: number; need_by?: string; site?: string; work_order_ref?: string;
@@ -84,13 +85,29 @@ export interface PublicProfile {
 }
 export interface DecisionResult { request_id: string; decision: string; state: string }
 export type VendorInput = Pick<Vendor, "name" | "domain" | "contact_email" | "preferred" | "opted_out"> & { phone?: string | null };
-
-export class ApiError extends Error {
-  constructor(public status: number, public code: string, message: string) {
-    super(message);
-    this.name = "ApiError";
-  }
+export interface VendorProfile {
+  account_number: string | null; account_type: "cash" | "credit" | null; credit_days: number | null;
+  delivery_threshold: { amount: string; currency: string } | null; quote_validity_days: number | null;
+  contact_kind: "company" | "individual" | "unknown";
+  verification: { state: "unverified" | "attested"; attested_by: string | null; attested_at: string | null; note: string | null };
+  suppressed: boolean;
 }
+export interface VendorViewExtended extends Vendor {
+  profile?: VendorProfile;
+}
+export interface AssumptionView {
+  id: string; request_id: string; statement: string; source: "user_said" | "default_template" | "model_inference" | "public_source";
+  confidence: "high" | "medium" | "low"; status: "open" | "confirmed" | "invalidated"; critical: boolean;
+  gate: string | null; created_at: string; resolved_by: string | null; resolved_at: string | null;
+}
+export interface SetupItem { id: string; label: string; status: "done" | "todo" | "blocked"; detail: string }
+export interface SetupReadiness { ready: boolean; live: boolean; items: SetupItem[] }
+export interface VendorImportResult { created: number; updated: number; rejected: Array<{ row: number; reason: string }> }
+export interface AuditExport {
+  tenant: string; generated_at: string; profile: string; chain_valid: boolean; head_hash: string; events: EventView[];
+}
+
+export { ApiError } from "./errors";
 
 // ---- config / token provider (swap for Supabase Auth later)
 export type TokenProvider = () => string | null | Promise<string | null>;
@@ -98,6 +115,8 @@ export type TokenProvider = () => string | null | Promise<string | null>;
 let tokenProvider: TokenProvider = () =>
   (process.env.NODE_ENV !== "production" ? process.env.NEXT_PUBLIC_DEV_TOKEN : undefined) || null;
 export function setTokenProvider(p: TokenProvider): void { tokenProvider = p; }
+/** The current bearer token, or null. Used only to show who is signed in; the server decides what is allowed. */
+export async function currentToken(): Promise<string | null> { return tokenProvider(); }
 export const isMock = (): boolean => process.env.NEXT_PUBLIC_API_MOCK === "1";
 export const baseUrl = (): string => (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
@@ -154,7 +173,7 @@ export const api = {
     request<DecisionResult>(`/v1/approval-links/${enc(token)}/decide`, { method: "POST", body: { action } }),
   createPoDraft: (id: string) => request<unknown>(`/v1/requests/${enc(id)}/po-draft`, { method: "POST", body: {} }),
   poDraftCsv: async (id: string): Promise<Blob> => {
-    if (isMock()) return new Blob(["mpn,quantity,unit_price_each,currency\nEXAMPLE-ONLY,1,0.00,USD\n"], { type: "text/csv" });
+    if (isMock()) return new Blob([mockHandle("GET", `/v1/requests/${enc(id)}/po-draft.csv`) as string], { type: "text/csv" });
     return request<Blob>(`/v1/requests/${enc(id)}/po-draft.csv`, { raw: true });
   },
   listVendors: () => request<Vendor[]>("/v1/vendors"),
@@ -163,4 +182,44 @@ export const api = {
     request<Vendor>(`/v1/vendors/${enc(id)}`, { method: "PATCH", body: v }),
   audit: (request_id: string) =>
     request<{ events: EventView[]; chain_valid: boolean }>(`/v1/audit?request_id=${enc(request_id)}`),
+  // MVP endpoints for assumptions
+  listAssumptions: (id: string) => request<AssumptionView[]>(`/v1/requests/${enc(id)}/assumptions`),
+  confirmAssumption: (id: string, aid: string) =>
+    request<RequestDetail>(`/v1/requests/${enc(id)}/assumptions/${enc(aid)}/confirm`, { method: "POST", body: {} }),
+  invalidateAssumption: (id: string, aid: string) =>
+    request<RequestDetail>(`/v1/requests/${enc(id)}/assumptions/${enc(aid)}/invalidate`, { method: "POST", body: {} }),
+  // MVP endpoints for vendor profile and attest
+  updateVendorProfile: (id: string, profile: Partial<VendorProfile>) =>
+    request<VendorViewExtended>(`/v1/vendors/${enc(id)}/profile`, { method: "PUT", body: profile }),
+  attestVendor: (id: string, note?: string) =>
+    request<VendorViewExtended>(`/v1/vendors/${enc(id)}/attest`, { method: "POST", body: { note } }),
+  suppressVendor: (id: string) =>
+    request<VendorViewExtended>(`/v1/vendors/${enc(id)}/suppress`, { method: "POST", body: {} }),
+  unsuppressVendor: (id: string) =>
+    request<VendorViewExtended>(`/v1/vendors/${enc(id)}/unsuppress`, { method: "POST", body: {} }),
+  // MVP endpoints for vendor import
+  importVendors: async (file: File): Promise<VendorImportResult> => {
+    if (isMock()) return mockHandle("POST", "/v1/vendors/import", { csv: await file.text() }) as VendorImportResult;
+    const form = new FormData();
+    form.append("file", file);
+    const method = "POST";
+    const headers: Record<string, string> = { Accept: "application/json" };
+    const t = await tokenProvider();
+    if (t) headers.Authorization = `Bearer ${t}`;
+    headers["Idempotency-Key"] = newIdempotencyKey();
+    const res = await fetch(`${baseUrl()}/v1/vendors/import`, { method, headers, body: form, cache: "no-store" });
+    if (!res.ok) throw await parseError(res);
+    return (await res.json()) as VendorImportResult;
+  },
+  inboundQuote: (id: string, vendor_id: string, source_text: string) =>
+    request<QuoteView>(`/v1/requests/${enc(id)}/quotes/inbound`, { method: "POST", body: { vendor_id, source_text } }),
+  killSwitch: (engaged: boolean) => request<{ engaged: boolean }>("/v1/admin/kill-switch", { method: "POST", body: { engaged } }),
+  // Re-renders the unsent RFQs of a request exactly as the approver must see them (see api-contract-mvp.md section 7).
+  preparedRfqs: (id: string) => request<PreparedRFQ[]>(`/v1/requests/${enc(id)}/rfqs/prepared`),
+  // MVP endpoints for setup
+  getSetup: () => request<SetupReadiness>("/v1/setup"),
+  goLive: () => request<SetupReadiness>("/v1/setup/go-live", { method: "POST", body: {} }),
+  // MVP endpoints for audit export
+  exportAudit: (request_id?: string) =>
+    request<AuditExport>(`/v1/audit/export${request_id ? `?request_id=${enc(request_id)}` : ""}`),
 };

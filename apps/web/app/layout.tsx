@@ -1,24 +1,18 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { headers } from "next/headers";
 import "./globals.css";
-import { MockBanner } from "@/components/ui/ui";
+import { AppShell } from "@/components/shell";
+import { SessionProvider } from "@/components/session";
+import { ToastProvider } from "@/components/toast";
 
-export const metadata: Metadata = { title: "Parts purchasing", description: "Identify and source maintenance parts" };
+export const metadata: Metadata = { title: "Buy-side RFQ", description: "Get comparable quotes from your own suppliers; you approve every send" };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   await headers(); // opt into dynamic rendering so Next applies the per-request CSP nonce to its scripts
   return (
-    <html lang="en">
+    <html lang="en-GB">
       <body>
-        <MockBanner />
-        <header className="border-b bg-white">
-          <nav aria-label="Main" className="mx-auto flex max-w-4xl gap-4 px-4 py-3 text-base font-medium">
-            <Link href="/requests">Requests</Link>
-            <Link href="/vendors">Vendors</Link>
-          </nav>
-        </header>
-        <main className="mx-auto max-w-4xl px-4 py-6">{children}</main>
+        <SessionProvider><ToastProvider><AppShell>{children}</AppShell></ToastProvider></SessionProvider>
       </body>
     </html>
   );
