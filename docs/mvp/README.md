@@ -42,3 +42,7 @@ Verified here means tested in this build; "existing" means the capability was in
 ## Known gaps
 
 See `docs/architecture/known-gaps.md` and `ui-notes.md`. The important ones: go-live is recorded, not enforced; in the demo the approval link is not exposed by the API, so the real-mode approval step is reachable only in mock mode; the real quote reader needs a currency symbol and a part number in a pasted reply or the quote is Tier D and cannot be selected; there is no PDF export; accessibility has been checked by design and in a real browser for overflow, focus order and contrast tokens, not with an assistive-technology audit; two people cannot be signed in at once in the demo, so the "approver differs from requester" rule blocks selection when one demo user does both.
+
+## Published demo build
+
+`apps/web/demo/` builds the mock-mode app into one self-contained HTML page with hash routing, for hosting where there is no server: `npx vite build -c demo/vite.config.mjs && node demo/inline.mjs` writes `apps/web/demo-dist/page.html`. It is the same components and mock as `npm run dev` in mock mode; only routing differs.

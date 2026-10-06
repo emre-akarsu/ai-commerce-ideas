@@ -1,0 +1,13 @@
+import { launch } from "./cdp.mjs";
+const b = await launch(9344);
+await b.size(1280, 900);
+await b.go("http://127.0.0.1:3200/index.html");
+console.log((await b.text()).slice(0, 300).replace(/\n+/g, " | "));
+await b.shot(process.env.OUT + "/d1.png");
+await b.ev("location.hash='#/requests/rq-1006'"); await b.sleep(1200);
+console.log((await b.text()).slice(0, 300).replace(/\n+/g, " | "));
+await b.shot(process.env.OUT + "/d2.png");
+await b.size(390, 844); await b.ev("location.hash='#/vendors'"); await b.sleep(1000);
+console.log(JSON.stringify(await b.overflow()));
+console.log("logs", b.logs.slice(0, 5));
+b.close();
