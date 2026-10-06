@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { api, ApiError, type RequestView, type RequestDetail } from "@/lib/api";
+import { ApiError, type RequestView, type RequestDetail } from "@/lib/api";
 
 describe("MVP features", () => {
   describe("queue grouping", () => {
