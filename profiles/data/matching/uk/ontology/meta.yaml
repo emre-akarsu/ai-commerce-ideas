@@ -1,0 +1,9 @@
+id: uk-matching-ontology
+version: "0.1.0"
+market: uk
+label: UK bathroom-refurbishment product ontology, synthetic/illustrative seed (not licensed data, not reviewed by a tradesperson)
+status: needs_tradesperson_review
+classification_attribution:
+  uniclass: Uniclass 2015 © NBS, CC BY-ND 4.0 (https://uniclass.thenbs.com/download). Pr table v1.43 (July 2026).
+    Codes and titles are stored verbatim from classification.yaml; nothing is modified or extended.
+  etim: ETIM 10.1, ETIM International, Open Data Commons Attribution Licence (ODC-By 1.0, http://opendatacommons.org/licenses/by/1.0/).

@@ -1,4 +1,4 @@
-"""Text handling for untrusted data (CLAUDE.md rule 4; spec R6 inert rendering, R7 no link fetching).
+"""Text handling for untrusted data (CLAUDE.md rule 4; spec R6 inert rendering, R7 no links).
 
 * Identifiers (`check_id`) and machine tokens (`check_token`) are validated, never repaired: an
   id with an invisible character or a space is rejected, so it cannot impersonate another id.

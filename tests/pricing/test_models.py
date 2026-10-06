@@ -15,7 +15,6 @@ from components.core.domain import UoM
 from components.pricing import (
     DeliveryTerms,
     DeliveryTier,
-    Offer,
     PackSize,
     Price,
     PricePer,

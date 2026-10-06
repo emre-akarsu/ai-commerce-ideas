@@ -1,0 +1,121 @@
+# Screws, plugs and fixings. Synthetic/illustrative seed: every entry needs a tradesperson's review.
+file: fixings
+types:
+  drywall_screw:
+    label: drywall screw
+    status: needs_tradesperson_review
+    provenance: &fix_prov
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/boards_framing_fixings.md", note: "3.5x32/38 bugle drywall screws; coarse for timber studs, fine for metal"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/partition.yaml", note: "kit line wording"}
+      - {kind: classification_table, ref: "research_notes/UK refurbishment job templates data/classification_standards.md", note: "codes stored verbatim"}
+    synonyms: [drywall screw, plasterboard screw, dry wall screw, gypsum screw, board screw, bugle screw, screw]
+    vocab: [bugle, collated, strip, autofeed, black, phosphate, phosphated, zinc, timber, metal, stud, countersunk, pozi, phillips, drywall]
+    trailing_multiplier: pack
+    uniclass_pr: {code: Pr_20_29_76_65, title: Plasterboard screws}
+    size_patterns:
+      - {terms: 2, axes: [diameter, length], order: given}
+    attributes:
+      - {name: diameter, label: diameter, kind: numeric, unit: mm, required: true, check: size, min: 2, max: 8, aliases: [diameter, gauge]}
+      - {name: length, label: length, kind: numeric, unit: mm, required: true, check: size, min: 10, max: 150, aliases: [long, length]}
+      - name: thread
+        label: thread
+        kind: enum
+        required: true
+        check: class
+        question: "Coarse thread (timber studs) or fine thread (metal studs)?"
+        values:
+          coarse: {label: coarse thread, synonyms: [coarse, coarse thread, course]}
+          fine: {label: fine thread, synonyms: [fine, fine thread]}
+      - {name: pack_qty, label: pack quantity, kind: numeric, unit: nr, required: false, check: pack, min: 1, max: 10000, aliases: [pack, box]}
+
+  wood_screw:
+    label: wood screw
+    status: needs_tradesperson_review
+    provenance: *fix_prov
+    synonyms: [wood screw, timber screw, woodscrew, chipboard screw, multipurpose screw, general purpose screw, csk screw, screw]
+    vocab: [thread, threaded, fully, twin, steel, passivated]
+    trailing_multiplier: pack
+    uniclass_pr: {code: Pr_20_29_76_98, title: Wood screws}
+    etim_class: {code: EC002385, title: Wood/timber screw}
+    size_patterns:
+      - {terms: 2, axes: [diameter, length], order: given}
+    attributes:
+      - {name: diameter, label: diameter, kind: numeric, unit: mm, required: true, check: size, min: 2, max: 8, aliases: [diameter, gauge]}
+      - {name: length, label: length, kind: numeric, unit: mm, required: true, check: size, min: 10, max: 300, aliases: [long, length]}
+      - name: finish
+        label: finish
+        kind: enum
+        required: true
+        check: class
+        question: "Zinc plated or stainless steel?"
+        values:
+          zinc: {label: zinc plated, synonyms: [zinc, zinc plated, bright zinc plated, yellow zinc plated, yellow passivated]}
+          stainless: {label: stainless steel, synonyms: [stainless, stainless steel, a2, a4]}
+      - name: drive
+        label: drive
+        kind: enum
+        required: false
+        check: class
+        values:
+          pozi: {label: pozi, synonyms: [pozi]}
+          phillips: {label: phillips, synonyms: [phillips]}
+          torx: {label: torx, synonyms: [torx, star drive]}
+      - name: head
+        label: head
+        kind: enum
+        required: false
+        check: class
+        values:
+          countersunk: {label: countersunk, synonyms: [countersunk]}
+          pan: {label: pan head, synonyms: [pan head, pan]}
+      - {name: pack_qty, label: pack quantity, kind: numeric, unit: nr, required: false, check: pack, min: 1, max: 10000, aliases: [pack, box]}
+
+  wall_plug:
+    label: wall plug
+    status: needs_tradesperson_review
+    provenance: *fix_prov
+    synonyms: [wall plug, plastic plug, fixing plug, masonry plug, universal plug, rawl plug, plug]
+    vocab: [fixing, plastic, nylon, solid, wall]
+    trailing_multiplier: pack
+    uniclass_pr: {code: Pr_20_29_63_63, title: Plastics plugs}
+    etim_class: {code: EC000089, title: All-purpose plug}
+    size_patterns:
+      - {terms: 2, axes: [diameter, length], order: given}
+    attributes:
+      - {name: diameter, label: diameter, kind: numeric, unit: mm, required: true, check: size, min: 3, max: 16, aliases: [diameter]}
+      - {name: length, label: length, kind: numeric, unit: mm, required: true, check: size, min: 15, max: 120, aliases: [long, length]}
+      - name: plug_type
+        label: plug type
+        kind: enum
+        required: false
+        check: class
+        values:
+          standard: {label: standard solid wall plug, synonyms: [standard, solid wall, nylon]}
+          universal: {label: universal plug, synonyms: [universal, multi purpose, multipurpose]}
+      - {name: pack_qty, label: pack quantity, kind: numeric, unit: nr, required: false, check: pack, min: 1, max: 10000, aliases: [pack, box]}
+
+  cavity_fixing:
+    label: plasterboard cavity fixing
+    status: needs_tradesperson_review
+    provenance: *fix_prov
+    synonyms: [cavity fixing, cavity anchor, plasterboard fixing, plasterboard anchor, hollow wall fixing, hollow wall anchor, spring toggle, gravity toggle, toggle bolt]
+    vocab: [fixing, anchor, toggle, hollow, wall, plasterboard]
+    trailing_multiplier: pack
+    uniclass_pr: {code: Pr_20_29_03, title: Anchors and components}
+    etim_class: {code: EC000040, title: Cavity fixing}
+    size_patterns:
+      - {terms: 2, axes: [diameter, length], order: given}
+    attributes:
+      - name: fixing_type
+        label: cavity fixing type
+        kind: enum
+        required: true
+        check: class
+        question: "Spring toggle, gravity toggle or expanding cavity fixing?"
+        values:
+          spring_toggle: {label: spring toggle, synonyms: [spring toggle, spring]}
+          gravity_toggle: {label: gravity toggle, synonyms: [gravity toggle, gravity]}
+          expanding: {label: expanding cavity fixing, synonyms: [expanding, expansion, sleeve, brolly]}
+      - {name: diameter, label: diameter, kind: numeric, unit: mm, required: true, check: size, min: 3, max: 12, aliases: [diameter]}
+      - {name: length, label: length, kind: numeric, unit: mm, required: true, check: size, min: 20, max: 150, aliases: [long, length]}
+      - {name: pack_qty, label: pack quantity, kind: numeric, unit: nr, required: false, check: pack, min: 1, max: 10000, aliases: [pack, box]}

@@ -98,7 +98,9 @@ def test_ceil_div_is_exact() -> None:
     assert ceil_div(Fraction(288, 100), Fraction(288, 100)) == 1
     assert ceil_div(Fraction(1, 10**30), Fraction(1)) == 1
     assert ceil_div(Fraction(3), Fraction(3)) == 1
-    assert ceil_div(Fraction(3000000000000000000000000001, 10**24), Fraction(3)) == 2
+    # one part in 1e24 above an exact multiple still needs the next pack (no float can see this)
+    assert ceil_div(Fraction(3 * 10**24 + 1, 10**24), Fraction(3)) == 2
+    assert ceil_div(Fraction(3 * 10**24, 10**24), Fraction(3)) == 1
 
 
 def test_median_odd_even_and_exact() -> None:

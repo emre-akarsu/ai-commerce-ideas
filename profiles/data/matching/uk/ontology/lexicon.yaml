@@ -1,0 +1,198 @@
+# UK trade lexicon for the matching engine: noise words, abbreviations, count and pack words.
+# Synthetic/illustrative seed written from UK trade usage in the repo's research notes; every
+# entry is unreviewed (status below). Words that carry a specification (standard, flexible,
+# white, MR, S1, C16 ...) must never be noise words: a test enforces that.
+status: needs_tradesperson_review
+provenance:
+  - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/boards_framing_fixings.md", note: "TE, MR, CLS, 38x63 and screw notation as used by UK merchants"}
+  - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/plumbing_fittings_wastes.md", note: "compression, push-fit, solvent weld, pan connector wording"}
+  - {kind: authored, ref: "profiles/data/job_kits/uk/modules", note: "kit line wording"}
+noise_words:
+  - the
+  - a
+  - an
+  - and
+  - or
+  - of
+  - for
+  - with
+  - to
+  - in
+  - "on"
+  - at
+  - by
+  - from
+  - please
+  - pls
+  - plz
+  - thanks
+  - thx
+  - supply
+  - supplied
+  - deliver
+  - delivery
+  - need
+  - needed
+  - require
+  - required
+  - req
+  - urgent
+  - asap
+  - new
+  - good
+  - quality
+  - approx
+  - approximately
+  - about
+  - item
+  - qty
+  - quantity
+  - size
+  - type
+  - each
+  - per
+  - "off"
+  - "no"
+  - nr
+  - pack
+  - box
+  - bag
+  - roll
+  - bathroom
+  - kitchen
+  - room
+  - job
+  - site
+  - trade
+# Token (lowercase, as typed) -> words it stands for. Applied to order lines, catalogue titles and
+# ontology phrases alike, so both sides of every comparison are expanded the same way.
+abbreviations:
+  "p/board": plasterboard
+  pboard: plasterboard
+  pbd: plasterboard
+  te: tapered edge
+  "t/e": tapered edge
+  se: square edge
+  "s/e": square edge
+  mr: moisture resistant
+  "m/r": moisture resistant
+  fr: fire resistant
+  "t&g": tongue and groove
+  tg: tongue and groove
+  pse: planed square edge
+  par: planed all round
+  ctr: centres
+  ctrs: centres
+  dia: diameter
+  diam: diameter
+  "w/c": wc
+  cc: close coupled
+  b2w: back to wall
+  btw: back to wall
+  "w/h": wall hung
+  wh: wall hung
+  ped: pedestal
+  bsn: basin
+  cp: chrome
+  chr: chrome
+  wht: white
+  blk: black
+  csk: countersunk
+  pz: pozi
+  pz2: pozi
+  pozidriv: pozi
+  ph: phillips
+  ph2: phillips
+  zp: zinc plated
+  bzp: bright zinc plated
+  yzp: yellow zinc plated
+  "s/s": stainless steel
+  ss: stainless steel
+  galv: galvanised
+  alu: aluminium
+  ally: aluminium
+  pvcu: upvc
+  hp: high pressure
+  "h/p": high pressure
+  lp: low pressure
+  "l/p": low pressure
+  iso: isolating
+  comp: compression
+  pf: push fit
+  pushfit: push fit
+  "s/w": solvent weld
+  extr: extractor
+  encl: enclosure
+  shwr: shower
+  shvr: shower
+  quad: quadrant
+  ufh: underfloor heating
+  emul: emulsion
+  adh: adhesive
+  adhes: adhesive
+  sil: silicone
+  silic: silicone
+  std: standard
+  flex: flexible
+# Words that follow a leading quantity and are consumed with it ("20 sheets"). Product nouns
+# such as "boards" or "screws" are not listed: they stay in the text for product-type matching.
+count_words:
+  sheet: sheet
+  sheets: sheet
+  length: length
+  lengths: length
+  bag: bag
+  bags: bag
+  box: box
+  boxes: box
+  pack: pack
+  packs: pack
+  roll: roll
+  rolls: roll
+  tube: tube
+  tubes: tube
+  tin: tin
+  tins: tin
+  tub: tub
+  tubs: tub
+  pot: pot
+  pots: pot
+  cartridge: cartridge
+  cartridges: cartridge
+  pair: pair
+  pairs: pair
+  set: set
+  sets: set
+  kit: kit
+  kits: kit
+  unit: unit
+  units: unit
+  piece: piece
+  pieces: piece
+  pcs: piece
+  pc: piece
+  "off": each
+  "no": each
+  nr: each
+  nos: each
+  ea: each
+  each: each
+  bundle: bundle
+  bundles: bundle
+  pallet: pallet
+  pallets: pallet
+  drum: drum
+  drums: drum
+pack_words:
+  - box
+  - pack
+  - bag
+  - pk
+  - tub
+  - bundle
+  - case
+  - carton
+  - roll
+  - tube
+  - pot
+  - tin

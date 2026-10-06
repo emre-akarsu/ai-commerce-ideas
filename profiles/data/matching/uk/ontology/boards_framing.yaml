@@ -1,0 +1,143 @@
+# Boards and framing. Synthetic/illustrative seed: every entry needs a tradesperson's review.
+# Which attributes are `required` (the buyer must state them before a line can be accepted
+# without a person) is a domain judgement recorded as data, not decided by the engine.
+file: boards_framing
+types:
+  plasterboard:
+    label: plasterboard
+    status: needs_tradesperson_review
+    provenance: &board_prov
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/boards_framing_fixings.md", note: "board types, 12.5 mm tapered edge 2400x1200 as the trade default, 1800x900 as the access size"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/partition.yaml", note: "kit line wording used to choose synonyms"}
+      - {kind: classification_table, ref: "research_notes/UK refurbishment job templates data/classification_standards.md", note: "variants map to the four verified plasterboard codes, stored verbatim"}
+    synonyms: [plasterboard, plaster board, gypsum board, drywall board, wallboard, dry lining board]
+    vocab: [board, sheet, ivory]
+    etim_class: {code: EC003143, title: Gypsum board}
+    size_patterns:
+      - {terms: 2, axes: [length, width], order: desc}
+      - {terms: 3, axes: [length, width, thickness], order: given}
+    attributes:
+      - name: board_type
+        label: board type
+        kind: enum
+        required: true
+        check: class
+        question: "Which plasterboard type is needed (standard, moisture resistant, fire resistant or sound insulation)?"
+        values:
+          standard:
+            label: standard
+            synonyms: [standard, std, wallboard, general purpose]
+            uniclass_pr: {code: Pr_25_71_35_84, title: Standard gypsum plasterboards}
+          moisture_resistant:
+            label: moisture resistant
+            synonyms: [moisture resistant, water resistant, green board, bathroom board]
+            uniclass_pr: {code: Pr_25_71_35_52, title: Moisture-resistant gypsum plasterboards}
+          fire_resistant:
+            label: fire resistant
+            synonyms: [fire resistant, fire rated, fireline, fire board, fire]
+            uniclass_pr: {code: Pr_25_71_35_33, title: Fire-resistant gypsum plasterboards}
+          sound_insulation:
+            label: sound insulation
+            synonyms: [sound insulation, acoustic, soundbloc, sound board, sound]
+            uniclass_pr: {code: Pr_25_71_35_80, title: Sound insulation gypsum plasterboards}
+      - name: edge
+        label: edge profile
+        kind: enum
+        required: true
+        check: class
+        question: "Tapered edge or square edge?"
+        values:
+          tapered: {label: tapered edge, synonyms: [tapered, tapered edge, taper edge]}
+          square: {label: square edge, synonyms: [square edge, square]}
+      - {name: thickness, label: thickness, kind: numeric, unit: mm, required: true, check: size, min: 6, max: 25, aliases: [thick, thickness]}
+      - {name: length, label: length, kind: numeric, unit: mm, required: true, check: size, min: 600, max: 4800, aliases: [long, length]}
+      - {name: width, label: width, kind: numeric, unit: mm, required: true, check: size, min: 300, max: 1800, aliases: [wide, width]}
+
+  cement_backer_board:
+    label: tile backer board
+    status: needs_tradesperson_review
+    provenance:
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/boards_framing_fixings.md", note: "XPS cement-coated and fibre-cement backer boards in shower zones"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/waterproofing.yaml", note: "kit line wording"}
+      - {kind: classification_table, ref: "research_notes/UK refurbishment job templates data/classification_standards.md", note: "Pr_25_71_11 stored verbatim"}
+    synonyms: [backer board, tile backer board, tile backer, cement board, tile backing board, cement backer, wet room board]
+    vocab: [board, sheet, waterproof]
+    uniclass_pr: {code: Pr_25_71_11, title: Cement boards and sheets}
+    size_patterns:
+      - {terms: 2, axes: [length, width], order: desc}
+      - {terms: 3, axes: [length, width, thickness], order: given}
+    attributes:
+      - name: core
+        label: board core
+        kind: enum
+        required: true
+        check: class
+        question: "Cement or fibre-cement core, or an XPS-cored board?"
+        values:
+          cement_fibre: {label: cement fibre, synonyms: [cement, cement fibre, fibre cement]}
+          xps_coated: {label: xps cement coated, synonyms: [xps, xps coated, foam core, polystyrene core]}
+      - {name: thickness, label: thickness, kind: numeric, unit: mm, required: true, check: size, min: 3, max: 30, aliases: [thick, thickness]}
+      - {name: length, label: length, kind: numeric, unit: mm, required: true, check: size, min: 600, max: 3000, aliases: [long, length]}
+      - {name: width, label: width, kind: numeric, unit: mm, required: true, check: size, min: 300, max: 1300, aliases: [wide, width]}
+
+  timber_stud:
+    label: softwood stud timber
+    status: needs_tradesperson_review
+    provenance:
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/boards_framing_fixings.md", note: "CLS 38x63 and 38x89 C16 studwork as the UK domestic default"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/partition.yaml", note: "kit line wording; CLS, PAR and PSE are UK finish codes"}
+      - {kind: classification_table, ref: "research_notes/UK refurbishment job templates data/classification_standards.md", note: "Pr_20_76_88 stored verbatim"}
+    synonyms: [cls, studwork, stud timber, timber stud, softwood, softwood timber, timber, par, pse, planed timber, sawn timber]
+    vocab: [stud, studding, partition, batten, canadian, lumber]
+    uniclass_pr: {code: Pr_20_76_88, title: Timber sections}
+    size_patterns:
+      - {terms: 2, axes: [thickness, width], order: asc}
+      - {terms: 3, axes: [thickness, width, length], order: given}
+    attributes:
+      - name: finish
+        label: timber finish
+        kind: enum
+        required: true
+        check: class
+        question: "CLS (regularised), PAR (planed all round), PSE (planed square edge) or sawn timber?"
+        values:
+          cls: {label: CLS regularised, synonyms: [cls, regularised]}
+          pse: {label: planed square edge, synonyms: [pse, planed square edge]}
+          par: {label: planed all round, synonyms: [par, planed all round]}
+          sawn: {label: sawn, synonyms: [sawn, rough sawn]}
+      - name: strength_grade
+        label: strength grade
+        kind: enum
+        required: true
+        check: grade
+        question: "Which strength grade is needed (C16 or C24)?"
+        values:
+          c16: {label: C16, synonyms: [c16]}
+          c24: {label: C24, synonyms: [c24]}
+      - {name: thickness, label: thickness, kind: numeric, unit: mm, required: true, check: size, min: 15, max: 100, aliases: [thick, thickness]}
+      - {name: width, label: width, kind: numeric, unit: mm, required: true, check: size, min: 25, max: 250, aliases: [wide, width]}
+      - {name: length, label: length, kind: numeric, unit: mm, required: true, check: size, min: 600, max: 6000, aliases: [long, length]}
+
+  metal_stud:
+    label: metal stud and track
+    status: needs_tradesperson_review
+    provenance:
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/boards_framing_fixings.md", note: "metal C-stud 70 mm and 48/50 mm as the alternative to timber"}
+      - {kind: classification_table, ref: "research_notes/UK refurbishment job templates data/classification_standards.md", note: "Pr_20_76_51_22 and EC004499 stored verbatim"}
+    synonyms: [metal stud, steel stud, c stud, metal c stud, light gauge stud, metal track, steel track, u track, floor track, head track, floor channel]
+    vocab: [stud, track, channel, galvanised, partition, drywall]
+    uniclass_pr: {code: Pr_20_76_51_22, title: Cold-formed steel strip studs}
+    etim_class: {code: EC004499, title: Steel stud profile}
+    attributes:
+      - name: profile
+        label: stud or track
+        kind: enum
+        required: true
+        check: class
+        question: "Stud or track (channel)?"
+        values:
+          stud: {label: stud, synonyms: [stud, c stud, metal stud, steel stud]}
+          track: {label: track, synonyms: [track, u track, channel, floor track, head track, floor channel]}
+      - {name: web_width, label: web width, kind: numeric, unit: mm, required: true, check: size, min: 30, max: 150, aliases: [web, wide, width]}
+      - {name: length, label: length, kind: numeric, unit: mm, required: true, check: size, min: 600, max: 6000, aliases: [long, length]}
+      - {name: gauge, label: steel gauge, kind: numeric, unit: mm, required: false, check: size, min: 0.3, max: 1.5, aliases: [gauge, thick, thickness]}

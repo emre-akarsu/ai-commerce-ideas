@@ -1,0 +1,131 @@
+# Verified classification codes the matching component may store.
+#
+# Only codes read live (Uniclass taxon pages, buildingSMART bSDD API) on 2026-10-06 and recorded in
+# research_notes/UK refurbishment job templates data/classification_standards.md are listed here.
+# Titles are stored verbatim. Nothing is edited, merged or extended: Uniclass 2015 is CC BY-ND 4.0.
+# A code that is not in this file is rejected by the ontology loader and the ontology writer, so a
+# model-proposed entry can never introduce an invented classification (hard rule 3).
+# Whether serving these codes next to our own attributes is an "adapted work" under CC BY-ND is an
+# open legal question (see the notes, section 6 Gaps).
+id: uk-matching-classification
+label: Verified Uniclass 2015 Pr and ETIM 10.1 codes used by the synthetic/illustrative matching ontology
+source_note: research_notes/UK refurbishment job templates data/classification_standards.md
+verified_on: "2026-10-06"
+uniclass_version: Pr v1.43 (July 2026)
+etim_version: ETIM 10.1
+attribution:
+  uniclass: Uniclass 2015 © NBS, CC BY-ND 4.0 (https://uniclass.thenbs.com/download). Pr table v1.43 (July 2026).
+    Codes and titles are stored verbatim as checked live in the research notes; nothing is modified or extended.
+  etim: ETIM 10.1, ETIM International, Open Data Commons Attribution Licence (ODC-By 1.0, http://opendatacommons.org/licenses/by/1.0/).
+    Class codes and English titles via the buildingSMART Data Dictionary.
+uniclass_pr:
+  # Sanitary: WC
+  Pr_40_20_93_94: WC pans
+  Pr_40_20_93_89: WC cisterns
+  Pr_40_20_93_87: WC cistern fittings
+  Pr_40_20_93_91: WC flushing valves
+  Pr_40_20_93_93: WC pan connectors
+  Pr_40_20_93_95: WC seats and covers
+  Pr_40_20_93_97: WC suites
+  Pr_40_20_93_62: Pre-plumbed installation frames
+  # Sanitary: basins and sinks
+  Pr_40_20_96_63: Pedestal washbasins
+  Pr_40_20_96_96: Wall-hung washbasins
+  Pr_40_20_96_18: Countertop washbasins
+  Pr_40_20_96_92: Under-mounted washbasins
+  Pr_40_20_96_42: Integral washbasins and vanity tops
+  Pr_40_20_96_45: Kitchen sinks
+  Pr_40_20_96_15: Ceramic sinks
+  Pr_40_20_96_81: Sinks
+  # Sanitary: baths and showers
+  Pr_40_20_06_08: Baths
+  Pr_40_20_06_84: Shower trays
+  Pr_40_20_06_79: Shower enclosures
+  Pr_40_20_06_80: Shower doors
+  Pr_40_20_06_82: Shower screens
+  Pr_40_20_60_96: Wet room floor formers
+  # Sanitary: accessories
+  Pr_40_20_76_07: Bath panels
+  Pr_40_20_76_83: Splashbacks
+  Pr_40_20_76_94: Vanity units
+  Pr_40_20_76_88: Toilet roll holders
+  Pr_40_20_76_90: Towel rails
+  Pr_40_20_76_84: Support rails
+  # Taps and shower valves
+  Pr_40_20_87_98: Washbasin taps
+  Pr_40_20_87_55: Mixer taps
+  Pr_40_20_87_60: Pillar taps
+  Pr_40_20_87_84: Sink taps
+  Pr_40_20_87_83: Sink spouts
+  Pr_40_20_87_08: Bath mixer taps
+  Pr_40_20_87_07: Bath mixer taps with shower hose and hand sprays
+  Pr_40_20_87_80: Shower thermostatic valves
+  Pr_40_20_87_76: Shower heads
+  # Wastes and traps
+  Pr_65_52_25_98: Waste traps
+  Pr_65_52_25_75: Sanitary appliance traps
+  Pr_65_52_03_66: Polypropylene (PP) above-ground wastewater pipes and fittings
+  Pr_65_52_03_52: MUPVC above-ground wastewater pipes and fittings
+  Pr_65_52_03_02: ABS above-ground wastewater pipes and fittings
+  # Pipe jointing consumables
+  Pr_65_52_62_65: PTFE joint tapes
+  Pr_65_52_62_82: Solvent-welding cements
+  Pr_65_52_62_81: Solders
+  Pr_65_52_62_32: Flux
+  # Tiles
+  Pr_35_93_96_19: Ceramic tiles
+  Pr_35_93_96_63: Porcelain tiles
+  Pr_35_93_96_53: Mosaic tiles
+  Pr_35_93_96_57: Natural stone tiles
+  Pr_35_93_96_92: Tile spacers
+  Pr_35_93_96_12: Ceramic tile angle beads
+  # Adhesives, grouts, sealants, fillers
+  Pr_20_31_02_89: Tile adhesives
+  Pr_20_31_02_12: Cementitious adhesives
+  Pr_20_31_53_16: Cementitious tiling grouts
+  Pr_20_31_53_27: Epoxy resin grouts
+  Pr_30_31_76_77: Silicone construction joint sealants
+  Pr_30_31_76_02: Acrylic construction joint sealants
+  Pr_30_31_76_52: Modified silane (MS) polymer sealants
+  Pr_30_31_76_40: Intumescent firestop sealants
+  Pr_25_31_28: Expanding foams
+  Pr_35_31_65_82: Surface fillers
+  # Plasterboard and boards
+  Pr_25_71_35_84: Standard gypsum plasterboards
+  Pr_25_71_35_52: Moisture-resistant gypsum plasterboards
+  Pr_25_71_35_33: Fire-resistant gypsum plasterboards
+  Pr_25_71_35_80: Sound insulation gypsum plasterboards
+  Pr_25_71_11: Cement boards and sheets
+  # Studs, furrings, timber
+  Pr_20_76_51_22: Cold-formed steel strip studs
+  Pr_20_85_46_53: Metal furring channels
+  Pr_20_76_88: Timber sections
+  # Fixings
+  Pr_20_29_76_98: Wood screws
+  Pr_20_29_76_65: Plasterboard screws
+  Pr_20_29_76_75: Self-tapping screws
+  Pr_20_29_76_76: Self-drilling screws
+  Pr_20_29_63_63: Plastics plugs
+  Pr_20_29_63_50: Masonry plugs
+  Pr_20_29_03: Anchors and components
+  Pr_20_29_56: Nails
+  # Screeds
+  Pr_35_31_06_80: Smoothing and levelling underlay compounds
+etim:
+  EC002385: Wood/timber screw
+  EC011707: Tile adhesive
+  EC010195: P-, S-, bottle siphon
+  EC010478: Built-in siphon
+  EC011550: Washbasin
+  EC011315: Kitchen sink
+  EC011328: Washbasin mixing tap
+  EC011375: Water tap
+  EC011289: Toilet bowl/pan
+  EC004499: Steel stud profile
+  EC003143: Gypsum board
+  EC002722: Jointing compound
+  EC003204: Mounting glue
+  EC000209: Fire protection compound/binding/foam/sealant
+  EC000089: All-purpose plug
+  EC000040: Cavity fixing
+  EC004943: Accessories/spare parts for waste fitting
