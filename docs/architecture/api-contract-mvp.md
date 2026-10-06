@@ -20,6 +20,7 @@ Frozen files (`packages/components/core/domain.py`, `ports.py`) are not edited. 
 |---|---|---|---|
 | PUT | `/v1/vendors/{id}/profile` | buyer+ | Set the editable fields (`account_number`, `account_type`, `credit_days`, `delivery_threshold`, `quote_validity_days`, `contact_kind`). Single-line plain text, length-limited by the same sanitiser as other one-line fields. Cannot set `verification` or `suppressed` |
 | POST | `/v1/vendors/{id}/attest` | admin | `{note?}` sets `verification.state = attested` with the caller and time; appends an event. Changing `domain` or `contact_email` later resets the state to `unverified` |
+| POST | `/v1/vendors/import` | buyer+ | FR-SU-1. Multipart CSV with a header row; accepted columns `name, domain, contact_email, phone, account_number, account_type, credit_days, quote_validity_days, contact_kind` (`name`, `domain`, `contact_email` required). Every row is either created or listed as rejected with its row number and a reason; none is dropped silently. Returns `{created: int, updated: int, rejected: [{row: int, reason: string}]}`. Imported vendors start `unverified`. Rows with a control or hidden character, an over-long value, a bad domain or a bad email are rejected. A row matching an existing vendor by domain and contact email updates its profile fields only |
 | POST | `/v1/vendors/{id}/suppress` | buyer+ | Marks the vendor suppressed (no further sends); appends an event |
 | POST | `/v1/vendors/{id}/unsuppress` | admin | Clears it; appends an event |
 
