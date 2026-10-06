@@ -206,6 +206,125 @@
         "title": "ApproveSendIn",
         "type": "object"
       },
+      "AssumptionView": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ],
+            "title": "Confidence",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "critical": {
+            "title": "Critical",
+            "type": "boolean"
+          },
+          "gate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gate"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At"
+          },
+          "resolved_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved By"
+          },
+          "source": {
+            "enum": [
+              "user_said",
+              "default_template",
+              "model_inference",
+              "public_source"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "statement": {
+            "title": "Statement",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "confirmed",
+              "invalidated"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "request_id",
+          "statement",
+          "source",
+          "confidence",
+          "status",
+          "critical",
+          "created_at"
+        ],
+        "title": "AssumptionView",
+        "type": "object"
+      },
+      "AttestIn": {
+        "additionalProperties": false,
+        "properties": {
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "title": "AttestIn",
+        "type": "object"
+      },
       "AttrSource": {
         "enum": [
           "user_input",
@@ -265,6 +384,60 @@
         "title": "Attribute",
         "type": "object"
       },
+      "AuditExport": {
+        "additionalProperties": false,
+        "properties": {
+          "chain_valid": {
+            "title": "Chain Valid",
+            "type": "boolean"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "head_hash": {
+            "title": "Head Hash",
+            "type": "string"
+          },
+          "profile": {
+            "title": "Profile",
+            "type": "string"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "tenant": {
+            "title": "Tenant",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant",
+          "generated_at",
+          "profile",
+          "chain_valid",
+          "head_hash",
+          "events"
+        ],
+        "title": "AuditExport",
+        "type": "object"
+      },
       "AuditView": {
         "additionalProperties": false,
         "properties": {
@@ -321,6 +494,20 @@
           "file"
         ],
         "title": "Body_import_csv_v1_imports_csv_post",
+        "type": "object"
+      },
+      "Body_vendors_import_v1_vendors_import_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_vendors_import_v1_vendors_import_post",
         "type": "object"
       },
       "Candidate": {
@@ -766,6 +953,49 @@
         "title": "KillSwitchIn",
         "type": "object"
       },
+      "Money": {
+        "additionalProperties": false,
+        "description": "An amount with an explicit currency. Never a float.",
+        "properties": {
+          "amount": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "currency"
+        ],
+        "title": "Money",
+        "type": "object"
+      },
+      "MoneyIn": {
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "pattern": "^\\d{1,12}(\\.\\d{1,4})?$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "currency"
+        ],
+        "title": "MoneyIn",
+        "type": "object"
+      },
       "PendingApproval": {
         "additionalProperties": false,
         "properties": {
@@ -885,6 +1115,87 @@
           "footer"
         ],
         "title": "PreparedRFQ",
+        "type": "object"
+      },
+      "ProfileIn": {
+        "additionalProperties": false,
+        "description": "The editable supplier fields. ``verification`` and ``suppressed`` are not accepted (422).",
+        "properties": {
+          "account_number": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Number"
+          },
+          "account_type": {
+            "anyOf": [
+              {
+                "enum": [
+                  "cash",
+                  "credit"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Type"
+          },
+          "contact_kind": {
+            "default": "unknown",
+            "enum": [
+              "company",
+              "individual",
+              "unknown"
+            ],
+            "title": "Contact Kind",
+            "type": "string"
+          },
+          "credit_days": {
+            "anyOf": [
+              {
+                "maximum": 3650.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credit Days"
+          },
+          "delivery_threshold": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MoneyIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quote_validity_days": {
+            "anyOf": [
+              {
+                "maximum": 3650.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote Validity Days"
+          }
+        },
+        "title": "ProfileIn",
         "type": "object"
       },
       "PublicBusinessIdentity": {
@@ -1453,9 +1764,35 @@
         "title": "RFQView",
         "type": "object"
       },
+      "RejectedRowView": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "row": {
+            "title": "Row",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "row",
+          "reason"
+        ],
+        "title": "RejectedRowView",
+        "type": "object"
+      },
       "RequestDetail": {
         "additionalProperties": false,
         "properties": {
+          "assumptions": {
+            "items": {
+              "$ref": "#/components/schemas/AssumptionView"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
           "candidates": {
             "items": {
               "$ref": "#/components/schemas/Candidate"
@@ -1698,6 +2035,173 @@
         "title": "SendResult",
         "type": "object"
       },
+      "SetupItem": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "done",
+              "todo",
+              "blocked"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "status",
+          "detail"
+        ],
+        "title": "SetupItem",
+        "type": "object"
+      },
+      "SetupView": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SetupItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "live": {
+            "title": "Live",
+            "type": "boolean"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ready",
+          "live",
+          "items"
+        ],
+        "title": "SetupView",
+        "type": "object"
+      },
+      "StopAck": {
+        "additionalProperties": false,
+        "description": "The reply was a stop request: the vendor is suppressed and nothing else happened.",
+        "properties": {
+          "suppressed": {
+            "default": true,
+            "title": "Suppressed",
+            "type": "boolean"
+          },
+          "vendor": {
+            "$ref": "#/components/schemas/VendorRef"
+          }
+        },
+        "required": [
+          "vendor"
+        ],
+        "title": "StopAck",
+        "type": "object"
+      },
+      "SupplierProfileView": {
+        "additionalProperties": false,
+        "description": "FR-SU-2..4. ``verification`` and ``suppressed`` are never set through the profile PUT.",
+        "properties": {
+          "account_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Number"
+          },
+          "account_type": {
+            "anyOf": [
+              {
+                "enum": [
+                  "cash",
+                  "credit"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Type"
+          },
+          "contact_kind": {
+            "default": "unknown",
+            "enum": [
+              "company",
+              "individual",
+              "unknown"
+            ],
+            "title": "Contact Kind",
+            "type": "string"
+          },
+          "credit_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credit Days"
+          },
+          "delivery_threshold": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quote_validity_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote Validity Days"
+          },
+          "suppressed": {
+            "default": false,
+            "title": "Suppressed",
+            "type": "boolean"
+          },
+          "verification": {
+            "$ref": "#/components/schemas/VerificationView"
+          }
+        },
+        "required": [
+          "verification"
+        ],
+        "title": "SupplierProfileView",
+        "type": "object"
+      },
       "Tier": {
         "description": "Evidence tiers (\"matches per source\", spec \u00a73).",
         "enum": [
@@ -1749,59 +2253,30 @@
         "title": "ValidationError",
         "type": "object"
       },
-      "Vendor": {
+      "VendorImportResult": {
         "additionalProperties": false,
         "properties": {
-          "contact_email": {
-            "title": "Contact Email",
-            "type": "string"
+          "created": {
+            "title": "Created",
+            "type": "integer"
           },
-          "domain": {
-            "title": "Domain",
-            "type": "string"
+          "rejected": {
+            "items": {
+              "$ref": "#/components/schemas/RejectedRowView"
+            },
+            "title": "Rejected",
+            "type": "array"
           },
-          "id": {
-            "title": "Id",
-            "type": "string"
-          },
-          "name": {
-            "title": "Name",
-            "type": "string"
-          },
-          "opted_out": {
-            "default": false,
-            "title": "Opted Out",
-            "type": "boolean"
-          },
-          "phone": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Phone"
-          },
-          "preferred": {
-            "default": true,
-            "title": "Preferred",
-            "type": "boolean"
-          },
-          "tenant_id": {
-            "title": "Tenant Id",
-            "type": "string"
+          "updated": {
+            "title": "Updated",
+            "type": "integer"
           }
         },
         "required": [
-          "id",
-          "tenant_id",
-          "name",
-          "domain",
-          "contact_email"
+          "created",
+          "updated"
         ],
-        "title": "Vendor",
+        "title": "VendorImportResult",
         "type": "object"
       },
       "VendorIn": {
@@ -1951,6 +2426,118 @@
           "name"
         ],
         "title": "VendorRef",
+        "type": "object"
+      },
+      "VendorView": {
+        "additionalProperties": false,
+        "description": "``Vendor`` plus its supplier profile (api-contract-mvp.md section 1).",
+        "properties": {
+          "contact_email": {
+            "title": "Contact Email",
+            "type": "string"
+          },
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "opted_out": {
+            "default": false,
+            "title": "Opted Out",
+            "type": "boolean"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "preferred": {
+            "default": true,
+            "title": "Preferred",
+            "type": "boolean"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/SupplierProfileView"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "name",
+          "domain",
+          "contact_email",
+          "profile"
+        ],
+        "title": "VendorView",
+        "type": "object"
+      },
+      "VerificationView": {
+        "additionalProperties": false,
+        "properties": {
+          "attested_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attested At"
+          },
+          "attested_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attested By"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "state": {
+            "enum": [
+              "unverified",
+              "attested"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state"
+        ],
+        "title": "VerificationView",
         "type": "object"
       }
     }
@@ -2160,6 +2747,53 @@
         "summary": "Audit"
       }
     },
+    "/v1/audit/export": {
+      "get": {
+        "operationId": "audit_export_v1_audit_export_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "request_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditExport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Audit Export"
+      }
+    },
     "/v1/imports/csv": {
       "post": {
         "operationId": "import_csv_v1_imports_csv_post",
@@ -2207,7 +2841,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/QuoteView"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/QuoteView"
+                    },
+                    {
+                      "$ref": "#/components/schemas/StopAck"
+                    }
+                  ],
+                  "title": "Response Inbound Webhook V1 Inbound Quotes Post"
                 }
               }
             },
@@ -2408,6 +3050,145 @@
           }
         },
         "summary": "Answers"
+      }
+    },
+    "/v1/requests/{request_id}/assumptions": {
+      "get": {
+        "operationId": "assumptions_v1_requests__request_id__assumptions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AssumptionView"
+                  },
+                  "title": "Response Assumptions V1 Requests  Request Id  Assumptions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Assumptions"
+      }
+    },
+    "/v1/requests/{request_id}/assumptions/{assumption_id}/confirm": {
+      "post": {
+        "operationId": "assumption_confirm_v1_requests__request_id__assumptions__assumption_id__confirm_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "assumption_id",
+            "required": true,
+            "schema": {
+              "title": "Assumption Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Assumption Confirm"
+      }
+    },
+    "/v1/requests/{request_id}/assumptions/{assumption_id}/invalidate": {
+      "post": {
+        "operationId": "assumption_invalidate_v1_requests__request_id__assumptions__assumption_id__invalidate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "assumption_id",
+            "required": true,
+            "schema": {
+              "title": "Assumption Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Assumption Invalidate"
       }
     },
     "/v1/requests/{request_id}/comparison": {
@@ -2625,6 +3406,49 @@
         "summary": "Prepare"
       }
     },
+    "/v1/requests/{request_id}/rfqs/prepared": {
+      "get": {
+        "operationId": "prepared_v1_requests__request_id__rfqs_prepared_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PreparedRFQ"
+                  },
+                  "title": "Response Prepared V1 Requests  Request Id  Rfqs Prepared Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Prepared"
+      }
+    },
     "/v1/requests/{request_id}/select-quote": {
       "post": {
         "operationId": "select_quote_v1_requests__request_id__select_quote_post",
@@ -2723,6 +3547,42 @@
         "summary": "Approve Send"
       }
     },
+    "/v1/setup": {
+      "get": {
+        "operationId": "setup_v1_setup_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Setup"
+      }
+    },
+    "/v1/setup/go-live": {
+      "post": {
+        "operationId": "go_live_v1_setup_go_live_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Go Live"
+      }
+    },
     "/v1/vendors": {
       "get": {
         "operationId": "vendors_v1_vendors_get",
@@ -2732,7 +3592,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/Vendor"
+                    "$ref": "#/components/schemas/VendorView"
                   },
                   "title": "Response Vendors V1 Vendors Get",
                   "type": "array"
@@ -2761,7 +3621,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Vendor"
+                  "$ref": "#/components/schemas/VendorView"
                 }
               }
             },
@@ -2779,6 +3639,44 @@
           }
         },
         "summary": "Vendor Create"
+      }
+    },
+    "/v1/vendors/import": {
+      "post": {
+        "operationId": "vendors_import_v1_vendors_import_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_vendors_import_v1_vendors_import_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorImportResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Vendors Import"
       }
     },
     "/v1/vendors/{vendor_id}": {
@@ -2810,7 +3708,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Vendor"
+                  "$ref": "#/components/schemas/VendorView"
                 }
               }
             },
@@ -2828,6 +3726,189 @@
           }
         },
         "summary": "Vendor Patch"
+      }
+    },
+    "/v1/vendors/{vendor_id}/attest": {
+      "post": {
+        "operationId": "vendor_attest_v1_vendors__vendor_id__attest_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "vendor_id",
+            "required": true,
+            "schema": {
+              "title": "Vendor Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AttestIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Vendor Attest"
+      }
+    },
+    "/v1/vendors/{vendor_id}/profile": {
+      "put": {
+        "operationId": "vendor_profile_v1_vendors__vendor_id__profile_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "vendor_id",
+            "required": true,
+            "schema": {
+              "title": "Vendor Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Vendor Profile"
+      }
+    },
+    "/v1/vendors/{vendor_id}/suppress": {
+      "post": {
+        "operationId": "vendor_suppress_v1_vendors__vendor_id__suppress_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "vendor_id",
+            "required": true,
+            "schema": {
+              "title": "Vendor Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Vendor Suppress"
+      }
+    },
+    "/v1/vendors/{vendor_id}/unsuppress": {
+      "post": {
+        "operationId": "vendor_unsuppress_v1_vendors__vendor_id__unsuppress_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "vendor_id",
+            "required": true,
+            "schema": {
+              "title": "Vendor Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Vendor Unsuppress"
       }
     }
   }

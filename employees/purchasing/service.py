@@ -106,7 +106,9 @@ from components.send_service.message import (
     validate_identity_pairs,
 )
 from components.send_service.service import TenantIdentities
+from components.suppliers import SupplierStore, is_stop_request
 
+from .mvp import MvpOps
 from .service_port import Conflict, NotFound
 from .views import (
     ApprovalLinkView,
@@ -120,6 +122,7 @@ from .views import (
     RequestView,
     RFQView,
     SendResult,
+    StopAck,
     VendorRef,
 )
 
@@ -207,6 +210,10 @@ class Settings:
     identity_fields: tuple[str, ...] = ()
     identity_labels: Mapping[str, str] = field(default_factory=dict)
     identity_required: bool = False
+    # Supplier guard (api-contract-mvp.md section 1): a one-to-one RFQ to a supplier recorded as an
+    # individual (sole trader, partnership) is refused unless this is on. Counsel has not confirmed that
+    # such messages are outside direct marketing, so it is off by default. Not one of the hard rules.
+    allow_individual_subscribers: bool = False
 
     def __post_init__(self) -> None:
         if len(set(self.identity_fields)) != len(self.identity_fields) or any(
@@ -452,7 +459,7 @@ def _total(quote: Quote, quantity: int) -> Decimal:
 # ---------------------------------------------------------------- the service
 
 
-class PurchasingService:
+class PurchasingService(MvpOps):
     def __init__(
         self,
         *,
@@ -469,7 +476,9 @@ class PurchasingService:
         llm: LLMProvider | None = None,
         reply_token_key: bytes | None = None,
         profile: ResolvedProfile | None = None,
+        suppliers: SupplierStore | None = None,
     ) -> None:
+        self._suppliers = suppliers if suppliers is not None else SupplierStore()
         self._reply_key = reply_token_key if reply_token_key is not None else secrets.token_bytes(32)
         if len(self._reply_key) < 16:
             raise ValueError("reply_token_key must be at least 16 bytes")
@@ -496,6 +505,7 @@ class PurchasingService:
         self.llm = llm  # for the planner/graph; the service itself makes no model calls
         self._wf = Workflow(event_log, clock)
         self._prepared: dict[tuple[str, str], Any] = {}
+        self._prepared_footers: dict[tuple[str, str], str] = {}  # footer as rendered at prepare time
         # prepare_rfqs reads the request's RFQ rows, checks every message and only then adds rows; two calls for
         # one request (a double click) must not interleave, or each adds a row for the same vendor. One lock per
         # request that is being prepared right now; the entry goes away with its last user.
@@ -638,6 +648,7 @@ class PurchasingService:
             events=[self._public(e) for e in self._events(tid, request.id)],
             pending_approvals=self._pending(request),
             chain_valid=self._log.verify_chain(tid),
+            assumptions=self._assumption_views(tid, request.id),
         )
 
     def _pending(self, request: Request) -> list[PendingApproval]:
@@ -685,6 +696,7 @@ class PurchasingService:
             "criticality": request.criticality, "down_now": request.down_now,
         })
         self._move(request, S.SPEC_DRAFT, "agent", {"step": "intake"})
+        self._record_quote_basis_assumption(request)
         self._apply_spec(request, normalise(text, questions_asked=0))
         return self._detail(request)
 
@@ -701,6 +713,7 @@ class PurchasingService:
                             "requests. A person will review it; nothing has been sent or ordered."),
             })
             return
+        self._record_assumptions(request, spec.attributes)  # values the requester did not state
         request.open_questions = list(spec.open_questions)
         request.questions_asked += len(spec.open_questions)
         if spec.escalate:
@@ -820,6 +833,7 @@ class PurchasingService:
             raise Conflict(f"cannot prepare RFQs in state {request.state.value}")
         if not request.quantity:
             raise Conflict("quantity is required before an RFQ can be drafted")
+        self.check_assumptions_closed(ctx.tenant_id, request.id)
         mpns = self._rfq_mpns(request, candidate_mpns)
         ts = self._ts(ctx.tenant_id)
         vendors = self._rfq_vendors(ts, request, list(dict.fromkeys(vendor_ids)))
@@ -855,10 +869,9 @@ class PurchasingService:
         for v in vendors:
             if self._callback_pending(request.tenant_id, v.id):
                 raise Conflict(f"vendor {v.id} has an unconfirmed contact change (callback pending)")
-            if v.opted_out:
-                raise Conflict(f"vendor {v.id} has opted out")
             if not v.preferred:
                 raise Conflict(f"vendor {v.id} is not a preferred vendor")
+        self.check_supplier_guards(request.tenant_id, vendors)  # verified, not suppressed, not individual
         limit = (self._settings.down_now_max_vendors if request.down_now
                  else self._settings.max_vendors)
         existing = {r.vendor_id for r in self._rfqs(ts, request.id)}
@@ -935,13 +948,39 @@ class PurchasingService:
         except SendError as exc:
             raise Conflict(f"cannot prepare message: {exc}") from exc
         self._prepared[(ctx.tenant_id, rfq.id)] = prepared
+        footer = render_footer(self._send.footer_template, name)
+        self._prepared_footers[(ctx.tenant_id, rfq.id)] = footer
         self._emit(ctx.tenant_id, request.id, ctx.actor, EVT_RFQ_PREPARED, {
             "rfq_id": rfq.id, "vendor_id": vendor.id, "mime_hash": prepared.mime_hash})
         return PreparedRFQ(
             rfq_id=rfq.id, vendor=self._ref(vendor), to=prepared.to, subject=prepared.subject,
             body_preview=preview.text, mime_hash=prepared.mime_hash,
-            footer=render_footer(self._send.footer_template, name),
+            footer=footer,
         )
+
+    def list_prepared_rfqs(self, ctx: Ctx, request_id: str) -> list[PreparedRFQ]:
+        """Read-only: the request's prepared, unsent RFQs, re-rendered from the very message objects
+        ``approve_send`` verifies (so ``mime_hash`` is the one ``prepare_rfqs`` returned). An RFQ whose
+        prepared message is no longer held (for example after a restart) is left out: prepare again."""
+        require(ctx, Role.BUYER)
+        ts = self._ts(ctx.tenant_id)
+        request = self._load_request(ctx, request_id)
+        vendors = {v.id: v for v in ts.vendors.list()}
+        out: list[PreparedRFQ] = []
+        for rfq in self._rfqs(ts, request.id):
+            prepared = self._prepared.get((ctx.tenant_id, rfq.id))
+            footer = self._prepared_footers.get((ctx.tenant_id, rfq.id))
+            if rfq.sent_message_id or prepared is None or footer is None or rfq.vendor_id not in vendors:
+                continue
+            try:
+                preview = self._send.preview(prepared)
+            except SendError:
+                continue
+            out.append(PreparedRFQ(
+                rfq_id=rfq.id, vendor=self._ref(vendors[rfq.vendor_id]), to=prepared.to,
+                subject=prepared.subject, body_preview=preview.text, mime_hash=prepared.mime_hash,
+                footer=footer))
+        return out
 
     @staticmethod
     def _rfq_body(request: Request, vendor: Vendor, cands: list[Candidate],
@@ -972,6 +1011,7 @@ class PurchasingService:
         ts = self._ts(ctx.tenant_id)
         rfq: RFQ = self._get(ts.rfqs, rfq_id)
         request = self._load_request(ctx, rfq.request_id)
+        self.check_not_suppressed(ctx.tenant_id, self._get(ts.vendors, rfq.vendor_id))
         prepared = self._prepared.get((ctx.tenant_id, rfq.id))
         if rfq.sent_message_id:
             raise Conflict("RFQ was already sent")
@@ -1075,7 +1115,7 @@ class PurchasingService:
 
     def ingest_inbound_reply(
         self, *, reply_token: str, from_domain: str, source_text: str, dmarc_aligned: bool
-    ) -> QuoteView:
+    ) -> QuoteView | StopAck:
         """Vendor reply from the trusted inbound adapter. Tenant/request/vendor come from the signed
         token only. A wrong sender domain or a failed DMARC alignment quarantines the quote (R12)."""
         rfq = self._verify_reply_token(reply_token)
@@ -1084,6 +1124,11 @@ class PurchasingService:
         vendor: Vendor = self._get(ts.vendors, rfq.vendor_id)
         domain_ok = isinstance(from_domain, str) and (
             from_domain.strip().lower().rstrip(".") == vendor.domain.strip().lower())
+        if domain_ok and is_stop_request(source_text):
+            # A stop request from the vendor's own domain suppresses the vendor and does nothing else:
+            # no quote is read, no state moves, the text is not an instruction.
+            self._suppress(rfq.tenant_id, vendor, "system", "stop_reply", request_id=request.id)
+            return StopAck(vendor=self._ref(vendor))
         view = self._ingest(request, vendor, rfq, source_text, buyer_entered=False,
                             dmarc_ok=bool(dmarc_aligned is True and domain_ok))
         self._send.cancel_follow_ups(rfq.tenant_id, rfq.id)
@@ -1471,6 +1516,8 @@ class PurchasingService:
             if changed:
                 require(ctx, Role.ADMIN)  # R12: remit-to/contact changes are admin-only
             saved = repo.save(vendor)
+            if changed:  # the supplier is no longer the one that was checked
+                self._reset_verification(ctx, saved, "domain_or_contact_changed")
             if changed:  # ... and quarantine the vendor's quotes until a callback is confirmed
                 self._emit(ctx.tenant_id, None, ctx.actor, EVT_VENDOR_CONTACT_CHANGED, {
                     "vendor_id": saved.id, "old_domain": current.domain, "new_domain": saved.domain,
@@ -1570,6 +1617,7 @@ def build_in_memory_service(
     approval_secret: bytes | None = None,
     audit_key: bytes | None = None,
     profile: ResolvedProfile | None = None,
+    suppliers: SupplierStore | None = None,
 ) -> PurchasingService:
     """Fully wired service on in-memory stores. The transport is handed to the send-service ONLY.
     Defaults are dev-safe: a recording transport (nothing leaves the process), caps from the manifest
@@ -1607,4 +1655,4 @@ def build_in_memory_service(
         store=st, event_log=log, clock=clk, send_service=send, approval_service=approvals,
         extractor=extractor, settings=cfg, notifier=notifier, ids=ids, llm=llm,
         reply_token_key=hmac.new(secret, b"reply-token-key", hashlib.sha256).digest(),
-        profile=prof, **kwargs)
+        profile=prof, suppliers=suppliers, **kwargs)

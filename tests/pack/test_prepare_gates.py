@@ -142,6 +142,7 @@ def test_a_preview_that_cannot_be_read_is_a_409_not_a_crash_and_leaves_no_trace(
 def test_a_vendor_whose_message_cannot_be_built_leaves_no_rfq_row_behind() -> None:
     w = build_world()
     w.svc.upsert_vendor(w.admin, make_vendor("zw", name=f"Zero{ZERO_WIDTH_SPACE}Width"))
+    w.svc.attest_vendor(w.admin, "zw")
     rid = new_request(w)
     before = snapshot(w, rid)
     with pytest.raises(Conflict, match="cannot prepare message"):
@@ -153,6 +154,7 @@ def test_a_vendor_whose_message_cannot_be_built_leaves_no_rfq_row_behind() -> No
 def test_one_bad_vendor_among_good_ones_stores_nothing_for_any_of_them() -> None:
     w = build_world()
     w.svc.upsert_vendor(w.admin, make_vendor("zw", name=f"Zero{ZERO_WIDTH_SPACE}Width"))
+    w.svc.attest_vendor(w.admin, "zw")
     rid = new_request(w)
     before = snapshot(w, rid)
     with pytest.raises(Conflict):

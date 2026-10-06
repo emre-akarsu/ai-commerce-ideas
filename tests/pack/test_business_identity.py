@@ -322,7 +322,7 @@ def test_role_and_ownership_checks_come_before_the_identity_check() -> None:
         w.svc.prepare_rfqs(w.other_buyer, rid, vendor_ids=["acme"])  # another tenant's request
     with pytest.raises(NotFound):
         w.svc.prepare_rfqs(w.buyer, rid, vendor_ids=["no-such-vendor"])
-    with pytest.raises(Conflict, match="opted out"):
+    with pytest.raises(Conflict, match="vendor suppressed"):
         w.svc.prepare_rfqs(w.buyer, rid, vendor_ids=["quit"])
 
 
@@ -364,6 +364,7 @@ def test_tenant_lookup_is_exact_not_by_prefix_or_case() -> None:
     w = uk_world(business_identities={"tenant-1": UK_IDENTITY, "tenant-": UK_IDENTITY_T2})
     admin = Ctx("tenant-10", "admin-10", Role.ADMIN)
     w.svc.upsert_vendor(admin, make_vendor("v10", tenant="tenant-10"))
+    w.svc.attest_vendor(admin, "v10")
     lookalike = Ctx("tenant-10", "tech-10", Role.REQUESTER)
     rid = w.svc.create_request(lookalike, text=REQUEST_TEXT).request.id
     with pytest.raises(Conflict, match="^business identity incomplete"):

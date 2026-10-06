@@ -10,6 +10,7 @@ from apps.api.main import create_app
 from employees.purchasing.service_port import Conflict, NotFound
 from employees.purchasing.views import (
     ApprovalLinkView,
+    AuditExport,
     AuditView,
     DecisionResult,
     ImportSummary,
@@ -18,7 +19,10 @@ from employees.purchasing.views import (
     RequestDetail,
     RequestView,
     SendResult,
+    SetupView,
+    VendorImportResult,
     VendorRef,
+    VendorView,
 )
 from fastapi.testclient import TestClient
 
@@ -135,11 +139,75 @@ class StubService:
 
     def upsert_vendor(self, ctx, vendor):
         self._rec("upsert_vendor", ctx, vendor=vendor)
+        self.last_vendor = vendor
         return vendor
 
     def audit(self, ctx, request_id=None):
         self._rec("audit", ctx, id=request_id)
         return AuditView(events=[], chain_valid=True)
+
+    def _view(self, v):
+        return VendorView(**v.model_dump(), profile={"verification": {"state": "unverified"}})
+
+    def list_vendor_views(self, ctx):
+        self._rec("list_vendor_views", ctx)
+        return [self._view(v) for v in self.vendors]
+
+    def get_vendor_view(self, ctx, vendor_id):
+        self._rec("get_vendor_view", ctx, id=vendor_id)
+        last = getattr(self, "last_vendor", None)
+        if last is not None and last.id == vendor_id:
+            return self._view(last)
+        return self._view(self.vendors[0].model_copy(update={"id": vendor_id}))
+
+    def set_supplier_profile(self, ctx, vendor_id, **kw):
+        self._rec("set_supplier_profile", ctx, id=vendor_id, **kw)
+        return self.get_vendor_view(ctx, vendor_id)
+
+    def attest_vendor(self, ctx, vendor_id, *, note=None):
+        self._rec("attest_vendor", ctx, id=vendor_id, note=note)
+        return self.get_vendor_view(ctx, vendor_id)
+
+    def suppress_vendor(self, ctx, vendor_id):
+        self._rec("suppress_vendor", ctx, id=vendor_id)
+        return self.get_vendor_view(ctx, vendor_id)
+
+    def unsuppress_vendor(self, ctx, vendor_id):
+        self._rec("unsuppress_vendor", ctx, id=vendor_id)
+        return self.get_vendor_view(ctx, vendor_id)
+
+    def import_vendors(self, ctx, data):
+        self._rec("import_vendors", ctx, size=len(data))
+        return VendorImportResult(created=1, updated=0, rejected=[])
+
+    def list_assumptions(self, ctx, request_id):
+        self._rec("list_assumptions", ctx, id=request_id)
+        return []
+
+    def confirm_assumption(self, ctx, request_id, assumption_id):
+        self._rec("confirm_assumption", ctx, id=request_id, aid=assumption_id)
+        return RequestDetail(request=_rv())
+
+    def invalidate_assumption(self, ctx, request_id, assumption_id):
+        self._rec("invalidate_assumption", ctx, id=request_id, aid=assumption_id)
+        return RequestDetail(request=_rv())
+
+    def get_setup(self, ctx):
+        self._rec("get_setup", ctx)
+        return SetupView(ready=False, live=False, items=[])
+
+    def go_live(self, ctx):
+        self._rec("go_live", ctx)
+        return SetupView(ready=True, live=True, items=[])
+
+    def audit_export(self, ctx, request_id=None):
+        self._rec("audit_export", ctx, id=request_id)
+        return AuditExport(tenant="x", generated_at=datetime(2030, 1, 1, tzinfo=UTC), profile="us@0",
+                           chain_valid=True, head_hash="0" * 64, events=[])
+
+    def list_prepared_rfqs(self, ctx, request_id):
+        self._rec("list_prepared_rfqs", ctx, id=request_id)
+        return []
 
     def import_csv(self, ctx, data):
         self._rec("import_csv", ctx, size=len(data))

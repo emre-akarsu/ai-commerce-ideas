@@ -14,6 +14,8 @@ from typing import Annotated, Any, Literal
 from employees.purchasing.service_port import Conflict, NotFound, PurchasingServicePort
 from employees.purchasing.views import (
     ApprovalLinkView,
+    AssumptionView,
+    AuditExport,
     AuditView,
     DecisionResult,
     ImportSummary,
@@ -22,6 +24,10 @@ from employees.purchasing.views import (
     RequestDetail,
     RequestView,
     SendResult,
+    SetupView,
+    StopAck,
+    VendorImportResult,
+    VendorView,
 )
 from fastapi import Depends, FastAPI, File, Query, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
@@ -34,6 +40,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from aiplat.ctx import Ctx, Forbidden, Role, require
 from aiplat.profile import ResolvedProfile, load_profile
 from components.core.domain import Comparison, PurchaseOrderDraft, Vendor
+from components.suppliers import Money
+from components.suppliers.models import AccountType, ContactKind
 from components.send_service.message import is_plain_line
 
 from .auth import Authenticator, AuthError
@@ -45,6 +53,7 @@ log = logging.getLogger("purchasing.api")
 MAX_BODY_BYTES = 1_000_000
 MAX_UPLOAD_BYTES = 5_000_000
 UPLOAD_PATH = "/v1/imports/csv"
+VENDOR_UPLOAD_PATH = "/v1/vendors/import"
 
 
 class _TooLargeError(Exception):
@@ -133,6 +142,33 @@ class VendorPatch(_In):
     preferred: bool | None = None
     phone: str | None = None
     opted_out: bool | None = None
+
+
+class MoneyIn(_In):
+    amount: str = Field(pattern=r"^\d{1,12}(\.\d{1,4})?$")  # a decimal string, never a float
+    currency: str = Field(pattern=r"^[A-Z]{3}$")
+
+
+class ProfileIn(_In):
+    """The editable supplier fields. ``verification`` and ``suppressed`` are not accepted (422)."""
+
+    account_number: str | None = Field(default=None, max_length=200)
+    account_type: AccountType | None = None
+    credit_days: int | None = Field(default=None, ge=0, le=3650)
+    delivery_threshold: MoneyIn | None = None
+    quote_validity_days: int | None = Field(default=None, ge=1, le=3650)
+    contact_kind: ContactKind = "unknown"
+
+    @field_validator("account_number")
+    @classmethod
+    def _one_line(cls, value: str | None) -> str | None:
+        if value is not None and not is_plain_line(value):
+            raise ValueError("must be one line of plain text")
+        return value
+
+
+class AttestIn(_In):
+    note: str | None = Field(default=None, max_length=200)
 
 
 class PublicLocale(BaseModel):
@@ -346,6 +382,10 @@ def create_app(
             ctx, request_id, vendor_ids=body.vendor_ids, candidate_mpns=body.candidate_mpns
         )
 
+    @app.get("/v1/requests/{request_id}/rfqs/prepared", response_model=list[PreparedRFQ])
+    def prepared(request_id: str, ctx: B):
+        return svc.list_prepared_rfqs(ctx, request_id)  # read-only: never prepares, never sends
+
     @app.post("/v1/rfqs/{rfq_id}/approve-send", response_model=SendResult)
     def approve_send(rfq_id: str, body: ApproveSendIn, ctx: B) -> SendResult:
         return svc.approve_send(ctx, rfq_id, mime_hash=body.mime_hash)
@@ -356,8 +396,8 @@ def create_app(
             ctx, request_id, vendor_id=body.vendor_id, source_text=body.source_text
         )
 
-    @app.post("/v1/inbound/quotes", response_model=QuoteView)
-    async def inbound_webhook(request: Request) -> QuoteView:
+    @app.post("/v1/inbound/quotes", response_model=QuoteView | StopAck)
+    async def inbound_webhook(request: Request) -> QuoteView | StopAck:
         """Trusted inbound-mail webhook: authenticated only by an HMAC over the raw body (R12)."""
         raw = await request.body()
         verify_inbound_signature(
@@ -405,22 +445,77 @@ def create_app(
             headers={"Content-Disposition": 'attachment; filename="po-draft.csv"'},
         )
 
-    @app.get("/v1/vendors", response_model=list[Vendor])
+    @app.get("/v1/vendors", response_model=list[VendorView])
     def vendors(ctx: B):
-        return svc.list_vendors(ctx)
+        return svc.list_vendor_views(ctx)
 
-    @app.post("/v1/vendors", response_model=Vendor, status_code=201)
-    def vendor_create(body: VendorIn, ctx: A) -> Vendor:
+    @app.post("/v1/vendors", response_model=VendorView, status_code=201)
+    def vendor_create(body: VendorIn, ctx: A) -> VendorView:
         v = Vendor(id=f"v_{uuid.uuid4().hex[:12]}", tenant_id=ctx.tenant_id, **body.model_dump())
-        return svc.upsert_vendor(ctx, v)
+        return svc.get_vendor_view(ctx, svc.upsert_vendor(ctx, v).id)
 
-    @app.patch("/v1/vendors/{vendor_id}", response_model=Vendor)
-    def vendor_patch(vendor_id: str, body: VendorPatch, ctx: A) -> Vendor:
+    @app.patch("/v1/vendors/{vendor_id}", response_model=VendorView)
+    def vendor_patch(vendor_id: str, body: VendorPatch, ctx: A) -> VendorView:
         cur = next((v for v in svc.list_vendors(ctx) if v.id == vendor_id), None)
         if cur is None:
             raise NotFound(vendor_id)
         upd = body.model_dump(exclude_unset=True)
-        return svc.upsert_vendor(ctx, cur.model_copy(update=upd))
+        return svc.get_vendor_view(ctx, svc.upsert_vendor(ctx, cur.model_copy(update=upd)).id)
+
+    @app.post(VENDOR_UPLOAD_PATH, response_model=VendorImportResult)
+    async def vendors_import(ctx: B, file: Annotated[UploadFile, File()]) -> VendorImportResult:
+        data = await file.read(max_upload_bytes + 1)
+        if len(data) > max_upload_bytes:
+            raise _TooLarge
+        return await run_in_threadpool(svc.import_vendors, ctx, data)
+
+    @app.put("/v1/vendors/{vendor_id}/profile", response_model=VendorView)
+    def vendor_profile(vendor_id: str, body: ProfileIn, ctx: B) -> VendorView:
+        threshold = (Money(amount=Decimal(body.delivery_threshold.amount),
+                           currency=body.delivery_threshold.currency)
+                     if body.delivery_threshold else None)
+        return svc.set_supplier_profile(
+            ctx, vendor_id, account_number=body.account_number, account_type=body.account_type,
+            credit_days=body.credit_days, delivery_threshold=threshold,
+            quote_validity_days=body.quote_validity_days, contact_kind=body.contact_kind)
+
+    @app.post("/v1/vendors/{vendor_id}/attest", response_model=VendorView)
+    def vendor_attest(vendor_id: str, ctx: A, body: AttestIn | None = None) -> VendorView:
+        return svc.attest_vendor(ctx, vendor_id, note=body.note if body else None)
+
+    @app.post("/v1/vendors/{vendor_id}/suppress", response_model=VendorView)
+    def vendor_suppress(vendor_id: str, ctx: B) -> VendorView:
+        return svc.suppress_vendor(ctx, vendor_id)
+
+    @app.post("/v1/vendors/{vendor_id}/unsuppress", response_model=VendorView)
+    def vendor_unsuppress(vendor_id: str, ctx: A) -> VendorView:
+        return svc.unsuppress_vendor(ctx, vendor_id)
+
+    @app.get("/v1/requests/{request_id}/assumptions", response_model=list[AssumptionView])
+    def assumptions(request_id: str, ctx: C):
+        return svc.list_assumptions(ctx, request_id)
+
+    @app.post("/v1/requests/{request_id}/assumptions/{assumption_id}/confirm",
+              response_model=RequestDetail)
+    def assumption_confirm(request_id: str, assumption_id: str, ctx: C) -> RequestDetail:
+        return svc.confirm_assumption(ctx, request_id, assumption_id)
+
+    @app.post("/v1/requests/{request_id}/assumptions/{assumption_id}/invalidate",
+              response_model=RequestDetail)
+    def assumption_invalidate(request_id: str, assumption_id: str, ctx: C) -> RequestDetail:
+        return svc.invalidate_assumption(ctx, request_id, assumption_id)
+
+    @app.get("/v1/setup", response_model=SetupView)
+    def setup(ctx: A) -> SetupView:
+        return svc.get_setup(ctx)
+
+    @app.post("/v1/setup/go-live", response_model=SetupView)
+    def go_live(ctx: A) -> SetupView:
+        return svc.go_live(ctx)  # recorded, not enforced (known-gaps.md)
+
+    @app.get("/v1/audit/export", response_model=AuditExport)
+    def audit_export(ctx: A, request_id: Annotated[str | None, Query(max_length=100)] = None):
+        return svc.audit_export(ctx, request_id)
 
     @app.post(UPLOAD_PATH, response_model=ImportSummary)
     async def import_csv(ctx: B, file: Annotated[UploadFile, File()]) -> ImportSummary:
@@ -446,12 +541,12 @@ def create_app(
             raise ValueError("wildcard CORS origin is not allowed")
         app.add_middleware(
             CORSMiddleware, allow_origins=list(cors_origins), allow_credentials=False,
-            allow_methods=["GET", "POST", "PATCH"],
+            allow_methods=["GET", "POST", "PATCH", "PUT"],
             allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
         )
     app.add_middleware(
         SecurityMiddleware, max_body_bytes=max_body_bytes, max_upload_bytes=max_upload_bytes,
-        upload_path=UPLOAD_PATH,
+        upload_path=(UPLOAD_PATH, VENDOR_UPLOAD_PATH),
     )
     return app
 

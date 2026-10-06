@@ -59,6 +59,7 @@ class Rig:
         self.admin = Ctx(T, "admin-1", Role.ADMIN)
         self.svc.upsert_vendor(self.admin, Vendor(id="acme", tenant_id=T, name="Acme", domain="acme.example",
                                                   contact_email="sales@acme.example"))
+        self.svc.attest_vendor(self.admin, "acme")
         self.requester, self.buyer = Ctx(T, "tech-1", Role.REQUESTER), Ctx(T, "buyer-1", Role.BUYER)
         self.approver = Ctx(T, "approver-1", Role.ADMIN)
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -15,6 +15,16 @@ from components.core.domain import (
     Event,
     Quote,
     RequestState,
+    Vendor,
+)
+from components.suppliers import Money
+from components.suppliers.models import (
+    AccountType,
+    AssumptionSource,
+    AssumptionStatus,
+    Confidence,
+    ContactKind,
+    VerificationState,
 )
 
 
@@ -74,6 +84,87 @@ class PendingApproval(_V):
     note: str = ""
 
 
+class VerificationView(_V):
+    state: VerificationState
+    attested_by: str | None = None
+    attested_at: datetime | None = None
+    note: str | None = None
+
+
+class SupplierProfileView(_V):
+    """FR-SU-2..4. ``verification`` and ``suppressed`` are never set through the profile PUT."""
+
+    account_number: str | None = None
+    account_type: AccountType | None = None
+    credit_days: int | None = None
+    delivery_threshold: Money | None = None
+    quote_validity_days: int | None = None
+    contact_kind: ContactKind = "unknown"
+    verification: VerificationView
+    suppressed: bool = False
+
+
+class VendorView(Vendor):
+    """``Vendor`` plus its supplier profile (api-contract-mvp.md section 1)."""
+
+    profile: SupplierProfileView
+
+
+class RejectedRowView(_V):
+    row: int
+    reason: str
+
+
+class VendorImportResult(_V):
+    created: int
+    updated: int
+    rejected: list[RejectedRowView] = Field(default_factory=list)
+
+
+class StopAck(_V):
+    """The reply was a stop request: the vendor is suppressed and nothing else happened."""
+
+    suppressed: bool = True
+    vendor: VendorRef
+
+
+class AssumptionView(_V):
+    id: str
+    request_id: str
+    statement: str
+    source: AssumptionSource
+    confidence: Confidence
+    status: AssumptionStatus
+    critical: bool
+    gate: str | None = None
+    created_at: datetime
+    resolved_by: str | None = None
+    resolved_at: datetime | None = None
+
+
+class SetupItem(_V):
+    id: str
+    label: str
+    status: Literal["done", "todo", "blocked"]
+    detail: str
+
+
+class SetupView(_V):
+    ready: bool
+    live: bool
+    items: list[SetupItem]
+
+
+class AuditExport(_V):
+    tenant: str
+    generated_at: datetime
+    profile: str
+    chain_valid: bool
+    head_hash: str
+    events: list[Event]
+    request_id: str | None = None  # set when the export was narrowed to one request
+
+
 class RequestDetail(_V):
     request: RequestView
     candidates: list[Candidate] = Field(default_factory=list)
@@ -83,6 +174,7 @@ class RequestDetail(_V):
     events: list[Event] = Field(default_factory=list)
     pending_approvals: list[PendingApproval] = Field(default_factory=list)
     chain_valid: bool | None = None
+    assumptions: list[AssumptionView] = Field(default_factory=list)
 
 
 class ApprovalLinkView(_V):

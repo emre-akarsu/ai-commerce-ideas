@@ -31,7 +31,8 @@ _BASE: dict[RequestState, frozenset[RequestState]] = {
     S.RECEIVED: frozenset({S.SPEC_DRAFT, S.NEEDS_INFO, S.CANCELLED}),
     S.SPEC_DRAFT: frozenset({S.NEEDS_INFO, S.SPEC_CONFIRMED, S.CANCELLED}),
     S.NEEDS_INFO: frozenset({S.SPEC_DRAFT, S.CANCELLED, S.EXPIRED}),
-    S.SPEC_CONFIRMED: frozenset({S.RFQ_DRAFTED, S.CANCELLED}),
+    # SPEC_DRAFT: a person invalidated an assumption, so the spec is open again (assumption ledger)
+    S.SPEC_CONFIRMED: frozenset({S.RFQ_DRAFTED, S.SPEC_DRAFT, S.CANCELLED}),
     S.RFQ_DRAFTED: frozenset({S.RFQ_APPROVED, S.CANCELLED, S.EXPIRED}),
     S.RFQ_APPROVED: frozenset({S.RFQ_SENT, S.RFQ_DRAFTED, S.CANCELLED, S.EXPIRED}),
     S.RFQ_SENT: frozenset({S.QUOTES_COLLECTING, S.CANCELLED, S.EXPIRED}),

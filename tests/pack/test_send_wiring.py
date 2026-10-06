@@ -32,6 +32,7 @@ def parts_of(w: World) -> dict[str, Any]:
     return {
         "store": w.store, "event_log": w.log, "clock": w.clock,
         "approval_service": w.svc._approvals, "extractor": w.svc._extractor,  # noqa: SLF001
+        "suppliers": w.suppliers,
     }
 
 
