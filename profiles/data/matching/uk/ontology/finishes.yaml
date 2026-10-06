@@ -1,0 +1,127 @@
+# Tiles, trims and decorating. Synthetic/illustrative seed: every entry needs a tradesperson's review.
+file: finishes
+types:
+  trim:
+    label: tile trim
+    status: needs_tradesperson_review
+    provenance: &fin_prov
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/tiling_finishes.md", note: "uPVC white round edge as the cheap default; chrome aluminium straight edge as the upgrade; trim depth follows tile plus bed"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/tiling.yaml", note: "kit line wording"}
+      - {kind: classification_table, ref: "research_notes/UK refurbishment job templates data/classification_standards.md", note: "Pr_35_93_96_12 stored verbatim, as the kit library uses it for trims"}
+    synonyms: [tile trim, edge trim, trim, round edge trim, straight edge trim, tile edge trim, edging trim]
+    vocab: [edge, edging, round, straight]
+    uniclass_pr: {code: Pr_35_93_96_12, title: Ceramic tile angle beads}
+    attributes:
+      - name: profile
+        label: trim profile
+        kind: enum
+        required: true
+        check: class
+        question: "Round edge or straight edge trim?"
+        values:
+          round_edge: {label: round edge, synonyms: [round edge, round]}
+          straight_edge: {label: straight edge, synonyms: [straight edge, straight, square edge]}
+      - name: material
+        label: trim material
+        kind: enum
+        required: true
+        check: class
+        question: "uPVC, aluminium or stainless steel trim?"
+        values:
+          upvc: {label: uPVC, synonyms: [upvc, plastic]}
+          aluminium: {label: aluminium, synonyms: [aluminium]}
+          stainless: {label: stainless steel, synonyms: [stainless, stainless steel]}
+      - name: finish
+        label: finish
+        kind: enum
+        required: false
+        check: class
+        values:
+          white: {label: white, synonyms: [white]}
+          chrome: {label: chrome, synonyms: [chrome, polished chrome, chrome effect]}
+          brushed: {label: brushed, synonyms: [brushed, satin, silver]}
+      - {name: depth, label: trim depth, kind: numeric, unit: mm, required: true, check: size, min: 4, max: 20, aliases: [depth, deep]}
+      - {name: length, label: trim length, kind: numeric, unit: mm, required: false, check: size, min: 1000, max: 3500, aliases: [long, length]}
+
+  tile:
+    label: wall or floor tile
+    status: needs_tradesperson_review
+    provenance: *fin_prov
+    synonyms: [tile, wall tile, floor tile, ceramic tile, porcelain tile, bathroom tile, wall and floor tile]
+    vocab: [gloss, matt, wall, floor, metro, brick, rectified, ceramic, porcelain, colour]
+    size_patterns:
+      - {terms: 2, axes: [length, width], order: desc}
+    attributes:
+      - name: material
+        label: tile material
+        kind: enum
+        required: true
+        check: class
+        question: "Ceramic or porcelain?"
+        values:
+          ceramic:
+            label: ceramic
+            synonyms: [ceramic]
+            uniclass_pr: {code: Pr_35_93_96_19, title: Ceramic tiles}
+          porcelain:
+            label: porcelain
+            synonyms: [porcelain]
+            uniclass_pr: {code: Pr_35_93_96_63, title: Porcelain tiles}
+      - {name: length, label: tile length, kind: numeric, unit: mm, required: true, check: size, min: 50, max: 3000, aliases: [long, length]}
+      - {name: width, label: tile width, kind: numeric, unit: mm, required: true, check: size, min: 50, max: 1500, aliases: [wide, width]}
+      - name: use
+        label: tile use
+        kind: enum
+        required: true
+        check: class
+        question: "Wall tile, floor tile or both?"
+        values:
+          wall: {label: wall only, synonyms: [wall]}
+          floor: {label: floor, synonyms: [floor]}
+          wall_and_floor: {label: wall and floor, synonyms: [wall and floor, wall floor]}
+      - name: surface
+        label: surface
+        kind: enum
+        required: false
+        check: class
+        values:
+          gloss: {label: gloss, synonyms: [gloss, glossy]}
+          matt: {label: matt, synonyms: [matt, matte]}
+      - {name: colour, label: colour, kind: text, required: false, check: class, aliases: [colour, color]}
+
+  paint:
+    label: paint
+    status: needs_tradesperson_review
+    provenance: *fin_prov
+    synonyms: [paint, emulsion, matt emulsion, bathroom paint, anti mould paint, vinyl emulsion, soft sheen]
+    vocab: [emulsion, vinyl, brilliant, tub, tin, mould, resistant, condensation, anti]
+    attributes:
+      - name: finish
+        label: paint finish
+        kind: enum
+        required: true
+        check: class
+        question: "Matt, soft sheen or silk finish?"
+        values:
+          matt: {label: matt, synonyms: [matt, matte]}
+          soft_sheen: {label: soft sheen, synonyms: [soft sheen]}
+          silk: {label: silk, synonyms: [silk]}
+      - name: colour
+        label: colour
+        kind: enum
+        required: true
+        check: class
+        question: "Brilliant white, white or magnolia?"
+        values:
+          brilliant_white: {label: brilliant white, synonyms: [brilliant white]}
+          white: {label: white, synonyms: [white]}
+          magnolia: {label: magnolia, synonyms: [magnolia]}
+      - name: use
+        label: intended use
+        kind: enum
+        required: false
+        check: class
+        values:
+          bathroom: {label: bathroom paint, synonyms: [bathroom, anti mould, mould resistant, anti condensation]}
+          general: {label: general purpose, synonyms: [general purpose, standard]}
+      - {name: pack_volume, label: tin size, kind: numeric, unit: l, required: true, check: pack, min: 0.5, max: 25, aliases: [tin, tub]}

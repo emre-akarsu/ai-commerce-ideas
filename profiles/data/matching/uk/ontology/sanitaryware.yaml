@@ -1,0 +1,318 @@
+# Sanitaryware, showers, taps and towel rails. Synthetic/illustrative seed: every entry needs a
+# tradesperson's review.
+file: sanitaryware
+types:
+  wc:
+    label: WC
+    status: needs_tradesperson_review
+    provenance: &san_prov
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/sanitaryware.md", note: "close-coupled rimless soft-close as the UK default; back-to-wall and wall-hung as variants"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/wc.yaml", note: "kit line wording"}
+      - {kind: classification_table, ref: "research_notes/UK refurbishment job templates data/classification_standards.md", note: "codes stored verbatim"}
+    synonyms: [wc, toilet, toilet pan, wc pan, wc suite, toilet suite, lavatory]
+    vocab: [pan, suite, cistern, seat, dual, flush, close, coupled]
+    uniclass_pr: {code: Pr_40_20_93_94, title: WC pans}
+    etim_class: {code: EC011289, title: Toilet bowl/pan}
+    attributes:
+      - name: construction
+        label: WC construction
+        kind: enum
+        required: true
+        check: class
+        question: "Close-coupled, back-to-wall or wall-hung WC?"
+        values:
+          close_coupled: {label: close coupled, synonyms: [close coupled]}
+          back_to_wall: {label: back to wall, synonyms: [back to wall]}
+          wall_hung: {label: wall hung, synonyms: [wall hung, wall mounted]}
+      - name: outlet
+        label: outlet
+        kind: enum
+        required: false
+        check: class
+        values:
+          horizontal: {label: horizontal outlet, synonyms: [horizontal, horizontal outlet, p trap]}
+          vertical: {label: vertical outlet, synonyms: [vertical, vertical outlet, s trap]}
+      - name: rim
+        label: rim
+        kind: enum
+        required: false
+        check: class
+        values:
+          rimless: {label: rimless, synonyms: [rimless]}
+          rimmed: {label: rimmed, synonyms: [rimmed, open rim]}
+      - name: seat
+        label: seat
+        kind: enum
+        required: false
+        check: class
+        values:
+          soft_close: {label: soft-close seat, synonyms: [soft close]}
+          standard_seat: {label: standard seat, synonyms: [standard seat]}
+          no_seat: {label: no seat, synonyms: [no seat, without seat, pan only]}
+      - name: height
+        label: pan height
+        kind: enum
+        required: false
+        check: class
+        values:
+          standard: {label: standard height, synonyms: [standard height]}
+          comfort: {label: comfort height, synonyms: [comfort height, comfort, raised height]}
+
+  basin:
+    label: washbasin
+    status: needs_tradesperson_review
+    provenance: *san_prov
+    synonyms: [basin, washbasin, wash basin, hand basin, cloakroom basin, pedestal basin, wall hung basin]
+    vocab: [pedestal, tap, hole, cloakroom, ceramic, white]
+    etim_class: {code: EC011550, title: Washbasin}
+    size_patterns:
+      - {terms: 2, axes: [width, depth], order: given}
+    attributes:
+      - name: basin_type
+        label: basin type
+        kind: enum
+        required: true
+        check: class
+        question: "Full pedestal, semi-pedestal, wall-hung or countertop basin?"
+        values:
+          full_pedestal:
+            label: full pedestal
+            synonyms: [full pedestal, pedestal, with pedestal]
+            uniclass_pr: {code: Pr_40_20_96_63, title: Pedestal washbasins}
+          semi_pedestal:
+            label: semi pedestal
+            synonyms: [semi pedestal, semi recessed]
+          wall_hung:
+            label: wall hung
+            synonyms: [wall hung, wall mounted]
+            uniclass_pr: {code: Pr_40_20_96_96, title: Wall-hung washbasins}
+          countertop:
+            label: countertop
+            synonyms: [countertop, counter top, sit on]
+            uniclass_pr: {code: Pr_40_20_96_18, title: Countertop washbasins}
+      - {name: width, label: width, kind: numeric, unit: mm, required: true, check: size, min: 300, max: 1200, aliases: [wide, width]}
+      - {name: depth, label: projection, kind: numeric, unit: mm, required: false, check: size, min: 150, max: 600, aliases: [deep, depth, projection]}
+      - name: tap_holes
+        label: tap holes
+        kind: enum
+        required: true
+        check: class
+        question: "One tap hole (mixer) or two tap holes (pillar taps)?"
+        values:
+          one_hole: {label: one tap hole, synonyms: [1th, 1 tap hole, one tap hole, single tap hole, 1 hole]}
+          two_hole: {label: two tap holes, synonyms: [2th, 2 tap hole, two tap hole, 2 hole]}
+
+  bath:
+    label: bath
+    status: needs_tradesperson_review
+    provenance: *san_prov
+    synonyms: [bath, bathtub, bath tub, straight bath, single ended bath, double ended bath, acrylic bath, steel bath]
+    vocab: [reinforced, tub, slip, resistant, legs]
+    uniclass_pr: {code: Pr_40_20_06_08, title: Baths}
+    size_patterns:
+      - {terms: 2, axes: [length, width], order: desc}
+    attributes:
+      - {name: length, label: length, kind: numeric, unit: mm, required: true, check: size, min: 1000, max: 2000, aliases: [long, length]}
+      - {name: width, label: width, kind: numeric, unit: mm, required: true, check: size, min: 600, max: 1000, aliases: [wide, width]}
+      - name: material
+        label: bath material
+        kind: enum
+        required: true
+        check: class
+        question: "Acrylic or enamelled steel bath?"
+        values:
+          acrylic: {label: acrylic, synonyms: [acrylic]}
+          steel: {label: enamelled steel, synonyms: [steel, enamelled steel, enamel]}
+      - name: ended
+        label: ended style
+        kind: enum
+        required: true
+        check: class
+        question: "Single-ended or double-ended bath?"
+        values:
+          single_ended: {label: single ended, synonyms: [single ended]}
+          double_ended: {label: double ended, synonyms: [double ended]}
+
+  shower_tray:
+    label: shower tray
+    status: needs_tradesperson_review
+    provenance: *san_prov
+    synonyms: [shower tray, shower base, stone resin tray, low profile tray]
+    vocab: [tray, base, low, profile, slate, waste]
+    uniclass_pr: {code: Pr_40_20_06_84, title: Shower trays}
+    size_patterns:
+      - {terms: 2, axes: [length, width], order: desc}
+    attributes:
+      - {name: length, label: length, kind: numeric, unit: mm, required: true, check: size, min: 600, max: 2000, aliases: [long, length]}
+      - {name: width, label: width, kind: numeric, unit: mm, required: true, check: size, min: 600, max: 1200, aliases: [wide, width]}
+      - name: shape
+        label: tray shape
+        kind: enum
+        required: true
+        check: class
+        question: "Rectangular, square or quadrant tray?"
+        values:
+          rectangular: {label: rectangular, synonyms: [rectangular, rectangle]}
+          square: {label: square, synonyms: [square]}
+          quadrant: {label: quadrant, synonyms: [quadrant, offset quadrant]}
+      - name: material
+        label: tray material
+        kind: enum
+        required: true
+        check: class
+        question: "Stone resin or acrylic tray?"
+        values:
+          stone_resin: {label: stone resin, synonyms: [stone resin, resin, slate]}
+          acrylic: {label: acrylic, synonyms: [acrylic, abs]}
+      - {name: height, label: tray height, kind: numeric, unit: mm, required: false, check: size, min: 20, max: 150, aliases: [high, height]}
+
+  shower_enclosure:
+    label: shower enclosure or screen
+    status: needs_tradesperson_review
+    provenance: *san_prov
+    synonyms: [shower enclosure, shower cubicle, shower door, shower screen, walk in shower screen, walk in panel, wet room panel, bath screen, shower panel]
+    vocab: [glass, toughened, cubicle, screen, panel, door, wet, room, easy, clean]
+    attributes:
+      - name: style
+        label: enclosure style
+        kind: enum
+        required: true
+        check: class
+        question: "Hinged door, sliding door, quadrant, walk-in panel or bath screen?"
+        values:
+          hinged_door:
+            label: hinged door
+            synonyms: [hinged door, hinged, pivot door]
+            uniclass_pr: {code: Pr_40_20_06_80, title: Shower doors}
+          sliding_door:
+            label: sliding door
+            synonyms: [sliding door, slider, sliding]
+            uniclass_pr: {code: Pr_40_20_06_80, title: Shower doors}
+          quadrant:
+            label: quadrant enclosure
+            synonyms: [quadrant]
+            uniclass_pr: {code: Pr_40_20_06_79, title: Shower enclosures}
+          walk_in_panel:
+            label: walk-in panel
+            synonyms: [walk in, walk in panel, wet room panel, fixed panel]
+            uniclass_pr: {code: Pr_40_20_06_82, title: Shower screens}
+          bath_screen:
+            label: bath screen
+            synonyms: [bath screen, over bath screen]
+            uniclass_pr: {code: Pr_40_20_06_82, title: Shower screens}
+      - {name: width, label: width, kind: numeric, unit: mm, required: true, check: size, min: 300, max: 2000, aliases: [wide, width]}
+      - {name: depth, label: depth, kind: numeric, unit: mm, required: false, check: size, min: 600, max: 1000, aliases: [deep, depth]}
+      - {name: glass_thickness, label: glass thickness, kind: numeric, unit: mm, required: true, check: size, min: 3, max: 12, aliases: [glass, toughened, thick, thickness]}
+
+  shower_valve:
+    label: shower valve
+    status: needs_tradesperson_review
+    provenance: *san_prov
+    synonyms: [shower valve, thermostatic valve, thermostatic shower valve, bar valve, bar mixer, shower mixer, thermostatic mixer, concealed valve, shower bar]
+    vocab: [valve, mixer, bar, riser, kit, outlet, thermostatic, thermo]
+    uniclass_pr: {code: Pr_40_20_87_80, title: Shower thermostatic valves}
+    attributes:
+      - name: valve_type
+        label: valve type
+        kind: enum
+        required: true
+        check: class
+        question: "Exposed bar valve or concealed valve?"
+        values:
+          exposed_bar: {label: exposed bar valve, synonyms: [exposed bar, bar valve, bar mixer, bar, exposed]}
+          concealed: {label: concealed valve, synonyms: [concealed, built in]}
+      - name: control
+        label: temperature control
+        kind: enum
+        required: true
+        check: class
+        question: "Thermostatic or manual mixer?"
+        values:
+          thermostatic: {label: thermostatic, synonyms: [thermostatic, thermo]}
+          manual: {label: manual, synonyms: [manual, non thermostatic]}
+      - name: pressure_rating
+        label: pressure rating
+        kind: enum
+        required: true
+        check: class
+        question: "High pressure (combi or unvented) or low pressure (gravity) valve?"
+        values:
+          high_pressure: {label: high pressure, synonyms: [high pressure, combi, unvented, mains pressure]}
+          low_pressure: {label: low pressure, synonyms: [low pressure, gravity, tank fed]}
+      - name: outlets
+        label: outlets
+        kind: enum
+        required: false
+        check: class
+        values:
+          single: {label: single outlet, synonyms: [single outlet]}
+          dual: {label: dual outlet, synonyms: [dual outlet, twin outlet, diverter]}
+
+  basin_tap:
+    label: basin tap
+    status: needs_tradesperson_review
+    provenance: *san_prov
+    synonyms: [basin tap, basin mixer, basin mixer tap, mono basin mixer, mono mixer, pillar tap, pair of taps, hot and cold taps]
+    vocab: [tap, mixer, mono, pillar, lever, waste]
+    uniclass_pr: {code: Pr_40_20_87_98, title: Washbasin taps}
+    attributes:
+      - name: tap_form
+        label: tap form
+        kind: enum
+        required: true
+        check: class
+        question: "Mono mixer or a pair of pillar taps?"
+        values:
+          mono_mixer: {label: mono mixer, synonyms: [mono mixer, mono basin mixer, basin mixer, monobloc, single lever]}
+          pillar_pair: {label: pillar taps, synonyms: [pillar tap, pillar, pair of taps, hot and cold taps]}
+      - name: finish
+        label: finish
+        kind: enum
+        required: false
+        check: class
+        values:
+          chrome: {label: chrome, synonyms: [chrome]}
+          black: {label: matt black, synonyms: [black, matt black]}
+          brushed_brass: {label: brushed brass, synonyms: [brushed brass, brass]}
+      - name: waste
+        label: waste
+        kind: enum
+        required: false
+        check: class
+        values:
+          with_waste: {label: with click waste, synonyms: [with waste, clicker waste, click clack, pop up waste]}
+          no_waste: {label: no waste, synonyms: [no waste, without waste]}
+
+  towel_rail:
+    label: heated towel rail
+    status: needs_tradesperson_review
+    provenance: *san_prov
+    synonyms: [towel rail, heated towel rail, towel radiator, ladder towel rail, ladder radiator]
+    vocab: [ladder, radiator, heated, rail, bar, straight, curved]
+    uniclass_pr: {code: Pr_40_20_76_90, title: Towel rails}
+    size_patterns:
+      - {terms: 2, axes: [width, height], order: asc}
+    attributes:
+      - {name: width, label: width, kind: numeric, unit: mm, required: true, check: size, min: 300, max: 800, aliases: [wide, width]}
+      - {name: height, label: height, kind: numeric, unit: mm, required: true, check: size, min: 400, max: 2000, aliases: [high, height]}
+      - name: fuel
+        label: heat source
+        kind: enum
+        required: true
+        check: class
+        question: "Central heating (plumbed), electric or dual fuel?"
+        values:
+          central_heating: {label: central heating, synonyms: [central heating, plumbed, hydronic]}
+          electric: {label: electric, synonyms: [electric, electric only]}
+          dual_fuel: {label: dual fuel, synonyms: [dual fuel]}
+      - name: finish
+        label: finish
+        kind: enum
+        required: true
+        check: class
+        question: "Chrome, white, black or anthracite?"
+        values:
+          chrome: {label: chrome, synonyms: [chrome]}
+          white: {label: white, synonyms: [white]}
+          black: {label: black, synonyms: [black]}
+          anthracite: {label: anthracite, synonyms: [anthracite]}

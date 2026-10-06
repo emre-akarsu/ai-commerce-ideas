@@ -1,0 +1,162 @@
+# Ventilation, lighting and electrical accessories. Synthetic/illustrative seed: every entry needs a
+# tradesperson's (and for electrics, a registered electrician's) review. No verified Uniclass or
+# ETIM code was found for any product here, so none is stored (hard rule 3).
+file: ventilation_electrics
+types:
+  extractor_fan:
+    label: extractor fan
+    status: needs_tradesperson_review
+    provenance: &vent_prov
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/electrics_ventilation_and_defaults_ux.md", note: "100 mm axial fan with timer or humidistat; 15 l/s intermittent per Approved Document F"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/ventilation.yaml", note: "kit line wording"}
+    synonyms: [extractor fan, extract fan, bathroom fan, bathroom extractor, extractor, axial fan, dmev fan, inline fan, fan]
+    vocab: [axial, bathroom, ceiling, wall, spigot, dmev, continuous]
+    attributes:
+      - {name: duct_diameter, label: duct diameter, kind: numeric, unit: mm, required: true, check: size, min: 80, max: 200, aliases: [duct, diameter, spigot]}
+      - name: control
+        label: fan control
+        kind: enum
+        required: true
+        check: class
+        question: "Basic, timer, humidistat with timer, or pull cord fan?"
+        values:
+          basic: {label: basic, synonyms: [basic, no timer, without timer]}
+          timer: {label: overrun timer, synonyms: [timer, overrun, run on]}
+          humidistat_timer: {label: humidistat and timer, synonyms: [humidistat, humidity, humidistat timer, humidistat and timer, timer and humidistat, timer humidistat]}
+          pull_cord: {label: pull cord, synonyms: [pull cord]}
+      - {name: flow, label: extract rate, kind: numeric, unit: l/s, required: false, rule: ge, check: size, min: 1, max: 200, aliases: [rate, flow]}
+      - name: supply
+        label: electrical supply
+        kind: enum
+        required: false
+        check: class
+        values:
+          mains: {label: mains voltage, synonyms: [mains, 230v, 240v]}
+          selv: {label: SELV low voltage, synonyms: [selv, 12v, low voltage]}
+
+  duct:
+    label: ventilation duct
+    status: needs_tradesperson_review
+    provenance: *vent_prov
+    synonyms: [duct, ducting, extractor duct, fan duct, duct hose, flexible duct, rigid duct, round duct]
+    vocab: [flexible, rigid, round, hose, pipe, extractor, fan]
+    size_patterns:
+      - {terms: 2, axes: [diameter, length], order: given}
+    attributes:
+      - {name: diameter, label: duct diameter, kind: numeric, unit: mm, required: true, check: size, min: 80, max: 400, aliases: [diameter, dia]}
+      - name: duct_form
+        label: duct form
+        kind: enum
+        required: true
+        check: class
+        question: "Rigid, flexible or insulated flexible duct?"
+        values:
+          rigid: {label: rigid, synonyms: [rigid, hard, round duct]}
+          flexible: {label: flexible, synonyms: [flexible, flexi, foil, hose]}
+          insulated: {label: insulated, synonyms: [insulated, thermal]}
+      - {name: length, label: duct length, kind: numeric, unit: mm, required: true, check: size, min: 300, max: 25000, aliases: [long, length]}
+
+  downlight:
+    label: downlight
+    status: needs_tradesperson_review
+    provenance: *vent_prov
+    synonyms: [downlight, down light, spotlight, spot light, recessed light, recessed spotlight, ceiling spotlight]
+    vocab: [led, fire, rated, ceiling, recessed, light, fixed, fitting]
+    attributes:
+      - name: ip_rating
+        label: IP rating
+        kind: enum
+        required: true
+        rule: ge
+        check: class
+        question: "Which IP rating (for example IP65 for a bathroom ceiling)?"
+        values:
+          ip20: {label: IP20, synonyms: [ip20]}
+          ip44: {label: IP44, synonyms: [ip44]}
+          ip65: {label: IP65, synonyms: [ip65]}
+          ip66: {label: IP66, synonyms: [ip66]}
+          ip67: {label: IP67, synonyms: [ip67]}
+      - name: fire_rating
+        label: fire rating
+        kind: enum
+        required: false
+        check: class
+        values:
+          fire_rated: {label: fire rated, synonyms: [fire rated, fire rating, fire hood]}
+          not_rated: {label: not fire rated, synonyms: [non fire rated, not fire rated]}
+      - {name: wattage, label: wattage, kind: numeric, unit: w, required: false, check: size, min: 1, max: 50, aliases: [watt]}
+      - name: colour_temp
+        label: colour temperature
+        kind: enum
+        required: false
+        check: class
+        values:
+          warm_white: {label: warm white, synonyms: [warm white, 2700k, 3000k]}
+          cool_white: {label: cool white, synonyms: [cool white, 4000k]}
+          selectable: {label: selectable, synonyms: [selectable, cct, switchable]}
+      - {name: pack_qty, label: pack quantity, kind: numeric, unit: nr, required: false, check: pack, min: 1, max: 100, aliases: [pack]}
+
+  shaver_socket:
+    label: shaver socket
+    status: needs_tradesperson_review
+    provenance: *vent_prov
+    synonyms: [shaver socket, shaver outlet, razor socket, shaver point, dual voltage shaver socket]
+    vocab: [dual, voltage, socket, shaver, "115", "230", "240v", "230v", plate]
+    attributes:
+      - name: finish
+        label: plate finish
+        kind: enum
+        required: true
+        check: class
+        question: "Chrome, white or black plate?"
+        values:
+          chrome: {label: chrome, synonyms: [chrome, polished chrome]}
+          white: {label: white, synonyms: [white]}
+          black: {label: black, synonyms: [black, matt black]}
+      - name: gang
+        label: gang
+        kind: enum
+        required: false
+        check: class
+        values:
+          one_gang: {label: 1 gang, synonyms: [1 gang, one gang, single gang]}
+          two_gang: {label: 2 gang, synonyms: [2 gang, two gang, double gang]}
+
+  mirror:
+    label: bathroom mirror
+    status: needs_tradesperson_review
+    provenance: *vent_prov
+    synonyms: [mirror, bathroom mirror, led mirror, illuminated mirror, demister mirror]
+    vocab: [led, demister, pad, shaver, bathroom]
+    size_patterns:
+      - {terms: 2, axes: [width, height], order: given}
+    attributes:
+      - {name: width, label: width, kind: numeric, unit: mm, required: true, check: size, min: 300, max: 2000, aliases: [wide, width]}
+      - {name: height, label: height, kind: numeric, unit: mm, required: true, check: size, min: 300, max: 1500, aliases: [high, height]}
+      - name: illumination
+        label: illumination
+        kind: enum
+        required: true
+        check: class
+        question: "Illuminated (LED) or plain mirror?"
+        values:
+          led: {label: LED illuminated, synonyms: [led, illuminated, backlit]}
+          plain: {label: plain, synonyms: [plain, non illuminated, unlit]}
+      - name: demister
+        label: demister
+        kind: enum
+        required: false
+        check: class
+        values:
+          with_demister: {label: with demister pad, synonyms: [demister, demister pad, anti fog]}
+          no_demister: {label: no demister, synonyms: [no demister, without demister]}
+
+  ufh_mat:
+    label: electric underfloor heating mat
+    status: needs_tradesperson_review
+    provenance: *vent_prov
+    synonyms: [underfloor heating mat, underfloor heating, electric underfloor heating, heating mat, ufh mat, ufh]
+    vocab: [mat, electric, underfloor, heating, floor, thermostat]
+    attributes:
+      - {name: output, label: heat output, kind: numeric, unit: w/m2, required: true, check: class, min: 50, max: 300, aliases: [output]}
+      - {name: area, label: mat area, kind: numeric, unit: m2, required: true, check: size, min: 0.5, max: 50, aliases: [mat, covers, coverage]}

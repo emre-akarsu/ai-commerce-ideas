@@ -1,0 +1,204 @@
+# Adhesives, grout, sealants, tapes, tanking and primers.
+# Synthetic/illustrative seed: every entry needs a tradesperson's review. Pack weight, pack volume
+# and coverage are required so a group never mixes 5 kg and 20 kg bags: the pricing step compares
+# SKUs of one pack size, never "the cheapest bag".
+file: adhesives_sealants
+types:
+  tile_adhesive:
+    label: tile adhesive
+    status: needs_tradesperson_review
+    provenance: &adh_prov
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/tiling_finishes.md", note: "flexible S1 cement powder in 20 kg bags as the UK default; ready-mixed tubs only for small ceramic wall tiles"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/tiling.yaml", note: "kit line wording"}
+      - {kind: classification_table, ref: "research_notes/UK refurbishment job templates data/classification_standards.md", note: "Pr_20_31_02_89 and EC011707 stored verbatim"}
+    synonyms: [tile adhesive, tiling adhesive, tile glue, tile cement]
+    vocab: [flexible, cement, cementitious, wall, floor, porcelain, ceramic, tile, adhesive]
+    uniclass_pr: {code: Pr_20_31_02_89, title: Tile adhesives}
+    etim_class: {code: EC011707, title: Tile adhesive}
+    attributes:
+      - name: form
+        label: adhesive form
+        kind: enum
+        required: true
+        check: class
+        question: "Cement powder (bag) or ready-mixed (tub)?"
+        values:
+          powder: {label: cement powder, synonyms: [powder, cement based, cementitious, bag]}
+          ready_mixed: {label: ready mixed, synonyms: [ready mixed, ready mix, premixed, pre mixed, tub, paste]}
+      - name: deformability
+        label: deformability class
+        kind: enum
+        required: true
+        check: class
+        question: "Standard, S1 (flexible) or S2 (highly flexible) adhesive?"
+        values:
+          standard: {label: standard, synonyms: [standard, normal, non flexible, rigid]}
+          s1: {label: S1 flexible, synonyms: [s1]}
+          s2: {label: S2 highly flexible, synonyms: [s2]}
+      - name: strength_class
+        label: strength class
+        kind: enum
+        required: false
+        check: class
+        values:
+          c1: {label: C1, synonyms: [c1]}
+          c2: {label: C2, synonyms: [c2, c2te]}
+      - name: speed
+        label: setting speed
+        kind: enum
+        required: false
+        check: class
+        values:
+          normal: {label: normal set, synonyms: [normal set, slow set]}
+          rapid: {label: rapid set, synonyms: [rapid, rapid set, fast, fast set, quick set]}
+      - name: colour
+        label: colour
+        kind: enum
+        required: false
+        check: class
+        values:
+          grey: {label: grey, synonyms: [grey, gray]}
+          white: {label: white, synonyms: [white]}
+      - {name: pack_weight, label: pack weight, kind: numeric, unit: kg, required: true, check: pack, min: 0.5, max: 30, aliases: [bag, pack, tub]}
+
+  tile_grout:
+    label: tile grout
+    status: needs_tradesperson_review
+    provenance:
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/tiling_finishes.md", note: "flexible, water-repellent, mould-resistant cementitious grout as default; epoxy as premium"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/tiling.yaml", note: "kit line wording"}
+      - {kind: classification_table, ref: "research_notes/UK refurbishment job templates data/classification_standards.md", note: "Pr_20_31_53_16 and Pr_20_31_53_27 stored verbatim"}
+    synonyms: [tile grout, tiling grout, wall grout, floor grout, grout]
+    vocab: [tile, wall, floor, mould, water, repellent]
+    attributes:
+      - name: grout_type
+        label: grout type
+        kind: enum
+        required: true
+        check: class
+        question: "Cement, flexible cement or epoxy grout?"
+        values:
+          cement:
+            label: cement grout
+            synonyms: [cement, cementitious, standard, normal]
+            uniclass_pr: {code: Pr_20_31_53_16, title: Cementitious tiling grouts}
+          flexible_cement:
+            label: flexible cement grout
+            synonyms: [flexible, flexible cement, water repellent, mould resistant, anti mould]
+            uniclass_pr: {code: Pr_20_31_53_16, title: Cementitious tiling grouts}
+          epoxy:
+            label: epoxy grout
+            synonyms: [epoxy, resin]
+            uniclass_pr: {code: Pr_20_31_53_27, title: Epoxy resin grouts}
+      - name: colour
+        label: colour
+        kind: enum
+        required: true
+        check: class
+        question: "Which grout colour (white, grey, charcoal, black or beige)?"
+        values:
+          white: {label: white, synonyms: [white]}
+          grey: {label: grey, synonyms: [grey, gray, light grey]}
+          charcoal: {label: charcoal, synonyms: [charcoal, anthracite, dark grey]}
+          black: {label: black, synonyms: [black]}
+          beige: {label: beige, synonyms: [beige, cream, sand]}
+      - {name: pack_weight, label: pack weight, kind: numeric, unit: kg, required: true, check: pack, min: 0.5, max: 25, aliases: [bag, pack, tub]}
+
+  silicone_sealant:
+    label: silicone sealant
+    status: needs_tradesperson_review
+    provenance:
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/tiling_finishes.md", note: "300 ml mould-resistant sanitary silicone in white as the UK default"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/consumables.yaml", note: "kit line wording"}
+      - {kind: classification_table, ref: "research_notes/UK refurbishment job templates data/classification_standards.md", note: "Pr_30_31_76_77 stored verbatim"}
+    synonyms: [silicone sealant, silicone, sanitary silicone, sanitary sealant, bathroom silicone, silicone mastic]
+    vocab: [cartridge, tube, mould, fungicide, fungicidal, sealant, mastic, sanitary]
+    uniclass_pr: {code: Pr_30_31_76_77, title: Silicone construction joint sealants}
+    attributes:
+      - name: application
+        label: application
+        kind: enum
+        required: true
+        check: class
+        question: "Sanitary (anti-mould), general purpose or glazing silicone?"
+        values:
+          sanitary: {label: sanitary anti mould, synonyms: [sanitary, anti mould, mould resistant, fungicidal, fungicide]}
+          general_purpose: {label: general purpose, synonyms: [general purpose, gp, all purpose, building, universal]}
+          glazing: {label: glazing, synonyms: [glazing, glass]}
+      - name: colour
+        label: colour
+        kind: enum
+        required: true
+        check: class
+        question: "White, clear, grey or black?"
+        values:
+          white: {label: white, synonyms: [white]}
+          clear: {label: clear, synonyms: [clear, transparent]}
+          grey: {label: grey, synonyms: [grey, gray]}
+          black: {label: black, synonyms: [black]}
+      - {name: pack_volume, label: cartridge volume, kind: numeric, unit: l, required: true, check: pack, min: 0.05, max: 1, aliases: [cartridge, tube]}
+
+  ptfe_tape:
+    label: PTFE thread seal tape
+    status: needs_tradesperson_review
+    provenance:
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/plumbing_fittings_wastes.md", note: "PTFE on BSP threads; nothing on compression olives"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/consumables.yaml", note: "kit line wording"}
+      - {kind: classification_table, ref: "research_notes/UK refurbishment job templates data/classification_standards.md", note: "Pr_65_52_62_65 stored verbatim"}
+    synonyms: [ptfe tape, ptfe, thread seal tape, thread tape, plumbers tape, plumber tape]
+    vocab: [roll, thread, seal, joint, tape]
+    uniclass_pr: {code: Pr_65_52_62_65, title: PTFE joint tapes}
+    size_patterns:
+      - {terms: 2, axes: [width, length], order: given}
+    attributes:
+      - name: service
+        label: tape service
+        kind: enum
+        required: true
+        check: class
+        question: "Water (white) or gas (yellow) PTFE tape?"
+        values:
+          water: {label: water, synonyms: [water, white, plumbing]}
+          gas: {label: gas, synonyms: [gas, yellow]}
+      - {name: width, label: tape width, kind: numeric, unit: mm, required: false, check: size, min: 5, max: 30, aliases: [wide, width]}
+      - {name: length, label: roll length, kind: numeric, unit: mm, required: false, check: pack, min: 1000, max: 100000, aliases: [long, length]}
+
+  tanking_kit:
+    label: tanking kit
+    status: needs_tradesperson_review
+    provenance:
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/tiling_finishes.md", note: "BS 5385-1 tanking in showers; liquid kit with tape about 4 m2"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/waterproofing.yaml", note: "kit line wording"}
+    synonyms: [tanking kit, tanking, waterproofing kit, shower waterproofing, tanking membrane, waterproof membrane kit, liquid membrane]
+    vocab: [waterproofing, membrane, primer, tape, kit, shower, waterproof]
+    attributes:
+      - name: system
+        label: tanking system
+        kind: enum
+        required: true
+        check: class
+        question: "Liquid-applied or sheet membrane tanking?"
+        values:
+          liquid: {label: liquid applied, synonyms: [liquid, liquid applied, brush on, paint on]}
+          sheet: {label: sheet membrane, synonyms: [sheet, sheet membrane, membrane system]}
+      - {name: coverage, label: coverage, kind: numeric, unit: m2, required: true, check: pack, min: 0.5, max: 50, aliases: [coverage, covers]}
+
+  primer:
+    label: primer
+    status: needs_tradesperson_review
+    provenance:
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/tiling_finishes.md", note: "acrylic primer on gypsum or anhydrite before cement adhesive"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/tiling.yaml", note: "kit line wording"}
+    synonyms: [primer, tile primer, acrylic primer, bonding primer, gypsum primer, plasterboard primer]
+    vocab: [acrylic, tile, sealer]
+    attributes:
+      - name: substrate
+        label: substrate
+        kind: enum
+        required: true
+        check: class
+        question: "Primer for gypsum plaster or plasterboard, or for general porous surfaces?"
+        values:
+          gypsum_plaster: {label: gypsum plaster and plasterboard, synonyms: [gypsum, plaster, plasterboard, skim]}
+          general_porous: {label: general porous surfaces, synonyms: [general, porous, multi surface]}
+      - {name: pack_volume, label: pack volume, kind: numeric, unit: l, required: true, check: pack, min: 0.25, max: 25, aliases: [tub, bottle, can]}

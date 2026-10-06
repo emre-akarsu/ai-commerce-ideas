@@ -1,0 +1,244 @@
+# Pipe, fittings, valves, traps and wastes. Synthetic/illustrative seed: every entry needs a
+# tradesperson's review.
+file: plumbing
+types:
+  copper_pipe:
+    label: copper pipe
+    status: needs_tradesperson_review
+    provenance: &plumb_prov
+      - {kind: research_note, ref: "research_notes/UK refurbishment top picks by option/plumbing_fittings_wastes.md", note: "15 and 22 mm copper for exposed runs; 3 m lengths"}
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules/first_fix_plumbing.yaml", note: "kit line wording"}
+    synonyms: [copper pipe, copper tube, copper tubing]
+    vocab: [pipe, tube, half, hard, table]
+    size_patterns:
+      - {terms: 2, axes: [diameter, length], order: given}
+    attributes:
+      - {name: diameter, label: outside diameter, kind: numeric, unit: mm, required: true, check: size, min: 6, max: 108, aliases: [diameter, od]}
+      - {name: length, label: length, kind: numeric, unit: mm, required: true, check: size, min: 500, max: 6000, aliases: [long, length]}
+
+  plastic_barrier_pipe:
+    label: plastic barrier pipe
+    status: needs_tradesperson_review
+    provenance: *plumb_prov
+    synonyms: [barrier pipe, plastic pipe, plastic barrier pipe, pex pipe, pb pipe, polybutylene pipe, plastic tube]
+    vocab: [pipe, coil, barrier]
+    size_patterns:
+      - {terms: 2, axes: [diameter, length], order: given}
+    attributes:
+      - name: material
+        label: pipe material
+        kind: enum
+        required: true
+        check: class
+        question: "PE-X or PB (polybutylene) barrier pipe?"
+        values:
+          pex: {label: PE-X, synonyms: [pex, pe x, cross linked polyethylene]}
+          pb: {label: polybutylene, synonyms: [pb, polybutylene]}
+      - {name: diameter, label: outside diameter, kind: numeric, unit: mm, required: true, check: size, min: 8, max: 54, aliases: [diameter, od]}
+      - {name: length, label: coil length, kind: numeric, unit: mm, required: true, check: size, min: 1000, max: 150000, aliases: [coil, long, length]}
+
+  pipe_fitting:
+    label: pipe fitting
+    status: needs_tradesperson_review
+    provenance: *plumb_prov
+    synonyms: [pipe fitting, compression fitting, push fit fitting, solder ring fitting, end feed fitting, elbow, tee, coupling, coupler, stop end, end cap, bend]
+    vocab: [fitting, equal, straight, degree, "90", "45", female, male]
+    trailing_multiplier: quantity
+    attributes:
+      - name: fitting_form
+        label: fitting form
+        kind: enum
+        required: true
+        check: class
+        question: "Which fitting is needed (coupler, elbow, tee or stop end)?"
+        values:
+          coupler: {label: straight coupler, synonyms: [coupler, coupling, straight coupling, straight connector]}
+          elbow: {label: elbow, synonyms: [elbow, bend, 90 elbow, 90 degree elbow]}
+          tee: {label: tee, synonyms: [tee, equal tee, t piece]}
+          stop_end: {label: stop end, synonyms: [stop end, end cap, cap]}
+      - name: joint_method
+        label: joint method
+        kind: enum
+        required: true
+        check: class
+        question: "Compression, push-fit, solder ring or end-feed?"
+        values:
+          compression: {label: compression, synonyms: [compression]}
+          push_fit: {label: push fit, synonyms: [push fit]}
+          solder_ring: {label: solder ring, synonyms: [solder ring, yorkshire]}
+          end_feed: {label: end feed, synonyms: [end feed]}
+      - {name: diameter, label: pipe size, kind: numeric, unit: mm, required: true, check: size, min: 6, max: 54, aliases: [diameter, pipe]}
+      - {name: pack_qty, label: pack quantity, kind: numeric, unit: nr, required: false, check: pack, min: 1, max: 1000, aliases: [pack]}
+
+  isolating_valve:
+    label: isolating valve
+    status: needs_tradesperson_review
+    provenance: *plumb_prov
+    synonyms: [isolating valve, isolation valve, service valve]
+    vocab: [valve, full, bore]
+    attributes:
+      - {name: diameter, label: pipe size, kind: numeric, unit: mm, required: true, check: size, min: 6, max: 54, aliases: [diameter, pipe]}
+      - name: joint_method
+        label: joint method
+        kind: enum
+        required: true
+        check: class
+        question: "Compression, push-fit or solder-ring ends?"
+        values:
+          compression: {label: compression, synonyms: [compression]}
+          push_fit: {label: push fit, synonyms: [push fit]}
+          solder: {label: solder ring, synonyms: [solder ring, solder]}
+      - name: operation
+        label: operation
+        kind: enum
+        required: false
+        check: class
+        values:
+          screwdriver: {label: screwdriver slot, synonyms: [screwdriver, slotted, slot]}
+          lever: {label: lever handle, synonyms: [lever, handle, quarter turn]}
+      - name: finish
+        label: finish
+        kind: enum
+        required: false
+        check: class
+        values:
+          chrome: {label: chrome, synonyms: [chrome, chrome plated]}
+          brass: {label: brass, synonyms: [brass]}
+
+  tap_connector:
+    label: flexible tap connector
+    status: needs_tradesperson_review
+    provenance: *plumb_prov
+    synonyms: [tap connector, flexible tap connector, flexi connector, flexi hose, flexible hose, flexible connector]
+    vocab: [flexible, braided, stainless, hose, connector, tail]
+    size_patterns:
+      - {terms: 2, axes: [diameter, length], order: given}
+    attributes:
+      - {name: diameter, label: pipe size, kind: numeric, unit: mm, required: true, check: size, min: 6, max: 28, aliases: [diameter]}
+      - {name: length, label: hose length, kind: numeric, unit: mm, required: true, check: size, min: 100, max: 1000, aliases: [long, length]}
+      - name: tap_thread
+        label: tap end thread
+        kind: enum
+        required: true
+        check: class
+        question: "Which tap-end thread (1/2 inch or 3/8 inch)?"
+        values:
+          half_inch: {label: 1/2 inch, synonyms: [half inch]}
+          three_eighth_inch: {label: 3/8 inch, synonyms: [three eighth inch]}
+
+  trap:
+    label: waste trap
+    status: needs_tradesperson_review
+    provenance: *plumb_prov
+    synonyms: [trap, bottle trap, p trap, s trap, tubular trap, waste trap, basin trap, bath trap, shower trap]
+    vocab: [waste, seal, shallow, tubular, bottle, outlet]
+    uniclass_pr: {code: Pr_65_52_25_98, title: Waste traps}
+    etim_class: {code: EC010195, title: "P-, S-, bottle siphon"}
+    attributes:
+      - {name: diameter, label: trap size, kind: numeric, unit: mm, required: true, check: size, min: 25, max: 60, aliases: [diameter]}
+      - name: trap_form
+        label: trap form
+        kind: enum
+        required: true
+        check: class
+        question: "Bottle, tubular P, tubular S or shallow-seal bath trap?"
+        values:
+          bottle: {label: bottle trap, synonyms: [bottle]}
+          tubular_p: {label: tubular P trap, synonyms: [tubular p, p trap, tubular]}
+          tubular_s: {label: tubular S trap, synonyms: [tubular s, s trap]}
+          bath_shallow: {label: shallow-seal bath trap, synonyms: [shallow seal, shallow, bath trap]}
+      - {name: seal_depth, label: seal depth, kind: numeric, unit: mm, required: false, check: size, min: 20, max: 100, aliases: [seal]}
+      - name: finish
+        label: finish
+        kind: enum
+        required: false
+        check: class
+        values:
+          white: {label: white plastic, synonyms: [white, plastic]}
+          chrome: {label: chrome, synonyms: [chrome, chrome plated]}
+
+  waste_pipe:
+    label: waste pipe
+    status: needs_tradesperson_review
+    provenance: *plumb_prov
+    synonyms: [waste pipe, waste pipework, solvent weld pipe, push fit waste, abs waste, mupvc pipe, pvc waste pipe]
+    vocab: [pipe, solvent, weld, waste, ring, seal]
+    size_patterns:
+      - {terms: 2, axes: [diameter, length], order: given}
+    attributes:
+      - {name: diameter, label: pipe diameter, kind: numeric, unit: mm, required: true, check: size, min: 25, max: 160, aliases: [diameter]}
+      - {name: length, label: length, kind: numeric, unit: mm, required: true, check: size, min: 300, max: 6000, aliases: [long, length]}
+      - name: system
+        label: waste pipe system
+        kind: enum
+        required: true
+        check: class
+        question: "ABS or MUPVC solvent weld, or push-fit polypropylene?"
+        values:
+          solvent_weld_abs:
+            label: ABS solvent weld
+            synonyms: [abs]
+            uniclass_pr: {code: Pr_65_52_03_02, title: ABS above-ground wastewater pipes and fittings}
+          solvent_weld_mupvc:
+            label: MUPVC solvent weld
+            synonyms: [mupvc, pvc, mu pvc]
+            uniclass_pr: {code: Pr_65_52_03_52, title: MUPVC above-ground wastewater pipes and fittings}
+          push_fit_pp:
+            label: push-fit polypropylene
+            synonyms: [push fit, pp, polypropylene, ring seal]
+            uniclass_pr: {code: Pr_65_52_03_66, title: "Polypropylene (PP) above-ground wastewater pipes and fittings"}
+
+  basin_waste:
+    label: basin waste
+    status: needs_tradesperson_review
+    provenance: *plumb_prov
+    synonyms: [basin waste, click clack waste, clicker waste, pop up waste, basin plug, slotted waste, unslotted waste, sink waste]
+    vocab: [waste, plug, click, clack, pop, overflow]
+    attributes:
+      - name: slotted
+        label: overflow slot
+        kind: enum
+        required: true
+        check: class
+        question: "Slotted (basin has an overflow) or unslotted waste?"
+        values:
+          slotted: {label: slotted, synonyms: [slotted, overflow]}
+          unslotted: {label: unslotted, synonyms: [unslotted, non slotted, no overflow]}
+      - name: mechanism
+        label: mechanism
+        kind: enum
+        required: false
+        check: class
+        values:
+          click_clack: {label: click-clack, synonyms: [click clack, clicker, push button]}
+          pop_up: {label: pop-up, synonyms: [pop up]}
+          plug_chain: {label: plug and chain, synonyms: [plug and chain, chain]}
+      - name: finish
+        label: finish
+        kind: enum
+        required: false
+        check: class
+        values:
+          chrome: {label: chrome, synonyms: [chrome]}
+          white: {label: white, synonyms: [white]}
+          black: {label: black, synonyms: [black]}
+
+  pan_connector:
+    label: WC pan connector
+    status: needs_tradesperson_review
+    provenance: *plumb_prov
+    synonyms: [pan connector, wc connector, toilet connector, flexi pan connector, flexible pan connector, rigid pan connector]
+    vocab: [pan, connector, wc, toilet, rigid, soil]
+    uniclass_pr: {code: Pr_40_20_93_93, title: WC pan connectors}
+    attributes:
+      - name: connector_type
+        label: connector type
+        kind: enum
+        required: true
+        check: class
+        question: "Straight, offset or flexible pan connector?"
+        values:
+          straight: {label: rigid straight, synonyms: [straight, rigid straight, straight rigid]}
+          offset: {label: rigid offset, synonyms: [offset, short offset, rigid offset]}
+          flexible: {label: flexible, synonyms: [flexible, flexi, adjustable]}
+      - {name: diameter, label: outlet diameter, kind: numeric, unit: mm, required: true, check: size, min: 80, max: 130, aliases: [diameter]}

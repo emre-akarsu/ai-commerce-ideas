@@ -85,18 +85,30 @@ def check_int(
     return value
 
 
-def frac_to_decimal(value: Fraction, places: int) -> Decimal:
-    """Round the exact rational `value` (>= 0) half-up to `places` decimal places."""
+def round_half_up_int(value: Fraction) -> int:
+    """Round the exact rational `value` (>= 0) to the nearest integer, halves going up."""
     if value < 0:
         raise ValueError("negative amounts are not supported")
-    scaled = value * 10**places
-    rounded = (2 * scaled.numerator + scaled.denominator) // (2 * scaled.denominator)
-    return Decimal(rounded).scaleb(-places, context=CTX)
+    return (2 * value.numerator + value.denominator) // (2 * value.denominator)
+
+
+def frac_to_decimal(value: Fraction, places: int) -> Decimal:
+    """Round the exact rational `value` (>= 0) half-up to `places` decimal places."""
+    return Decimal(round_half_up_int(value * 10**places)).scaleb(-places, context=CTX)
 
 
 def quantize_places(value: Decimal, places: int) -> Decimal:
     """Round a Decimal half-up to `places` decimal places (same rule as `frac_to_decimal`)."""
     return value.quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_UP, context=CTX)
+
+
+def as_money(value: Decimal, places: int) -> Decimal:
+    """`value` expressed with exactly `places` decimal places; refuses to round (an amount with
+    more precision than the minor unit is not a money amount)."""
+    quantized = value.quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_UP, context=CTX)
+    if quantized != value:
+        raise ValueError(f"{value} is not a money amount with {places} decimal places")
+    return quantized
 
 
 def ceil_div(numerator: Fraction, denominator: Fraction) -> int:
