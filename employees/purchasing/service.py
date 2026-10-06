@@ -1032,7 +1032,10 @@ class PurchasingService(MvpOps):
         ts = self._ts(ctx.tenant_id)
         rfq: RFQ = self._get(ts.rfqs, rfq_id)
         request = self._load_request(ctx, rfq.request_id)
-        self.check_not_suppressed(ctx.tenant_id, self._get(ts.vendors, rfq.vendor_id))
+        vendor = self._get(ts.vendors, rfq.vendor_id)
+        self.check_not_suppressed(ctx.tenant_id, vendor)
+        if self._profile_of(ctx.tenant_id, vendor.id).verification.state != "attested":
+            raise Conflict(f"vendor not verified: {vendor.name}")  # verification can lapse after prepare
         prepared = self._prepared.get((ctx.tenant_id, rfq.id))
         if rfq.sent_message_id:
             raise Conflict("RFQ was already sent")
@@ -1145,8 +1148,8 @@ class PurchasingService(MvpOps):
         vendor: Vendor = self._get(ts.vendors, rfq.vendor_id)
         domain_ok = isinstance(from_domain, str) and (
             from_domain.strip().lower().rstrip(".") == vendor.domain.strip().lower())
-        if domain_ok and is_stop_request(source_text):
-            # A stop request from the vendor's own domain suppresses the vendor and does nothing else:
+        if domain_ok and dmarc_aligned is True and is_stop_request(source_text):
+            # A stop request from the vendor's own, authenticated domain suppresses the vendor and does nothing else:
             # no quote is read, no state moves, the text is not an instruction.
             self._suppress(rfq.tenant_id, vendor, "system", "stop_reply", request_id=request.id)
             return StopAck(vendor=self._ref(vendor))

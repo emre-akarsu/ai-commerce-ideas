@@ -238,3 +238,28 @@ def test_event_names_the_service_reads_back_are_pinned() -> None:
     from employees.purchasing import mvp, service
     assert mvp.EVT_RFQ_PREPARED_NAME == service.EVT_RFQ_PREPARED
     assert mvp.EVT_KILL_SWITCH_NAME == service.EVT_KILL_SWITCH
+
+
+def test_a_stop_reply_that_failed_dmarc_alignment_suppresses_nobody() -> None:
+    """Review finding: a spoofed From on the vendor's domain must not silence the vendor (R12)."""
+    w = build_world()
+    rid = new_request(w)
+    (p,) = w.svc.prepare_rfqs(w.buyer, rid, vendor_ids=["acme"])
+    w.svc.approve_send(w.buyer, p.rfq_id, mime_hash=p.mime_hash)
+    out = w.svc.ingest_inbound_reply(
+        reply_token=reply_token(w, rid), from_domain="acme.example", source_text="stop",
+        dmarc_aligned=False)
+    assert not isinstance(out, StopAck)
+    assert w.svc.get_vendor_view(w.buyer, "acme").profile.suppressed is False
+
+
+def test_a_prepared_message_is_not_sent_once_its_supplier_is_no_longer_verified() -> None:
+    """Review finding: verification is re-checked at send time, not only at prepare."""
+    w = build_world()
+    rid = new_request(w)
+    (p,) = w.svc.prepare_rfqs(w.buyer, rid, vendor_ids=["acme"])
+    acme = next(v for v in w.svc.list_vendors(w.admin) if v.id == "acme")
+    w.svc.upsert_vendor(w.admin, acme.model_copy(update={"contact_email": "new-contact@acme.example"}))  # resets verification
+    with pytest.raises(Conflict, match="vendor not verified"):
+        w.svc.approve_send(w.buyer, p.rfq_id, mime_hash=p.mime_hash)
+    assert w.transport.delivered == []

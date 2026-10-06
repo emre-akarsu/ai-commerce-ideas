@@ -169,3 +169,9 @@ derived from the tenant id), so replies can be attributed to a tenant.
 - The RFQ text does not yet carry the buyer's account number or delivery postcode (supplier profile holds the account number).
 - No PDF purchase-order export; no onboarding wizard; no request intake by forwarded email.
 - No assistive-technology or WCAG audit has been done on the web app.
+
+## Review findings left open (MVP security review)
+- The audit export's tail can be truncated with a rewritten `head_hash` and still verify; sign the export manifest or compare the head out of band. The export is also unbounded.
+- Assumption ids are `asm-{request}-{n}`; two concurrent writers for one request could collide (a 500, not a wrong write).
+- A buyer can import vendors and change `contact_kind`; nothing sends until an admin attests, but `contact_kind` changes are not admin-only.
+- The web app can show a cached older message preview if the re-render call fails; approval is still bound to that preview's hash, so a mismatch is refused, but the preview is not marked stale.
