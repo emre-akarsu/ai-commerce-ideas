@@ -1,0 +1,1179 @@
+{
+  "format": "job-kit-ui/1",
+  "label": "synthetic/illustrative seed — not licensed data; tradesperson review required",
+  "status": "needs_tradesperson_review",
+  "library_version": "0.2.0",
+  "market": "uk",
+  "assumption_source": "default_template",
+  "scope": {
+    "scope_id": "bathroom_wc_only",
+    "id": "uk.bathroom.wc_only",
+    "job_type": "bathroom",
+    "scope": "wc_only",
+    "title": "WC replacement",
+    "description": "Replace one WC like for like (close-coupled) or with a wall-hung pan on a concealed frame. Separate WC replacement is its own line in council kitchen and bathroom programmes.",
+    "version": "0.2.0"
+  },
+  "max_upfront_questions": 3,
+  "upfront_questions": [
+    "wc_type",
+    "soil_outlet",
+    "joint_system"
+  ],
+  "questions": [
+    {
+      "id": "wc_type",
+      "question": "WC type?",
+      "type": "enum",
+      "ask": "upfront",
+      "priority": 11,
+      "default": "close_coupled",
+      "options": [
+        {
+          "value": "close_coupled",
+          "label": "Close-coupled (cistern on the pan)"
+        },
+        {
+          "value": "wall_hung",
+          "label": "Wall-hung pan on a concealed frame"
+        }
+      ]
+    },
+    {
+      "id": "soil_outlet",
+      "question": "Where does the soil pipe leave the pan position?",
+      "type": "enum",
+      "ask": "upfront",
+      "priority": 2,
+      "default": "horizontal",
+      "options": [
+        {
+          "value": "horizontal",
+          "label": "Through the wall (horizontal)"
+        },
+        {
+          "value": "vertical",
+          "label": "Through the floor (vertical)"
+        }
+      ]
+    },
+    {
+      "id": "wall_type",
+      "question": "Main wall construction where fittings are fixed?",
+      "type": "enum",
+      "ask": "on_review",
+      "priority": 2,
+      "default": "solid",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid (brick or block)"
+        },
+        {
+          "value": "stud",
+          "label": "Stud (timber or metal frame)"
+        }
+      ]
+    },
+    {
+      "id": "joint_system",
+      "question": "Pipe joint system for new pipework?",
+      "type": "enum",
+      "ask": "upfront",
+      "priority": 4,
+      "default": "compression",
+      "options": [
+        {
+          "value": "compression",
+          "label": "Compression"
+        },
+        {
+          "value": "push_fit",
+          "label": "Push-fit"
+        },
+        {
+          "value": "solder",
+          "label": "Solder-ring"
+        }
+      ]
+    }
+  ],
+  "fixed_answers": {},
+  "review_defaults": [
+    {
+      "kind": "question",
+      "key": "wall_type",
+      "label": "Main wall construction where fittings are fixed?",
+      "default": "solid",
+      "default_label": "Solid (brick or block)",
+      "unit": null
+    },
+    {
+      "kind": "option",
+      "key": "ff_pipe_15",
+      "label": "Hot and cold supply pipe",
+      "default": "copper",
+      "default_label": "Copper",
+      "unit": null
+    },
+    {
+      "kind": "allowance",
+      "key": "sealant_joint_m",
+      "label": "Sealant joint length",
+      "default": "1.5",
+      "default_label": "1.5 m",
+      "unit": "m"
+    },
+    {
+      "kind": "allowance",
+      "key": "pipe_15mm_m",
+      "label": "15 mm supply pipe run",
+      "default": "1",
+      "default_label": "1 m",
+      "unit": "m"
+    },
+    {
+      "kind": "allowance",
+      "key": "paint_wall_m2",
+      "label": "Wall area to paint",
+      "default": "3",
+      "default_label": "3 m2",
+      "unit": "m2"
+    },
+    {
+      "kind": "allowance",
+      "key": "paint_ceiling_m2",
+      "label": "Ceiling area to paint",
+      "default": "0",
+      "default_label": "0 m2",
+      "unit": "m2"
+    }
+  ],
+  "measurements": [],
+  "derived": [
+    {
+      "id": "sealant_m_per_cartridge",
+      "formula": "sealant_cartridge_ml / (sealant_joint_width_mm * sealant_joint_depth_mm)",
+      "unit": "m",
+      "description": "Sealant bead length per cartridge."
+    },
+    {
+      "id": "paint_litres",
+      "formula": "(paint_wall_m2 + paint_ceiling_m2) * (emulsion_finish_coats + emulsion_mist_coats) / emulsion_coverage_m2_per_l",
+      "unit": "l",
+      "description": "Emulsion for walls and ceiling, all coats."
+    }
+  ],
+  "modules": [
+    {
+      "id": "strip_out",
+      "title": "Strip out",
+      "when": null,
+      "lines": [
+        {
+          "id": "so_cap_feeds",
+          "description": "Temporary caps for hot and cold feeds after the old fittings come out",
+          "spec": "15 mm stop ends to suit the joint system",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)",
+              "url": "https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "derived"
+            },
+            {
+              "source_title": "Toolstation plumbing category tree",
+              "url": "https://www.toolstation.com/plumbing/c3",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ]
+        },
+        {
+          "id": "so_protection",
+          "description": "Dust sheets and floor protection for an occupied home",
+          "spec": "Dust sheets and self-adhesive floor protection film",
+          "unit": "pack",
+          "quantity_formula": "1",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)",
+              "url": "https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "derived"
+            }
+          ]
+        },
+        {
+          "id": "so_remove_fittings",
+          "description": "Disconnect and remove the existing WC",
+          "spec": "Labour item; removed fittings go to waste",
+          "unit": "item",
+          "quantity_formula": "1",
+          "when": null,
+          "kind": "service",
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)",
+              "url": "https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            },
+            {
+              "source_title": "A Decent Home: definition and guidance (DCLG, June 2006)",
+              "url": "https://assets.publishing.service.gov.uk/media/5a7968b740f0b63d72fc5926/138355.pdf",
+              "licence": "OGL-3.0",
+              "evidence_quality": "public_spec"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "first_fix_plumbing",
+      "title": "First-fix plumbing",
+      "when": null,
+      "lines": [
+        {
+          "id": "ff_pipe_15",
+          "description": "Hot and cold supply pipe",
+          "spec": "15 mm copper or plastic supply pipe",
+          "unit": "m",
+          "quantity_formula": "pipe_15mm_m",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": "copper",
+          "options": [
+            {
+              "id": "copper",
+              "label": "Copper",
+              "spec": "15 mm copper supply pipe",
+              "tags": [],
+              "default": true,
+              "provenance": [
+                {
+                  "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+                  "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "public_spec"
+                },
+                {
+                  "source_title": "Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)",
+                  "url": "https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0",
+                  "licence": "manufacturer-doc-facts-only",
+                  "evidence_quality": "manufacturer_doc"
+                }
+              ]
+            },
+            {
+              "id": "plastic",
+              "label": "Plastic",
+              "spec": "15 mm plastic supply pipe, with pipe inserts where the pipe maker requires them",
+              "tags": [],
+              "default": false,
+              "provenance": [
+                {
+                  "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+                  "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+                  "licence": "unknown-copyright-facts-only",
+                  "evidence_quality": "public_spec"
+                },
+                {
+                  "source_title": "Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)",
+                  "url": "https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0",
+                  "licence": "manufacturer-doc-facts-only",
+                  "evidence_quality": "manufacturer_doc"
+                }
+              ]
+            }
+          ],
+          "provenance": [
+            {
+              "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+              "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            },
+            {
+              "source_title": "Mira Atom ERD installation guide 1340912-W2-A (Feb 2018)",
+              "url": "https://media.wickes.co.uk/is/content/wickes/GPID_1100684411_TECH_0",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            }
+          ]
+        },
+        {
+          "id": "ff_pipe_clips",
+          "description": "Pipe clips for new runs",
+          "spec": "15 mm pipe clips",
+          "unit": "pack",
+          "quantity_formula": "1",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Toolstation plumbing category tree",
+              "url": "https://www.toolstation.com/plumbing/c3",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ]
+        },
+        {
+          "id": "ff_fittings_compression",
+          "description": "Compression fittings allowance (elbows, tees, couplers)",
+          "spec": "15 mm compression fittings with olives",
+          "unit": "pack",
+          "quantity_formula": "1",
+          "when": "joint_system == 'compression'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Toolstation plumbing category tree",
+              "url": "https://www.toolstation.com/plumbing/c3",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            },
+            {
+              "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+              "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            }
+          ]
+        },
+        {
+          "id": "ff_fittings_push_fit",
+          "description": "Push-fit fittings allowance (elbows, tees, couplers)",
+          "spec": "15 mm push-fit fittings, with pipe inserts where the pipe maker requires them",
+          "unit": "pack",
+          "quantity_formula": "1",
+          "when": "joint_system == 'push_fit'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Toolstation plumbing category tree",
+              "url": "https://www.toolstation.com/plumbing/c3",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ]
+        },
+        {
+          "id": "ff_fittings_solder",
+          "description": "Solder-ring fittings allowance (elbows, tees, couplers)",
+          "spec": "15 mm solder-ring fittings",
+          "unit": "pack",
+          "quantity_formula": "1",
+          "when": "joint_system == 'solder'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Toolstation plumbing category tree",
+              "url": "https://www.toolstation.com/plumbing/c3",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ]
+        },
+        {
+          "id": "ff_flux",
+          "description": "Flux for soldered joints",
+          "spec": "Plumbing flux suited to potable water",
+          "unit": "item",
+          "quantity_formula": "1",
+          "when": "joint_system == 'solder'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Toolstation plumbing category tree",
+              "url": "https://www.toolstation.com/plumbing/c3",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "derived"
+            }
+          ]
+        },
+        {
+          "id": "ff_iv_wc",
+          "description": "Isolating valves on the WC cistern feed(s)",
+          "spec": "15 mm isolating valve, screwdriver-operated, compression or fibre-washer type",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'close_coupled'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+              "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wc",
+      "title": "WC",
+      "when": null,
+      "lines": [
+        {
+          "id": "sw_wc_pan_close_coupled",
+          "description": "Close-coupled WC pan",
+          "spec": "Floor-standing close-coupled WC pan, horizontal outlet, with floor fixing kit",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'close_coupled'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Armitage Shanks Contour 21 close-coupled WC suite data sheet",
+              "url": "https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            },
+            {
+              "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+              "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            }
+          ]
+        },
+        {
+          "id": "sw_wc_cistern",
+          "description": "Close-coupled cistern",
+          "spec": "Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'close_coupled'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Armitage Shanks Contour 21 close-coupled WC suite data sheet",
+              "url": "https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            },
+            {
+              "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+              "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            }
+          ]
+        },
+        {
+          "id": "sw_wc_flush_lever",
+          "description": "Flush lever or button if not supplied with the cistern",
+          "spec": "Flush actuator to suit the cistern",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'close_coupled'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Armitage Shanks Contour 21 close-coupled WC suite data sheet",
+              "url": "https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            }
+          ]
+        },
+        {
+          "id": "sw_wc_pan_connector",
+          "description": "WC pan connector for a horizontal soil outlet",
+          "spec": "Pan connector, 110 mm, straight or offset for a horizontal outlet (P trap); rigid where alignment allows",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'close_coupled' and soil_outlet == 'horizontal'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Armitage Shanks Contour 21 close-coupled WC suite data sheet",
+              "url": "https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            },
+            {
+              "source_title": "Wickes how-to guide: installing a toilet",
+              "url": "https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet",
+              "licence": "all-rights-reserved-facts-only",
+              "evidence_quality": "retailer"
+            },
+            {
+              "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+              "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            }
+          ]
+        },
+        {
+          "id": "sw_wc_pan_connector_vertical",
+          "description": "WC pan connector for a vertical (floor) soil outlet",
+          "spec": "Pan connector, 110 mm, to convert to an S trap or turned P trap",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'close_coupled' and soil_outlet == 'vertical'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Armitage Shanks Contour 21 close-coupled WC suite data sheet",
+              "url": "https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            }
+          ]
+        },
+        {
+          "id": "sw_wc_frame",
+          "description": "Concealed WC frame with cistern",
+          "spec": "Wall-hung WC frame with concealed cistern, 90 mm outlet bend and 90/110 mm adaptor, pan fixing rods and fixings",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'wall_hung'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet; page 404 when fetched)",
+              "url": "https://catalog.geberit.co.uk/en-GB/product/PRO_100926",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "search_snippet"
+            },
+            {
+              "source_title": "Grohe Rapid SL 3-in-1 set 3886020A component list (QS Supplies retailer page)",
+              "url": "https://qssupplies.co.uk/bathroom-furniture-shower-taps/321819.htm",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ]
+        },
+        {
+          "id": "sw_wc_flush_plate",
+          "description": "Flush plate for the concealed cistern",
+          "spec": "Flush plate from the same maker and series as the concealed cistern",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'wall_hung'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Grohe Rapid SL 3-in-1 set 3886020A component list (QS Supplies retailer page)",
+              "url": "https://qssupplies.co.uk/bathroom-furniture-shower-taps/321819.htm",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            },
+            {
+              "source_title": "Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet; page 404 when fetched)",
+              "url": "https://catalog.geberit.co.uk/en-GB/product/PRO_100926",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "derived"
+            }
+          ]
+        },
+        {
+          "id": "sw_wc_pan_wall_hung",
+          "description": "Wall-hung WC pan",
+          "spec": "Wall-hung WC pan to suit the frame fixing centres",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": "wc_type == 'wall_hung'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Grohe Rapid SL 3-in-1 set 3886020A component list (QS Supplies retailer page)",
+              "url": "https://qssupplies.co.uk/bathroom-furniture-shower-taps/321819.htm",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            },
+            {
+              "source_title": "Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet; page 404 when fetched)",
+              "url": "https://catalog.geberit.co.uk/en-GB/product/PRO_100926",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "search_snippet"
+            }
+          ]
+        },
+        {
+          "id": "sw_wc_seat",
+          "description": "WC seat and cover",
+          "spec": "WC seat and cover to suit the pan",
+          "unit": "nr",
+          "quantity_formula": "1",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Armitage Shanks Contour 21 close-coupled WC suite data sheet",
+              "url": "https://www.specifiedby.com/armitage-shanks/contour-21-close-coupled-wc-suite/armitage-shanks_Contour-21-Close-Coupled-WC-Suite_Specifications_DataSheet1.pdf",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            },
+            {
+              "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+              "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            }
+          ]
+        },
+        {
+          "id": "sw_wc_frame_boxing",
+          "description": "Boxing-in to enclose the WC frame",
+          "spec": "Timber or metal framing and moisture-resistant board to enclose the frame",
+          "unit": "pack",
+          "quantity_formula": "1",
+          "when": "wc_type == 'wall_hung'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Geberit UK catalogue, Duofix frame 111.300.00.5 scope of delivery (search snippet; page 404 when fetched)",
+              "url": "https://catalog.geberit.co.uk/en-GB/product/PRO_100926",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "derived"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "consumables",
+      "title": "Consumables and fixings",
+      "when": null,
+      "lines": [
+        {
+          "id": "cs_sanitary_silicone",
+          "description": "Sanitary silicone sealant",
+          "spec": "Bathroom-grade white silicone sealant with fungicide",
+          "unit": "cartridge",
+          "quantity_formula": "ceil(sealant_joint_m / sealant_m_per_cartridge)",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Truly PVC: estimating silicone cartridge yield",
+              "url": "https://www.trulypvc.com/blogs/how-to-guides/how-to-estimate-silicone-cartridge-yield",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            },
+            {
+              "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+              "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            },
+            {
+              "source_title": "Ideal Standard i.life Idealform bath fitting instructions",
+              "url": "https://heatandplumb.com/media/ideal-standard/fitting-instructions/file-512508.pdf",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            }
+          ]
+        },
+        {
+          "id": "cs_clear_sealant_wc",
+          "description": "Clear sealant at the WC base",
+          "spec": "Clear silicone sealant",
+          "unit": "cartridge",
+          "quantity_formula": "1",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+              "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            },
+            {
+              "source_title": "Wickes how-to guide: installing a toilet",
+              "url": "https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet",
+              "licence": "all-rights-reserved-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ]
+        },
+        {
+          "id": "cs_thread_sealant",
+          "description": "Thread sealant for threaded joints",
+          "spec": "PTFE tape",
+          "unit": "roll",
+          "quantity_formula": "2",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Mira Reflex bar valve installation guide 1196840-W2-C",
+              "url": "https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            },
+            {
+              "source_title": "Wickes how-to guide: installing a toilet",
+              "url": "https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet",
+              "licence": "all-rights-reserved-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ]
+        },
+        {
+          "id": "cs_plumbing_sundries",
+          "description": "Plumbing sundries allowance",
+          "spec": "Small fittings, washers and connectors not listed elsewhere",
+          "unit": "item",
+          "quantity_formula": "1",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Screwfix new bathroom cost guide (2026; plumbing sundries line)",
+              "url": "https://www.screwfix.com/guides/bathrooms-kitchens/bathrooms/new-bathroom-costs-guide",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ]
+        },
+        {
+          "id": "cs_wc_packers",
+          "description": "Packers to level the WC pan",
+          "spec": "Plastic packers",
+          "unit": "pack",
+          "quantity_formula": "1",
+          "when": "wc_type == 'close_coupled'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Wickes how-to guide: installing a toilet",
+              "url": "https://www.wickes.co.uk/how-to-guides/bathrooms/fit-a-toilet",
+              "licence": "all-rights-reserved-facts-only",
+              "evidence_quality": "retailer"
+            }
+          ]
+        },
+        {
+          "id": "cs_fixings_solid",
+          "description": "Fixings for wall-mounted fittings in solid walls",
+          "spec": "Plastic wall plugs and stainless or zinc-plated screws",
+          "unit": "pack",
+          "quantity_formula": "1",
+          "when": "wall_type == 'solid'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Mira Discovery bar mixer installation guide",
+              "url": "https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            },
+            {
+              "source_title": "Ideal Standard Idealcast bath installation guide (2009)",
+              "url": "https://images.victorianplumbing.co.uk/products/ideal-standard-white-1700-x-800mm-0th-double-ended-idealcast-bath/instructions/is_idealcast_e002301_iguide_en.pdf",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            }
+          ]
+        },
+        {
+          "id": "cs_fixings_stud",
+          "description": "Fixings for wall-mounted fittings in stud walls",
+          "spec": "Cavity fixings rated for the fitting load, or screws into noggins",
+          "unit": "pack",
+          "quantity_formula": "1",
+          "when": "wall_type == 'stud'",
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Mira Reflex bar valve installation guide 1196840-W2-C",
+              "url": "https://images.victorianplumbing.co.uk/products/mira-reflex-ev-thermostatic-shower-mixer-chrome-2-1744-020/instructions/21744020.pdf",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            },
+            {
+              "source_title": "Mira Discovery bar mixer installation guide",
+              "url": "https://www.showerspares.com/downloads/mira-discovery-bar-mixer-1609.001.pdf",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "decorating",
+      "title": "Decorating",
+      "when": null,
+      "lines": [
+        {
+          "id": "dc_emulsion",
+          "description": "Emulsion for walls and ceiling",
+          "spec": "Vinyl matt emulsion with anti-mould additive, white",
+          "unit": "l",
+          "quantity_formula": "ceil(paint_litres)",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)",
+              "url": "https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            },
+            {
+              "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+              "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            },
+            {
+              "source_title": "Dulux Trade Vinyl Matt product page (spreading rate)",
+              "url": "https://www.duluxtradepaintexpert.co.uk/en/products/dulux-trade-vinyl-matt",
+              "licence": "manufacturer-doc-facts-only",
+              "evidence_quality": "manufacturer_doc"
+            }
+          ]
+        },
+        {
+          "id": "dc_woodwork_paint",
+          "description": "Undercoat and gloss for woodwork",
+          "spec": "Undercoat and gloss",
+          "unit": "item",
+          "quantity_formula": "1",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)",
+              "url": "https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            },
+            {
+              "source_title": "Bathroom specification - bathroom replacement for general needs dwellings, V1 24.11.2025 (Sell2Wales tender attachment)",
+              "url": "https://www.sell2wales.gov.wales/Assets/NoticeBuilder_FileDownload.aspx?id=376193",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            }
+          ]
+        },
+        {
+          "id": "dc_filler",
+          "description": "Filler for making good",
+          "spec": "Surface filler",
+          "unit": "item",
+          "quantity_formula": "1",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "City of York Council: rewiring council homes",
+              "url": "https://www.york.gov.uk/council-homes/rewiring-council-homes",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            }
+          ]
+        },
+        {
+          "id": "dc_sundries",
+          "description": "Decorating sundries",
+          "spec": "Masking tape, abrasive paper, rollers and brushes",
+          "unit": "pack",
+          "quantity_formula": "1",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "City of York Council: rewiring council homes",
+              "url": "https://www.york.gov.uk/council-homes/rewiring-council-homes",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waste",
+      "title": "Waste",
+      "when": null,
+      "lines": [
+        {
+          "id": "ws_disposal",
+          "description": "Removal and disposal of strip-out waste",
+          "spec": "Skip, wait-and-load or licensed waste collection, sized on site",
+          "unit": "item",
+          "quantity_formula": "1",
+          "when": null,
+          "kind": "service",
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)",
+              "url": "https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "public_spec"
+            }
+          ]
+        },
+        {
+          "id": "ws_rubble_sacks",
+          "description": "Heavy-duty rubble sacks",
+          "spec": "Reinforced rubble sacks",
+          "unit": "pack",
+          "quantity_formula": "1",
+          "when": null,
+          "kind": null,
+          "lookup": null,
+          "default_option": null,
+          "options": [],
+          "provenance": [
+            {
+              "source_title": "Walsall Council DFG specification, adapted bathroom - low level tray (Feb 2015)",
+              "url": "https://go.walsall.gov.uk/sites/default/files/2022-08/specification_for_dfg_low_level_tray-3.pdf",
+              "licence": "unknown-copyright-facts-only",
+              "evidence_quality": "derived"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "joint_system_compression",
+      "when": "joint_system == 'compression'",
+      "requires": [
+        "ff_fittings_compression"
+      ],
+      "excludes": [
+        "ff_fittings_push_fit",
+        "ff_fittings_solder",
+        "ff_flux"
+      ],
+      "rationale": "Merchants split fittings by joint technology, so the kit carries one family only."
+    },
+    {
+      "id": "joint_system_push_fit",
+      "when": "joint_system == 'push_fit'",
+      "requires": [
+        "ff_fittings_push_fit"
+      ],
+      "excludes": [
+        "ff_fittings_compression",
+        "ff_fittings_solder",
+        "ff_flux"
+      ],
+      "rationale": "Merchants split fittings by joint technology, so the kit carries one family only."
+    },
+    {
+      "id": "joint_system_solder",
+      "when": "joint_system == 'solder'",
+      "requires": [
+        "ff_fittings_solder",
+        "ff_flux"
+      ],
+      "excludes": [
+        "ff_fittings_compression",
+        "ff_fittings_push_fit"
+      ],
+      "rationale": "Merchants split fittings by joint technology, so the kit carries one family only."
+    },
+    {
+      "id": "wall_hung_wc",
+      "when": "wc_type == 'wall_hung'",
+      "requires": [
+        "sw_wc_frame",
+        "sw_wc_flush_plate",
+        "sw_wc_pan_wall_hung",
+        "sw_wc_seat"
+      ],
+      "excludes": [
+        "sw_wc_pan_connector",
+        "sw_wc_pan_close_coupled",
+        "sw_wc_cistern"
+      ],
+      "rationale": "A wall-hung WC needs a concealed frame, a flush plate and a wall-hung pan. The frames cited ship a 90 mm bend with a 90/110 mm adaptor, so a separate 110 mm pan connector is not added (this differs from the original brief). Plate must match the cistern maker and series; that compatibility is a SKU check, not encoded here."
+    },
+    {
+      "id": "close_coupled_wc",
+      "when": "wc_type == 'close_coupled'",
+      "requires": [
+        "sw_wc_pan_close_coupled",
+        "sw_wc_cistern",
+        "sw_wc_seat",
+        "sw_wc_flush_lever",
+        "ff_iv_wc"
+      ],
+      "excludes": [
+        "sw_wc_frame",
+        "sw_wc_flush_plate",
+        "sw_wc_pan_wall_hung"
+      ],
+      "rationale": "A close-coupled suite is bought as pan, cistern, seat and lever, plus a pan connector chosen by the soil outlet and an isolating valve on the cistern feed."
+    },
+    {
+      "id": "stud_wall_fixings",
+      "when": "wall_type == 'stud'",
+      "requires": [
+        "cs_fixings_stud"
+      ],
+      "excludes": [
+        "cs_fixings_solid"
+      ],
+      "rationale": "Mira guides warn stud partitions may need alternative fixings; wall fixings are not supplied."
+    },
+    {
+      "id": "solid_wall_fixings",
+      "when": "wall_type == 'solid'",
+      "requires": [
+        "cs_fixings_solid"
+      ],
+      "excludes": [
+        "cs_fixings_stud"
+      ],
+      "rationale": "Wall fixings suited to the substrate are not supplied."
+    },
+    {
+      "id": "pan_connector_horizontal",
+      "when": "wc_type == 'close_coupled' and soil_outlet == 'horizontal'",
+      "requires": [
+        "sw_wc_pan_connector"
+      ],
+      "excludes": [
+        "sw_wc_pan_connector_vertical"
+      ],
+      "rationale": "The connector depends on the soil position: horizontal outlet to P trap."
+    },
+    {
+      "id": "pan_connector_vertical",
+      "when": "wc_type == 'close_coupled' and soil_outlet == 'vertical'",
+      "requires": [
+        "sw_wc_pan_connector_vertical"
+      ],
+      "excludes": [
+        "sw_wc_pan_connector"
+      ],
+      "rationale": "The connector depends on the soil position: S or turned P trap."
+    },
+    {
+      "id": "wall_hung_no_pan_connector",
+      "when": "wc_type == 'wall_hung'",
+      "requires": [],
+      "excludes": [
+        "sw_wc_pan_connector",
+        "sw_wc_pan_connector_vertical"
+      ],
+      "rationale": "Wall-hung frames connect through their own 90/110 mm adaptor whatever the soil position."
+    },
+    {
+      "id": "close_coupled_consumables",
+      "when": "wc_type == 'close_coupled'",
+      "requires": [
+        "cs_wc_packers",
+        "cs_clear_sealant_wc",
+        "cs_thread_sealant"
+      ],
+      "excludes": [],
+      "rationale": "Pan installation needs packers, silicone and PTFE."
+    }
+  ]
+}

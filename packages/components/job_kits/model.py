@@ -13,7 +13,13 @@ from typing import Any, Literal
 
 ASSUMPTION_SOURCE = "default_template"
 OPTION_TAGS = frozenset({"budget", "most_used", "premium"})
+FINISH_LEVELS = ("budget", "most_used", "premium")
+FINISH_LEVEL_QUESTION = "finish_level"
+UNKNOWN_ANSWER = "unknown"
 ASK_MODES = ("upfront", "on_review")
+WIDGETS = frozenset({"cards", "segmented", "toggle", "select"})
+EVIDENCE_GRADES = frozenset({"A", "B", "C", "D"})
+PRICE_BASIS = "observed retail price, not verified"
 
 Provenance = tuple[dict[str, Any], ...]
 AnswerValue = bool | str
@@ -23,10 +29,28 @@ class KitError(ValueError):
     """The library data or a resolve request is invalid."""
 
 
+def conjoin(*conditions: str | None) -> str | None:
+    """`a and b` over the given conditions; None when there is none (always true)."""
+    parts = [c for c in conditions if c]
+    if not parts:
+        return None
+    if len(parts) == 1:
+        return parts[0]
+    return " and ".join(f"({c})" for c in parts)
+
+
 @dataclass(frozen=True)
 class QuestionOption:
     value: AnswerValue
     label: str
+
+
+@dataclass(frozen=True)
+class QuestionUnknown:
+    """A "don't know" choice: the UI offers it, the resolver treats it as `maps_to`."""
+
+    label: str
+    maps_to: AnswerValue
 
 
 @dataclass(frozen=True)
@@ -36,6 +60,9 @@ class Question:
     question: str
     options: tuple[QuestionOption, ...]
     default: AnswerValue
+    help: str | None = None
+    widget: str | None = None
+    unknown: QuestionUnknown | None = None
 
     @property
     def values(self) -> tuple[AnswerValue, ...]:
@@ -49,8 +76,9 @@ class Question:
 class ScopeQuestion:
     question: Question
     ask: str
-    priority: int
+    priority: int  # the question's impact (computed by the loader; see impact.py)
     default: AnswerValue
+    reason_upfront: str | None = None
 
     @property
     def id(self) -> str:
@@ -65,6 +93,10 @@ class LineOption:
     tags: tuple[str, ...]
     default: bool
     provenance: Provenance
+    evidence_grade: str | None = None
+    why_default: str | None = None
+    price_band: dict[str, Any] | None = None
+    example_note: str | None = None
 
 
 @dataclass(frozen=True)
@@ -86,6 +118,26 @@ class Line:
     default_option: str | None = None
     with_module: tuple[str, ...] = ()
     optional: bool = False
+    forced_by: dict[str, str] | None = None
+    help: str | None = None
+    # Conditions of the with_module modules this line depends on in its scope (set by the
+    # loader): the line is active only while one of those modules is active.
+    context_when: str | None = None
+
+    @property
+    def effective_when(self) -> str | None:
+        return conjoin(self.when, self.context_when)
+
+
+def option_for_level(line: Line, level: str | None) -> LineOption | None:
+    """The option a finish level selects: the line default if it carries the level's tag,
+    else the first option with that tag, else the line default (None if no options)."""
+    if not line.options:
+        return None
+    default = next(o for o in line.options if o.id == line.default_option)
+    if level is None or level in default.tags:
+        return default
+    return next((o for o in line.options if level in o.tags), default)
 
 
 @dataclass(frozen=True)
@@ -98,6 +150,12 @@ class Rule:
     when: str | None = None
     uses_lookup: dict[str, Any] | None = None
     origin: str = "scope"
+    # A module rule applies only while its module is active in the scope (set by the loader).
+    module_when: str | None = None
+
+    @property
+    def effective_when(self) -> str | None:
+        return conjoin(self.when, self.module_when)
 
 
 @dataclass(frozen=True)
@@ -185,6 +243,8 @@ class ResolvedOption:
     label: str
     spec: str
     tags: tuple[str, ...]
+    evidence_grade: str | None = None
+    price_band: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -202,6 +262,7 @@ class ResolvedLine:
     lookup: dict[str, Any] | None = None
     uniclass_pr: dict[str, Any] | None = None
     etim_class: dict[str, Any] | None = None
+    forced_by: dict[str, str] | None = None
     assumption_source: str = ASSUMPTION_SOURCE
 
 
