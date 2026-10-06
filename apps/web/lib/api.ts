@@ -185,9 +185,9 @@ export const api = {
   // MVP endpoints for assumptions
   listAssumptions: (id: string) => request<AssumptionView[]>(`/v1/requests/${enc(id)}/assumptions`),
   confirmAssumption: (id: string, aid: string) =>
-    request<AssumptionView>(`/v1/requests/${enc(id)}/assumptions/${enc(aid)}/confirm`, { method: "POST", body: {} }),
+    request<RequestDetail>(`/v1/requests/${enc(id)}/assumptions/${enc(aid)}/confirm`, { method: "POST", body: {} }),
   invalidateAssumption: (id: string, aid: string) =>
-    request<AssumptionView>(`/v1/requests/${enc(id)}/assumptions/${enc(aid)}/invalidate`, { method: "POST", body: {} }),
+    request<RequestDetail>(`/v1/requests/${enc(id)}/assumptions/${enc(aid)}/invalidate`, { method: "POST", body: {} }),
   // MVP endpoints for vendor profile and attest
   updateVendorProfile: (id: string, profile: Partial<VendorProfile>) =>
     request<VendorViewExtended>(`/v1/vendors/${enc(id)}/profile`, { method: "PUT", body: profile }),

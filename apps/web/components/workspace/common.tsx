@@ -7,6 +7,7 @@ import { ApiError } from "@/lib/errors";
 import { Badge, type Tone } from "@/components/ui/ui";
 import { useToast } from "@/components/toast";
 
+/** onDone: the step finished its job, so move to whatever is next. */
 export interface StepProps { det: RequestDetail; onDone: () => void }
 
 /** Runs one write: busy flag, plain-language error plus a suggested fix, success toast. Never optimistic. */

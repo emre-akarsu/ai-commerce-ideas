@@ -17,8 +17,12 @@ import { StepPo } from "@/components/workspace/step-po";
 import { cn } from "@/lib/utils";
 
 function StepRail({ statuses, active, onPick }: { statuses: ReturnType<typeof stepStatuses>; active: StepId; onPick: (s: StepId) => void }) {
+  const nav = useRef<HTMLElement>(null);
+  useEffect(() => { // on a phone the rail scrolls sideways: keep the current step in view
+    nav.current?.querySelector<HTMLElement>("[aria-current=step]")?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [active]);
   return (
-    <nav aria-label="Steps" className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
+    <nav ref={nav} aria-label="Steps" className="-mx-4 relative overflow-x-auto px-4 md:mx-0 md:px-0">
       <ol className="flex min-w-max items-center gap-1 md:min-w-0">
         {STEP_ORDER.map((id, i) => {
           const st = statuses[id]; const on = id === active;
@@ -45,7 +49,8 @@ export default function RequestPage() {
   const q = useQuery(`request:${id}`, () => api.getRequest(id));
   const profile = useProfile();
   const { role } = useSession();
-  const [pick, setPick] = useState<StepId | null>(null);
+  const [active, setActive] = useState<StepId | null>(null);
+  const advanceFrom = useRef<unknown>(null);   // the data snapshot an action finished on; advance once newer data arrives
   const nextBtn = useRef<HTMLButtonElement>(null);
   const det = q.data;
 
@@ -58,19 +63,30 @@ export default function RequestPage() {
     window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Open on the step that needs you, then stay put: new data never moves the user off the step they are reading.
+  useEffect(() => {
+    if (!det) return;
+    const na0 = nextAction(det);
+    if (active === null) setActive(na0.step ?? "po");
+    else if (advanceFrom.current !== null && det !== advanceFrom.current) {
+      advanceFrom.current = null;
+      if (na0.step) setActive(na0.step);
+    }
+  }, [det, active]);
+
   if (q.loading) return <div className="space-y-4"><SkeletonRows n={1} /><SkeletonRows n={3} /></div>;
   if (q.error && !det) return <div className="space-y-3"><ErrorNote message={q.error} /><Link href="/" className="text-sm font-medium text-accent underline">Back to the inbox</Link></div>;
   if (!det) return null;
 
   const statuses = stepStatuses(det);
   const na = nextAction(det);
-  const active: StepId = pick ?? na.step ?? "po";
-  const done = () => setPick(null);
+  const shown: StepId = active ?? na.step ?? "po";
+  const done = () => { advanceFrom.current = det; };
   const r = det.request;
   const gate = na.cap ? can(role, na.cap) : { ok: true as const };
   const props = { det, onDone: done };
   function goNext() {
-    if (na.step) { setPick(na.step); setTimeout(() => document.getElementById("primary-action")?.focus(), 60); }
+    if (na.step) { setActive(na.step); setTimeout(() => document.getElementById("primary-action")?.focus(), 60); }
   }
 
   return (
@@ -83,14 +99,14 @@ export default function RequestPage() {
         </div>
         <div className="flex flex-wrap items-center gap-2">{r.down_now && <Badge tone="red">Machine down</Badge>}{r.criticality && <Badge tone="amber">Safety critical</Badge>}<Badge tone="gray">{stateLabel(r.state)}</Badge></div>
       </div>
-      <StepRail statuses={statuses} active={active} onPick={setPick} />
+      <StepRail statuses={statuses} active={shown} onPick={setActive} />
       <div className="mt-5 pb-24" aria-live="polite">
-        {active === "request" && <StepRequest {...props} />}
-        {active === "suppliers" && <StepSuppliers {...props} />}
-        {active === "send" && <StepSend {...props} />}
-        {active === "replies" && <StepReplies {...props} />}
-        {active === "compare" && <StepCompare {...props} />}
-        {active === "po" && <StepPo {...props} />}
+        {shown === "request" && <StepRequest {...props} />}
+        {shown === "suppliers" && <StepSuppliers {...props} />}
+        {shown === "send" && <StepSend {...props} />}
+        {shown === "replies" && <StepReplies {...props} />}
+        {shown === "compare" && <StepCompare {...props} />}
+        {shown === "po" && <StepPo {...props} />}
         <details className="mt-6 text-sm">
           <summary className="min-h-target cursor-pointer py-2 font-medium text-accent">History ({det.events.length})</summary>
           <ul className="divide-y divide-line rounded-md border border-line bg-surface">
@@ -107,7 +123,7 @@ export default function RequestPage() {
               <p className="truncate text-sm font-semibold">{na.label}</p>
               <p className="hidden truncate text-xs text-mute sm:block">{gate.ok ? na.detail : gate.reason}</p>
             </div>
-            {active === na.step
+            {shown === na.step
               ? <span className="text-sm text-mute">You are on this step</span>
               : <Button ref={nextBtn} variant={na.waitingOn ? "secondary" : "primary"} onClick={goNext}>{na.waitingOn ? `View ${STEP_LABEL[na.step].toLowerCase()}` : `Go to ${STEP_LABEL[na.step].toLowerCase()}`}</Button>}
           </div>

@@ -59,6 +59,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [go]);
 
+  // The approver arrives from an emailed link: a bare page with no navigation to other areas.
+  if (path.startsWith("/approve/")) {
+    return (
+      <div className="min-h-screen">
+        <MockBanner />
+        <header className="border-b border-line bg-surface px-4 py-3"><p className="mx-auto max-w-xl text-sm font-semibold">Buy-side RFQ: approval</p></header>
+        <main id="main" tabIndex={-1} className="mx-auto w-full max-w-xl px-4 py-6 outline-none">{children}</main>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen md:grid md:grid-cols-[232px_minmax(0,1fr)]">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-surface focus:px-3 focus:py-2">Skip to content</a>

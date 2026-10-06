@@ -43,7 +43,8 @@ export function QuoteCard({ q, vendorName }: { q: QuoteView; vendorName: string 
   );
 }
 
-export function StepReplies({ det, onDone }: StepProps) {
+// Replies stays on screen when new ones arrive: the user reads them before moving on, so no onDone here.
+export function StepReplies({ det }: StepProps) {
   const { role } = useSession();
   const toast = useToast();
   const gate = can(role, "select_quote");
@@ -58,12 +59,12 @@ export function StepReplies({ det, onDone }: StepProps) {
   async function addQuote(e: React.FormEvent) {
     e.preventDefault();
     const out = await act.run(() => api.inboundQuote(det.request.id, vendorId, text), "Quote added. Check the flags before relying on it.");
-    if (out) { setText(""); setOpen(false); touch(det.request.id); onDone(); }
+    if (out) { setText(""); setOpen(false); touch(det.request.id); }
   }
   function simulate() {
     const n = mockSimulateReply(det.request.id);
     toast.push("info", n > 0 ? `Demo only: ${n} supplier repl${n === 1 ? "y" : "ies"} arrived.` : "Demo only: every sent message already has a reply.");
-    touch(det.request.id); onDone();
+    touch(det.request.id);
   }
   return (
     <div className="space-y-5">

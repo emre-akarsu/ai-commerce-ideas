@@ -217,3 +217,16 @@ const STATE_LABEL: Record<string, string> = {
   DECLINED: "Declined", PO_DRAFTED: "PO drafted", PO_SENT: "PO sent", CLOSED: "Closed", CANCELLED: "Cancelled", EXPIRED: "Expired", ESCALATED: "Needs engineering review",
 };
 export function stateLabel(state: string): string { return STATE_LABEL[state] ?? humanise(state.toLowerCase()); }
+
+const FLAG_SHORT: Record<string, string | null> = {
+  dmarc_fail: "Failed sender check", quarantined: null, bank_details_changed: "Bank details changed", tax_basis_unknown: "VAT basis not stated",
+  tax_basis_assumed: "VAT basis assumed", currency_ambiguous: "Currency unclear", condition_not_new: "Not stated as new",
+  lead_time_working_days_assumed: "Lead time assumed", buyer_entered: "Entered by hand", over_budget: "Over budget", expired: "Expired",
+  price_outlier: "Price outlier", low_parse_confidence: "Low read confidence",
+};
+/** Compact label for table cells; null means the flag is already shown another way (the Quarantined badge). */
+export function flagShort(flag: string): string | null {
+  if (flag in FLAG_SHORT) return FLAG_SHORT[flag];
+  if (flag.startsWith("ungrounded_")) return "Value not in source";
+  return flag.replace(/_/g, " ");
+}

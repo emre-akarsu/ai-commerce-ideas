@@ -23,7 +23,7 @@ function subscribe(key: string, f: () => void): () => void {
 export function invalidate(prefix: string): void {
   for (const [k, e] of cache) if (k.startsWith(prefix)) { e.at = 0; notify(k); }
 }
-export function clearCache(): void { cache.clear(); }
+export function clearCache(): void { cache.clear(); for (const k of [...subs.keys()]) notify(k); }
 export function peek<T>(key: string): T | undefined { return cache.get(key)?.data as T | undefined; }
 export function seed<T>(key: string, data: T): void { cache.set(key, { data, at: Date.now() }); notify(key); }
 
@@ -57,7 +57,7 @@ export function useQuery<T>(key: string | null, fetcher: () => Promise<T>): Quer
   // refetch when an invalidation zeroed the timestamp while mounted
   const e = key ? cache.get(key) : undefined;
   useEffect(() => {
-    if (key && e && e.at === 0 && !e.inflight) load(key, () => fRef.current(), false).catch(() => undefined);
+    if (key && (!e || e.at === 0) && !e?.inflight) load(key, () => fRef.current(), false).catch(() => undefined);
   });
   const reload = useCallback(() => { if (key) load(key, () => fRef.current(), true).catch(() => undefined); }, [key]);
   return { data: e?.data as T | undefined, error: e?.error ?? null, loading: !!key && e?.data === undefined && !e?.error, refreshing: !!e?.inflight && e?.data !== undefined, reload };

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { api, isMock, type ComparisonRowView, type VendorViewExtended } from "@/lib/api";
-import { can, flagInfo, isBlocked } from "@/lib/flow";
+import { can, flagInfo, flagShort, isBlocked } from "@/lib/flow";
 import { touch } from "@/lib/inbox";
 import { formatMoney, leadTimeLabel, taxBasisLabel, useProfile } from "@/lib/profile";
 import { mockApprovalToken } from "@/lib/mock";
@@ -45,8 +45,8 @@ export function StepCompare({ det, onDone }: StepProps) {
       <Card>
         <H2>Compared like for like</H2>
         <p className="mb-3 text-sm text-mute">{rec ? cmp.reasons.join("; ") + "." : cmp.reasons.join("; ")} Prices are shown ex-{profile.tax.name} where the supplier said so; a quote with no stated basis is flagged, never guessed.</p>
-        <div className="overflow-x-auto rounded-md border border-line">
-          <table className="w-full min-w-[720px] text-sm">
+        <div className="relative overflow-x-auto rounded-md border border-line">
+          <table className="w-full min-w-[680px] text-sm">
             <caption className="sr-only">Quotes compared by landed unit cost</caption>
             <thead className="bg-sunken text-left text-xs uppercase tracking-wide text-mute">
               <tr><th scope="col" className="px-3 py-2">Supplier</th><th scope="col" className="whitespace-nowrap px-3 py-2 text-right">Unit cost</th><th scope="col" className="px-3 py-2 text-right">Total</th><th scope="col" className="px-3 py-2">Lead time</th><th scope="col" className="px-3 py-2">Flags</th><th scope="col" className="px-3 py-2"><span className="sr-only">Action</span></th></tr>
@@ -64,7 +64,7 @@ export function StepCompare({ det, onDone }: StepProps) {
                     <td className="num whitespace-nowrap px-3 py-3 text-right">{formatMoney(profile, row.landed_unit_cost, q?.currency)}<span className="block text-xs text-mute">{taxBasisLabel(profile, q?.tax_basis)}</span></td>
                     <td className="num whitespace-nowrap px-3 py-3 text-right font-medium">{total ? formatMoney(profile, total, q?.currency) : "?"}</td>
                     <td className="whitespace-nowrap px-3 py-3">{leadTimeLabel(profile, row.lead_time_days)}</td>
-                    <td className="px-3 py-3"><span className="flex flex-wrap gap-1">{row.flags.length === 0 ? <span className="text-mute">none</span> : row.flags.map((f) => { const i = flagInfo(f); return <Badge key={f} tone={i.tone === "bad" ? "red" : i.tone === "warn" ? "amber" : i.tone === "ok" ? "green" : "gray"}>{i.text}</Badge>; })}</span></td>
+                    <td className="px-3 py-3"><span className="flex flex-wrap gap-1">{row.flags.filter((f) => flagShort(f) !== null).length === 0 ? <span className="text-mute">none</span> : row.flags.filter((f) => flagShort(f) !== null).map((f) => { const i = flagInfo(f); return <Badge key={f} title={i.text} tone={i.tone === "bad" ? "red" : i.tone === "warn" ? "amber" : i.tone === "ok" ? "green" : "gray"}>{flagShort(f)}</Badge>; })}</span></td>
                     <td className="px-3 py-3 text-right">
                       {!SELECTED.has(det.request.state) && (blocked ? <span className="text-xs text-mute">Not selectable</span> :
                         <Button variant={row.quote_id === rec ? "primary" : "secondary"} id={row.quote_id === rec ? "primary-action" : undefined} onClick={() => select(row)} disabled={act.busy || !gate.ok} aria-label={`Select ${row.vendor_name ?? "this"} quote and ask for approval`}>Select</Button>)}

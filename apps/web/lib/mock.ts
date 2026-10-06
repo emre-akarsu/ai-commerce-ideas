@@ -320,7 +320,7 @@ export function mockHandle(method: string, path: string, body?: unknown): unknow
     a.status = m[3] === "confirm" ? "confirmed" : "invalidated"; a.resolved_by = "user:requester"; a.resolved_at = stamp(S);
     if (a.status === "invalidated") { r.view.state = "NEEDS_INFO"; r.view.open_questions = [...new Set([...r.view.open_questions, "seal"])]; }
     log(S, r.view.id, "user:requester", `assumption.${a.status}`, { assumption: a.id });
-    return a;
+    return detailOf(S, r);
   }
   if (method === "POST" && (m = p.match(/^\/v1\/requests\/([^/]+)\/rfqs\/prepare$/))) {
     needRole("prepare_rfq"); const r = reqOf(S, dec(m[1]));
