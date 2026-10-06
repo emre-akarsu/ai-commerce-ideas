@@ -156,7 +156,8 @@ export function mockHandle(method: string, path: string, body?: unknown): unknow
     if (i >= 0) {
       if (!vendors[i].profile) vendors[i].profile = { account_number: null, account_type: null, credit_days: null, delivery_threshold: null, quote_validity_days: null, contact_kind: "unknown", verification: { state: "unverified", attested_by: null, attested_at: null, note: null }, suppressed: false };
       if (action === "attest") {
-        vendors[i].profile!.verification = { state: "attested", attested_by: "user:admin", attested_at: new Date().toISOString(), note: (b as any)?.note ?? null };
+        const note = (b as Record<string, unknown>)?.note;
+        vendors[i].profile!.verification = { state: "attested", attested_by: "user:admin", attested_at: new Date().toISOString(), note: typeof note === "string" ? note : null };
       } else if (action === "suppress") {
         vendors[i].profile!.suppressed = true;
       } else if (action === "unsuppress") {
