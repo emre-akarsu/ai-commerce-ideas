@@ -32,6 +32,7 @@ CANONICAL_UNITS: dict[str, str] = {
     "volume": "l",
     "power": "w",
     "flow": "l/s",
+    "power_density": "w/m2",
 }
 
 _UNITS: dict[str, UnitDef] = {
@@ -54,6 +55,7 @@ _UNITS: dict[str, UnitDef] = {
     "l/s": UnitDef("l/s", "flow", 1),
     "l/min": UnitDef("l/s", "flow", 1, 60),
     "m3/h": UnitDef("l/s", "flow", 1000, 3600),
+    "w/m2": UnitDef("w/m2", "power_density", 1),
 }
 
 _ALIASES: dict[str, str] = {
@@ -69,6 +71,7 @@ _ALIASES: dict[str, str] = {
     "square metre": "m2", "square metres": "m2", "m^2": "m2",
     "watt": "w", "watts": "w", "kilowatt": "kw", "kilowatts": "kw",
     "l/sec": "l/s", "ls": "l/s", "lps": "l/s", "litres/sec": "l/s", "litres/second": "l/s",
+    "w/sqm": "w/m2", "watts/m2": "w/m2",
     "m3/hr": "m3/h", "m3/hour": "m3/h", "cmh": "m3/h", "lpm": "l/min", "l/m": "l/min",
 }
 

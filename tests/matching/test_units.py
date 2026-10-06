@@ -25,6 +25,7 @@ from components.matching.units import (
         ("l", "l"), ("ltr", "l"), ("ltrs", "l"), ("litre", "l"), ("liters", "l"), ("ml", "ml"),
         ("m2", "m2"), ("sqm", "m2"), ("sq m", "m2"), ("m²", "m2"),
         ("w", "w"), ("kw", "kw"), ("l/s", "l/s"), ("l/sec", "l/s"), ("m3/h", "m3/h"),
+        ("W/m²", "w/m2"), ("w/sqm", "w/m2"),
     ],
 )
 def test_unit_spellings_normalise(raw: str, expected: str) -> None:
@@ -51,6 +52,7 @@ def test_unknown_unit_is_none_not_a_guess() -> None:
         ("8.5", "kw", ("8500", "w")),
         ("150", "w", ("150", "w")),
         ("4", "in", ("101.6", "mm")),
+        ("150", "w/m2", ("150", "w/m2")),
     ],
 )
 def test_to_canonical_uses_decimal_and_canonical_units(
@@ -72,6 +74,7 @@ def test_dimension_of_groups_units() -> None:
     assert dimension_of("g") == dimension_of("kg") == "weight"
     assert dimension_of("m2") == "area"
     assert dimension_of("kw") == "power"
+    assert dimension_of("w/m2") == "power_density"
     assert dimension_of("m3/h") == dimension_of("l/s") == "flow"
     assert dimension_of("furlong") is None
 

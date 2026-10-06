@@ -19,7 +19,7 @@ from components.pricing.decimals import (
     quantize_places,
 )
 from components.pricing.errors import OfferValidationError
-from components.pricing.text import check_id, check_token, clean_text
+from components.pricing.text import LINK_REMOVED, check_id, check_token, clean_text
 
 PROP = settings(
     max_examples=200, deadline=None, derandomize=True, database=None,
@@ -118,9 +118,32 @@ def _has_control(s: str) -> bool:
 def test_clean_text_strips_controls_bidi_zero_width_and_collapses_whitespace() -> None:
     raw = "a\x00b\x1b[31m‮  c​d\ne\tf g\U000e0041h"
     out = clean_text(raw, "x", 100)
-    assert out == "ab[31m c d e f gh".replace("c d", "cd") or out  # exact form checked below
+    assert out == "ab[31m cd e f gh"
     assert not _has_control(out)
     assert "\n" not in out and "\t" not in out and "  " not in out
+
+
+@pytest.mark.parametrize(
+    "raw",
+    ["see https://evil.example/p?x=1 now", "ftp://host/file", "javascript:alert(1)",
+     "JavaScript : alert(1)", "mailto:a@b.example", "www.evil.example/x", "shop.example/p/1",
+     "data:text/html;base64,AAAA", "x=https://evil.example", "HTTPS://EVIL.EXAMPLE"],
+)
+def test_clean_text_never_keeps_a_url_it_is_replaced_by_a_marker(raw: str) -> None:
+    """Hard rule: no link is stored or followed. Links found in data become inert marker text."""
+    out = clean_text(raw, "x", 200)
+    assert "://" not in out and "evil" not in out and "shop.example" not in out
+    assert "javascript" not in out.lower() and "mailto" not in out.lower()
+    assert LINK_REMOVED in out
+
+
+def test_clean_text_keeps_file_style_references_that_are_not_links() -> None:
+    assert clean_text("merchant_prices.csv#row=3", "x", 80) == "merchant_prices.csv#row=3"
+    assert clean_text("sheet 2 row 17", "x", 80) == "sheet 2 row 17"
+
+
+def test_clean_text_can_keep_urls_only_when_asked_internally() -> None:
+    assert clean_text("https://a.example", "x", 80, defang_urls=False) == "https://a.example"
 
 
 def test_clean_text_exact_examples() -> None:
@@ -140,11 +163,19 @@ def test_clean_text_rejects_non_strings() -> None:
 
 @PROP
 @given(st.text())
-def test_clean_text_never_leaves_control_characters_and_is_idempotent(s: str) -> None:
+def test_clean_text_never_leaves_control_characters_or_links_and_is_idempotent(s: str) -> None:
     out = clean_text(s, "x", 300)
     assert not _has_control(out)
     assert len(out) <= 300
+    assert "://" not in out
     assert clean_text(out, "x", 300) == out
+
+
+@PROP
+@given(st.text(alphabet=st.sampled_from(list("htps:/.wx a​\n")), max_size=60))
+def test_clean_text_url_alphabet_fuzz_never_leaves_a_scheme(s: str) -> None:
+    out = clean_text(s, "x", 300)
+    assert "://" not in out and not out.lower().startswith("www.")
 
 
 @pytest.mark.parametrize("good", ["sku-1", "A.b_c:9", "merchant-alpha", "x" * 96])

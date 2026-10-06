@@ -10,7 +10,7 @@ import pytest
 from components.core.fakes import FakeClock
 from components.pricing import PricingConfig
 
-from .factories import NOW, config
+from .cfg import NOW, config
 
 
 def _blocked(*_args: Any, **_kwargs: Any) -> NoReturn:

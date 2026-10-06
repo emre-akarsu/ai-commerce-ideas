@@ -1,9 +1,9 @@
-"""Builders shared by the pricing tests. Everything here is synthetic and deterministic."""
+"""Offer and line builders shared by the pricing tests. Everything here is synthetic."""
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
-from datetime import UTC, datetime, timedelta
+from collections.abc import Iterable
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -12,7 +12,6 @@ from components.pricing import (
     Offer,
     PackSize,
     Price,
-    PricingConfig,
     Provenance,
     ResolvedLine,
     SourceKind,
@@ -22,33 +21,9 @@ from components.pricing import (
     Visibility,
 )
 
-NOW = datetime(2026, 10, 5, 9, 0, tzinfo=UTC)
+from .cfg import NOW
+
 D = Decimal
-
-
-def config(**engine: Any) -> PricingConfig:
-    """A UK-like configuration (GBP, 20% VAT, unknown VAT goes to a human, ex-VAT comparison)."""
-    return PricingConfig.from_mapping(config_mapping(**engine))
-
-
-def config_mapping(
-    *, pricing: Mapping[str, Any] | None = None, tax: Mapping[str, Any] | None = None, **engine: Any
-) -> dict[str, Any]:
-    return {
-        "money": {
-            "base_currency": "GBP",
-            "accepted_currencies": ["GBP", "EUR", "USD"],
-            "symbol_map": {"£": "GBP", "€": "EUR", "US$": "USD"},
-        },
-        "tax": {
-            "standard_rate": "0.20",
-            "quote_basis_default": "ex_tax",
-            "unknown_basis": "flag_require_approval",
-            **(tax or {}),
-        },
-        "pricing": dict(pricing or {}),
-        "engine": dict(engine),
-    }
 
 
 def offer(
@@ -90,7 +65,7 @@ def offer(
             vat_basis=vat,
             vat_rate=vat_rate,
         ),
-        pack=pack or PackSize(Decimal(1), Unit.EACH),
+        pack=pack or PackSize(Decimal(1)),
         observed_at=observed_at or (NOW - timedelta(hours=age_hours)),
         provenance=Provenance(source_id="synthetic-feed", method="feed_row", synthetic=True),
         licence=licence,
