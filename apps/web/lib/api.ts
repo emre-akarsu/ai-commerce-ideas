@@ -29,14 +29,17 @@ export interface PreparedRFQ {
   rfq_id: string; vendor: { id: string; name: string }; to: string; subject: string;
   body_preview: string; mime_hash: string; footer: string;
 }
-export interface RfqSummary { id: string; vendor_id: string; subject: string; sent_message_id: string | null }
-export interface QuoteView {
+export interface VendorRef { id: string; name: string }
+export interface RfqSummary { id: string; vendor: VendorRef; subject: string; sent_message_id: string | null; candidate_mpns?: string[] }
+export interface Quote {
   id: string; rfq_id: string; vendor_id: string; version: number; unit_price_each: string | null; currency: string | null;
   uom_raw: string | null; moq: number | null; lead_time_days: number | null; freight: string | null;
   validity_days: number | null; offered_mpn: string | null; condition: string | null; authenticity: Authenticity;
   offered_tier: Tier; source_snippets: Record<string, string>; flags: string[];
   tax_basis?: string; tax_rate?: string | null; unit_price_quoted?: string | null;
 }
+/** What the API returns for a quote: the quote itself and the supplier it came from. */
+export interface QuoteView { quote: Quote; vendor: VendorRef }
 export interface ComparisonRowView {
   quote_id: string; vendor_id: string; vendor_name?: string; landed_unit_cost: string | null;
   lead_time_days: number | null; tier: Tier; authenticity: Authenticity; meets_need_by: boolean | null; flags: string[];
@@ -48,7 +51,7 @@ export interface EventView {
   id: string; request_id: string | null; ts: string; actor: string; type: string; payload: Record<string, unknown>;
   prev_hash: string; hash: string;
 }
-export interface PendingApproval { id: string; kind: string; quote_id?: string | null; expires_at?: string | null }
+export interface PendingApproval { kind: string; request_id: string; quote_id?: string | null; action?: string | null; note?: string }
 export interface RequestDetail {
   request: RequestView; candidates: CandidateView[]; rfqs: RfqSummary[]; quotes: QuoteView[];
   comparison: ComparisonView | null; events: EventView[]; pending_approvals: PendingApproval[];

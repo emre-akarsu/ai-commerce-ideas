@@ -160,6 +160,13 @@ export function needsYouCount(g: Record<Bucket, RequestDetail[]>): number {
 /** Plain-language labels for quote flags; unknown flags are shown as their raw (inert) text. */
 const FLAG_LABEL: Record<string, { text: string; tone: "bad" | "warn" | "ok" | "mute" }> = {
   dmarc_fail: { text: "Sender failed email authentication: quarantined", tone: "bad" },
+  injection_suspected: { text: "Contains instructions aimed at the agent: quarantined", tone: "bad" },
+  "ungrounded:unit_price": { text: "Price not found in the source text: excluded", tone: "bad" },
+  no_price: { text: "No price stated: not compared", tone: "bad" },
+  no_currency: { text: "No currency stated: not compared", tone: "bad" },
+  moq_exceeds_quantity: { text: "Minimum order is more than you need", tone: "warn" },
+  freight_unknown: { text: "Freight not stated: cost not fully comparable", tone: "warn" },
+  lead_time_business_days: { text: "Lead time read as working days", tone: "mute" },
   dmarc_ok: { text: "Sender authenticated", tone: "ok" },
   quarantined: { text: "Quarantined: not used until a person reviews it", tone: "bad" },
   tax_basis_unknown: { text: "VAT basis not stated: approval needed", tone: "warn" },
@@ -176,10 +183,13 @@ const FLAG_LABEL: Record<string, { text: string; tone: "bad" | "warn" | "ok" | "
 };
 export function flagInfo(flag: string): { text: string; tone: "bad" | "warn" | "ok" | "mute" } {
   if (FLAG_LABEL[flag]) return FLAG_LABEL[flag];
-  if (flag.startsWith("ungrounded_")) return { text: `Value not found in the source (${flag.slice(11).replace(/_/g, " ")}): dropped`, tone: "warn" };
+  if (flag.startsWith("ungrounded_") || flag.startsWith("ungrounded:")) return { text: `Value not found in the source (${flag.slice(11).replace(/_/g, " ")}): dropped`, tone: "warn" };
   return { text: flag.replace(/_/g, " "), tone: "mute" };
 }
-export const BLOCKING_FLAGS = new Set(["dmarc_fail", "quarantined", "bank_details_changed", "expired"]);
+export const BLOCKING_FLAGS = new Set(["dmarc_fail", "injection_suspected", "quarantined", "bank_details_changed", "expired"]);
+/** The server leaves these out of the comparison ranking; the UI does not offer to select them. */
+export const EXCLUDING_FLAGS = new Set(["dmarc_fail", "injection_suspected", "ungrounded:unit_price", "no_price", "no_currency", "bank_details_changed", "quarantined", "expired"]);
+export function isExcluded(flags: string[]): boolean { return flags.some((f) => EXCLUDING_FLAGS.has(f)); }
 export function isBlocked(flags: string[]): boolean { return flags.some((f) => BLOCKING_FLAGS.has(f)); }
 
 /** Server 409 reasons for supplier selection, mapped to a short fix. */
@@ -190,6 +200,8 @@ export function refusalHelp(message: string): string {
   if (m.includes("individual subscriber")) return "Sending to sole traders is switched off until counsel confirms the rules.";
   if (m.includes("assumptions open")) return "Confirm the critical assumptions on the Request step first.";
   if (m.includes("business identity")) return "An admin must complete the company details in Setup.";
+  if (m.includes("no eligible approver")) return "The approver must be a different person from the requester. Ask a colleague with the buyer role to be the approver.";
+  if (m.includes("tier d")) return "The offered part is not an identical or documented-equivalent part. Ask the supplier to quote a listed part, or get engineering to review.";
   if (m.includes("hash_mismatch")) return "The message changed after you viewed it. Prepare it again and review the new text.";
   if (m.includes("footer_missing")) return "The required AI-disclosure footer is missing. Nothing was sent.";
   if (m.includes("kill") || m.includes("engaged")) return "Sending is switched off for this account. An admin can switch it back on in Setup.";
@@ -219,7 +231,8 @@ const STATE_LABEL: Record<string, string> = {
 export function stateLabel(state: string): string { return STATE_LABEL[state] ?? humanise(state.toLowerCase()); }
 
 const FLAG_SHORT: Record<string, string | null> = {
-  dmarc_fail: "Failed sender check", quarantined: null, bank_details_changed: "Bank details changed", tax_basis_unknown: "VAT basis not stated",
+  dmarc_fail: "Failed sender check", injection_suspected: "Contains instructions", "ungrounded:unit_price": "Price not in source", no_price: "No price", no_currency: "No currency",
+  moq_exceeds_quantity: "Minimum order too high", freight_unknown: "Freight not stated", lead_time_business_days: null, quarantined: null, bank_details_changed: "Bank details changed", tax_basis_unknown: "VAT basis not stated",
   tax_basis_assumed: "VAT basis assumed", currency_ambiguous: "Currency unclear", condition_not_new: "Not stated as new",
   lead_time_working_days_assumed: "Lead time assumed", buyer_entered: "Entered by hand", over_budget: "Over budget", expired: "Expired",
   price_outlier: "Price outlier", low_parse_confidence: "Low read confidence",
@@ -229,4 +242,24 @@ export function flagShort(flag: string): string | null {
   if (flag in FLAG_SHORT) return FLAG_SHORT[flag];
   if (flag.startsWith("ungrounded_")) return "Value not in source";
   return flag.replace(/_/g, " ");
+}
+
+/** Turn the comparison's machine reasons into sentences. `who` maps a quote id to its supplier name. */
+export function reasonLabel(reason: string, who: (quoteId: string) => string): string | null {
+  const [kind, a, b] = reason.split(":");
+  switch (kind) {
+    case "recommended": return `Recommended: ${who(a)}.`;
+    case "tier": return `It offers a Tier ${a} part.`;
+    case "no_eligible_tier_a": return "No quote offers an identical (Tier A) part, so this is a documented equivalent.";
+    case "basis": return a === "lowest_landed_cost_within_tier" ? "It is the lowest landed cost within its tier." : null;
+    case "freight_unknown": return "Its freight is not stated, so the true cost may be higher.";
+    case "caveat": return `Caveat for ${who(a)}: ${flagInfo(b).text}.`;
+    case "deprioritised": return `${who(a)} ranks lower: ${flagInfo(b).text}.`;
+    case "need_by": return a === "met" ? "It meets the need-by date." : a === "missed" ? "It misses the need-by date." : "The need-by date could not be checked.";
+    case "excluded": return `${who(a)} is left out: ${flagInfo(b ?? "").text}.`;
+    case "no_recommendation":
+      return a === "no_eligible_tier_a_or_b" ? "No recommendation: no usable quote offers an identical or documented-equivalent part (Tier A or B). Check the part each supplier offered."
+        : a === "mixed_currency" ? "No recommendation: the quotes are in different currencies." : `No recommendation (${a}).`;
+    default: return reason.replace(/[:_]/g, " ");
+  }
 }

@@ -1,0 +1,621 @@
+{
+ "assumptions": [
+  {
+   "confidence": "medium",
+   "created_at": "2026-10-06T16:36:26.288750Z",
+   "critical": false,
+   "gate": "quote_comparison",
+   "id": "asm-req-4471f15a2f2f-001",
+   "request_id": "req-4471f15a2f2f",
+   "resolved_at": "2026-10-06T16:36:31.346139Z",
+   "resolved_by": "user:demo-admin",
+   "source": "default_template",
+   "statement": "Quoted prices are assumed to be exclusive of VAT unless the supplier states otherwise.",
+   "status": "confirmed"
+  },
+  {
+   "confidence": "medium",
+   "created_at": "2026-10-06T16:36:26.289539Z",
+   "critical": true,
+   "gate": "rfqs/prepare",
+   "id": "asm-req-4471f15a2f2f-002",
+   "request_id": "req-4471f15a2f2f",
+   "resolved_at": "2026-10-06T16:36:32.783332Z",
+   "resolved_by": "user:demo-admin",
+   "source": "default_template",
+   "statement": "Assumed precision_class = P0: designation convention: no tolerance-class suffix denotes Normal (P0)",
+   "status": "confirmed"
+  }
+ ],
+ "candidates": [
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "Load ratings and service life may differ between manufacturers; verify on the datasheet.",
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal = offered contact_seal",
+    "internal_clearance: requested CN = offered CN",
+    "precision_class: requested P0 = offered P0",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Alpha",
+   "mismatches": [],
+   "mpn": "AL6205-2RS",
+   "synthetic": true,
+   "tier": "B"
+  },
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "Load ratings and service life may differ between manufacturers; verify on the datasheet.",
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal = offered contact_seal",
+    "internal_clearance: requested CN = offered CN",
+    "precision_class: requested P0 = offered P0",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Alpha",
+   "mismatches": [],
+   "mpn": "AL6205-2RS-V1",
+   "synthetic": true,
+   "tier": "B"
+  },
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "Load ratings and service life may differ between manufacturers; verify on the datasheet.",
+    "seal_designation differs: requested 2RS, offered 2RSH",
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal = offered contact_seal",
+    "internal_clearance: requested CN = offered CN",
+    "precision_class: requested P0 = offered P0",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Beta",
+   "mismatches": [],
+   "mpn": "BT6205-2RSH",
+   "synthetic": true,
+   "tier": "B"
+  },
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "Load ratings and service life may differ between manufacturers; verify on the datasheet.",
+    "seal_designation differs: requested 2RS, offered 2RS1",
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal = offered contact_seal",
+    "internal_clearance: requested CN = offered CN",
+    "precision_class: requested P0 = offered P0",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Gamma",
+   "mismatches": [],
+   "mpn": "GM6205-2RS1",
+   "synthetic": true,
+   "tier": "B"
+  },
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal, offered open",
+    "internal_clearance: requested CN = offered CN",
+    "precision_class: requested P0 = offered P0",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Alpha",
+   "mismatches": [
+    "seal_type"
+   ],
+   "mpn": "AL6205",
+   "synthetic": true,
+   "tier": "D"
+  },
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal = offered contact_seal",
+    "internal_clearance: requested CN, offered C3",
+    "precision_class: requested P0 = offered P0",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Alpha",
+   "mismatches": [
+    "internal_clearance"
+   ],
+   "mpn": "AL6205-2RS-C3",
+   "synthetic": true,
+   "tier": "D"
+  },
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal = offered contact_seal",
+    "internal_clearance: requested CN = offered CN",
+    "precision_class: requested P0, offered P6",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Alpha",
+   "mismatches": [
+    "precision_class"
+   ],
+   "mpn": "AL6205-2RS-P6",
+   "synthetic": true,
+   "tier": "D"
+  },
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "seal_designation differs: requested 2RS, offered 2Z",
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal, offered shield",
+    "internal_clearance: requested CN = offered CN",
+    "precision_class: requested P0 = offered P0",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Alpha",
+   "mismatches": [
+    "seal_type"
+   ],
+   "mpn": "AL6205-2Z",
+   "synthetic": true,
+   "tier": "D"
+  },
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "seal_designation differs: requested 2RS, offered 2RSH",
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal = offered contact_seal",
+    "internal_clearance: requested CN, offered C3",
+    "precision_class: requested P0 = offered P0",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Beta",
+   "mismatches": [
+    "internal_clearance"
+   ],
+   "mpn": "BT6205-2RSH-C3",
+   "synthetic": true,
+   "tier": "D"
+  },
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "seal_designation differs: requested 2RS, offered ZZ",
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal, offered shield",
+    "internal_clearance: requested CN = offered CN",
+    "precision_class: requested P0 = offered P0",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Beta",
+   "mismatches": [
+    "seal_type"
+   ],
+   "mpn": "BT6205-2ZZ",
+   "synthetic": true,
+   "tier": "D"
+  },
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal, offered open",
+    "internal_clearance: requested CN = offered CN",
+    "precision_class: requested P0 = offered P0",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Gamma",
+   "mismatches": [
+    "seal_type"
+   ],
+   "mpn": "GM6205",
+   "synthetic": true,
+   "tier": "D"
+  },
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "seal_designation differs: requested 2RS, offered 2RS1",
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal = offered contact_seal",
+    "internal_clearance: requested CN, offered C3",
+    "precision_class: requested P0 = offered P0",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Gamma",
+   "mismatches": [
+    "internal_clearance"
+   ],
+   "mpn": "GM6205-2RS1-C3",
+   "synthetic": true,
+   "tier": "D"
+  },
+  {
+   "basis": "standard",
+   "basis_date": "2017-01-01",
+   "basis_source": "ISO 15 boundary dimensions",
+   "caveats": [
+    "seal_designation differs: requested 2RS, offered ZZ",
+    "SYNTHETIC illustrative seed data, not real manufacturer data."
+   ],
+   "evidence": [
+    "bore_mm: requested 25 = offered 25",
+    "outer_diameter_mm: requested 52 = offered 52",
+    "width_mm: requested 15 = offered 15",
+    "seal_type: requested contact_seal, offered shield",
+    "internal_clearance: requested CN = offered CN",
+    "precision_class: requested P0 = offered P0",
+    "basis standard: ISO 15 boundary dimensions, dated 2017-01-01"
+   ],
+   "manufacturer": "SynthCo Gamma",
+   "mismatches": [
+    "seal_type"
+   ],
+   "mpn": "GM6205-ZZ",
+   "synthetic": true,
+   "tier": "D"
+  }
+ ],
+ "chain_valid": true,
+ "comparison": {
+  "reasons": [
+   "excluded:quote-a90fe141d585:no_price",
+   "no_recommendation:no_eligible_tier_a_or_b"
+  ],
+  "recommended_quote_id": null,
+  "request_id": "req-4471f15a2f2f",
+  "rows": [
+   {
+    "authenticity": "unknown",
+    "flags": [
+     "buyer_entered",
+     "lead_time_business_days",
+     "freight_unknown",
+     "freight_unknown"
+    ],
+    "landed_unit_cost": null,
+    "lead_time_days": 3,
+    "meets_need_by": true,
+    "quote_id": "quote-c9c50b3130ed",
+    "tier": "D",
+    "vendor_id": "demo-bravo"
+   },
+   {
+    "authenticity": "unknown",
+    "flags": [
+     "buyer_entered",
+     "lead_time_business_days",
+     "no_price"
+    ],
+    "landed_unit_cost": null,
+    "lead_time_days": 3,
+    "meets_need_by": true,
+    "quote_id": "quote-a90fe141d585",
+    "tier": "D",
+    "vendor_id": "demo-alpha"
+   }
+  ]
+ },
+ "events": [
+  {
+   "actor": "user:demo-admin",
+   "hash": "77f4fcf4644ca36d81cc9c9583d234daf873f776ab7e56211e1668ebdc39ba40",
+   "id": "evt-demo-synthetic-tenant-000053",
+   "payload": {
+    "criticality": false,
+    "down_now": false,
+    "instruction_flags": [],
+    "profile": "uk@951429ab0feb"
+   },
+   "prev_hash": "046254ba37f21e8cfcdcd48b628f3dcdb26a30467257e96df0d3cd2b0b69d9b2",
+   "request_id": "req-4471f15a2f2f",
+   "tenant_id": "demo-synthetic-tenant",
+   "ts": "2026-10-06T16:36:26.288296Z",
+   "type": "request.created"
+  },
+  {
+   "actor": "agent",
+   "hash": "9498d1f0c707d93db9633d0b743a6283ba9e9c51f6df642eac031573c9efc583",
+   "id": "evt-demo-synthetic-tenant-000054",
+   "payload": {
+    "from": "RECEIVED",
+    "profile": "uk@951429ab0feb",
+    "step": "intake",
+    "to": "SPEC_DRAFT"
+   },
+   "prev_hash": "77f4fcf4644ca36d81cc9c9583d234daf873f776ab7e56211e1668ebdc39ba40",
+   "request_id": "req-4471f15a2f2f",
+   "tenant_id": "demo-synthetic-tenant",
+   "ts": "2026-10-06T16:36:26.288574Z",
+   "type": "request.transition"
+  }
+ ],
+ "pending_approvals": [],
+ "quotes": [
+  {
+   "quote": {
+    "authenticity": "unknown",
+    "condition": null,
+    "currency": null,
+    "flags": [
+     "buyer_entered",
+     "lead_time_business_days"
+    ],
+    "freight": null,
+    "id": "quote-a90fe141d585",
+    "lead_time_days": 3,
+    "moq": null,
+    "offered_mpn": null,
+    "offered_tier": "D",
+    "rfq_id": "rfq-5ed5e0295acb",
+    "source_snippets": {
+     "lead_time": "3 working days",
+     "tax_text": "exclusive of VAT",
+     "validity": "30 days"
+    },
+    "tax_basis": "unknown",
+    "tax_rate": null,
+    "tenant_id": "demo-synthetic-tenant",
+    "unit_price_each": null,
+    "unit_price_quoted": null,
+    "uom_raw": null,
+    "validity_days": 30,
+    "vendor_id": "demo-alpha",
+    "version": 1
+   },
+   "vendor": {
+    "id": "demo-alpha",
+    "name": "SYNTHETIC Alpha Supply Ltd"
+   }
+  },
+  {
+   "quote": {
+    "authenticity": "unknown",
+    "condition": null,
+    "currency": "GBP",
+    "flags": [
+     "buyer_entered",
+     "lead_time_business_days",
+     "freight_unknown"
+    ],
+    "freight": null,
+    "id": "quote-c9c50b3130ed",
+    "lead_time_days": 3,
+    "moq": null,
+    "offered_mpn": null,
+    "offered_tier": "D",
+    "rfq_id": "rfq-d3922a9df1c3",
+    "source_snippets": {
+     "currency": "\u00a3",
+     "lead_time": "3 working days",
+     "tax_text": "exclusive of VAT",
+     "unit_price": "11.80",
+     "uom": "each",
+     "validity": "30 days"
+    },
+    "tax_basis": "ex_tax",
+    "tax_rate": null,
+    "tenant_id": "demo-synthetic-tenant",
+    "unit_price_each": "11.80",
+    "unit_price_quoted": "11.80",
+    "uom_raw": "each",
+    "validity_days": 30,
+    "vendor_id": "demo-bravo",
+    "version": 1
+   },
+   "vendor": {
+    "id": "demo-bravo",
+    "name": "SYNTHETIC Bravo Bearings Ltd"
+   }
+  }
+ ],
+ "request": {
+  "attributes": {
+   "bore_mm": {
+    "confidence": 1.0,
+    "name": "bore_mm",
+    "source": "standard",
+    "source_ref": "ISO 15 boundary dimensions",
+    "unit": "mm",
+    "value": "25"
+   },
+   "designation": {
+    "confidence": 1.0,
+    "name": "designation",
+    "source": "user_input",
+    "source_ref": "user text '6205-2RS'",
+    "unit": null,
+    "value": "6205-2RS"
+   },
+   "internal_clearance": {
+    "confidence": 1.0,
+    "name": "internal_clearance",
+    "source": "user_input",
+    "source_ref": "answer to clarifying question",
+    "unit": null,
+    "value": "CN"
+   },
+   "outer_diameter_mm": {
+    "confidence": 1.0,
+    "name": "outer_diameter_mm",
+    "source": "standard",
+    "source_ref": "ISO 15 boundary dimensions",
+    "unit": "mm",
+    "value": "52"
+   },
+   "precision_class": {
+    "confidence": 0.8,
+    "name": "precision_class",
+    "source": "rule",
+    "source_ref": "designation convention: no tolerance-class suffix denotes Normal (P0)",
+    "unit": null,
+    "value": "P0"
+   },
+   "seal_designation": {
+    "confidence": 1.0,
+    "name": "seal_designation",
+    "source": "user_input",
+    "source_ref": "designation suffix in '6205-2RS'",
+    "unit": null,
+    "value": "2RS"
+   },
+   "seal_type": {
+    "confidence": 1.0,
+    "name": "seal_type",
+    "source": "user_input",
+    "source_ref": "designation suffix in '6205-2RS'",
+    "unit": null,
+    "value": "contact_seal"
+   },
+   "series": {
+    "confidence": 1.0,
+    "name": "series",
+    "source": "standard",
+    "source_ref": "ISO 15 boundary dimensions",
+    "unit": null,
+    "value": "62"
+   },
+   "width_mm": {
+    "confidence": 1.0,
+    "name": "width_mm",
+    "source": "standard",
+    "source_ref": "ISO 15 boundary dimensions",
+    "unit": "mm",
+    "value": "15"
+   }
+  },
+  "created_at": "2026-10-06T16:36:26.287901Z",
+  "criticality": false,
+  "down_now": false,
+  "family": "deep_groove_ball_bearing",
+  "id": "req-4471f15a2f2f",
+  "need_by": "2026-12-15",
+  "open_question_details": [],
+  "open_questions": [],
+  "quantity": 4,
+  "questions_asked": 1,
+  "site": null,
+  "state": "COMPARISON_READY",
+  "work_order_ref": null
+ },
+ "rfqs": [
+  {
+   "candidate_mpns": [
+    "AL6205-2RS",
+    "AL6205-2RS-V1",
+    "BT6205-2RSH",
+    "GM6205-2RS1"
+   ],
+   "id": "rfq-5ed5e0295acb",
+   "sent_message_id": "<msg-1@fake.local>",
+   "subject": "RFQ: AL6205-2RS x4",
+   "vendor": {
+    "id": "demo-alpha",
+    "name": "SYNTHETIC Alpha Supply Ltd"
+   }
+  },
+  {
+   "candidate_mpns": [
+    "AL6205-2RS",
+    "AL6205-2RS-V1",
+    "BT6205-2RSH",
+    "GM6205-2RS1"
+   ],
+   "id": "rfq-d3922a9df1c3",
+   "sent_message_id": "<msg-2@fake.local>",
+   "subject": "RFQ: AL6205-2RS x4",
+   "vendor": {
+    "id": "demo-bravo",
+    "name": "SYNTHETIC Bravo Bearings Ltd"
+   }
+  }
+ ]
+}

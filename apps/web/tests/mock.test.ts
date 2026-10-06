@@ -61,7 +61,7 @@ describe("the whole flow runs through the mock, with the server's refusals", () 
 
     const rec = d.comparison!.recommended_quote_id;
     expect(rec).toBeTruthy();
-    expect(d.quotes.find((q) => q.id === rec)!.flags).not.toContain("tax_basis_unknown");
+    expect(d.quotes.find((x) => x.quote.id === rec)!.quote.flags).not.toContain("tax_basis_unknown");
     d = await api.selectQuote(id, rec!);
     expect(d.request.state).toBe("APPROVAL_PENDING");
     const token = mockApprovalToken(id)!;
@@ -79,7 +79,7 @@ describe("the whole flow runs through the mock, with the server's refusals", () 
   it("a quarantined quote is never recommended and cannot be selected", async () => {
     const d = await api.getRequest("rq-1006");
     expect(d.comparison!.recommended_quote_id).toBe("q-6a");
-    await refused(api.selectQuote("rq-1006", "q-6c"), 409, /quarantined/);
+    await refused(api.selectQuote("rq-1006", "q-6c"), 409, /excluded/);
   });
 
   it("invalidating an assumption sends the request back to a question", async () => {

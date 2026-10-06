@@ -41,7 +41,7 @@ export default function ApprovePage() {
           <Fact label="Offered part number">{v.offered_mpn ?? "?"}</Fact>
           <Fact label="Match tier"><Badge tone={v.offered_tier === "A" ? "green" : "amber"}>Tier {v.offered_tier}</Badge></Fact>
         </dl>
-        {v.flags.length > 0 && <p className="mt-4 flex flex-wrap gap-1.5" aria-label="Quote flags">{v.flags.map((f) => <Badge key={f} tone="red" title={f}>{flagInfo(f).text}</Badge>)}</p>}
+        {v.flags.length > 0 && <p className="mt-4 flex flex-wrap gap-1.5" aria-label="Quote flags">{[...new Set(v.flags)].map((f) => <Badge key={f} tone="red" title={f}>{flagInfo(f).text}</Badge>)}</p>}
         {(v.review_notes ?? []).length > 0 && <p className="mt-3 flex flex-wrap gap-1.5" aria-label="Assumptions made">{v.review_notes.map((f) => <Badge key={f} tone="amber">{humanise(f)}</Badge>)}</p>}
         {v.note && <p className="mt-3 text-sm">{v.note}</p>}
         <p className="mt-4 text-sm text-mute">Link expires {formatDate(profile, v.expires_at)}. You must be signed in. It can be used once. Approving confirms this quote; it does not place an order.</p>

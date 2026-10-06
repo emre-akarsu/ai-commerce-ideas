@@ -1,11 +1,10 @@
 "use client";
 import Link from "next/link";
-import { api, isMock, type ComparisonRowView, type VendorViewExtended } from "@/lib/api";
-import { can, flagInfo, flagShort, isBlocked } from "@/lib/flow";
+import { api, isMock, type ComparisonRowView } from "@/lib/api";
+import { can, flagInfo, flagShort, isBlocked, isExcluded, reasonLabel } from "@/lib/flow";
 import { touch } from "@/lib/inbox";
 import { formatMoney, leadTimeLabel, taxBasisLabel, useProfile } from "@/lib/profile";
 import { mockApprovalToken } from "@/lib/mock";
-import { useQuery } from "@/lib/store";
 import { Badge, Button, Card, EmptyState, ErrorNote, H2 } from "@/components/ui/ui";
 import { useSession } from "@/components/session";
 import { useAct, type StepProps } from "./common";
@@ -19,8 +18,8 @@ export function StepCompare({ det, onDone }: StepProps) {
   const act = useAct();
   const cmp = det.comparison;
   const qty = det.request.quantity ?? 0;
-  const vendors = useQuery("vendors", () => api.listVendors() as Promise<VendorViewExtended[]>);
-  const quoteOf = (id: string) => det.quotes.find((q) => q.id === id);
+  const quoteOf = (id: string) => det.quotes.find((x) => x.quote.id === id)?.quote;
+  const who = (quoteId: string) => det.quotes.find((x) => x.quote.id === quoteId)?.vendor.name ?? quoteId;
   const selectedId = det.request.state === "QUOTE_SELECTED" || SELECTED.has(det.request.state) ? det.pending_approvals[0]?.quote_id ?? null : null;
   const token = isMock() ? mockApprovalToken(det.request.id) : null;
 
@@ -44,7 +43,10 @@ export function StepCompare({ det, onDone }: StepProps) {
       {decided && <div role="status" className="rounded-md border border-ok bg-ok-soft p-3 text-sm font-semibold">Approved. Continue to the purchase order.</div>}
       <Card>
         <H2>Compared like for like</H2>
-        <p className="mb-3 text-sm text-mute">{rec ? cmp.reasons.join("; ") + "." : cmp.reasons.join("; ")} Prices are shown ex-{profile.tax.name} where the supplier said so; a quote with no stated basis is flagged, never guessed.</p>
+        <ul className="mb-3 list-disc space-y-0.5 pl-5 text-sm text-mute">
+          {cmp.reasons.map((x) => reasonLabel(x, who)).filter((x): x is string => !!x).map((x) => <li key={x}>{x}</li>)}
+        </ul>
+        <p className="mb-3 text-sm text-mute">Prices are shown ex-{profile.tax.name} where the supplier said so; a quote with no stated basis is flagged, never guessed.</p>
         <div className="relative overflow-x-auto rounded-md border border-line">
           <table className="w-full min-w-[680px] text-sm">
             <caption className="sr-only">Quotes compared by landed unit cost</caption>
@@ -53,21 +55,21 @@ export function StepCompare({ det, onDone }: StepProps) {
             </thead>
             <tbody className="divide-y divide-line">
               {cmp.rows.map((row) => {
-                const q = quoteOf(row.quote_id); const blocked = isBlocked(row.flags);
+                const flags = [...new Set(row.flags)]; const q = quoteOf(row.quote_id); const blocked = isBlocked(flags); const excluded = isExcluded(flags);
                 const total = row.landed_unit_cost ? (Number(row.landed_unit_cost) * qty).toFixed(2) : null;
                 const chosen = selectedId === row.quote_id;
                 return (
                   <tr key={row.quote_id} className={`${blocked ? "bg-bad-soft/40 text-mute" : ""} ${row.quote_id === rec ? "bg-ok-soft/50" : ""}`}>
-                    <th scope="row" className="px-3 py-3 text-left font-medium">{row.vendor_name ?? row.vendor_id}
+                    <th scope="row" className="px-3 py-3 text-left font-medium">{row.vendor_name ?? who(row.quote_id)}
                       <span className="mt-0.5 flex flex-wrap gap-1">{row.quote_id === rec && <Badge tone="green">Recommended</Badge>}{chosen && <Badge tone="blue">Selected</Badge>}{blocked && <Badge tone="red">Quarantined</Badge>}</span>
                     </th>
-                    <td className="num whitespace-nowrap px-3 py-3 text-right">{formatMoney(profile, row.landed_unit_cost, q?.currency)}<span className="block text-xs text-mute">{taxBasisLabel(profile, q?.tax_basis)}</span></td>
+                    <td className="num whitespace-nowrap px-3 py-3 text-right">{row.landed_unit_cost ? formatMoney(profile, row.landed_unit_cost, q?.currency) : q?.unit_price_each ? <>{formatMoney(profile, q.unit_price_each, q.currency)}<span className="block text-xs text-warn">+ freight not stated</span></> : "?"}<span className="block text-xs text-mute">{taxBasisLabel(profile, q?.tax_basis)}</span></td>
                     <td className="num whitespace-nowrap px-3 py-3 text-right font-medium">{total ? formatMoney(profile, total, q?.currency) : "?"}</td>
                     <td className="whitespace-nowrap px-3 py-3">{leadTimeLabel(profile, row.lead_time_days)}</td>
-                    <td className="px-3 py-3"><span className="flex flex-wrap gap-1">{row.flags.filter((f) => flagShort(f) !== null).length === 0 ? <span className="text-mute">none</span> : row.flags.filter((f) => flagShort(f) !== null).map((f) => { const i = flagInfo(f); return <Badge key={f} title={i.text} tone={i.tone === "bad" ? "red" : i.tone === "warn" ? "amber" : i.tone === "ok" ? "green" : "gray"}>{flagShort(f)}</Badge>; })}</span></td>
+                    <td className="px-3 py-3"><span className="flex flex-wrap gap-1">{flags.filter((f) => flagShort(f) !== null).length === 0 ? <span className="text-mute">none</span> : flags.filter((f) => flagShort(f) !== null).map((f) => { const i = flagInfo(f); return <Badge key={f} title={i.text} tone={i.tone === "bad" ? "red" : i.tone === "warn" ? "amber" : i.tone === "ok" ? "green" : "gray"}>{flagShort(f)}</Badge>; })}</span></td>
                     <td className="px-3 py-3 text-right">
-                      {!SELECTED.has(det.request.state) && (blocked ? <span className="text-xs text-mute">Not selectable</span> :
-                        <Button variant={row.quote_id === rec ? "primary" : "secondary"} id={row.quote_id === rec ? "primary-action" : undefined} onClick={() => select(row)} disabled={act.busy || !gate.ok} aria-label={`Select ${row.vendor_name ?? "this"} quote and ask for approval`}>Select</Button>)}
+                      {!SELECTED.has(det.request.state) && (excluded ? <span className="text-xs text-mute">Not selectable</span> : row.tier === "D" ? <span className="text-xs text-mute" title="The offered part is not an identical or documented equivalent">Tier D: needs engineering review</span> :
+                        <Button variant={row.quote_id === rec ? "primary" : "secondary"} id={row.quote_id === rec ? "primary-action" : undefined} onClick={() => select(row)} disabled={act.busy || !gate.ok} aria-label={`Select ${who(row.quote_id)} quote and ask for approval`}>Select</Button>)}
                     </td>
                   </tr>
                 );
@@ -76,7 +78,6 @@ export function StepCompare({ det, onDone }: StepProps) {
           </table>
         </div>
         {!gate.ok && <p className="mt-2 text-sm text-mute">{gate.reason}</p>}
-        {vendors.data && null}
         <div className="mt-3"><ErrorNote message={act.error} help={act.help} /></div>
         <p className="mt-3 text-xs text-mute">Selecting asks the approver to confirm this quote; it does not order anything. Quotes with an unknown {profile.tax.name} basis or unclear currency always need that approval.</p>
       </Card>

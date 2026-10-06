@@ -1,6 +1,6 @@
 "use client";
 import { api } from "@/lib/api";
-import { can } from "@/lib/flow";
+import { can, isExcluded } from "@/lib/flow";
 import { touch } from "@/lib/inbox";
 import { formatMoney, useProfile } from "@/lib/profile";
 import { Button, Card, EmptyState, ErrorNote, H2 } from "@/components/ui/ui";
@@ -17,8 +17,8 @@ export function StepPo({ det, onDone }: StepProps) {
   const id = det.request.id;
   const s = det.request.state;
   // Show figures only when the approved quote is certain: the pending quote, or the only usable one.
-  const usable = det.quotes.filter((x) => !x.flags.includes("quarantined"));
-  const q = det.quotes.find((x) => x.id === det.pending_approvals[0]?.quote_id) ?? (usable.length === 1 ? usable[0] : undefined);
+  const usable = det.quotes.filter((x) => !isExcluded(x.quote.flags));
+  const q = det.quotes.find((x) => x.quote.id === det.pending_approvals[0]?.quote_id)?.quote ?? (usable.length === 1 ? usable[0].quote : undefined);
 
   async function create() {
     const out = await act.run(() => api.createPoDraft(id), "Purchase order draft created.");
