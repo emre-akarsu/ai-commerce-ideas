@@ -47,6 +47,7 @@ from components.suppliers.models import AccountType, ContactKind
 from .auth import Authenticator, AuthError
 from .inbound import verify_inbound_signature
 from .middleware import IdempotencyStore, SecurityMiddleware, make_idempotency
+from .quote_routes import quote_router
 
 log = logging.getLogger("purchasing.api")
 
@@ -527,6 +528,8 @@ def create_app(
     @app.get("/v1/audit", response_model=AuditView)
     def audit(ctx: A, request_id: Annotated[str | None, Query(max_length=100)] = None):
         return svc.audit(ctx, request_id)
+
+    app.include_router(quote_router(auth, profile))
 
     @app.exception_handler(_TooLargeError)
     async def _too_large(_: Request, __: _TooLargeError) -> JSONResponse:

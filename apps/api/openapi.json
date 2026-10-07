@@ -697,6 +697,25 @@
         "title": "ComparisonRow",
         "type": "object"
       },
+      "CreateQuoteIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kit": {
+            "$ref": "#/components/schemas/KitIn"
+          },
+          "scope_id": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Scope Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope_id"
+        ],
+        "title": "CreateQuoteIn",
+        "type": "object"
+      },
       "CreateRequestIn": {
         "additionalProperties": false,
         "properties": {
@@ -787,6 +806,41 @@
           "action"
         ],
         "title": "DecideIn",
+        "type": "object"
+      },
+      "DecisionIn": {
+        "additionalProperties": false,
+        "properties": {
+          "line_id": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Line Id",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sku_id": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Sku Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "line_id",
+          "sku_id"
+        ],
+        "title": "DecisionIn",
         "type": "object"
       },
       "DecisionResult": {
@@ -951,6 +1005,171 @@
           "engaged"
         ],
         "title": "KillSwitchIn",
+        "type": "object"
+      },
+      "KitIn": {
+        "additionalProperties": false,
+        "description": "The kit input of the wizard: answers, measurements and allowances (Decimal strings),\noption choices per line, and a state per line.",
+        "properties": {
+          "allowances": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 200,
+            "title": "Allowances",
+            "type": "object"
+          },
+          "answers": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            },
+            "maxProperties": 200,
+            "title": "Answers",
+            "type": "object"
+          },
+          "choices": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 500,
+            "title": "Choices",
+            "type": "object"
+          },
+          "lines": {
+            "additionalProperties": {
+              "enum": [
+                "include",
+                "not_needed",
+                "have"
+              ],
+              "type": "string"
+            },
+            "maxProperties": 500,
+            "title": "Lines",
+            "type": "object"
+          },
+          "measurements": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 200,
+            "title": "Measurements",
+            "type": "object"
+          }
+        },
+        "title": "KitIn",
+        "type": "object"
+      },
+      "KitTemplateIn": {
+        "additionalProperties": false,
+        "description": "`kit-template/1` (apps/web/lib/kits/templates.ts). No prices are stored in a template.",
+        "properties": {
+          "allowances": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 200,
+            "title": "Allowances",
+            "type": "object"
+          },
+          "answers": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            },
+            "maxProperties": 200,
+            "title": "Answers",
+            "type": "object"
+          },
+          "choices": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 500,
+            "title": "Choices",
+            "type": "object"
+          },
+          "format": {
+            "const": "kit-template/1",
+            "title": "Format",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,95}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "jobType": {
+            "default": "",
+            "maxLength": 100,
+            "title": "Jobtype",
+            "type": "string"
+          },
+          "lines": {
+            "additionalProperties": {
+              "enum": [
+                "include",
+                "not_needed",
+                "have"
+              ],
+              "type": "string"
+            },
+            "maxProperties": 500,
+            "title": "Lines",
+            "type": "object"
+          },
+          "measurements": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 200,
+            "title": "Measurements",
+            "type": "object"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "sample": {
+            "default": false,
+            "title": "Sample",
+            "type": "boolean"
+          },
+          "savedAt": {
+            "default": "",
+            "maxLength": 40,
+            "title": "Savedat",
+            "type": "string"
+          },
+          "scopeId": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Scopeid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "format",
+          "id",
+          "name",
+          "scopeId"
+        ],
+        "title": "KitTemplateIn",
         "type": "object"
       },
       "Money": {
@@ -2057,6 +2276,74 @@
         "title": "RequestView",
         "type": "object"
       },
+      "ResolveIn": {
+        "additionalProperties": false,
+        "properties": {
+          "allowances": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 200,
+            "title": "Allowances",
+            "type": "object"
+          },
+          "answers": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            },
+            "maxProperties": 200,
+            "title": "Answers",
+            "type": "object"
+          },
+          "choices": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 500,
+            "title": "Choices",
+            "type": "object"
+          },
+          "lines": {
+            "additionalProperties": {
+              "enum": [
+                "include",
+                "not_needed",
+                "have"
+              ],
+              "type": "string"
+            },
+            "maxProperties": 500,
+            "title": "Lines",
+            "type": "object"
+          },
+          "measurements": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 200,
+            "title": "Measurements",
+            "type": "object"
+          },
+          "scope_id": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Scope Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope_id"
+        ],
+        "title": "ResolveIn",
+        "type": "object"
+      },
       "SelectQuoteIn": {
         "additionalProperties": false,
         "properties": {
@@ -2909,6 +3196,208 @@
         "summary": "Inbound Webhook"
       }
     },
+    "/v1/kit-templates": {
+      "get": {
+        "operationId": "list_templates_v1_kit_templates_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Templates V1 Kit Templates Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Templates"
+      }
+    },
+    "/v1/kit-templates/{template_id}": {
+      "delete": {
+        "operationId": "delete_template_v1_kit_templates__template_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "template_id",
+            "required": true,
+            "schema": {
+              "title": "Template Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Delete Template V1 Kit Templates  Template Id  Delete",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Template"
+      },
+      "put": {
+        "operationId": "put_template_v1_kit_templates__template_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "template_id",
+            "required": true,
+            "schema": {
+              "title": "Template Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KitTemplateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Put Template V1 Kit Templates  Template Id  Put",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Template"
+      }
+    },
+    "/v1/kits/resolve": {
+      "post": {
+        "operationId": "resolve_kit_v1_kits_resolve_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Resolve Kit V1 Kits Resolve Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Resolve Kit"
+      }
+    },
+    "/v1/price-books": {
+      "get": {
+        "operationId": "price_books_v1_price_books_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "quote_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Quote Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Price Books V1 Price Books Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Price Books"
+      }
+    },
     "/v1/profile": {
       "get": {
         "operationId": "get_profile_v1_profile_get",
@@ -2925,6 +3414,248 @@
           }
         },
         "summary": "Get Profile"
+      }
+    },
+    "/v1/quotes": {
+      "post": {
+        "operationId": "create_quote_v1_quotes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateQuoteIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Create Quote V1 Quotes Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Quote"
+      }
+    },
+    "/v1/quotes/{quote_id}": {
+      "get": {
+        "operationId": "get_quote_v1_quotes__quote_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "quote_id",
+            "required": true,
+            "schema": {
+              "title": "Quote Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Quote V1 Quotes  Quote Id  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Quote"
+      }
+    },
+    "/v1/quotes/{quote_id}/decisions": {
+      "post": {
+        "operationId": "decide_v1_quotes__quote_id__decisions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "quote_id",
+            "required": true,
+            "schema": {
+              "title": "Quote Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Decide V1 Quotes  Quote Id  Decisions Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Decide"
+      }
+    },
+    "/v1/quotes/{quote_id}/options": {
+      "get": {
+        "operationId": "quote_options_v1_quotes__quote_id__options_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "quote_id",
+            "required": true,
+            "schema": {
+              "title": "Quote Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "budget",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^\\d{1,12}(\\.\\d{1,4})?$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Budget"
+            }
+          },
+          {
+            "in": "query",
+            "name": "required_by",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Required By"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_deliveries",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 100,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Deliveries"
+            }
+          },
+          {
+            "in": "query",
+            "name": "preferred",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 1000,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Preferred"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Quote Options V1 Quotes  Quote Id  Options Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Quote Options"
       }
     },
     "/v1/requests": {
