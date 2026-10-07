@@ -83,3 +83,7 @@ def test_content_tokens_drop_noise_but_phrases_keep_everything(norm: TextNormali
 
 def test_phrase_normalisation_is_what_synonym_matching_uses(norm: TextNormaliser) -> None:
     assert norm.tokens("planed all round") == norm.tokens("PAR")
+
+
+def test_a_single_letter_word_is_kept_so_s_trap_differs_from_trap(norm: TextNormaliser) -> None:
+    assert norm.tokens("S trap") == ("s", "trap")

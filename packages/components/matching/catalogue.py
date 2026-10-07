@@ -64,7 +64,9 @@ def validate_item(raw: dict[str, Any], ontology: Ontology, registry: VerifiedCod
     return item
 
 
-def load_catalogue(path: Path, ontology: Ontology, registry: VerifiedCodes) -> tuple[CatalogItem, ...]:
+def load_catalogue(
+    path: Path, ontology: Ontology, registry: VerifiedCodes
+) -> tuple[CatalogItem, ...]:
     try:
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError) as exc:

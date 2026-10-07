@@ -227,6 +227,7 @@ class ReasonCode(StrEnum):
     UNEXPLAINED_TERMS = "unexplained_terms"
     ALL_CANDIDATES_FAILED_CHECKS = "all_candidates_failed_checks"
     NAMED_IDENTITY_UNAVAILABLE = "named_identity_unavailable"
+    IDENTIFIER_AMBIGUOUS = "identifier_ambiguous"
     SCORE_BELOW_ACCEPT_THRESHOLD = "score_below_accept_threshold"
     NARROW_LEAD = "narrow_lead"
     JUDGE_DISAGREES = "judge_disagrees"

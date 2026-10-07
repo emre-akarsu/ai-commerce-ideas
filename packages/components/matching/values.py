@@ -41,7 +41,8 @@ def enum_value(attr: Attribute, template: AttrTemplate, ontology: Ontology,
         return None
     phrases = ontology.enum_phrases(type_id, template.name)
     hits = {vid for vid, ps in phrases.items() if tokens in ps}
-    hits |= {vid for vid, v in template.values.items() if ontology.normaliser.tokens(v.label) == tokens}
+    hits |= {vid for vid, v in template.values.items()
+             if ontology.normaliser.tokens(v.label) == tokens}
     return next(iter(hits)) if len(hits) == 1 else None
 
 

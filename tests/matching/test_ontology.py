@@ -251,3 +251,14 @@ def _uniclass_verified(code: str, title: str, notes: str) -> bool:
     parts = code.split("_")
     prefix, suffix = "_".join(parts[:3]), "_" + "_".join(parts[3:])
     return len(parts) > 3 and prefix in notes and f"{suffix} {title}" in notes
+
+
+def test_a_phrase_that_selects_two_enum_values_is_rejected(registry: VerifiedCodes) -> None:
+    entry = _good_entry()
+    entry["attributes"][1]["values"]["gloss"]["synonyms"] = ["matt"]
+    with pytest.raises(OntologyError, match="synonym collision"):
+        validate_type_entry("widget", entry, registry)
+
+
+def test_the_lexicon_carries_provenance(ontology: Ontology) -> None:
+    assert ontology.lexicon.provenance and ontology.lexicon.status is EntryStatus.NEEDS_REVIEW

@@ -295,6 +295,20 @@ def _summarise(exc: ValidationError) -> str:
     )
 
 
+def _check_synonym_collisions(type_id: str, entry: ProductType) -> None:
+    """One phrase must not select two enum values of one type (it would bind ambiguously)."""
+    norm = TextNormaliser({}, ())
+    seen: dict[tuple[str, ...], str] = {}
+    for attr in entry.attributes:
+        for vid, value in attr.values.items():
+            for syn in value.synonyms:
+                key = norm.tokens(syn)
+                owner = f"{attr.name}.{vid}"
+                if key and seen.setdefault(key, owner) != owner:
+                    raise OntologyError(
+                        f"{type_id}: synonym collision: {syn!r} is in {seen[key]} and {owner}")
+
+
 def _class_codes(entry: ProductType) -> list[tuple[str, ClassCode]]:
     found: list[tuple[str, ClassCode]] = []
     if entry.uniclass_pr:
@@ -322,6 +336,7 @@ def validate_type_entry(
         entry = ProductType.model_validate({**raw, "id": type_id})
     except ValidationError as exc:
         raise OntologyError(f"{type_id}: {_summarise(exc)}") from exc
+    _check_synonym_collisions(type_id, entry)
     for system, code in _class_codes(entry):
         try:
             registry.check(system, code.code, code.title)

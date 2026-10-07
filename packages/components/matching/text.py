@@ -15,7 +15,7 @@ from components.rfq.quotes.inert import inert_text
 
 _WORD = re.compile(r"[a-z0-9]+(?:[/&'.\-][a-z0-9]+)*")
 _SPLIT = re.compile(r"[/&'\-]")
-_DROP = frozenset({"x", "s"})  # a stray multiplication sign or the "s" of a possessive
+_DROP = frozenset({"x"})  # a stray multiplication sign
 
 # Common plumbing fractions become words so that "1/2in" never reads as a size chain.
 _FRACTIONS: tuple[tuple[re.Pattern[str], str], ...] = tuple(
@@ -70,6 +70,7 @@ class TextNormaliser:
         return None
 
     def _expand(self, raw: str) -> list[str]:
+        raw = raw.removesuffix("'s")  # possessive: "basin's" -> "basin"
         hit = self._lookup(raw)
         if hit is not None:
             return list(hit)
