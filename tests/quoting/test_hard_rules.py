@@ -100,7 +100,8 @@ def test_nothing_else_imports_quoting_and_quoting_imports_no_pack_or_aiplat() ->
     assert offenders == []
     # The API composition layer is the one legitimate caller (docs/architecture/stage1-contract.md):
     # only the quote_* modules under apps/api may use the quoting component.
-    allowed = {"quote_service.py", "quote_store.py", "quote_routes.py", "quote_pg.py"}
+    allowed = {"quote_service.py", "quote_store.py", "quote_routes.py", "quote_pg.py",
+               "quote_provision.py"}
     for root in ("apps", "employees", "evals"):
         for path in (ROOT_PACKAGES.parent / root).rglob("*.py"):
             if root == "apps" and path.parent.name == "api" and path.name in allowed:

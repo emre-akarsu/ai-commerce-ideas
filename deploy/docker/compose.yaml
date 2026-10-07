@@ -1,9 +1,11 @@
 # One VPS, everything in containers: Caddy (TLS + password), the API, PostgreSQL, a nightly backup.
 # Works on any Linux VPS with Docker (Hetzner, Google, others). Only Caddy publishes ports (80, 443);
 # the API and the database are reachable on the internal network only.
-# Honest status: the API service is the in-memory DEMO (synthetic data, nothing is sent, refuses
-# ENV=production). The database is real and migrated, ready for the Stage 1 service
-# (docs/product/10-roadmap-to-functional-app.md).
+# Honest status: the API service is the staging DEMO on Postgres: quotes, templates, approved matches,
+# events and the shared security state live in the database; the synthetic demo catalogue and
+# prices are loaded by the one-shot `provision` step (QUOTE_DEMO_DATA=1; fictional merchants, invented
+# prices). Nothing is sent, and the entrypoint still refuses ENV=production (known-gaps H2: the
+# purchasing service's request store is still in-memory).
 name: rfq
 
 services:
@@ -52,15 +54,41 @@ services:
     restart: "no"
     networks: [internal]
 
-  api:
+  provision:
+    # One-shot, idempotent: creates the synthetic demo tenants and loads the synthetic demo price
+    # files through the platform write path (owner role for tenants and shared offers, app_user for
+    # tenant offers). Remove this service and QUOTE_DEMO_DATA for anything that is not a demo.
     image: rfq-api:local
     depends_on:
       dbinit: { condition: service_completed_successfully }
+    environment:
+      OWNER_DATABASE_URL: postgresql://rfq_owner:${OWNER_DB_PASSWORD}@db:5432/rfq
+      DATABASE_URL: postgresql://app_user:${APP_DB_PASSWORD}@db:5432/rfq
+      DEPLOYMENT_PROFILE: uk
+      ENV: staging
+    command: ["python", "scripts/provision_demo_tenant.py"]
+    restart: "no"
+    networks: [internal]
+
+  api:
+    image: rfq-api:local
+    depends_on:
+      provision: { condition: service_completed_successfully }
     restart: unless-stopped
+    command: ["uvicorn", "apps.api.asgi:app", "--host", "0.0.0.0", "--port", "8000"]
     environment:
       DATABASE_URL: postgresql://app_user:${APP_DB_PASSWORD}@db:5432/rfq
       DEPLOYMENT_PROFILE: uk
       ENV: staging
+      QUOTE_DEMO_DATA: "1"
+      # Identical in every process that reads or writes the audit log and approvals.
+      AUDIT_CHAIN_KEY: ${AUDIT_CHAIN_KEY:?run ./gen-secrets.sh}
+      APPROVAL_SECRET: ${APPROVAL_SECRET:?run ./gen-secrets.sh}
+      # Token verification (AUTH_MODE defaults to supabase): set one of the two in .env.
+      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET:-}
+      SUPABASE_JWKS_URL: ${SUPABASE_JWKS_URL:-}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-authenticated}
+      JWT_ISSUER: ${JWT_ISSUER:-}
     networks: [internal]
     mem_limit: ${API_MEM:-384m}
     read_only: true

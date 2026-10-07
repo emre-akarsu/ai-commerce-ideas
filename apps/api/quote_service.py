@@ -399,10 +399,15 @@ def _read_json(path: Path) -> dict[str, Any]:
 
 def build_quote_service(
     profile: ResolvedProfile, *, clock: Clock, events: EventSink | None = None,
-    demo: bool = False, stores: Stores | None = None,
+    demo: bool = False, stores: Stores | None = None, catalogue_file: Path | None = None,
+    seed_offers: bool = True,
 ) -> QuoteService:
-    """Wire the pipeline from the resolved profile. `demo=True` seeds the SYNTHETIC catalogue and
-    price files (InMemory stores only); otherwise the catalogue and offers start empty."""
+    """Wire the pipeline from the resolved profile. `demo=True` uses the SYNTHETIC catalogue and
+    price files; otherwise the catalogue and offers start empty. `catalogue_file` (a catalogue
+    YAML in the `catalogue_seed.yaml` format, validated strictly) is the real catalogue hook and
+    wins over the demo seed. `seed_offers=False` leaves the offer and import stores alone (they
+    are Postgres-backed and filled by the platform write path, scripts/provision_demo_tenant.py);
+    the demo seed of the in-memory stores is the default."""
     resolved = profile.profile.model_dump(mode="json")
     pricing = PricingConfig.from_mapping(resolved)
     policy = GatePolicy.from_mapping(resolved["matching"])
@@ -411,7 +416,10 @@ def build_quote_service(
         data = default_data_dir(market)
         registry = load_classification(data / "classification.yaml")
         ontology = load_ontology(data / "ontology", registry)
-        items = load_catalogue(data / "catalogue_seed.yaml", ontology, registry) if demo else []
+        if catalogue_file is not None:
+            items = load_catalogue(catalogue_file, ontology, registry)
+        else:
+            items = load_catalogue(data / "catalogue_seed.yaml", ontology, registry) if demo else []
     except FileNotFoundError as exc:
         raise QuoteUnavailableError(f"no matching data for profile {market}") from exc
     own = stores or Stores(InMemoryOfferStore(pricing), InMemoryApprovedMatchStore(clock),
@@ -421,7 +429,7 @@ def build_quote_service(
               if items else None)  # an index cannot be empty: no catalogue, no matching
     kits = DATA / "job_kits" / market
     pb = DATA / "pricebook"
-    world = _seed_demo(own, pricing) if demo else None
+    world = (_seed_demo(own, pricing) if seed_offers else demo_world()) if demo else None
     return QuoteService(
         profile=profile, clock=clock, events=events or EventLogSink(EventLog(clock)), stores=own,
         engine_or_none=engine, pricing=pricing,
@@ -431,6 +439,16 @@ def build_quote_service(
         rfq_template=RfqTemplate.from_mapping(
             yaml.safe_load((pb / "rfq_templates.yaml").read_text(encoding="utf-8"))),
         demo=world, buyers=DEMO_BUYERS if demo else {})
+
+
+def demo_manifest() -> dict[str, Any]:
+    return _read_json(DATA / "quoting" / "manifest.json")
+
+
+def demo_world() -> DemoWorld:
+    manifest = demo_manifest()
+    return DemoWorld(merchants=tuple(MerchantInfo(m["merchant_id"], m["name"])
+                                     for m in manifest["merchants"]))
 
 
 def _seed_demo(stores: Stores, pricing: PricingConfig) -> DemoWorld:

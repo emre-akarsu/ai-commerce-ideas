@@ -11,6 +11,8 @@ umask 077
 cat > .env <<EOF
 OWNER_DB_PASSWORD=$(rnd)
 APP_DB_PASSWORD=$(rnd)
+AUDIT_CHAIN_KEY=$(rnd)
+APPROVAL_SECRET=$(rnd)
 ACCESS_USER=rfq
 ACCESS_PASSWORD_HASH='$HASH'
 # A domain name here gets an automatic certificate; ":80" is plain HTTP (use an SSH tunnel).
