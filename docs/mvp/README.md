@@ -46,3 +46,7 @@ See `docs/architecture/known-gaps.md` and `ui-notes.md`. The important ones: go-
 ## Published demo build
 
 `apps/web/demo/` builds the mock-mode app into one self-contained HTML page with hash routing, for hosting where there is no server: `npx vite build -c demo/vite.config.mjs && node demo/inline.mjs` writes `apps/web/demo-dist/page.html`. It is the same components and mock as `npm run dev` in mock mode; only routing differs.
+
+## Run everything locally against Postgres (2026-10-07)
+
+`scripts/run_local.sh` starts PostgreSQL in Docker, runs the migrations, loads the synthetic demo tenants, starts the real API on :8000 and the web app on :3000 against it (signed in as a buyer of `demo-tenant-a` with a development token). Open http://localhost:3000/kits to start. Without Docker: `npm run dev` with `NEXT_PUBLIC_API_MOCK=1` runs the in-browser mock, or open the published single-file demo. Synthetic data only; nothing is sent. The API still refuses `ENV=production`.
