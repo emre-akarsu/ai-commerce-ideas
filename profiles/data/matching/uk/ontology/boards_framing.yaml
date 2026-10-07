@@ -15,7 +15,7 @@ types:
     etim_class: {code: EC003143, title: Gypsum board}
     size_patterns:
       - {terms: 2, axes: [length, width], order: desc}
-      - {terms: 3, axes: [length, width, thickness], order: given}
+      - {terms: 3, axes: [length, width, thickness], order: desc}
     attributes:
       - name: board_type
         label: board type
@@ -65,7 +65,7 @@ types:
     uniclass_pr: {code: Pr_25_71_11, title: Cement boards and sheets}
     size_patterns:
       - {terms: 2, axes: [length, width], order: desc}
-      - {terms: 3, axes: [length, width, thickness], order: given}
+      - {terms: 3, axes: [length, width, thickness], order: desc}
     attributes:
       - name: core
         label: board core
@@ -92,7 +92,7 @@ types:
     uniclass_pr: {code: Pr_20_76_88, title: Timber sections}
     size_patterns:
       - {terms: 2, axes: [thickness, width], order: asc}
-      - {terms: 3, axes: [thickness, width, length], order: given}
+      - {terms: 3, axes: [thickness, width, length], order: asc}
     attributes:
       - name: finish
         label: timber finish

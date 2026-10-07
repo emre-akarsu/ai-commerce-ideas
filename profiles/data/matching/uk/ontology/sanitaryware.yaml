@@ -91,7 +91,7 @@ types:
             synonyms: [countertop, counter top, sit on]
             uniclass_pr: {code: Pr_40_20_96_18, title: Countertop washbasins}
       - {name: width, label: width, kind: numeric, unit: mm, required: true, check: size, min: 300, max: 1200, aliases: [wide, width]}
-      - {name: depth, label: projection, kind: numeric, unit: mm, required: false, check: size, min: 150, max: 600, aliases: [deep, depth, projection]}
+      - {name: depth, label: projection, kind: numeric, unit: mm, required: false, check: size, min: 150, max: 600, aliases: [deep, depth, projection], alias_only: true}
       - name: tap_holes
         label: tap holes
         kind: enum
@@ -201,7 +201,7 @@ types:
             synonyms: [bath screen, over bath screen]
             uniclass_pr: {code: Pr_40_20_06_82, title: Shower screens}
       - {name: width, label: width, kind: numeric, unit: mm, required: true, check: size, min: 300, max: 2000, aliases: [wide, width]}
-      - {name: depth, label: depth, kind: numeric, unit: mm, required: false, check: size, min: 600, max: 1000, aliases: [deep, depth]}
+      - {name: depth, label: depth, kind: numeric, unit: mm, required: false, check: size, min: 600, max: 1000, aliases: [deep, depth], alias_only: true}
       - {name: glass_thickness, label: glass thickness, kind: numeric, unit: mm, required: true, check: size, min: 3, max: 12, aliases: [glass, toughened, thick, thickness]}
 
   shower_valve:

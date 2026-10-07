@@ -196,7 +196,7 @@ class _Binder:
             labelled = [a for a in free if word in self._alias_tokens(a)]
             if len(labelled) == 1:
                 return labelled[0]
-        fitting = [a for a in free if in_range(a, measure.value)]
+        fitting = [a for a in free if in_range(a, measure.value) and not a.alias_only]
         return fitting[0] if len(fitting) == 1 else None
 
     def _measures(self) -> None:

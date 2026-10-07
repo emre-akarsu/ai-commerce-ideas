@@ -55,7 +55,8 @@ class HybridWeights:
 @dataclass(frozen=True)
 class _Doc:
     item: CatalogItem
-    text: str
+    text: str  # words, sizes and typed tokens: what trigram and embedding compare
+    words: str  # words and sizes only: what the (quadratic) fuzzy metric compares
     trigrams: dict[str, int]
     vector: Vector
 
@@ -83,12 +84,14 @@ class CatalogIndex:
         self.parser = LineParser(ontology, brands=sorted({i.brand for i in self._items.values()}),
                                  mpns=[i.mpn for i in self._items.values() if i.mpn])
         self._docs = {sku: self._doc(i) for sku, i in self._items.items()}
+        self._cache: dict[tuple[object, ...], tuple[Candidate, ...]] = {}
 
     def _doc(self, item: CatalogItem) -> _Doc:
         brand = set(self.ontology.normaliser.tokens(item.brand))
         words = [t for t in self.parser.title_tokens(item.title) if t not in brand]
         text = " ".join(sorted(set(words) | set(typed_item_tokens(item, self.ontology))))
-        return _Doc(item, text, trigrams(text), self.embedder.embed(text))
+        return _Doc(item, text, " ".join(sorted(set(words))), trigrams(text),
+                    self.embedder.embed(text))
 
     def __len__(self) -> int:
         return len(self._items)
@@ -105,11 +108,11 @@ class CatalogIndex:
 
     # ------------------------------------------------------------------ scoring
 
-    def _scores(self, line_text: str, line_tri: dict[str, int], line_vec: Vector,
-                doc: _Doc, fuzzy: float | None = None) -> Scores:
+    def _scores(self, line: ParsedLine, line_tri: dict[str, int], line_vec: Vector,
+                doc: _Doc) -> Scores:
         tri = cosine_counts(line_tri, doc.trigrams)
         emb = cosine(line_vec, doc.vector)
-        fz = fuzzy_score(line_text, doc.text) if fuzzy is None else fuzzy
+        fz = fuzzy_score(line.canonical_text, doc.words)
         w = self.weights
         hybrid = w.fuzzy * fz + w.trigram * tri + w.embedding * emb
         return Scores(fuzzy=quantise(fz), trigram=quantise(tri), embedding=quantise(emb),
@@ -117,7 +120,7 @@ class CatalogIndex:
 
     def score_item(self, line: ParsedLine, item: CatalogItem) -> Candidate:
         text = line.retrieval_text
-        scores = self._scores(text, trigrams(text), self.embedder.embed(text),
+        scores = self._scores(line, trigrams(text), self.embedder.embed(text),
                               self._docs[item.sku_id])
         return Candidate(item=item, scores=scores)
 
@@ -153,13 +156,22 @@ class CatalogIndex:
 
     def search(self, line: ParsedLine, top_k: int = 50) -> list[Candidate]:
         """Top-K candidates by hybrid score (ties by SKU id), best first."""
+        key = (line.retrieval_text, line.canonical_text, line.brand, line.mpn, line.gtin,
+               line.type_hint.type_id, line.type_hint.alternatives, top_k)
+        if key not in self._cache:
+            if len(self._cache) >= 4096:
+                self._cache.clear()
+            self._cache[key] = tuple(self._search(line, top_k))
+        return list(self._cache[key])
+
+    def _search(self, line: ParsedLine, top_k: int) -> list[Candidate]:
         docs, _relaxed = self.pool(line)
         text = line.retrieval_text
         tri, vec = trigrams(text), self.embedder.embed(text)
         cheap = sorted(docs, key=lambda d: (
             -(cosine_counts(tri, d.trigrams) + cosine(vec, d.vector)), d.item.sku_id))
         shortlist = cheap[:max(3 * top_k, 100)]
-        scored = [Candidate(item=d.item, scores=self._scores(text, tri, vec, d)) for d in shortlist]
+        scored = [Candidate(item=d.item, scores=self._scores(line, tri, vec, d)) for d in shortlist]
         scored.sort(key=lambda c: (-c.scores.hybrid, c.item.sku_id))
         return scored[:top_k]
 

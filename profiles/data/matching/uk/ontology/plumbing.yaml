@@ -147,7 +147,7 @@ types:
           tubular_p: {label: tubular P trap, synonyms: [tubular p, p trap, tubular]}
           tubular_s: {label: tubular S trap, synonyms: [tubular s, s trap]}
           bath_shallow: {label: shallow-seal bath trap, synonyms: [shallow seal, shallow, bath trap]}
-      - {name: seal_depth, label: seal depth, kind: numeric, unit: mm, required: false, check: size, min: 20, max: 100, aliases: [seal]}
+      - {name: seal_depth, label: seal depth, kind: numeric, unit: mm, required: false, check: size, min: 20, max: 100, aliases: [seal], alias_only: true}
       - name: finish
         label: finish
         kind: enum

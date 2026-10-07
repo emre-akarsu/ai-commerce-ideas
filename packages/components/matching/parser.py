@@ -42,7 +42,12 @@ _PH = re.compile(r"⟦(\d+)⟧")
 _NUM = r"(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
 _END = r"(?![a-z0-9/])"
 _LEN_U = rf"(?:mm|cm|mtrs?|metres?|meters?|m){_END}"
-_CONTEXT_WORDS = frozenset({"for", "suit", "suitable"})
+_CONTEXT_WORDS = frozenset({"for", "suit", "suitable", "with"})
+# Count words that mean "this many" wherever they appear ("SynthGyp 20 sheets ..."). Others, such
+# as "set" (rapid set) or "no", only count at the start or end of the line.
+_ANYWHERE_COUNT = frozenset({"sheet", "sheets", "length", "lengths", "bag", "bags", "boxes",
+                             "rolls", "tubes", "tins", "cartridges", "pairs", "pcs", "pieces",
+                             "off", "nos"})
 _GTIN_MARKERS = ("gtin", "ean", "barcode", "upc")
 _MAX_TEXT_ATTR_WORDS = 3
 _GRADE = re.compile(
@@ -190,8 +195,8 @@ def _is_length_slot(slot: _Slot) -> bool:
 
 def _size_token(size: SizeToken) -> str:
     values = list(size.values)
-    if len(values) == 2 and not size.thread_prefix:
-        values.sort(reverse=True)
+    if not size.thread_prefix:
+        values.sort(reverse=True)  # "12.5 x 1200 x 2400" and "2400x1200x12.5" are one size
     token = "x".join(format_decimal(v) for v in values)
     return f"m{token}" if size.thread_prefix else token
 
@@ -216,9 +221,12 @@ class LineParser:
         words = sorted(lex.count_words, key=len, reverse=True)
         alt = "|".join(re.escape(w) for w in words)
         self._count_word = _p(rf"^\s*(\d+)\s*(?:x\s*)?({alt})(?![a-z0-9])")
+        self._count_trail = _p(rf"(?<![a-z0-9.])(\d+)\s*({alt})\s*$")
+        safe_alt = "|".join(re.escape(w) for w in words if w in _ANYWHERE_COUNT)
+        self._count_any = _p(rf"(?<![a-z0-9.])(\d+)\s*({safe_alt})(?![a-z0-9])")
         self._count_label = dict(lex.count_words)
         pack_alt = "|".join(re.escape(w) + r"(?:e?s)?" for w in lex.pack_words)
-        self._pack_of = _p(rf"(?:\b(\d+)\s*)?\b({pack_alt})\s+of\s+(\d+)\b")
+        self._pack_of = _p(rf"(?:^\s*(\d+)\s*)?\b({pack_alt})\s+of\s+(\d+)\b")
         self._pack_n = _p(r"(?<![a-z0-9.])(\d+)\s*-?\s*(?:pk|pack)(?![a-z0-9])")
         self._brands = self._brand_table(brands)
         self._mpns = {normalise_mpn(m) for m in mpns if normalise_mpn(m)}
@@ -313,6 +321,8 @@ class LineParser:
 
         work.sub(_QTY_KW, qty_kw)
         work.sub(self._count_word, qty_lead)
+        work.sub(self._count_trail, qty_lead)
+        work.sub(self._count_any, qty_lead)
 
     def _measures(self, work: _Work) -> None:
         def maker(kind: MeasureKind) -> Callable[[re.Match[str]], list[_Slot] | None]:

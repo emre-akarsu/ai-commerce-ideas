@@ -451,3 +451,37 @@ def test_html_and_links_in_a_line_are_made_inert(parser: LineParser) -> None:
     q = parse(parser, "<script>alert(1)</script> 12.5mm p/board http://evil.example/a")
     assert "script" not in q.canonical_text and "http" not in q.canonical_text
     assert "evil" not in q.canonical_text
+
+
+def test_a_number_before_pack_of_is_a_quantity_only_at_the_start(parser: LineParser) -> None:
+    p = parse(parser, "2 boxes of 200 4.0x40 wood screws zinc")
+    assert (p.quantity, p.pack_size) == (D(2), 200)
+    q = parse(parser, "gravity toggle cavity fixing M5 x 50 pack of 10")
+    assert q.pack_size == 10 and q.quantity is None
+    assert [s.values for s in q.sizes] == [(D(5), D(50))] and q.sizes[0].thread_prefix
+
+
+def test_count_words_work_after_a_brand_or_at_the_end(parser: LineParser) -> None:
+    assert parse(parser, "SynthGyp 20 sheets 12.5mm board").quantity == D(20)
+    assert parse(parser, "fire rated p/board TE 15mm 6 sheets").quantity == D(6)
+    assert parse(parser, "PSE timber 38x63 6 off").quantity == D(6)
+    assert parse(parser, "rapid set tile adhesive").quantity is None
+
+
+def test_three_term_sizes_are_order_free_for_boards_and_timber(parser: LineParser) -> None:
+    a = attrs(parse(parser, "acoustic plasterboard TE 12.5 x 1200 x 2400"))
+    b = attrs(parse(parser, "acoustic plasterboard TE 2400 x 1200 x 12.5"))
+    assert a == b and a["thickness"] == ("12.5", "mm") and a["length"] == ("2400", "mm")
+    t = attrs(parse(parser, "CLS C16 2400 x 63 x 38"))
+    assert t["thickness"] == ("38", "mm") and t["width"] == ("63", "mm")
+
+
+def test_alias_only_attributes_never_take_a_bare_number(parser: LineParser) -> None:
+    assert attrs(parse(parser, "32mm bottle trap white"))["diameter"] == ("32", "mm")
+    assert "seal_depth" not in attrs(parse(parser, "32mm bottle trap white"))
+    assert attrs(parse(parser, "32mm bottle trap 75mm seal white"))["seal_depth"] == ("75", "mm")
+
+
+def test_a_with_clause_does_not_change_the_product(parser: LineParser) -> None:
+    p = parse(parser, "chrome mono basin mixer tap with click clack waste")
+    assert p.type_hint.type_id == "basin_tap"

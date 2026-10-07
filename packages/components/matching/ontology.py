@@ -110,6 +110,7 @@ class AttrTemplate(_M):
     tolerance_abs: Decimal | None = None
     tolerance_pct: Decimal | None = None
     aliases: tuple[str, ...] = ()
+    alias_only: bool = False  # a bare number never binds here, only one next to an alias word
     question: str | None = None
 
     @model_validator(mode="after")

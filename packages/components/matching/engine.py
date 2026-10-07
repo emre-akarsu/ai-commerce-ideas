@@ -149,7 +149,10 @@ class MatchingEngine:
         decision = self._gate(parsed, ranked)
         if not (decision.needs_judge and self._judge is not None):
             return decision, None
-        shown = ranked[:self.policy.judge_top_k]
+        # Only candidates that pass every check can be accepted, so only they are put to the judge.
+        shown = [c for c in ranked if viable(parsed, c)][:self.policy.judge_top_k]
+        if not shown:
+            return decision, None
         examples = self._examples(tenant_id, parsed)
         verdict = self._judge.judge(parsed, shown, examples)
         self.judge_calls += verdict.calls
