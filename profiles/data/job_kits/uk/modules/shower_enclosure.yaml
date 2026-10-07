@@ -7,7 +7,7 @@
 # refurbishment top picks by option/ (2026-10-06).
 id: uk.module.shower_enclosure
 module: shower_enclosure
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: Shower enclosure or bath screen
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -185,6 +185,7 @@ lines:
 - id: sh_bath_screen_or_curtain
   description: Bath screen or shower curtain and rail
   spec: Over-bath glass screen, or curtain with rail or pole
+  help: A hinged over-bath screen; the curtain option is chosen on review.
   unit: nr
   quantity: '1'
   when: shower_location == 'over_bath'
@@ -205,7 +206,7 @@ lines:
   options:
   - id: screen
     label: Glass bath screen
-    spec: 6 mm toughened glass hinged over-bath screen
+    spec: 6 mm toughened glass bath screen, 800 mm
     tags:
     - most_used
     default: true

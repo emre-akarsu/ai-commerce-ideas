@@ -7,7 +7,7 @@
 # refurbishment top picks by option/ (2026-10-06).
 id: uk.module.tiling
 module: tiling
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: Tiling
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -16,6 +16,7 @@ lines:
 - id: tl_wall_tiles
   description: Wall tiles
   spec: Ceramic or porcelain wall tiles, size per tile inputs
+  help: Porcelain is accepted once a person approves it. Mid-range finish.
   unit: m2
   quantity: wall_tiled_m2 * (1 + tile_waste_factor)
   uniclass_pr:
@@ -54,7 +55,7 @@ lines:
       evidence_quality: retailer
   - id: standard_300x600
     label: Standard tiles
-    spec: Ceramic or porcelain wall tiles 300 x 600 mm, mid range
+    spec: Ceramic wall tiles 300 x 600 mm
     tags:
     - most_used
     default: true
@@ -101,6 +102,7 @@ lines:
 - id: tl_wall_adhesive
   description: Wall tile adhesive
   spec: Cementitious tile adhesive for walls
+  help: Standard-set adhesive is accepted once a person approves it.
   unit: kg
   quantity: ceil(wall_tiled_m2 * adhesive_kg_per_m2)
   uniclass_pr:
@@ -132,7 +134,7 @@ lines:
   options:
   - id: flexible_s1
     label: Flexible S1 powder
-    spec: Flexible S1 cement powder tile adhesive for walls, standard or rapid set, 20 kg bags
+    spec: Flexible S1 cement powder tile adhesive, rapid set, 20 kg bag
     tags:
     - most_used
     default: true
@@ -174,6 +176,8 @@ lines:
 - id: tl_wall_grout
   description: Wall grout
   spec: Water-resistant cementitious grout
+  help: 'Water-repellent, mould-resistant grade: confirm on the data sheet. The colour is a
+    default.'
   unit: kg
   quantity: ceil(wall_tiled_m2 * grout_kg_per_m2)
   uniclass_pr:
@@ -204,7 +208,7 @@ lines:
   options:
   - id: flexible
     label: Flexible mould-resistant grout
-    spec: Flexible, water-repellent, mould-resistant cement grout for walls
+    spec: Flexible cement tile grout, white, 5 kg
     tags:
     - most_used
     default: true
@@ -245,7 +249,8 @@ lines:
       evidence_quality: forum
 - id: tl_spacers
   description: Tile spacers
-  spec: Tile spacers to suit the grout joint
+  spec: 3 mm tile spacers, pack of 250
+  help: 3 mm assumes a 3 mm grout joint; change it if the joint differs.
   unit: pack
   quantity: '1'
   uniclass_pr:
@@ -279,7 +284,7 @@ lines:
   options:
   - id: plastic
     label: Plastic trim
-    spec: White uPVC round-edge tile trim to suit tile thickness
+    spec: White uPVC round-edge tile trim, 10 mm
     tags:
     - budget
     - most_used
@@ -339,7 +344,9 @@ lines:
   help: Trim depth must match the tile plus the adhesive bed.
 - id: tl_wall_primer
   description: Primer for the tiled wall substrate
-  spec: Tile primer suited to the substrate
+  spec: Acrylic tile primer for gypsum plaster, 5 l
+  help: Gypsum plaster is the default substrate; a general-porous primer is used on other
+    substrates.
   unit: l
   quantity: ceil(wall_tiled_m2 / primer_coverage_m2_per_l)
   provenance:
@@ -361,6 +368,7 @@ lines:
 - id: tl_floor_tiles
   description: Floor tiles
   spec: Slip-resistant ceramic or porcelain floor tiles
+  help: R10 is the least slip rating accepted; a higher rating is also acceptable.
   unit: m2
   quantity: floor_m2 * (1 + tile_waste_factor)
   when: floor_finish == 'tiled'
@@ -399,7 +407,7 @@ lines:
       evidence_quality: retailer
   - id: porcelain_600
     label: Porcelain 600 x 600 mm
-    spec: Slip-resistant porcelain floor tiles 600 x 600 mm
+    spec: Porcelain floor tiles 600 x 600 mm, R10
     tags:
     - most_used
     default: true
@@ -445,6 +453,7 @@ lines:
 - id: tl_floor_adhesive
   description: Floor tile adhesive
   spec: Cementitious floor tile adhesive
+  help: Standard-set adhesive is accepted once a person approves it.
   unit: kg
   quantity: ceil(floor_m2 * adhesive_kg_per_m2)
   when: floor_finish == 'tiled'
@@ -465,7 +474,7 @@ lines:
   options:
   - id: flexible_s1
     label: Flexible S1 powder
-    spec: Flexible S1 cement powder tile adhesive for floors, standard or rapid set, 20 kg bags
+    spec: Flexible S1 cement powder tile adhesive, rapid set, 20 kg bag
     tags:
     - most_used
     default: true
@@ -507,6 +516,8 @@ lines:
 - id: tl_floor_grout
   description: Floor grout
   spec: Cementitious floor grout
+  help: 'Water-repellent, mould-resistant grade: confirm on the data sheet. The colour is a
+    default.'
   unit: kg
   quantity: ceil(floor_m2 * grout_kg_per_m2)
   when: floor_finish == 'tiled'
@@ -527,7 +538,7 @@ lines:
   options:
   - id: flexible
     label: Flexible mould-resistant grout
-    spec: Flexible, water-repellent, mould-resistant cement grout for floors
+    spec: Flexible cement tile grout, grey, 5 kg
     tags:
     - most_used
     default: true

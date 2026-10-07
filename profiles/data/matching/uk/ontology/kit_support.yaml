@@ -1,0 +1,330 @@
+# Support products that the bathroom job kits ask for and the first ontology seed did not model:
+# clips, spacers, mesh tape, backer screws, floor overlay board, levelling compound, bath fittings,
+# cisterns, seats and accessories. Synthetic/illustrative seed: every entry needs a tradesperson's
+# review. Added so each kit line that names ONE product has a type to resolve to; assortment and
+# "to suit" lines deliberately have no type (they stay review items). Attribute sets are small and
+# invented for this seed, not taken from a licensed product-data standard.
+file: kit_support
+types:
+  pipe_clip:
+    label: pipe clip
+    status: needs_tradesperson_review
+    provenance: &kit_prov
+      - {kind: authored, ref: "profiles/data/job_kits/uk/modules", note: "kit line wording; synthetic attribute set for the seed catalogue"}
+    synonyms: [pipe clip, pipe clips, pipe saddle, pipe saddles]
+    vocab: [clip, clips, saddle, saddles]
+    attributes:
+      - {name: diameter, label: pipe size, kind: numeric, unit: mm, required: true, check: size, min: 8, max: 54, aliases: [diameter, pipe]}
+      - name: material
+        label: clip material
+        kind: enum
+        required: true
+        check: class
+        question: "Plastic or copper clips?"
+        values:
+          plastic: {label: plastic, synonyms: [plastic, polypropylene]}
+          copper: {label: copper, synonyms: [copper]}
+      - {name: pack_qty, label: pack quantity, kind: numeric, unit: nr, required: false, check: pack, min: 1, max: 1000, aliases: [pack]}
+
+  tile_spacer:
+    label: tile spacer
+    status: needs_tradesperson_review
+    provenance: *kit_prov
+    synonyms: [tile spacer, tile spacers, spacer, spacers]
+    vocab: [joint, gap]
+    attributes:
+      - {name: size, label: joint width, kind: numeric, unit: mm, required: true, check: size, min: 1, max: 10, aliases: [joint, gap, spacer]}
+      - {name: pack_qty, label: pack quantity, kind: numeric, unit: nr, required: false, check: pack, min: 1, max: 5000, aliases: [pack]}
+
+  joint_tape:
+    label: backer board joint tape
+    status: needs_tradesperson_review
+    provenance: *kit_prov
+    synonyms: [joint tape, mesh tape, backer board tape, glass fibre mesh tape, scrim tape]
+    vocab: [alkali, resistant, glass, fibre, fiber, mesh, tape, roll, backer, board]
+    size_patterns:
+      - {terms: 2, axes: [width, length], order: given}
+    attributes:
+      - name: material
+        label: tape material
+        kind: enum
+        required: true
+        check: class
+        question: "Alkali-resistant glass-fibre mesh or paper tape?"
+        values:
+          glass_fibre_ar: {label: alkali-resistant glass fibre mesh, synonyms: [alkali resistant glass fibre mesh, alkali resistant glass fibre, alkali resistant mesh, glass fibre mesh, glass fiber mesh]}
+          paper: {label: paper, synonyms: [paper, paper tape]}
+      - {name: width, label: tape width, kind: numeric, unit: mm, required: true, check: size, min: 20, max: 300, aliases: [wide, width]}
+      - {name: length, label: roll length, kind: numeric, unit: mm, required: true, check: size, min: 1000, max: 100000, aliases: [long, length]}
+
+  backer_screw:
+    label: backer board screw
+    status: needs_tradesperson_review
+    provenance: *kit_prov
+    synonyms: [backer board screw, backer board screws, cement board screw, cement board screws, tile backer screw, tile backer screws]
+    vocab: [screw, screws, washer, washers, board, backer, head]
+    size_patterns:
+      - {terms: 2, axes: [diameter, length], order: given}
+    attributes:
+      - {name: diameter, label: screw diameter, kind: numeric, unit: mm, required: true, check: size, min: 3, max: 6, aliases: [diameter]}
+      - {name: length, label: screw length, kind: numeric, unit: mm, required: true, check: size, min: 20, max: 80, aliases: [long, length]}
+      - name: finish
+        label: corrosion protection
+        kind: enum
+        required: true
+        check: class
+        question: "Corrosion-resistant coated, stainless or zinc-plated screws?"
+        values:
+          corrosion_resistant: {label: corrosion resistant, synonyms: [corrosion resistant, coated]}
+          stainless: {label: stainless steel, synonyms: [stainless, stainless steel]}
+          zinc: {label: zinc plated, synonyms: [zinc, zinc plated]}
+      - name: washer
+        label: washer
+        kind: enum
+        required: false
+        check: class
+        values:
+          with_washer: {label: with washer, synonyms: [with washer, with washers, washer head, board washers, washers]}
+          no_washer: {label: without washer, synonyms: [without washer, without washers, no washer]}
+      - {name: pack_qty, label: pack quantity, kind: numeric, unit: nr, required: false, check: pack, min: 1, max: 5000, aliases: [pack]}
+
+  floor_overlay:
+    label: floor overlay board
+    status: needs_tradesperson_review
+    provenance: *kit_prov
+    synonyms: [floor overlay, floor overlay board, flooring panel, flooring board, floor panel, chipboard flooring, plywood flooring, overlay board]
+    vocab: [flooring, panel, board, tongue, groove, moisture, resistant, chipboard, plywood, floor]
+    size_patterns:
+      - {terms: 2, axes: [length, width], order: desc}
+    attributes:
+      - name: material
+        label: board material
+        kind: enum
+        required: true
+        check: class
+        question: "Moisture-resistant (P5) chipboard or marine plywood?"
+        values:
+          p5_chipboard: {label: P5 chipboard, synonyms: [p5 chipboard, moisture resistant chipboard, p5, chipboard]}
+          marine_plywood: {label: marine plywood, synonyms: [marine plywood, marine ply]}
+      - {name: thickness, label: board thickness, kind: numeric, unit: mm, required: true, check: size, min: 6, max: 40, aliases: [thick, thickness]}
+      - name: edge
+        label: edge
+        kind: enum
+        required: false
+        check: class
+        values:
+          tongue_groove: {label: tongue and groove, synonyms: [tongue groove, tongue and groove, tongued and grooved]}
+          square: {label: square edge, synonyms: [square edge, square edged]}
+      - {name: length, label: board length, kind: numeric, unit: mm, required: false, check: size, min: 1000, max: 3000, aliases: [long, length]}
+      - {name: width, label: board width, kind: numeric, unit: mm, required: false, check: size, min: 300, max: 1300, aliases: [wide, width]}
+      - {name: area, label: board area, kind: numeric, unit: m2, required: false, check: size, min: 0.2, max: 5, aliases: [area], alias_only: true}
+
+  levelling_compound:
+    label: levelling compound
+    status: needs_tradesperson_review
+    provenance: *kit_prov
+    synonyms: [levelling compound, leveling compound, self levelling compound, smoothing compound, floor leveller, floor leveler, levelling screed]
+    vocab: [smoothing, levelling, leveling, floor, bag, powder]
+    attributes:
+      - name: base
+        label: compound base
+        kind: enum
+        required: true
+        check: class
+        question: "Latex-based or cement-based levelling compound?"
+        values:
+          latex: {label: latex based, synonyms: [latex, latex based]}
+          cement: {label: cement based, synonyms: [cement, cement based]}
+      - {name: pack_weight, label: bag weight, kind: numeric, unit: kg, required: true, check: pack, min: 1, max: 30, aliases: [bag]}
+
+  bath_waste:
+    label: bath waste and overflow
+    status: needs_tradesperson_review
+    provenance: *kit_prov
+    synonyms: [bath waste, bath waste overflow, bath overflow, bath waste and overflow]
+    vocab: [overflow, waste, plug]
+    attributes:
+      - name: mechanism
+        label: plug mechanism
+        kind: enum
+        required: true
+        check: class
+        question: "Plug and chain or click-clack waste?"
+        values:
+          plug_chain: {label: plug and chain, synonyms: [plug chain, chain plug, plug and chain]}
+          click_clack: {label: click clack, synonyms: [click clack, click waste, clicker]}
+      - name: finish
+        label: finish
+        kind: enum
+        required: false
+        check: class
+        values:
+          white: {label: white, synonyms: [white]}
+          chrome: {label: chrome, synonyms: [chrome]}
+
+  bath_tap:
+    label: bath tap
+    status: needs_tradesperson_review
+    provenance: *kit_prov
+    synonyms: [bath tap, bath taps, bath mixer, bath mixer tap, bath shower mixer, bath filler]
+    vocab: [mixer, deck, mounted, handle, handles]
+    attributes:
+      - name: tap_form
+        label: tap form
+        kind: enum
+        required: true
+        check: class
+        question: "Deck-mounted bath mixer, bath shower mixer or pillar taps?"
+        values:
+          deck_mixer: {label: deck-mounted bath mixer, synonyms: [deck mounted, deck mixer, deck mounted bath mixer]}
+          bath_shower_mixer: {label: bath shower mixer, synonyms: [bath shower mixer]}
+          pillar_pair: {label: pillar pair, synonyms: [pillar pair, pillar taps, pillar tap]}
+      - name: handle
+        label: handle
+        kind: enum
+        required: false
+        check: class
+        values:
+          lever: {label: lever handles, synonyms: [lever, lever handles, lever handle]}
+          crosshead: {label: crosshead handles, synonyms: [crosshead, cross head]}
+      - name: finish
+        label: finish
+        kind: enum
+        required: true
+        check: class
+        question: "Which finish (chrome or black)?"
+        values:
+          chrome: {label: chrome, synonyms: [chrome]}
+          black: {label: black, synonyms: [black, matt black]}
+
+  bath_panel:
+    label: bath panel
+    status: needs_tradesperson_review
+    provenance: *kit_prov
+    synonyms: [bath panel, front bath panel, end bath panel, bath front panel, bath end panel]
+    vocab: [front, end, panel]
+    attributes:
+      - name: panel_kind
+        label: panel position
+        kind: enum
+        required: true
+        check: class
+        question: "Front panel or end panel?"
+        values:
+          front: {label: front panel, synonyms: [front]}
+          end: {label: end panel, synonyms: [end]}
+      - {name: length, label: panel length, kind: numeric, unit: mm, required: true, check: size, min: 500, max: 2000, aliases: [long, length]}
+      - name: finish
+        label: finish
+        kind: enum
+        required: false
+        check: class
+        values:
+          white: {label: white, synonyms: [white]}
+          gloss_grey: {label: gloss grey, synonyms: [gloss grey, grey]}
+
+  bath_leg_set:
+    label: bath leg set
+    status: needs_tradesperson_review
+    provenance: *kit_prov
+    synonyms: [bath leg set, bath legs, bath leg kit, bath feet]
+    vocab: [leg, legs, set, foot, feet]
+    attributes:
+      - name: adjustment
+        label: leg adjustment
+        kind: enum
+        required: true
+        check: class
+        question: "Adjustable or fixed-height legs?"
+        values:
+          adjustable: {label: adjustable, synonyms: [adjustable]}
+          fixed: {label: fixed height, synonyms: [fixed, fixed height]}
+      - {name: legs, label: number of legs, kind: numeric, unit: nr, required: false, check: pack, min: 2, max: 12, aliases: [legs]}
+
+  wc_cistern:
+    label: WC cistern
+    status: needs_tradesperson_review
+    provenance: *kit_prov
+    synonyms: [cistern, wc cistern, toilet cistern, close coupled cistern, concealed cistern]
+    vocab: [flush, fittings, coupled, close]
+    attributes:
+      - name: connection
+        label: cistern connection
+        kind: enum
+        required: true
+        check: class
+        question: "Close-coupled or concealed cistern?"
+        values:
+          close_coupled: {label: close coupled, synonyms: [close coupled]}
+          concealed: {label: concealed, synonyms: [concealed]}
+      - name: flush
+        label: flush type
+        kind: enum
+        required: true
+        check: class
+        question: "Dual flush or single flush?"
+        values:
+          dual: {label: dual flush, synonyms: [dual flush, dual]}
+          single: {label: single flush, synonyms: [single flush, single]}
+      - name: fill
+        label: fill entry
+        kind: enum
+        required: false
+        check: class
+        values:
+          bottom_entry: {label: bottom entry, synonyms: [bottom entry, bottom fill]}
+          side_entry: {label: side entry, synonyms: [side entry, side fill]}
+
+  wc_seat:
+    label: WC seat and cover
+    status: needs_tradesperson_review
+    provenance: *kit_prov
+    synonyms: [wc seat, toilet seat, wc seat cover, toilet seat cover, wc seat and cover, toilet seat and cover]
+    vocab: [seat, cover, hinges, hinge]
+    attributes:
+      - name: closing
+        label: closing action
+        kind: enum
+        required: true
+        check: class
+        question: "Soft-close or standard seat?"
+        values:
+          soft_close: {label: soft close, synonyms: [soft close, soft closing, slow close]}
+          standard: {label: standard, synonyms: [standard, standard close]}
+      - name: shape
+        label: seat shape
+        kind: enum
+        required: false
+        check: class
+        values:
+          d_shape: {label: D shape, synonyms: [d shape, d shaped]}
+          round: {label: round, synonyms: [round]}
+
+  bathroom_accessory:
+    label: bathroom accessory
+    status: needs_tradesperson_review
+    provenance: *kit_prov
+    synonyms: [toilet roll holder, towel ring, robe hook, towel hook, bathroom accessory]
+    vocab: [wall, mounted, holder, ring, hook, roll]
+    attributes:
+      - name: kind
+        label: accessory kind
+        kind: enum
+        required: true
+        check: class
+        question: "Toilet roll holder, towel ring or robe hook?"
+        values:
+          toilet_roll_holder: {label: toilet roll holder, synonyms: [toilet roll holder, toilet roll, loo roll holder]}
+          towel_ring: {label: towel ring, synonyms: [towel ring]}
+          robe_hook: {label: robe hook, synonyms: [robe hook, towel hook]}
+      - name: finish
+        label: finish
+        kind: enum
+        required: true
+        check: class
+        question: "Which finish (chrome, white, black or brushed brass)?"
+        values:
+          chrome: {label: chrome, synonyms: [chrome]}
+          white: {label: white, synonyms: [white]}
+          black: {label: black, synonyms: [black, matt black]}
+          brushed_brass: {label: brushed brass, synonyms: [brushed brass]}

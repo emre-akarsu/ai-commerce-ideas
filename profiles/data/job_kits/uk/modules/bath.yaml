@@ -7,7 +7,7 @@
 # refurbishment top picks by option/ (2026-10-06).
 id: uk.module.bath
 module: bath
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: Bath
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -99,7 +99,7 @@ lines:
     for that.
 - id: sw_bath_legs
   description: Bath leg set (if not supplied with the bath)
-  spec: Adjustable leg set to suit the bath
+  spec: Adjustable bath leg set
   unit: nr
   quantity: '1'
   provenance:
@@ -113,7 +113,9 @@ lines:
     evidence_quality: manufacturer_doc
 - id: sw_bath_panel
   description: Bath front panel (and end panel for a corner fit)
-  spec: Bath panel to suit bath length; end panel where the bath is not in a recess
+  spec: White front bath panel, 1700 mm
+  help: The front panel length matches the 1700 mm bath. An end panel is needed where the bath is
+    not in a recess.
   unit: nr
   quantity: '1'
   uniclass_pr:
@@ -171,7 +173,8 @@ lines:
     evidence_quality: manufacturer_doc
 - id: sw_bath_waste_overflow
   description: Bath waste and overflow with plug
-  spec: Bath waste and overflow, plug and chain or click waste
+  spec: Bath waste and overflow with plug and chain, white
+  help: A click-clack waste is accepted once a person approves it.
   unit: nr
   quantity: '1'
   provenance:
@@ -186,7 +189,7 @@ lines:
     evidence_quality: public_spec
 - id: sw_bath_trap
   description: Bath trap
-  spec: '{bath_shower_trap_mm} mm trap'
+  spec: '{bath_shower_trap_mm} mm bath shallow trap, white'
   unit: nr
   quantity: '1'
   uniclass_pr:
@@ -239,7 +242,7 @@ lines:
       evidence_quality: search_snippet
   - id: mixer
     label: Bath mixer
-    spec: Deck-mounted bath mixer, lever handles (a bath shower mixer where the shower is over the bath)
+    spec: Chrome deck-mounted bath mixer tap, lever handles
     tags:
     - most_used
     default: true
@@ -262,8 +265,8 @@ lines:
       url: https://www.screwfix.com/p/bristan-lever-chrome-95mm-deck-mounted-dual-control-manual-shower-mixer-tap/889je
       licence: unknown-copyright-facts-only
       evidence_quality: search_snippet
-  help: In a new dwelling the bath outlet must be limited to 48 degC (Part G), usually with an in-line
-    blending valve.
+  help: In a new dwelling the bath outlet must be limited to 48 degC (Part G), usually with an
+    in-line blending valve. A bath shower mixer is used where the shower is over the bath.
 rules:
 - id: bath
   requires:

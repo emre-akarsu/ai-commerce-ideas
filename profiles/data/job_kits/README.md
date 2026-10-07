@@ -79,6 +79,10 @@ Rule: `id`, optional `when`, `requires` (line ids that must be active), `exclude
 - A `with_module` line is active only while one of its included modules is active, and a module rule applies only while its module is active (for example, bath-only layouts switch off the shower module and with it the shower circuit lines and rules). The export writes these combined conditions in the line's and rule's `when`.
 - `rules`: scope rules. A scope rule with the same id as a module rule replaces it.
 
+### Writing a spec the matching step can use
+
+The spec of a line (of its default option, where the line has options) is sent as text to the matching engine, which checks every attribute its product type requires (size, grade, class, finish, pack). A spec that leaves one out, offers two values ("brass or chrome") or says "to suit ..." cannot be resolved without a person, by design. Where one product is meant, state one concrete choice in the spec and put alternatives, and qualifiers the catalogue cannot check, in `help`. Lines that are assortments, services or safety sizing by lookup stay generic on purpose. The gold set `evals/matching/gold/kit_bathroom_gold_v1.jsonl` records which outcome each line should have, and `tests/matching/test_kit_gold.py` fails if a kit text changes without its label being re-checked. The chosen values are illustrative seed defaults, not recommendations.
+
 ### Resolver and export
 
 `packages/components/job_kits/` loads and validates the library and resolves a scope: `load_library(path)`, `library.resolve(scope_id, answers, measurements, choices=None)` returns lines with the chosen option (by explicit choice, else by `finish_level`), `Decimal` quantity, unit, provenance and `forced_by`, the applied defaults and "don't know" mappings as assumptions with source `default_template`, and rule results. `library.export_ui_json(scope_id)` returns the UI spec (`job-kit-ui/2`, additive over `job-kit-ui/1`; see `CHANGELOG.md`); `scripts/export_job_kits.py` writes all of them to `uk/export/`. The output is byte-identical on regeneration, and a test fails if a committed export is stale.

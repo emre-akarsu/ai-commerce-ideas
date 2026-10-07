@@ -7,7 +7,7 @@
 # refurbishment top picks by option/ (2026-10-06).
 id: uk.module.ventilation
 module: ventilation
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: Ventilation
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -41,7 +41,7 @@ lines:
   options:
   - id: timer
     label: Axial fan with timer
-    spec: 100 mm axial extract fan with overrun timer
+    spec: 100 mm extractor fan with overrun timer
     tags:
     - budget
     default: false
@@ -60,7 +60,7 @@ lines:
       evidence_quality: search_snippet
   - id: humidistat_timer
     label: Axial fan with humidistat and timer
-    spec: 100 mm axial extract fan with humidistat and overrun timer
+    spec: 100 mm extractor fan with humidistat and overrun timer
     tags:
     - most_used
     default: true
@@ -116,10 +116,11 @@ lines:
       url: https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf
       licence: OGL-3.0-unconfirmed
       evidence_quality: standard
-  help: A low-voltage (SELV) fan is needed if the fan sits inside a bathroom zone.
+  help: A low-voltage (SELV) fan is needed if the fan sits inside a bathroom zone. Axial type.
 - id: vn_duct
   description: Extract duct
   spec: '{extract_duct_diameter_mm} mm duct, rigid or flexible'
+  help: Rigid duct for the main run; flexible duct only as the final connection.
   unit: m
   quantity: fan_duct_run_m
   provenance:
@@ -130,7 +131,7 @@ lines:
   options:
   - id: rigid_short_flex
     label: Rigid duct with short flexible end
-    spec: '{extract_duct_diameter_mm} mm rigid duct for the main run, flexible only as the final connection'
+    spec: '{extract_duct_diameter_mm} mm rigid duct, 1000 mm lengths'
     tags:
     - most_used
     default: true

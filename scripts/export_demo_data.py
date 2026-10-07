@@ -95,7 +95,7 @@ LABEL = ("SYNTHETIC/ILLUSTRATIVE DEMO DATA: fictional merchants, invented prices
 # option appears for it; every other scope has no buyer reference and shows why there is none.
 REFERENCE_SCOPE = {"demo-tenant-a": "cloakroom", "demo-tenant-b": "cloakroom"}
 DEMO_REFERENCES = {  # tenant -> (budget_total on the ex-VAT basis, required_by, max_deliveries)
-    "demo-tenant-a": (Decimal("490"), date(2026, 10, 10), 3),
+    "demo-tenant-a": (Decimal("700"), date(2026, 10, 10), 4),  # retuned 2026-10-07
     "demo-tenant-b": (Decimal("240"), date(2026, 10, 10), 1),
 }
 INPUTS_LABEL = ("SYNTHETIC demo buyer inputs: an invented preferred-supplier list and, for one "

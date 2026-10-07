@@ -14,7 +14,8 @@ status: needs_tradesperson_review
 lines:
 - id: fl_overlay
   description: Floor overlay board where the existing floor is not sound or flat
-  spec: 18 mm tongue-and-groove moisture-resistant chipboard or marine plywood
+  spec: 18 mm tongue and groove moisture-resistant P5 chipboard flooring panel
+  help: Marine plywood is an accepted alternative once a person approves it.
   unit: m2
   quantity: floor_m2
   provenance:
@@ -25,7 +26,8 @@ lines:
     evidence_quality: public_spec
 - id: fl_levelling
   description: Levelling compound
-  spec: Latex or cement-based smoothing and levelling compound
+  spec: Latex smoothing and levelling compound, 20 kg bag
+  help: A cement-based compound is an accepted alternative once a person approves it.
   unit: pack
   quantity: '1'
   uniclass_pr:

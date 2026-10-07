@@ -7,7 +7,7 @@
 # refurbishment top picks by option/ (2026-10-06).
 id: uk.module.decorating
 module: decorating
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: Decorating
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -16,6 +16,7 @@ lines:
 - id: dc_emulsion
   description: Emulsion for walls and ceiling
   spec: Vinyl matt emulsion with anti-mould additive, white
+  help: 'Moisture and mould resistant grade: confirm on the data sheet.'
   unit: l
   quantity: ceil(paint_litres)
   provenance:
@@ -46,7 +47,7 @@ lines:
       evidence_quality: retailer
   - id: bathroom_soft_sheen
     label: Bathroom soft sheen
-    spec: Bathroom soft sheen emulsion, moisture and mould resistant, white
+    spec: Bathroom soft sheen emulsion, white, 5 l
     tags:
     - most_used
     default: true

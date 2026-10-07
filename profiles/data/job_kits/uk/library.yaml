@@ -4,7 +4,7 @@
 # Hierarchy: job_type -> scope (scopes/<job_type>_<scope>.yaml) -> module (modules/<module>.yaml)
 # -> line. Resolver: packages/components/job_kits/. Checked by tests/profiles/test_job_kits*.py.
 id: uk.job_kit_library
-version: 0.3.0
+version: 0.3.1
 market: uk
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
 status: needs_tradesperson_review

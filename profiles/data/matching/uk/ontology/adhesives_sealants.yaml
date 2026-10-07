@@ -160,6 +160,14 @@ types:
         values:
           water: {label: water, synonyms: [water, white, plumbing]}
           gas: {label: gas, synonyms: [gas, yellow]}
+      - name: water_approval
+        label: drinking-water approval
+        kind: enum
+        required: false
+        check: class
+        values:
+          wras: {label: WRAS approved, synonyms: [wras, wras approved, drinking water approved, water approved]}
+          none: {label: not approved, synonyms: [not approved, unapproved]}
       - {name: width, label: tape width, kind: numeric, unit: mm, required: false, check: size, min: 5, max: 30, aliases: [wide, width]}
       - {name: length, label: roll length, kind: numeric, unit: mm, required: false, check: pack, min: 1000, max: 100000, aliases: [long, length]}
 

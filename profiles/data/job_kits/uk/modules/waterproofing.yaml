@@ -7,7 +7,7 @@
 # refurbishment top picks by option/ (2026-10-06).
 id: uk.module.waterproofing
 module: waterproofing
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: Waterproofing and tile backer
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -15,7 +15,7 @@ status: needs_tradesperson_review
 lines:
 - id: wp_backer_board
   description: Tile backer board on wet walls
-  spec: Cement or insulated tile backer board, 1200 x 800
+  spec: Cement fibre tile backer board, 12 mm, 1200 x 800 mm
   unit: nr
   quantity: backer_boards
   uniclass_pr:
@@ -43,11 +43,13 @@ lines:
       url: https://eu.schluter.com/statics/www_schlueter_gb_2x/downloads/cumulus/D00460_Schlueter_Systems_NHBC_Guidance_UK.pdf
       licence: manufacturer-doc-facts-only
       evidence_quality: manufacturer_doc
-  help: Insulated (XPS) boards are lighter and widely used; this kit counts 1200 x 800 mm boards, so a
-    different board size needs the count changed.
+  help: Insulated (XPS) boards are lighter and widely used; this kit counts 1200 x 800 mm boards, so
+    a different board size needs the count changed. Insulated boards are accepted once a person
+    approves them. 12 mm is the default thickness.
 - id: wp_backer_screws
   description: Backer board screws and washers
-  spec: Corrosion-resistant screws with board washers
+  spec: 4.2 x 40 mm corrosion-resistant backer board screws with washers
+  help: Sized for 12 mm backer board.
   unit: nr
   quantity: backer_boards * backer_screws_per_board
   provenance:
@@ -69,7 +71,7 @@ lines:
       evidence_quality: public_spec
 - id: wp_backer_joint_tape
   description: Joint tape for backer board
-  spec: Alkali-resistant glass-fibre mesh tape
+  spec: Alkali-resistant glass-fibre mesh tape, 50 mm x 20 m
   unit: roll
   quantity: '1'
   provenance:
@@ -79,7 +81,9 @@ lines:
     evidence_quality: forum
 - id: wp_tanking_kit
   description: Liquid tanking kit for shower walls (and floor in a wet room)
-  spec: Liquid waterproofing membrane kit with primer and reinforcing tape, tested to BS EN 14891
+  spec: Liquid tanking kit with primer and reinforcing tape
+  help: 'The kit must be tested to BS EN 14891: confirm on the data sheet. Its coverage in m2
+    depends on the area to be tanked.'
   unit: kit
   quantity: ceil(tanked_m2 / tanking_kit_coverage_m2)
   provenance:
@@ -103,7 +107,7 @@ lines:
   options:
   - id: liquid_kit
     label: Liquid tanking kit
-    spec: Liquid waterproofing membrane kit with primer and reinforcing tape, tested to BS EN 14891
+    spec: Liquid tanking kit with primer and reinforcing tape
     tags:
     - most_used
     default: true

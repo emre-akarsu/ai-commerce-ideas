@@ -8,7 +8,7 @@
 # Added in v0.3.0 from the top-picks research.
 id: uk.module.towel_rail
 module: towel_rail
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: Heated towel rail
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -32,7 +32,7 @@ lines:
   options:
   - id: chrome_500x800
     label: Chrome ladder 500 x 800 mm
-    spec: Straight chrome ladder towel rail 500 x 800 mm, 22 mm bars, plumbed to the heating
+    spec: Chrome ladder towel rail 500 x 800 mm, plumbed to the heating
     tags:
     - budget
     - most_used
@@ -66,7 +66,8 @@ lines:
       url: https://www.victorianplumbing.co.uk/chrome-curved-ladder-heated-towel-rail-500-x-1100mm
       licence: unknown-copyright-facts-only
       evidence_quality: retailer
-  help: Needs a heating circuit nearby; an electric-only rail needs an electrician instead.
+  help: Needs a heating circuit nearby; an electric-only rail needs an electrician instead. Straight
+    rail with 22 mm bars.
 - id: tr_dual_fuel_kit
   description: Dual-fuel kit for the towel rail
   spec: Heating element with T-piece for dual-fuel use, sized for the rail

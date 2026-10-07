@@ -10,7 +10,7 @@ types:
       - {kind: authored, ref: "profiles/data/job_kits/uk/modules/wc.yaml", note: "kit line wording"}
       - {kind: classification_table, ref: "research_notes/UK refurbishment job templates data/classification_standards.md", note: "codes stored verbatim"}
     synonyms: [wc, toilet, toilet pan, wc pan, wc suite, toilet suite, lavatory]
-    vocab: [pan, suite, cistern, seat, dual, flush, close, coupled]
+    vocab: [pan, suite, cistern, seat, dual, flush, close, coupled, bowl]
     uniclass_pr: {code: Pr_40_20_93_94, title: WC pans}
     etim_class: {code: EC011289, title: Toilet bowl/pan}
     attributes:
@@ -280,7 +280,7 @@ types:
         required: false
         check: class
         values:
-          with_waste: {label: with click waste, synonyms: [with waste, clicker waste, click clack, pop up waste]}
+          with_waste: {label: with click waste, synonyms: [with waste, with click waste, click waste, clicker waste, click clack, click clack waste, pop up waste]}
           no_waste: {label: no waste, synonyms: [no waste, without waste]}
 
   towel_rail:

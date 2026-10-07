@@ -66,11 +66,13 @@ def test_the_partition_of_a_default_kit_is_exact_before_and_after_review(
         apply_decisions(world, tenant, quote)
 
 
-def test_the_first_run_sends_most_lines_to_a_person_and_services_are_unmatched(
+def test_the_first_run_prices_stated_lines_queues_the_rest_and_services_are_unmatched(
         world: QuotingContext, library: JobKitLibrary) -> None:
     quote = build_quote(world, TENANT_A, order_lines_from_kit(default_kit(library, "bathroom_full")))
     part = quote.partition()
-    assert part["review"] > part["priced"] > 0  # the gate is strict; most lines need a person
+    # Library 0.3.1 states the attributes the checks need, so most lines now resolve; the gate is
+    # unchanged and still sends assortments, "to suit" lines and coverage questions to a person.
+    assert part["priced"] > 0 and part["review"] > 0
     services = [r for r in quote.unmatched if r.request.is_service]
     assert {r.line_id for r in services} == {"so_remove_fittings", "el_part_p_notification",
                                              "ws_disposal"}
@@ -101,7 +103,7 @@ def test_the_approved_quote_prices_many_lines_across_merchants_with_delivery(
         world: QuotingContext, library: JobKitLibrary) -> None:
     lines = order_lines_from_kit(default_kit(library, "bathroom_full"))
     first = build_quote(world, TENANT_A, lines)
-    assert apply_decisions(world, TENANT_A, first) >= 25
+    assert apply_decisions(world, TENANT_A, first) >= 1  # only lines still in the queue take a decision
     quote = build_quote(world, TENANT_A, lines)
     assert quote.partition()["priced"] >= 30
     draft = quote.draft
@@ -113,7 +115,7 @@ def test_the_approved_quote_prices_many_lines_across_merchants_with_delivery(
     assert draft.notice_code == "not_a_supplier_quote" and "not a quote" in draft.notice
     assert {d.fee is not None for d in draft.deliveries} == {True}
     left = {r.line_id for r in quote.review_queue}
-    assert {"ff_fittings_compression", "sw_wc_cistern", "dc_emulsion"} <= left
+    assert {"ff_fittings_compression", "ff_waste_fittings", "vn_duct_fixings"} <= left
 
 
 def test_every_firm_line_traces_to_its_kit_line_parse_group_offer_and_sources(

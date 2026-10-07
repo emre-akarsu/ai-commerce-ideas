@@ -8,6 +8,12 @@ traces back to its kit line, its option, its forced-by rule and its sources.
 
 The kit quantity keeps its `Decimal` value; its unit is mapped by the fixed table in `units.py`.
 Nothing here reads a catalogue or a price: it is a pure mapping.
+
+The spec is passed through verbatim on purpose. The matching gate needs size, grade, class, finish
+or pack stated, and a rewrite here (dropping an alternative, picking a value) would silently decide
+something for the buyer. Where a kit line cannot resolve, fix the kit text in
+`profiles/data/job_kits` (see its README, "Writing a spec the matching step can use"); the gold set
+`evals/matching/gold/kit_bathroom_gold_v1.jsonl` records the outcome each line should have.
 """
 
 from __future__ import annotations

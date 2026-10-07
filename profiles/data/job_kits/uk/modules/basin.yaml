@@ -7,7 +7,7 @@
 # refurbishment top picks by option/ (2026-10-06).
 id: uk.module.basin
 module: basin
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: Basin
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -15,7 +15,7 @@ status: needs_tradesperson_review
 lines:
 - id: sw_basin_pedestal
   description: Washbasin with full pedestal
-  spec: Ceramic washbasin with full pedestal, tap holes to suit taps
+  spec: 550 mm full pedestal basin, one tap hole
   unit: nr
   quantity: '1'
   uniclass_pr:
@@ -121,7 +121,7 @@ lines:
       evidence_quality: search_snippet
   - id: mixer
     label: Basin mixer
-    spec: Single-lever mono basin mixer with click waste, chrome, for a one-tap-hole basin
+    spec: Chrome mono basin mixer tap with click waste
     tags:
     - most_used
     default: true
@@ -149,7 +149,8 @@ lines:
     hot-water system choose low-pressure or universal taps.
 - id: sw_basin_waste
   description: Basin waste with plug
-  spec: Basin waste, slotted if the basin has an overflow, unslotted otherwise
+  spec: Slotted click-clack basin waste, chrome
+  help: Use an unslotted waste if the basin has no overflow.
   unit: nr
   quantity: '1'
   provenance:
@@ -187,7 +188,7 @@ lines:
   options:
   - id: bottle
     label: Bottle trap
-    spec: Bottle trap {basin_trap_mm} mm with {basin_trap_seal_mm} mm seal
+    spec: White bottle trap {basin_trap_mm} mm with {basin_trap_seal_mm} mm seal
     tags:
     - most_used
     default: true
@@ -291,8 +292,7 @@ lines:
   options:
   - id: braided
     label: Braided connectors
-    spec: 15 mm x 1/2 inch x 300 mm stainless-braided flexible tap connectors, compression end, drinking-water
-      approved
+    spec: 15 mm x 1/2 inch x 300 mm stainless-braided flexible tap connectors, WRAS approved
     tags:
     - budget
     - most_used
@@ -331,7 +331,8 @@ lines:
       url: https://www.screwfix.com/c/heating-plumbing/flexible-hoses/cat831572
       licence: unknown-copyright-facts-only
       evidence_quality: search_snippet
-  help: 'Many mono mixers come with their own tails: check the tap before ordering.'
+  help: 'Many mono mixers come with their own tails: check the tap before ordering. Compression
+    end.'
 rules:
 - id: basin
   requires:

@@ -75,7 +75,7 @@ types:
     status: needs_tradesperson_review
     provenance: *plumb_prov
     synonyms: [isolating valve, isolation valve, service valve]
-    vocab: [valve, full, bore]
+    vocab: [valve, full, bore, operated]
     attributes:
       - {name: diameter, label: pipe size, kind: numeric, unit: mm, required: true, check: size, min: 6, max: 54, aliases: [diameter, pipe]}
       - name: joint_method
@@ -125,6 +125,14 @@ types:
         values:
           half_inch: {label: 1/2 inch, synonyms: [half inch]}
           three_eighth_inch: {label: 3/8 inch, synonyms: [three eighth inch]}
+      - name: water_approval
+        label: drinking-water approval
+        kind: enum
+        required: false
+        check: class
+        values:
+          wras: {label: WRAS approved, synonyms: [wras, wras approved, drinking water approved, water approved]}
+          none: {label: not approved, synonyms: [not approved, unapproved]}
 
   trap:
     label: waste trap

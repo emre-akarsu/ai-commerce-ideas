@@ -14,7 +14,7 @@ status: needs_tradesperson_review
 lines:
 - id: so_cap_feeds
   description: Temporary caps for hot and cold feeds after the old fittings come out
-  spec: 15 mm stop ends to suit the joint system
+  spec: 15 mm compression stop ends
   unit: nr
   quantity: '4'
   provenance:

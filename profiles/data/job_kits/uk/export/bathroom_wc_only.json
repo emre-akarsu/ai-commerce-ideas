@@ -2,7 +2,7 @@
   "format": "job-kit-ui/2",
   "label": "synthetic/illustrative seed — not licensed data; tradesperson review required",
   "status": "needs_tradesperson_review",
-  "library_version": "0.3.0",
+  "library_version": "0.3.1",
   "market": "uk",
   "assumption_source": "default_template",
   "scope": {
@@ -369,7 +369,7 @@
         {
           "id": "so_cap_feeds",
           "description": "Temporary caps for hot and cold feeds after the old fittings come out",
-          "spec": "15 mm stop ends to suit the joint system",
+          "spec": "15 mm compression stop ends",
           "unit": "nr",
           "quantity_formula": "1",
           "when": null,
@@ -465,7 +465,7 @@
             {
               "id": "copper",
               "label": "Copper",
-              "spec": "15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder)",
+              "spec": "15 mm x 3 m copper tube",
               "tags": [
                 "most_used"
               ],
@@ -566,12 +566,12 @@
             }
           ],
           "forced_by": null,
-          "help": "Plastic pipe must stay the maker's set distance from the boiler. Copper on exposed runs, plastic on concealed runs is common."
+          "help": "Plastic pipe must stay the maker's set distance from the boiler. Copper on exposed runs, plastic on concealed runs is common. Half-hard copper suits exposed runs and runs near the boiler or cylinder."
         },
         {
           "id": "ff_pipe_clips",
           "description": "Pipe clips for new runs",
-          "spec": "15 mm pipe clips",
+          "spec": "15 mm plastic pipe clips, pack of 50",
           "unit": "pack",
           "quantity_formula": "1",
           "when": null,
@@ -698,7 +698,7 @@
             {
               "id": "slotted",
               "label": "Slotted isolating valve",
-              "spec": "15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated",
+              "spec": "15 mm full-bore isolating valve, screwdriver-operated, compression, chrome-plated",
               "tags": [
                 "budget",
                 "most_used"
@@ -727,7 +727,7 @@
             {
               "id": "lever",
               "label": "Lever isolating valve",
-              "spec": "15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a tool",
+              "spec": "15 mm full-bore isolating valve, lever-operated, compression, chrome-plated",
               "tags": [
                 "premium"
               ],
@@ -754,7 +754,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "A brass-finish valve is also acceptable once a person approves it."
         }
       ]
     },
@@ -811,7 +811,7 @@
             {
               "id": "rimless",
               "label": "Rimless bowl",
-              "spec": "Floor-standing close-coupled WC pan with a rimless bowl, horizontal outlet, floor fixing kit",
+              "spec": "Close-coupled WC pan, rimless bowl, horizontal outlet, no seat",
               "tags": [
                 "most_used"
               ],
@@ -864,7 +864,7 @@
             }
           ],
           "forced_by": null,
-          "help": "Prices are for a whole set (pan, cistern and seat). Back-to-wall and wall-hung are chosen with the WC type question."
+          "help": "Prices are for a whole set (pan, cistern and seat). Back-to-wall and wall-hung are chosen with the WC type question. Floor fixing kit included; the seat is a separate line."
         },
         {
           "id": "sw_wc_pan_comfort_height",
@@ -903,7 +903,7 @@
         {
           "id": "sw_wc_cistern",
           "description": "Close-coupled cistern",
-          "spec": "Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings",
+          "spec": "Close-coupled cistern, dual flush",
           "unit": "nr",
           "quantity_formula": "1",
           "when": "wc_type == 'close_coupled'",
@@ -926,7 +926,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "Typically 4.5/3 l flush volumes, fittings included."
         },
         {
           "id": "sw_wc_flush_lever",
@@ -1036,7 +1036,7 @@
             {
               "id": "rigid",
               "label": "Rigid connector",
-              "spec": "Rigid 110 mm pan connector, straight or small offset, to suit the soil outlet",
+              "spec": "Straight 110 mm WC pan connector",
               "tags": [
                 "budget",
                 "most_used"
@@ -1124,7 +1124,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "A rigid pan connector with a small offset is accepted where the soil outlet needs it."
         },
         {
           "id": "sw_wc_pan_connector_vertical",
@@ -1294,7 +1294,7 @@
             {
               "id": "soft_close",
               "label": "Soft-close seat",
-              "spec": "WC seat and cover to suit the pan, soft-close hinges",
+              "spec": "Soft-close WC seat and cover",
               "tags": [
                 "most_used"
               ],
@@ -1478,7 +1478,7 @@
         {
           "id": "cs_clear_sealant_wc",
           "description": "Clear sealant at the WC base",
-          "spec": "Clear silicone sealant",
+          "spec": "Clear sanitary silicone sealant, 310 ml",
           "unit": "cartridge",
           "quantity_formula": "1",
           "when": null,
@@ -1517,7 +1517,7 @@
             {
               "id": "ptfe",
               "label": "PTFE tape",
-              "spec": "Drinking-water approved PTFE tape, for threaded joints only",
+              "spec": "PTFE tape for water, 12 mm x 12 m, WRAS approved",
               "tags": [
                 "budget",
                 "most_used"
@@ -1577,7 +1577,7 @@
             }
           ],
           "forced_by": null,
-          "help": "Nothing goes on compression olives: the fitting makers advise against it."
+          "help": "Nothing goes on compression olives: the fitting makers advise against it. For threaded joints only."
         },
         {
           "id": "cs_plumbing_sundries",
@@ -1837,7 +1837,7 @@
             {
               "id": "bathroom_soft_sheen",
               "label": "Bathroom soft sheen",
-              "spec": "Bathroom soft sheen emulsion, moisture and mould resistant, white",
+              "spec": "Bathroom soft sheen emulsion, white, 5 l",
               "tags": [
                 "most_used"
               ],
@@ -1916,7 +1916,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "Moisture and mould resistant grade: confirm on the data sheet."
         },
         {
           "id": "dc_woodwork_paint",

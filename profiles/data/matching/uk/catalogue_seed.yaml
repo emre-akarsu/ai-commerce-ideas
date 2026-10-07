@@ -6,7 +6,9 @@ status: needs_tradesperson_review
 note: GTINs use the restricted 200-299 GS1 prefix range with valid check digits. Near-duplicates (12.5 vs 15 mm,
   standard vs MR vs fire, 2400x1200 vs 1800x900, 38x63 vs 38x89, C16 vs C24, 3.5x32 vs 3.5x38, 15 vs 22 mm, standard
   vs S1, 20 vs 5 kg) are deliberate. A few rows carry model_inference or missing attributes on purpose (hard rule
-  3).
+  3). SYN-CL to SYN-AC and SYN-PA-0009, and the slip_rating and water_approval attributes on
+  existing tile and tap-connector rows, were added on 2026-10-07 so the bathroom job-kit lines each have a candidate;
+  they are equally synthetic, with deliberate near-duplicates (sizes, grades, finishes, pack counts).
 items:
 - sku_id: SYN-PB-0001
   title: Standard Plasterboard TE 12.5mm x 2400mm x 1200mm
@@ -3317,6 +3319,9 @@ items:
     value: '12000'
     unit: mm
     source: manufacturer_table
+  - name: water_approval
+    value: wras
+    source: manufacturer_table
 - sku_id: SYN-PT-0002
   title: PTFE Tape Gas 12mm x 12m
   brand: Pipesynth
@@ -3339,6 +3344,9 @@ items:
   - name: length
     value: '12000'
     unit: mm
+    source: manufacturer_table
+  - name: water_approval
+    value: none
     source: manufacturer_table
 - sku_id: SYN-PT-0003
   title: PTFE Tape Water 19mm x 12m
@@ -3363,6 +3371,9 @@ items:
     value: '12000'
     unit: mm
     source: manufacturer_table
+  - name: water_approval
+    value: wras
+    source: manufacturer_table
 - sku_id: SYN-PT-0004
   title: PTFE Tape Water 12mm x 25m
   brand: Pipesynth
@@ -3385,6 +3396,9 @@ items:
   - name: length
     value: '25000'
     unit: mm
+    source: manufacturer_table
+  - name: water_approval
+    value: none
     source: manufacturer_table
 - sku_id: SYN-TK-0001
   title: Liquid Tanking Kit 4m2 with primer and tape
@@ -4454,6 +4468,9 @@ items:
   - name: tap_thread
     value: half_inch
     source: manufacturer_table
+  - name: water_approval
+    value: wras
+    source: manufacturer_table
 - sku_id: SYN-TC-0002
   title: Flexible Tap Connector 15mm x 1/2in x 500mm braided
   brand: Pipesynth
@@ -4476,6 +4493,9 @@ items:
     source: manufacturer_table
   - name: tap_thread
     value: half_inch
+    source: manufacturer_table
+  - name: water_approval
+    value: wras
     source: manufacturer_table
 - sku_id: SYN-TC-0003
   title: Flexible Tap Connector 15mm x 3/8in x 300mm braided
@@ -4500,6 +4520,9 @@ items:
   - name: tap_thread
     value: three_eighth_inch
     source: manufacturer_table
+  - name: water_approval
+    value: wras
+    source: manufacturer_table
 - sku_id: SYN-TC-0004
   title: Flexible Tap Connector 15mm x 1/2in x 150mm braided
   brand: Pipesynth
@@ -4522,6 +4545,9 @@ items:
     source: manufacturer_table
   - name: tap_thread
     value: half_inch
+    source: manufacturer_table
+  - name: water_approval
+    value: none
     source: manufacturer_table
 - sku_id: SYN-TR-0001
   title: 32mm Bottle Trap White
@@ -7456,6 +7482,9 @@ items:
   - name: colour
     value: white
     source: manufacturer_table
+  - name: slip_rating
+    value: r10
+    source: manufacturer_table
 - sku_id: SYN-TL-0004
   title: Porcelain Floor Tile 600 x 600mm Matt
   brand: Tilesynth Studio
@@ -7487,6 +7516,9 @@ items:
     source: manufacturer_table
   - name: colour
     value: white
+    source: manufacturer_table
+  - name: slip_rating
+    value: r10
     source: manufacturer_table
 - sku_id: SYN-TL-0005
   title: Ceramic Wall Tile 200 x 100mm Gloss
@@ -7552,6 +7584,9 @@ items:
   - name: colour
     value: white
     source: manufacturer_table
+  - name: slip_rating
+    value: r9
+    source: manufacturer_table
 - sku_id: SYN-TL-0007
   title: Ceramic Wall Tile 400 x 250mm Gloss
   brand: Tilesynth Studio
@@ -7615,4 +7650,1176 @@ items:
     source: manufacturer_table
   - name: colour
     value: white
+    source: manufacturer_table
+  - name: slip_rating
+    value: r11
+    source: manufacturer_table
+- sku_id: SYN-CL-0001
+  title: Plastic Pipe Clip 15mm Pack of 50
+  brand: Wrenfield Synth
+  mpn: WRFCL137-01
+  gtin: '2000000002996'
+  product_type: pipe_clip
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 50
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: material
+    value: plastic
+    source: manufacturer_table
+  - name: pack_qty
+    value: '50'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-CL-0002
+  title: Plastic Pipe Clip 22mm Pack of 50
+  brand: Wrenfield Synth
+  mpn: WRFCL174-02
+  gtin: '2000000003009'
+  product_type: pipe_clip
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 50
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+  - name: material
+    value: plastic
+    source: manufacturer_table
+  - name: pack_qty
+    value: '50'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-CL-0003
+  title: Plastic Pipe Clip 15mm Pack of 10
+  brand: Wrenfield Synth
+  mpn: WRFCL211-03
+  gtin: '2000000003016'
+  product_type: pipe_clip
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 10
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: material
+    value: plastic
+    source: manufacturer_table
+  - name: pack_qty
+    value: '10'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-CL-0004
+  title: Copper Pipe Clip 15mm Pack of 20
+  brand: Wrenfield Synth
+  mpn: WRFCL248-04
+  gtin: '2000000003023'
+  product_type: pipe_clip
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 20
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: material
+    value: copper
+    source: manufacturer_table
+  - name: pack_qty
+    value: '20'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-SP-0001
+  title: Tile Spacers 2mm Pack of 250
+  brand: Brindlefix Synth
+  mpn: BFXSP137-01
+  gtin: '2000000003030'
+  product_type: tile_spacer
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 250
+  uom: each
+  active: true
+  attributes:
+  - name: size
+    value: '2'
+    unit: mm
+    source: manufacturer_table
+  - name: pack_qty
+    value: '250'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-SP-0002
+  title: Tile Spacers 3mm Pack of 250
+  brand: Brindlefix Synth
+  mpn: BFXSP174-02
+  gtin: '2000000003047'
+  product_type: tile_spacer
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 250
+  uom: each
+  active: true
+  attributes:
+  - name: size
+    value: '3'
+    unit: mm
+    source: manufacturer_table
+  - name: pack_qty
+    value: '250'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-SP-0003
+  title: Tile Spacers 3mm Pack of 500
+  brand: Brindlefix Synth
+  mpn: BFXSP211-03
+  gtin: '2000000003054'
+  product_type: tile_spacer
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 500
+  uom: each
+  active: true
+  attributes:
+  - name: size
+    value: '3'
+    unit: mm
+    source: manufacturer_table
+  - name: pack_qty
+    value: '500'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-SP-0004
+  title: Tile Spacers 5mm Pack of 250
+  brand: Brindlefix Synth
+  mpn: BFXSP248-04
+  gtin: '2000000003061'
+  product_type: tile_spacer
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 250
+  uom: each
+  active: true
+  attributes:
+  - name: size
+    value: '5'
+    unit: mm
+    source: manufacturer_table
+  - name: pack_qty
+    value: '250'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-JT-0001
+  title: Alkali Resistant Glass Fibre Mesh Joint Tape 50mm x 20m
+  brand: Brindlefix Synth
+  mpn: BFXJT137-01
+  gtin: '2000000003078'
+  product_type: joint_tape
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: glass_fibre_ar
+    source: manufacturer_table
+  - name: width
+    value: '50'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '20000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-JT-0002
+  title: Alkali Resistant Glass Fibre Mesh Joint Tape 100mm x 20m
+  brand: Brindlefix Synth
+  mpn: BFXJT174-02
+  gtin: '2000000003085'
+  product_type: joint_tape
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: glass_fibre_ar
+    source: manufacturer_table
+  - name: width
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '20000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-JT-0003
+  title: Alkali Resistant Glass Fibre Mesh Joint Tape 50mm x 45m
+  brand: Brindlefix Synth
+  mpn: BFXJT211-03
+  gtin: '2000000003092'
+  product_type: joint_tape
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: glass_fibre_ar
+    source: manufacturer_table
+  - name: width
+    value: '50'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '45000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-JT-0004
+  title: Paper Joint Tape 50mm x 20m
+  brand: Brindlefix Synth
+  mpn: BFXJT248-04
+  gtin: '2000000003108'
+  product_type: joint_tape
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: paper
+    source: manufacturer_table
+  - name: width
+    value: '50'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '20000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-BK-0001
+  title: Corrosion Resistant Backer Board Screw 4.2 x 40mm with Washer Pack of 100
+  brand: Wrenfield Synth
+  mpn: WRFBK137-01
+  gtin: '2000000003115'
+  product_type: backer_screw
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 100
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '4.2'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: corrosion_resistant
+    source: manufacturer_table
+  - name: washer
+    value: with_washer
+    source: manufacturer_table
+  - name: pack_qty
+    value: '100'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-BK-0002
+  title: Corrosion Resistant Backer Board Screw 4.2 x 25mm with Washer Pack of 100
+  brand: Wrenfield Synth
+  mpn: WRFBK174-02
+  gtin: '2000000003122'
+  product_type: backer_screw
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 100
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '4.2'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '25'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: corrosion_resistant
+    source: manufacturer_table
+  - name: washer
+    value: with_washer
+    source: manufacturer_table
+  - name: pack_qty
+    value: '100'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-BK-0003
+  title: Stainless Backer Board Screw 4.2 x 40mm with Washer Pack of 100
+  brand: Wrenfield Synth
+  mpn: WRFBK211-03
+  gtin: '2000000003139'
+  product_type: backer_screw
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 100
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '4.2'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: stainless
+    source: manufacturer_table
+  - name: washer
+    value: with_washer
+    source: manufacturer_table
+  - name: pack_qty
+    value: '100'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-BK-0004
+  title: Zinc Plated Backer Board Screw 4.2 x 40mm without Washer Pack of 200
+  brand: Wrenfield Synth
+  mpn: WRFBK248-04
+  gtin: '2000000003146'
+  product_type: backer_screw
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 200
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '4.2'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: zinc
+    source: manufacturer_table
+  - name: washer
+    value: no_washer
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-FO-0001
+  title: P5 Moisture Resistant Chipboard Flooring Panel Tongue and Groove 18mm 2400 x 600mm
+  brand: Northmere Synth
+  mpn: NMSFO137-01
+  gtin: '2000000003153'
+  product_type: floor_overlay
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: p5_chipboard
+    source: manufacturer_table
+  - name: thickness
+    value: '18'
+    unit: mm
+    source: manufacturer_table
+  - name: edge
+    value: tongue_groove
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: area
+    value: '1.44'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-FO-0002
+  title: P5 Moisture Resistant Chipboard Flooring Panel Tongue and Groove 22mm 2400 x 600mm
+  brand: Northmere Synth
+  mpn: NMSFO174-02
+  gtin: '2000000003160'
+  product_type: floor_overlay
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: p5_chipboard
+    source: manufacturer_table
+  - name: thickness
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+  - name: edge
+    value: tongue_groove
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: area
+    value: '1.44'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-FO-0003
+  title: Marine Plywood Flooring Panel Square Edge 18mm 2440 x 1220mm
+  brand: Northmere Synth
+  mpn: NMSFO211-03
+  gtin: '2000000003177'
+  product_type: floor_overlay
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: marine_plywood
+    source: manufacturer_table
+  - name: thickness
+    value: '18'
+    unit: mm
+    source: manufacturer_table
+  - name: edge
+    value: square
+    source: manufacturer_table
+  - name: length
+    value: '2440'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1220'
+    unit: mm
+    source: manufacturer_table
+  - name: area
+    value: '2.9768'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-FO-0004
+  title: P5 Moisture Resistant Chipboard Flooring Panel Square Edge 18mm 2400 x 600mm
+  brand: Northmere Synth
+  mpn: NMSFO248-04
+  gtin: '2000000003184'
+  product_type: floor_overlay
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: p5_chipboard
+    source: manufacturer_table
+  - name: thickness
+    value: '18'
+    unit: mm
+    source: manufacturer_table
+  - name: edge
+    value: square
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: area
+    value: '1.44'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-LV-0001
+  title: Latex Levelling Compound 20kg
+  brand: Northmere Synth
+  mpn: NMSLV137-01
+  gtin: '2000000003191'
+  product_type: levelling_compound
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: base
+    value: latex
+    source: manufacturer_table
+  - name: pack_weight
+    value: '20'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-LV-0002
+  title: Latex Levelling Compound 10kg
+  brand: Northmere Synth
+  mpn: NMSLV174-02
+  gtin: '2000000003207'
+  product_type: levelling_compound
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: base
+    value: latex
+    source: manufacturer_table
+  - name: pack_weight
+    value: '10'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-LV-0003
+  title: Cement Based Levelling Compound 25kg
+  brand: Northmere Synth
+  mpn: NMSLV211-03
+  gtin: '2000000003214'
+  product_type: levelling_compound
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: base
+    value: cement
+    source: manufacturer_table
+  - name: pack_weight
+    value: '25'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-LV-0004
+  title: Cement Based Levelling Compound 5kg
+  brand: Northmere Synth
+  mpn: NMSLV248-04
+  gtin: '2000000003221'
+  product_type: levelling_compound
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: base
+    value: cement
+    source: manufacturer_table
+  - name: pack_weight
+    value: '5'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-BO-0001
+  title: Bath Waste and Overflow Plug and Chain White
+  brand: Halcyon Synth Bath
+  mpn: HSBBO137-01
+  gtin: '2000000003238'
+  product_type: bath_waste
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: mechanism
+    value: plug_chain
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-BO-0002
+  title: Bath Waste and Overflow Plug and Chain Chrome
+  brand: Halcyon Synth Bath
+  mpn: HSBBO174-02
+  gtin: '2000000003245'
+  product_type: bath_waste
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: mechanism
+    value: plug_chain
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-BO-0003
+  title: Bath Waste and Overflow Click Clack White
+  brand: Halcyon Synth Bath
+  mpn: HSBBO211-03
+  gtin: '2000000003252'
+  product_type: bath_waste
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: mechanism
+    value: click_clack
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-BO-0004
+  title: Bath Waste and Overflow Click Clack Chrome
+  brand: Halcyon Synth Bath
+  mpn: HSBBO248-04
+  gtin: '2000000003269'
+  product_type: bath_waste
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: mechanism
+    value: click_clack
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-BM-0001
+  title: Deck Mounted Bath Mixer Tap Lever Chrome
+  brand: Halcyon Synth Bath
+  mpn: HSBBM137-01
+  gtin: '2000000003276'
+  product_type: bath_tap
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: tap_form
+    value: deck_mixer
+    source: manufacturer_table
+  - name: handle
+    value: lever
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-BM-0002
+  title: Deck Mounted Bath Mixer Tap Crosshead Chrome
+  brand: Halcyon Synth Bath
+  mpn: HSBBM174-02
+  gtin: '2000000003283'
+  product_type: bath_tap
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: tap_form
+    value: deck_mixer
+    source: manufacturer_table
+  - name: handle
+    value: crosshead
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-BM-0003
+  title: Bath Shower Mixer Tap Lever Chrome
+  brand: Halcyon Synth Bath
+  mpn: HSBBM211-03
+  gtin: '2000000003290'
+  product_type: bath_tap
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: tap_form
+    value: bath_shower_mixer
+    source: manufacturer_table
+  - name: handle
+    value: lever
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-BM-0004
+  title: Deck Mounted Bath Mixer Tap Lever Black
+  brand: Halcyon Synth Bath
+  mpn: HSBBM248-04
+  gtin: '2000000003306'
+  product_type: bath_tap
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: tap_form
+    value: deck_mixer
+    source: manufacturer_table
+  - name: handle
+    value: lever
+    source: manufacturer_table
+  - name: finish
+    value: black
+    source: manufacturer_table
+- sku_id: SYN-BP-0001
+  title: Bath Front Panel White 1700mm
+  brand: Halcyon Synth Bath
+  mpn: HSBBP137-01
+  gtin: '2000000003313'
+  product_type: bath_panel
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: panel_kind
+    value: front
+    source: manufacturer_table
+  - name: length
+    value: '1700'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-BP-0002
+  title: Bath Front Panel White 1600mm
+  brand: Halcyon Synth Bath
+  mpn: HSBBP174-02
+  gtin: '2000000003320'
+  product_type: bath_panel
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: panel_kind
+    value: front
+    source: manufacturer_table
+  - name: length
+    value: '1600'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-BP-0003
+  title: Bath Front Panel White 1500mm
+  brand: Halcyon Synth Bath
+  mpn: HSBBP211-03
+  gtin: '2000000003337'
+  product_type: bath_panel
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: panel_kind
+    value: front
+    source: manufacturer_table
+  - name: length
+    value: '1500'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-BP-0004
+  title: Bath End Panel White 700mm
+  brand: Halcyon Synth Bath
+  mpn: HSBBP248-04
+  gtin: '2000000003344'
+  product_type: bath_panel
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: panel_kind
+    value: end
+    source: manufacturer_table
+  - name: length
+    value: '700'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-BP-0005
+  title: Bath Front Panel Gloss Grey 1700mm
+  brand: Halcyon Synth Bath
+  mpn: HSBBP285-05
+  gtin: '2000000003351'
+  product_type: bath_panel
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: panel_kind
+    value: front
+    source: manufacturer_table
+  - name: length
+    value: '1700'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: gloss_grey
+    source: manufacturer_table
+- sku_id: SYN-BL-0001
+  title: Adjustable Bath Leg Set 4 Legs
+  brand: Halcyon Synth Bath
+  mpn: HSBBL137-01
+  gtin: '2000000003368'
+  product_type: bath_leg_set
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: adjustment
+    value: adjustable
+    source: manufacturer_table
+  - name: legs
+    value: '4'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-BL-0002
+  title: Adjustable Bath Leg Set 6 Legs
+  brand: Halcyon Synth Bath
+  mpn: HSBBL174-02
+  gtin: '2000000003375'
+  product_type: bath_leg_set
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: adjustment
+    value: adjustable
+    source: manufacturer_table
+  - name: legs
+    value: '6'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-BL-0003
+  title: Fixed Height Bath Leg Set 4 Legs
+  brand: Halcyon Synth Bath
+  mpn: HSBBL211-03
+  gtin: '2000000003382'
+  product_type: bath_leg_set
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: adjustment
+    value: fixed
+    source: manufacturer_table
+  - name: legs
+    value: '4'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-CI-0001
+  title: Close Coupled Cistern Dual Flush Bottom Entry
+  brand: Kestrel Synth Fittings
+  mpn: KSFCI137-01
+  gtin: '2000000003399'
+  product_type: wc_cistern
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: connection
+    value: close_coupled
+    source: manufacturer_table
+  - name: flush
+    value: dual
+    source: manufacturer_table
+  - name: fill
+    value: bottom_entry
+    source: manufacturer_table
+- sku_id: SYN-CI-0002
+  title: Close Coupled Cistern Dual Flush Side Entry
+  brand: Kestrel Synth Fittings
+  mpn: KSFCI174-02
+  gtin: '2000000003405'
+  product_type: wc_cistern
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: connection
+    value: close_coupled
+    source: manufacturer_table
+  - name: flush
+    value: dual
+    source: manufacturer_table
+  - name: fill
+    value: side_entry
+    source: manufacturer_table
+- sku_id: SYN-CI-0003
+  title: Close Coupled Cistern Single Flush Bottom Entry
+  brand: Kestrel Synth Fittings
+  mpn: KSFCI211-03
+  gtin: '2000000003412'
+  product_type: wc_cistern
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: connection
+    value: close_coupled
+    source: manufacturer_table
+  - name: flush
+    value: single
+    source: manufacturer_table
+  - name: fill
+    value: bottom_entry
+    source: manufacturer_table
+- sku_id: SYN-CI-0004
+  title: Concealed Cistern Dual Flush
+  brand: Kestrel Synth Fittings
+  mpn: KSFCI248-04
+  gtin: '2000000003429'
+  product_type: wc_cistern
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: connection
+    value: concealed
+    source: manufacturer_table
+  - name: flush
+    value: dual
+    source: manufacturer_table
+- sku_id: SYN-WT-0001
+  title: Soft Close WC Seat and Cover D Shape
+  brand: Kestrel Synth Fittings
+  mpn: KSFWT137-01
+  gtin: '2000000003436'
+  product_type: wc_seat
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: closing
+    value: soft_close
+    source: manufacturer_table
+  - name: shape
+    value: d_shape
+    source: manufacturer_table
+- sku_id: SYN-WT-0002
+  title: Standard WC Seat and Cover D Shape
+  brand: Kestrel Synth Fittings
+  mpn: KSFWT174-02
+  gtin: '2000000003443'
+  product_type: wc_seat
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: closing
+    value: standard
+    source: manufacturer_table
+  - name: shape
+    value: d_shape
+    source: manufacturer_table
+- sku_id: SYN-WT-0003
+  title: Soft Close WC Seat and Cover Round
+  brand: Kestrel Synth Fittings
+  mpn: KSFWT211-03
+  gtin: '2000000003450'
+  product_type: wc_seat
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: closing
+    value: soft_close
+    source: manufacturer_table
+  - name: shape
+    value: round
+    source: manufacturer_table
+- sku_id: SYN-AC-0001
+  title: Chrome Toilet Roll Holder Wall Mounted
+  brand: Kestrel Synth Fittings
+  mpn: KSFAC137-01
+  gtin: '2000000003467'
+  product_type: bathroom_accessory
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: kind
+    value: toilet_roll_holder
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-AC-0002
+  title: White Toilet Roll Holder Wall Mounted
+  brand: Kestrel Synth Fittings
+  mpn: KSFAC174-02
+  gtin: '2000000003474'
+  product_type: bathroom_accessory
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: kind
+    value: toilet_roll_holder
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-AC-0003
+  title: Chrome Towel Ring Wall Mounted
+  brand: Kestrel Synth Fittings
+  mpn: KSFAC211-03
+  gtin: '2000000003481'
+  product_type: bathroom_accessory
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: kind
+    value: towel_ring
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-AC-0004
+  title: Black Towel Ring Wall Mounted
+  brand: Kestrel Synth Fittings
+  mpn: KSFAC248-04
+  gtin: '2000000003498'
+  product_type: bathroom_accessory
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: kind
+    value: towel_ring
+    source: manufacturer_table
+  - name: finish
+    value: black
+    source: manufacturer_table
+- sku_id: SYN-AC-0005
+  title: Chrome Robe Hook Wall Mounted
+  brand: Kestrel Synth Fittings
+  mpn: KSFAC285-05
+  gtin: '2000000003504'
+  product_type: bathroom_accessory
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: kind
+    value: robe_hook
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-PA-0009
+  title: White Soft Sheen Bathroom Emulsion 5L
+  brand: Coatsynth
+  mpn: COAPA845-09
+  gtin: '2000000003511'
+  product_type: paint
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: soft_sheen
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+  - name: use
+    value: bathroom
+    source: manufacturer_table
+  - name: pack_volume
+    value: '5'
+    unit: l
     source: manufacturer_table

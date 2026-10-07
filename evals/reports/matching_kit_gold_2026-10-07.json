@@ -1,0 +1,1030 @@
+{
+  "synthetic": true,
+  "title": "Kit-line coverage of the matching gate: before and after (SYNTHETIC gold set, not real order lines)",
+  "date": "2026-10-07",
+  "command": "python -m evals.matching.kit_gold --json <file>; python scripts/demo_quote.py; quote partitions from components.quoting.build_quote for demo-tenant-a and demo-tenant-b",
+  "base_commit": "5950ab3 (kit, catalogue and ontology data identical at 49cc649)",
+  "gate_thresholds_unchanged": {
+    "auto_accept_min_lead": "0.05",
+    "auto_accept_min_score": "0.75",
+    "reject_below_score": "0.35"
+  },
+  "what_changed": [
+    "profiles/data/job_kits/uk: default option specs and line specs state the attribute the checks need (library 0.3.0 -> 0.3.1, see CHANGELOG.md)",
+    "profiles/data/matching/uk: 13 new synthetic product types (ontology/kit_support.yaml), 53 new synthetic SKUs, slip_rating and water_approval attributes, and synonym/vocabulary additions; no change to the gate, checks, parser or engine code",
+    "profiles/data/quoting: price files regenerated for the new SKUs (synthetic prices); demo reviewer decisions and one demo budget retuned",
+    "packages/components/quoting/kit_lines.py: NOT changed (query building passes the spec through verbatim; every gain came from kit text and catalogue data)"
+  ],
+  "before": {
+    "headline": {
+      "gold_rows": {
+        "lines": 136,
+        "positives": 51,
+        "auto_accept": {
+          "k": 2,
+          "n": 136,
+          "rate": 0.0147,
+          "wilson95": [
+            0.004,
+            0.052
+          ]
+        },
+        "correct_auto_accept_of_positives": {
+          "k": 2,
+          "n": 51,
+          "rate": 0.0392,
+          "wilson95": [
+            0.0108,
+            0.1322
+          ]
+        },
+        "wrong_auto_accepts": 0,
+        "wrong_auto_accept_exact_upper95": 0.7764,
+        "top3_recall_of_positives": {
+          "k": 31,
+          "n": 51,
+          "rate": 0.6078,
+          "wilson95": [
+            0.4708,
+            0.7297
+          ]
+        },
+        "review_rate": {
+          "k": 82,
+          "n": 136,
+          "rate": 0.6029,
+          "wilson95": [
+            0.519,
+            0.6813
+          ]
+        },
+        "reject_rate": {
+          "k": 48,
+          "n": 136,
+          "rate": 0.3529,
+          "wilson95": [
+            0.2777,
+            0.4363
+          ]
+        },
+        "correctly_not_accepted_of_expected_refusals": {
+          "k": 85,
+          "n": 85,
+          "rate": 1.0,
+          "wilson95": [
+            0.9568,
+            1.0
+          ]
+        }
+      },
+      "full_bathroom_77": {
+        "lines": 77,
+        "positives": 50,
+        "auto_accept": {
+          "k": 2,
+          "n": 77,
+          "rate": 0.026,
+          "wilson95": [
+            0.0072,
+            0.0898
+          ]
+        },
+        "correct_auto_accept_of_positives": {
+          "k": 2,
+          "n": 50,
+          "rate": 0.04,
+          "wilson95": [
+            0.011,
+            0.1346
+          ]
+        },
+        "wrong_auto_accepts": 0,
+        "wrong_auto_accept_exact_upper95": 0.7764,
+        "top3_recall_of_positives": {
+          "k": 31,
+          "n": 50,
+          "rate": 0.62,
+          "wilson95": [
+            0.4815,
+            0.7414
+          ]
+        },
+        "review_rate": {
+          "k": 41,
+          "n": 77,
+          "rate": 0.5325,
+          "wilson95": [
+            0.4221,
+            0.6397
+          ]
+        },
+        "reject_rate": {
+          "k": 31,
+          "n": 77,
+          "rate": 0.4026,
+          "wilson95": [
+            0.3002,
+            0.5142
+          ]
+        },
+        "correctly_not_accepted_of_expected_refusals": {
+          "k": 27,
+          "n": 27,
+          "rate": 1.0,
+          "wilson95": [
+            0.8754,
+            1.0
+          ]
+        }
+      },
+      "all_scope_lines_and_traps": {
+        "lines": 263,
+        "positives": 126,
+        "auto_accept": {
+          "k": 5,
+          "n": 263,
+          "rate": 0.019,
+          "wilson95": [
+            0.0081,
+            0.0437
+          ]
+        },
+        "correct_auto_accept_of_positives": {
+          "k": 5,
+          "n": 126,
+          "rate": 0.0397,
+          "wilson95": [
+            0.0171,
+            0.0895
+          ]
+        },
+        "wrong_auto_accepts": 0,
+        "wrong_auto_accept_exact_upper95": 0.4507,
+        "top3_recall_of_positives": {
+          "k": 79,
+          "n": 126,
+          "rate": 0.627,
+          "wilson95": [
+            0.54,
+            0.7065
+          ]
+        },
+        "review_rate": {
+          "k": 150,
+          "n": 263,
+          "rate": 0.5703,
+          "wilson95": [
+            0.5099,
+            0.6287
+          ]
+        },
+        "reject_rate": {
+          "k": 97,
+          "n": 263,
+          "rate": 0.3688,
+          "wilson95": [
+            0.3128,
+            0.4286
+          ]
+        },
+        "correctly_not_accepted_of_expected_refusals": {
+          "k": 137,
+          "n": 137,
+          "rate": 1.0,
+          "wilson95": [
+            0.9727,
+            1.0
+          ]
+        }
+      },
+      "dev_split": {
+        "lines": 96,
+        "positives": 51,
+        "auto_accept": {
+          "k": 2,
+          "n": 96,
+          "rate": 0.0208,
+          "wilson95": [
+            0.0057,
+            0.0728
+          ]
+        },
+        "correct_auto_accept_of_positives": {
+          "k": 2,
+          "n": 51,
+          "rate": 0.0392,
+          "wilson95": [
+            0.0108,
+            0.1322
+          ]
+        },
+        "wrong_auto_accepts": 0,
+        "wrong_auto_accept_exact_upper95": 0.7764,
+        "top3_recall_of_positives": {
+          "k": 31,
+          "n": 51,
+          "rate": 0.6078,
+          "wilson95": [
+            0.4708,
+            0.7297
+          ]
+        },
+        "review_rate": {
+          "k": 45,
+          "n": 96,
+          "rate": 0.4688,
+          "wilson95": [
+            0.3721,
+            0.5678
+          ]
+        },
+        "reject_rate": {
+          "k": 45,
+          "n": 96,
+          "rate": 0.4688,
+          "wilson95": [
+            0.3721,
+            0.5678
+          ]
+        },
+        "correctly_not_accepted_of_expected_refusals": {
+          "k": 45,
+          "n": 45,
+          "rate": 1.0,
+          "wilson95": [
+            0.9213,
+            1.0
+          ]
+        }
+      },
+      "heldout_split": {
+        "lines": 40,
+        "positives": 0,
+        "auto_accept": {
+          "k": 0,
+          "n": 40,
+          "rate": 0.0,
+          "wilson95": [
+            0.0,
+            0.0876
+          ]
+        },
+        "correct_auto_accept_of_positives": {
+          "k": 0,
+          "n": 0,
+          "rate": null,
+          "wilson95": [
+            0.0,
+            1.0
+          ]
+        },
+        "wrong_auto_accepts": 0,
+        "wrong_auto_accept_exact_upper95": 1.0,
+        "top3_recall_of_positives": {
+          "k": 0,
+          "n": 0,
+          "rate": null,
+          "wilson95": [
+            0.0,
+            1.0
+          ]
+        },
+        "review_rate": {
+          "k": 37,
+          "n": 40,
+          "rate": 0.925,
+          "wilson95": [
+            0.8014,
+            0.9742
+          ]
+        },
+        "reject_rate": {
+          "k": 3,
+          "n": 40,
+          "rate": 0.075,
+          "wilson95": [
+            0.0258,
+            0.1986
+          ]
+        },
+        "correctly_not_accepted_of_expected_refusals": {
+          "k": 40,
+          "n": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.9124,
+            1.0
+          ]
+        }
+      },
+      "traps": {
+        "lines": 40,
+        "positives": 0,
+        "auto_accept": {
+          "k": 0,
+          "n": 40,
+          "rate": 0.0,
+          "wilson95": [
+            0.0,
+            0.0876
+          ]
+        },
+        "correct_auto_accept_of_positives": {
+          "k": 0,
+          "n": 0,
+          "rate": null,
+          "wilson95": [
+            0.0,
+            1.0
+          ]
+        },
+        "wrong_auto_accepts": 0,
+        "wrong_auto_accept_exact_upper95": 1.0,
+        "top3_recall_of_positives": {
+          "k": 0,
+          "n": 0,
+          "rate": null,
+          "wilson95": [
+            0.0,
+            1.0
+          ]
+        },
+        "review_rate": {
+          "k": 37,
+          "n": 40,
+          "rate": 0.925,
+          "wilson95": [
+            0.8014,
+            0.9742
+          ]
+        },
+        "reject_rate": {
+          "k": 3,
+          "n": 40,
+          "rate": 0.075,
+          "wilson95": [
+            0.0258,
+            0.1986
+          ]
+        },
+        "correctly_not_accepted_of_expected_refusals": {
+          "k": 40,
+          "n": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.9124,
+            1.0
+          ]
+        }
+      }
+    },
+    "scopes_matching_stage": {
+      "cloakroom": {
+        "auto_accept": 1,
+        "correct_auto_accept": 1,
+        "kit_lines": 52,
+        "labelled_positive": 33,
+        "reject": 17,
+        "review": 31,
+        "service": 3,
+        "wrong_auto_accept": 0
+      },
+      "full": {
+        "auto_accept": 2,
+        "correct_auto_accept": 2,
+        "kit_lines": 77,
+        "labelled_positive": 50,
+        "reject": 31,
+        "review": 41,
+        "service": 3,
+        "wrong_auto_accept": 0
+      },
+      "wc_only": {
+        "auto_accept": 1,
+        "correct_auto_accept": 1,
+        "kit_lines": 24,
+        "labelled_positive": 12,
+        "reject": 10,
+        "review": 11,
+        "service": 2,
+        "wrong_auto_accept": 0
+      },
+      "wet_room": {
+        "auto_accept": 1,
+        "correct_auto_accept": 1,
+        "kit_lines": 70,
+        "labelled_positive": 31,
+        "reject": 36,
+        "review": 30,
+        "service": 3,
+        "wrong_auto_accept": 0
+      }
+    },
+    "similarity_only_baseline": {
+      "auto_accepts": 15,
+      "note": "score >= 0.75 and lead >= 0.05 only, no attribute checks, no group",
+      "wrong_auto_accepts": 10,
+      "wrong_auto_accepts_on_traps": 10
+    }
+  },
+  "after": {
+    "headline": {
+      "gold_rows": {
+        "lines": 136,
+        "positives": 51,
+        "auto_accept": {
+          "k": 51,
+          "n": 136,
+          "rate": 0.375,
+          "wilson95": [
+            0.2981,
+            0.4587
+          ]
+        },
+        "correct_auto_accept_of_positives": {
+          "k": 51,
+          "n": 51,
+          "rate": 1.0,
+          "wilson95": [
+            0.93,
+            1.0
+          ]
+        },
+        "wrong_auto_accepts": 0,
+        "wrong_auto_accept_exact_upper95": 0.057,
+        "top3_recall_of_positives": {
+          "k": 51,
+          "n": 51,
+          "rate": 1.0,
+          "wilson95": [
+            0.93,
+            1.0
+          ]
+        },
+        "review_rate": {
+          "k": 50,
+          "n": 136,
+          "rate": 0.3676,
+          "wilson95": [
+            0.2913,
+            0.4513
+          ]
+        },
+        "reject_rate": {
+          "k": 31,
+          "n": 136,
+          "rate": 0.2279,
+          "wilson95": [
+            0.1655,
+            0.3053
+          ]
+        },
+        "correctly_not_accepted_of_expected_refusals": {
+          "k": 85,
+          "n": 85,
+          "rate": 1.0,
+          "wilson95": [
+            0.9568,
+            1.0
+          ]
+        }
+      },
+      "full_bathroom_77": {
+        "lines": 77,
+        "positives": 50,
+        "auto_accept": {
+          "k": 50,
+          "n": 77,
+          "rate": 0.6494,
+          "wilson95": [
+            0.538,
+            0.7465
+          ]
+        },
+        "correct_auto_accept_of_positives": {
+          "k": 50,
+          "n": 50,
+          "rate": 1.0,
+          "wilson95": [
+            0.9286,
+            1.0
+          ]
+        },
+        "wrong_auto_accepts": 0,
+        "wrong_auto_accept_exact_upper95": 0.0582,
+        "top3_recall_of_positives": {
+          "k": 50,
+          "n": 50,
+          "rate": 1.0,
+          "wilson95": [
+            0.9286,
+            1.0
+          ]
+        },
+        "review_rate": {
+          "k": 7,
+          "n": 77,
+          "rate": 0.0909,
+          "wilson95": [
+            0.0447,
+            0.176
+          ]
+        },
+        "reject_rate": {
+          "k": 17,
+          "n": 77,
+          "rate": 0.2208,
+          "wilson95": [
+            0.1427,
+            0.3254
+          ]
+        },
+        "correctly_not_accepted_of_expected_refusals": {
+          "k": 27,
+          "n": 27,
+          "rate": 1.0,
+          "wilson95": [
+            0.8754,
+            1.0
+          ]
+        }
+      },
+      "all_scope_lines_and_traps": {
+        "lines": 263,
+        "positives": 126,
+        "auto_accept": {
+          "k": 126,
+          "n": 263,
+          "rate": 0.4791,
+          "wilson95": [
+            0.4194,
+            0.5393
+          ]
+        },
+        "correct_auto_accept_of_positives": {
+          "k": 126,
+          "n": 126,
+          "rate": 1.0,
+          "wilson95": [
+            0.9704,
+            1.0
+          ]
+        },
+        "wrong_auto_accepts": 0,
+        "wrong_auto_accept_exact_upper95": 0.0235,
+        "top3_recall_of_positives": {
+          "k": 126,
+          "n": 126,
+          "rate": 1.0,
+          "wilson95": [
+            0.9704,
+            1.0
+          ]
+        },
+        "review_rate": {
+          "k": 66,
+          "n": 263,
+          "rate": 0.251,
+          "wilson95": [
+            0.2024,
+            0.3067
+          ]
+        },
+        "reject_rate": {
+          "k": 60,
+          "n": 263,
+          "rate": 0.2281,
+          "wilson95": [
+            0.1815,
+            0.2826
+          ]
+        },
+        "correctly_not_accepted_of_expected_refusals": {
+          "k": 137,
+          "n": 137,
+          "rate": 1.0,
+          "wilson95": [
+            0.9727,
+            1.0
+          ]
+        }
+      },
+      "dev_split": {
+        "lines": 96,
+        "positives": 51,
+        "auto_accept": {
+          "k": 51,
+          "n": 96,
+          "rate": 0.5312,
+          "wilson95": [
+            0.4322,
+            0.6279
+          ]
+        },
+        "correct_auto_accept_of_positives": {
+          "k": 51,
+          "n": 51,
+          "rate": 1.0,
+          "wilson95": [
+            0.93,
+            1.0
+          ]
+        },
+        "wrong_auto_accepts": 0,
+        "wrong_auto_accept_exact_upper95": 0.057,
+        "top3_recall_of_positives": {
+          "k": 51,
+          "n": 51,
+          "rate": 1.0,
+          "wilson95": [
+            0.93,
+            1.0
+          ]
+        },
+        "review_rate": {
+          "k": 10,
+          "n": 96,
+          "rate": 0.1042,
+          "wilson95": [
+            0.0576,
+            0.1812
+          ]
+        },
+        "reject_rate": {
+          "k": 31,
+          "n": 96,
+          "rate": 0.3229,
+          "wilson95": [
+            0.2378,
+            0.4217
+          ]
+        },
+        "correctly_not_accepted_of_expected_refusals": {
+          "k": 45,
+          "n": 45,
+          "rate": 1.0,
+          "wilson95": [
+            0.9213,
+            1.0
+          ]
+        }
+      },
+      "heldout_split": {
+        "lines": 40,
+        "positives": 0,
+        "auto_accept": {
+          "k": 0,
+          "n": 40,
+          "rate": 0.0,
+          "wilson95": [
+            0.0,
+            0.0876
+          ]
+        },
+        "correct_auto_accept_of_positives": {
+          "k": 0,
+          "n": 0,
+          "rate": null,
+          "wilson95": [
+            0.0,
+            1.0
+          ]
+        },
+        "wrong_auto_accepts": 0,
+        "wrong_auto_accept_exact_upper95": 1.0,
+        "top3_recall_of_positives": {
+          "k": 0,
+          "n": 0,
+          "rate": null,
+          "wilson95": [
+            0.0,
+            1.0
+          ]
+        },
+        "review_rate": {
+          "k": 40,
+          "n": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.9124,
+            1.0
+          ]
+        },
+        "reject_rate": {
+          "k": 0,
+          "n": 40,
+          "rate": 0.0,
+          "wilson95": [
+            0.0,
+            0.0876
+          ]
+        },
+        "correctly_not_accepted_of_expected_refusals": {
+          "k": 40,
+          "n": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.9124,
+            1.0
+          ]
+        }
+      },
+      "traps": {
+        "lines": 40,
+        "positives": 0,
+        "auto_accept": {
+          "k": 0,
+          "n": 40,
+          "rate": 0.0,
+          "wilson95": [
+            0.0,
+            0.0876
+          ]
+        },
+        "correct_auto_accept_of_positives": {
+          "k": 0,
+          "n": 0,
+          "rate": null,
+          "wilson95": [
+            0.0,
+            1.0
+          ]
+        },
+        "wrong_auto_accepts": 0,
+        "wrong_auto_accept_exact_upper95": 1.0,
+        "top3_recall_of_positives": {
+          "k": 0,
+          "n": 0,
+          "rate": null,
+          "wilson95": [
+            0.0,
+            1.0
+          ]
+        },
+        "review_rate": {
+          "k": 40,
+          "n": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.9124,
+            1.0
+          ]
+        },
+        "reject_rate": {
+          "k": 0,
+          "n": 40,
+          "rate": 0.0,
+          "wilson95": [
+            0.0,
+            0.0876
+          ]
+        },
+        "correctly_not_accepted_of_expected_refusals": {
+          "k": 40,
+          "n": 40,
+          "rate": 1.0,
+          "wilson95": [
+            0.9124,
+            1.0
+          ]
+        }
+      }
+    },
+    "scopes_matching_stage": {
+      "cloakroom": {
+        "auto_accept": 33,
+        "correct_auto_accept": 33,
+        "kit_lines": 52,
+        "labelled_positive": 33,
+        "reject": 10,
+        "review": 6,
+        "service": 3,
+        "wrong_auto_accept": 0
+      },
+      "full": {
+        "auto_accept": 50,
+        "correct_auto_accept": 50,
+        "kit_lines": 77,
+        "labelled_positive": 50,
+        "reject": 17,
+        "review": 7,
+        "service": 3,
+        "wrong_auto_accept": 0
+      },
+      "wc_only": {
+        "auto_accept": 12,
+        "correct_auto_accept": 12,
+        "kit_lines": 24,
+        "labelled_positive": 12,
+        "reject": 6,
+        "review": 4,
+        "service": 2,
+        "wrong_auto_accept": 0
+      },
+      "wet_room": {
+        "auto_accept": 31,
+        "correct_auto_accept": 31,
+        "kit_lines": 70,
+        "labelled_positive": 31,
+        "reject": 27,
+        "review": 9,
+        "service": 3,
+        "wrong_auto_accept": 0
+      }
+    },
+    "similarity_only_baseline": {
+      "auto_accepts": 56,
+      "note": "score >= 0.75 and lead >= 0.05 only, no attribute checks, no group",
+      "wrong_auto_accepts": 10,
+      "wrong_auto_accepts_on_traps": 10
+    }
+  },
+  "quote_partitions_before": {
+    "demo-tenant-a/full": {
+      "priced": 2,
+      "review": 41,
+      "unmatched": 34,
+      "indicative_only": 0,
+      "no_offer": 0,
+      "skipped": 0,
+      "lines": 77
+    },
+    "demo-tenant-a/wc_only": {
+      "priced": 1,
+      "review": 11,
+      "unmatched": 12,
+      "indicative_only": 0,
+      "no_offer": 0,
+      "skipped": 0,
+      "lines": 24
+    },
+    "demo-tenant-a/cloakroom": {
+      "priced": 1,
+      "review": 31,
+      "unmatched": 20,
+      "indicative_only": 0,
+      "no_offer": 0,
+      "skipped": 0,
+      "lines": 52
+    },
+    "demo-tenant-a/wet_room": {
+      "priced": 1,
+      "review": 30,
+      "unmatched": 39,
+      "indicative_only": 0,
+      "no_offer": 0,
+      "skipped": 0,
+      "lines": 70
+    },
+    "demo-tenant-b/full": {
+      "priced": 2,
+      "review": 41,
+      "unmatched": 34,
+      "indicative_only": 0,
+      "no_offer": 0,
+      "skipped": 0,
+      "lines": 77
+    },
+    "demo-tenant-b/wc_only": {
+      "priced": 1,
+      "review": 11,
+      "unmatched": 12,
+      "indicative_only": 0,
+      "no_offer": 0,
+      "skipped": 0,
+      "lines": 24
+    },
+    "demo-tenant-b/cloakroom": {
+      "priced": 1,
+      "review": 31,
+      "unmatched": 20,
+      "indicative_only": 0,
+      "no_offer": 0,
+      "skipped": 0,
+      "lines": 52
+    },
+    "demo-tenant-b/wet_room": {
+      "priced": 1,
+      "review": 30,
+      "unmatched": 39,
+      "indicative_only": 0,
+      "no_offer": 0,
+      "skipped": 0,
+      "lines": 70
+    }
+  },
+  "quote_partitions_after": {
+    "demo-tenant-a/full": {
+      "priced": 48,
+      "review": 7,
+      "unmatched": 20,
+      "indicative_only": 0,
+      "no_offer": 2,
+      "skipped": 0,
+      "lines": 77
+    },
+    "demo-tenant-a/wc_only": {
+      "priced": 11,
+      "review": 4,
+      "unmatched": 8,
+      "indicative_only": 0,
+      "no_offer": 1,
+      "skipped": 0,
+      "lines": 24
+    },
+    "demo-tenant-a/cloakroom": {
+      "priced": 31,
+      "review": 6,
+      "unmatched": 13,
+      "indicative_only": 0,
+      "no_offer": 2,
+      "skipped": 0,
+      "lines": 52
+    },
+    "demo-tenant-a/wet_room": {
+      "priced": 29,
+      "review": 9,
+      "unmatched": 30,
+      "indicative_only": 0,
+      "no_offer": 2,
+      "skipped": 0,
+      "lines": 70
+    },
+    "demo-tenant-b/full": {
+      "priced": 18,
+      "review": 7,
+      "unmatched": 20,
+      "indicative_only": 11,
+      "no_offer": 21,
+      "skipped": 0,
+      "lines": 77
+    },
+    "demo-tenant-b/wc_only": {
+      "priced": 4,
+      "review": 4,
+      "unmatched": 8,
+      "indicative_only": 3,
+      "no_offer": 5,
+      "skipped": 0,
+      "lines": 24
+    },
+    "demo-tenant-b/cloakroom": {
+      "priced": 13,
+      "review": 6,
+      "unmatched": 13,
+      "indicative_only": 6,
+      "no_offer": 14,
+      "skipped": 0,
+      "lines": 52
+    },
+    "demo-tenant-b/wet_room": {
+      "priced": 10,
+      "review": 9,
+      "unmatched": 30,
+      "indicative_only": 6,
+      "no_offer": 15,
+      "skipped": 0,
+      "lines": 70
+    }
+  },
+  "wrong_auto_accepts_final": [],
+  "wrong_auto_accepts_found_during_development": [
+    {
+      "id": "kit.full.sw_basin_taps",
+      "scopes": [
+        "full",
+        "cloakroom"
+      ],
+      "text": "Chrome mono basin mixer tap with click waste",
+      "chosen": [
+        "SYN-BT-0001",
+        "SYN-BT-0002"
+      ],
+      "acceptable": [
+        "SYN-BT-0001"
+      ],
+      "cause": "'click waste' was not a synonym of with_waste, so the stated waste was unbound and the no-waste tap passed every check; the group held a tap without a waste",
+      "fix": "ontology synonyms added to basin_tap.waste.with_waste (click waste, with click waste, click clack waste); gate untouched",
+      "status": "fixed before this report"
+    },
+    {
+      "id": "kit.full.cs_sanitary_silicone",
+      "text": "Anti-mould sanitary silicone sealant, white, 300 ml",
+      "chosen": [
+        "SYN-SI-0003"
+      ],
+      "cause": "a labelling error in the first draft of the gold set (pack volume written in ml where the template compares litres): the label, not the engine, was wrong",
+      "fix": "label corrected; tests/matching/test_kit_gold.py now cross-checks every label against the catalogue without the parser",
+      "status": "fixed before this report"
+    }
+  ],
+  "what_this_eval_cannot_tell_us": [
+    "It is synthetic: the same team wrote the kit text, the catalogue, the ontology and the labels, and the positives resolve largely because the kit text was edited to match the catalogue. It does not show how real order lines or real supplier titles behave.",
+    "One labeller, not double-labelled, no inter-annotator agreement. The 77 kit-line rows (and 19 more from the other scopes) were visible while kit text and catalogue were edited (dev split). Only the 40 trap rows are held out, and they were written before the engine was run on them; none was used to tune anything.",
+    "With 0 wrong in 126 auto-accepted lines the exact one-sided 95% upper bound on the wrong rate is 2.4%; about 598 error-free auto-accepts are needed to show below 0.5%. This set cannot certify a production target.",
+    "No coverage of other part families, other markets, brand or MPN lines, supplier-title noise or multilingual text; kit lines are short, clean, our own wording.",
+    "The matching engine in the quoting stage has no judge, so a marginal accept (score under 0.80) goes to review; the judge is not measured here.",
+    "Pricing buckets use synthetic prices and synthetic merchant coverage; 'priced' says nothing about real availability or price.",
+    "Qualifiers the catalogue cannot check were moved from spec to help (see the kit CHANGELOG): an auto-accepted line can still carry a requirement a person must read."
+  ]
+}

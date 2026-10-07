@@ -1,0 +1,65 @@
+{
+  "floor": {
+    "full_bathroom_auto_accepts": 50,
+    "full_bathroom_correct_auto_accepts": 50,
+    "scope_auto_accepts": {
+      "cloakroom": 33,
+      "full": 50,
+      "wc_only": 12,
+      "wet_room": 31
+    }
+  },
+  "note": "SYNTHETIC gold set. `recorded` is the last accepted run (counts); `floor` is the least auto-accepting result a change may produce. Refresh with `python -m evals.matching.kit_gold --update-baseline` and commit the diff with the reason. Wrong auto-accepts must be 0 and are not a tunable.",
+  "recorded": {
+    "full_bathroom_77": {
+      "auto_accept": 50,
+      "correct_auto_accept_of_positives": 50,
+      "reject_rate": 17,
+      "review_rate": 7,
+      "top3_recall_of_positives": 50
+    },
+    "scopes": {
+      "cloakroom": {
+        "auto_accept": 33,
+        "correct_auto_accept": 33,
+        "kit_lines": 52,
+        "labelled_positive": 33,
+        "reject": 10,
+        "review": 6,
+        "service": 3,
+        "wrong_auto_accept": 0
+      },
+      "full": {
+        "auto_accept": 50,
+        "correct_auto_accept": 50,
+        "kit_lines": 77,
+        "labelled_positive": 50,
+        "reject": 17,
+        "review": 7,
+        "service": 3,
+        "wrong_auto_accept": 0
+      },
+      "wc_only": {
+        "auto_accept": 12,
+        "correct_auto_accept": 12,
+        "kit_lines": 24,
+        "labelled_positive": 12,
+        "reject": 6,
+        "review": 4,
+        "service": 2,
+        "wrong_auto_accept": 0
+      },
+      "wet_room": {
+        "auto_accept": 31,
+        "correct_auto_accept": 31,
+        "kit_lines": 70,
+        "labelled_positive": 31,
+        "reject": 27,
+        "review": 9,
+        "service": 3,
+        "wrong_auto_accept": 0
+      }
+    },
+    "wrong_auto_accepts": 0
+  }
+}

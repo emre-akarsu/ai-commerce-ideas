@@ -7,7 +7,7 @@
 # refurbishment top picks by option/ (2026-10-06).
 id: uk.module.accessories
 module: accessories
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: Accessories
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -15,7 +15,7 @@ status: needs_tradesperson_review
 lines:
 - id: sw_toilet_roll_holder
   description: Toilet roll holder
-  spec: Wall-mounted toilet roll holder
+  spec: Wall-mounted chrome toilet roll holder
   unit: nr
   quantity: '1'
   uniclass_pr:

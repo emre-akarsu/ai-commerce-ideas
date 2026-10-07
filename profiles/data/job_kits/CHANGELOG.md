@@ -2,6 +2,17 @@
 
 Synthetic/illustrative seed data; not licensed; tradesperson review required. Data and schema: `README.md`. Architecture: `docs/architecture/job-kits.md`.
 
+## Library 0.3.1 (2026-10-07): line specs state the attributes the matching checks need
+
+Synthetic/illustrative seed data; wording changes only, no quantity, formula, rule, option or provenance change, and every module still carries `status: needs_tradesperson_review`. The export format is unchanged (`job-kit-ui/2`); the exports were regenerated.
+
+- Why: the matching gate requires size, grade, class, finish or pack on most product types, and the generic kit text did not state them, so almost every kit line went to review or came back unmatched (2 of 77 full-bathroom lines resolved). The gate was not changed. The evidence is in `evals/matching/gold/kit_bathroom_gold_v1.jsonl` and `evals/reports/`.
+- What: the default option's spec (and the line spec where the line has no options) now names ONE concrete choice where the old text allowed alternatives or left the attribute out, for example "brass or chrome-plated" became "chrome-plated", "Cement or insulated backer board, 1200 x 800" became "Cement fibre tile backer board, 12 mm, 1200 x 800 mm", "Tile spacers to suit the grout joint" became "3 mm tile spacers, pack of 250". The values chosen are illustrative defaults for the seed, not reviewed recommendations.
+- Alternatives and qualifiers the catalogue cannot check (brass valves, MuPVC pipe, porcelain tiles, "water-repellent", "22 mm bars", "compression end", BS EN 14891) moved from `spec` to the line's `help`, so the matching step does not pretend to verify them and a person still sees them. A line whose text still carries an unverifiable requirement goes to review on purpose.
+- Lines whose own `spec` changed (lines without options, or the line-level text): `so_cap_feeds`, `ff_pipe_clips`, `wp_backer_board`, `wp_backer_screws`, `wp_backer_joint_tape`, `wp_tanking_kit`, `tl_spacers`, `tl_wall_primer`, `fl_overlay`, `fl_levelling`, `sw_bath_legs`, `sw_bath_panel`, `sw_bath_waste_overflow`, `sw_bath_trap`, `sw_basin_pedestal`, `sw_basin_waste`, `sw_wc_cistern`, `sw_toilet_roll_holder`, `cs_clear_sealant_wc`. Lines with options changed the default option's spec instead (and `help`).
+- Lines that are assortments, "to suit" items, services or safety sizing by lookup (isolators, cables, RCBO, electric shower, fixing packs, sundries, two-size plug line) keep their generic text and are not auto-resolved; the gold set labels each as expected review or no match.
+- Cloakroom: the splashback note moved from the tile spec (`option_spec_note`) to the line's help; the compact pedestal basin states 450 mm and one tap hole.
+
 ## Library 0.3.0 and export format job-kit-ui/2 (2026-10-06)
 
 ### Export: job-kit-ui/1 to job-kit-ui/2

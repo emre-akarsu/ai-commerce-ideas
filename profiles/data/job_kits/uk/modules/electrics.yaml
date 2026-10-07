@@ -7,7 +7,7 @@
 # refurbishment top picks by option/ (2026-10-06).
 id: uk.module.electrics
 module: electrics
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: Electrics
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -50,7 +50,7 @@ lines:
       evidence_quality: retailer
   - id: ip65_fire_rated
     label: Fire-rated IP65 downlight
-    spec: Fixed fire-rated LED downlight, IP65, 6-7 W, warm white or selectable colour temperature
+    spec: Fire-rated LED downlight, IP65, 7 W, warm white
     tags:
     - most_used
     default: true
@@ -85,7 +85,8 @@ lines:
       url: https://www.screwfix.com/p/collingwood-h2-lite-500-fixed-fire-rated-led-downlight-matt-white-5w-500lm/791KR
       licence: unknown-copyright-facts-only
       evidence_quality: retailer
-  help: The number of downlights is an allowance you can change on review.
+  help: The number of downlights is an allowance you can change on review. The kit allows 6-7 W and
+    a selectable colour temperature; a person approves those. Fixed (not tilting) fitting.
 - id: el_fan_isolator
   description: Isolator for the extractor fan
   spec: Local isolator switching all poles, contact gap at least {isolator_contact_gap_mm} mm (fused where
@@ -221,7 +222,7 @@ lines:
   options:
   - id: standard_plate
     label: Shaver socket
-    spec: 2-gang dual-voltage shaver socket, raised metal plate
+    spec: 2-gang dual-voltage shaver socket, chrome plate
     tags:
     - budget
     - most_used
@@ -260,5 +261,6 @@ lines:
       url: https://www.screwfix.com/p/knightsbridge-2-gang-dual-voltage-shaver-socket-115-v-230v-polished-chrome-with-black-inserts/113ty
       licence: unknown-copyright-facts-only
       evidence_quality: search_snippet
-  help: Left out when the LED mirror (which has its own socket) is added.
+  help: Left out when the LED mirror (which has its own socket) is added. Raised metal plate on the
+    standard and budget choice; the plate style is not checked by the catalogue match.
 rules: []

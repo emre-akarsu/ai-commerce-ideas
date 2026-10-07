@@ -84,16 +84,25 @@ RATES: dict[str, tuple[str, str, str]] = {
     "downlight": ("electrical", "6.5", "each"), "shaver_socket": ("electrical", "14", "each"),
     "mirror": ("sanitary", "85", "each"), "ufh_mat": ("electrical", "55", "m2"),
     "extractor_duct": ("electrical", "6", "m"),
+    # Types added with the kit-line coverage work (2026-10-07). Invented rates, like all of these.
+    "pipe_clip": ("plumbing", "6", "each"), "tile_spacer": ("tiling", "3.5", "each"),
+    "joint_tape": ("tiling", "5", "each"), "backer_screw": ("fixings", "3.2", "per100"),
+    "floor_overlay": ("boards", "19", "each"), "levelling_compound": ("tiling", "0.9", "kg"),
+    "bath_waste": ("sanitary", "11", "each"), "bath_tap": ("sanitary", "58", "each"),
+    "bath_panel": ("sanitary", "36", "each"), "bath_leg_set": ("sanitary", "18", "each"),
+    "wc_cistern": ("sanitary", "42", "each"), "wc_seat": ("sanitary", "24", "each"),
+    "bathroom_accessory": ("sanitary", "12", "each"),
 }
 MEASURE_STYLE_TYPES = {
     "plasterboard": Unit.M2, "cement_backer_board": Unit.M2, "tile": Unit.M2,
     "tile_adhesive": Unit.KG, "tile_grout": Unit.KG, "paint": Unit.LITRE, "primer": Unit.LITRE,
     "copper_pipe": Unit.M, "plastic_barrier_pipe": Unit.M, "waste_pipe": Unit.M,
     "timber_stud": Unit.M, "metal_stud": Unit.M, "duct": Unit.M, "trim": Unit.M,
+    "levelling_compound": Unit.KG,
 }
 MULTI_TYPES = {"pipe_fitting", "isolating_valve", "downlight", "cavity_fixing", "tap_connector",
                "ptfe_tape", "silicone_sealant", "trim", "trap"}
-PER_UNIT_TYPES = {"drywall_screw", "wood_screw", "wall_plug"}
+PER_UNIT_TYPES = {"drywall_screw", "wood_screw", "wall_plug", "backer_screw"}
 
 
 @dataclass(frozen=True)

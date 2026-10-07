@@ -198,11 +198,14 @@ def test_gaps_follow_the_after_review_quote(files: dict[str, str]) -> None:
 def test_reviewer_decisions_are_the_applied_synthetic_ones(files: dict[str, str]) -> None:
     b = bundles(files)
     full = b[(TENANT_A, "full")]
-    assert len(full["reviewer_decisions"]) == 29
+    # Most kit lines now resolve without a reviewer (library 0.3.1); only queued lines take one.
+    assert len(full["reviewer_decisions"]) == 2
     assert full["quote_after_review"] != full["quote_first"]
-    cloak = {d["kit_line_id"]: d for d in b[(TENANT_A, "cloakroom")]["reviewer_decisions"]}
-    assert cloak["sw_basin_pedestal"]["source"] == "pricebook demo"
-    wet = {d["kit_line_id"] for d in b[(TENANT_B, "wet_room")]["reviewer_decisions"]}
+    # The cloakroom pedestal basin now states its size and resolves without a reviewer, so only
+    # the wet room still has a decision of the pricebook demo's own.
+    wet_docs = {d["kit_line_id"]: d for d in b[(TENANT_B, "wet_room")]["reviewer_decisions"]}
+    assert wet_docs["sw_basin_wall_hung"]["source"] == "pricebook demo"
+    wet = set(wet_docs)
     assert "sw_basin_wall_hung" in wet
     for doc in b.values():
         assert all(d["approver"] == "demo-reviewer" and d["sku_id"].startswith("SYN-")
@@ -274,9 +277,11 @@ def test_options_inputs_are_synthetic_and_the_balanced_option_needs_references(
 
 def test_tenant_a_cloakroom_shows_a_distinct_balanced_option(files: dict[str, str]) -> None:
     opts = bundles(files)[(TENANT_A, "cloakroom")]["quote_options"]
+    # The cloakroom quote now prices far more lines (library 0.3.1), so its baskets differ; the
+    # demo budget and delivery cap were retuned so that the balanced option is still its own basket.
     assert [o["option_id"] for o in opts["options"]] == [
-        "cheapest", "fastest", "preferred", "balanced"]
-    assert [d["kind"] for d in opts["duplicates"]] == ["fewest_deliveries"]
+        "cheapest", "fewest_deliveries", "fastest", "preferred", "balanced"]
+    assert opts["duplicates"] == []
     assert opts["optimiser"]["exact"] is False
 
 

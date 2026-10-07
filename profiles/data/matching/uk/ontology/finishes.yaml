@@ -87,6 +87,17 @@ types:
         values:
           gloss: {label: gloss, synonyms: [gloss, glossy]}
           matt: {label: matt, synonyms: [matt, matte]}
+      - name: slip_rating
+        label: slip rating
+        kind: enum
+        required: false
+        rule: ge
+        check: grade
+        values:
+          r9: {label: R9, synonyms: [r9]}
+          r10: {label: R10, synonyms: [r10]}
+          r11: {label: R11, synonyms: [r11]}
+          r12: {label: R12, synonyms: [r12]}
       - {name: colour, label: colour, kind: text, required: false, check: class, aliases: [colour, color]}
 
   paint:

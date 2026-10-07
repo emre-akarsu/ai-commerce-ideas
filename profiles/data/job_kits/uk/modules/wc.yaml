@@ -7,7 +7,7 @@
 # refurbishment top picks by option/ (2026-10-06).
 id: uk.module.wc
 module: wc
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: WC
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -64,7 +64,7 @@ lines:
       evidence_quality: retailer
   - id: rimless
     label: Rimless bowl
-    spec: Floor-standing close-coupled WC pan with a rimless bowl, horizontal outlet, floor fixing kit
+    spec: Close-coupled WC pan, rimless bowl, horizontal outlet, no seat
     tags:
     - most_used
     default: true
@@ -93,8 +93,8 @@ lines:
       url: https://www.screwfix.com/p/trade-soft-close-close-coupled-rimless-toilet-dual-flush-6-4ltr/876CH
       licence: unknown-copyright-facts-only
       evidence_quality: retailer
-  help: Prices are for a whole set (pan, cistern and seat). Back-to-wall and wall-hung are chosen with
-    the WC type question.
+  help: Prices are for a whole set (pan, cistern and seat). Back-to-wall and wall-hung are chosen
+    with the WC type question. Floor fixing kit included; the seat is a separate line.
 - id: sw_wc_pan_comfort_height
   description: Comfort-height close-coupled WC pan
   spec: Floor-standing close-coupled WC pan, comfort height (seat about 430-480 mm), rimless bowl, horizontal
@@ -119,7 +119,8 @@ lines:
     evidence_quality: retailer
 - id: sw_wc_cistern
   description: Close-coupled cistern
-  spec: Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings
+  spec: Close-coupled cistern, dual flush
+  help: Typically 4.5/3 l flush volumes, fittings included.
   unit: nr
   quantity: '1'
   when: wc_type == 'close_coupled'
@@ -195,6 +196,7 @@ lines:
 - id: sw_wc_pan_connector
   description: WC pan connector to the 110 mm soil
   spec: Pan connector, 110 mm, type to suit the soil outlet (P, S or offset); rigid where alignment allows
+  help: A rigid pan connector with a small offset is accepted where the soil outlet needs it.
   unit: nr
   quantity: '1'
   when: wc_type != 'wall_hung'
@@ -219,7 +221,7 @@ lines:
   options:
   - id: rigid
     label: Rigid connector
-    spec: Rigid 110 mm pan connector, straight or small offset, to suit the soil outlet
+    spec: Straight 110 mm WC pan connector
     tags:
     - budget
     - most_used
@@ -396,7 +398,7 @@ lines:
       evidence_quality: retailer
   - id: soft_close
     label: Soft-close seat
-    spec: WC seat and cover to suit the pan, soft-close hinges
+    spec: Soft-close WC seat and cover
     tags:
     - most_used
     default: true

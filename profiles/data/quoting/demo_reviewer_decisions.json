@@ -2,7 +2,7 @@
   "id": "quoting-demo-reviewer-decisions-v1",
   "label": "SYNTHETIC demo only: invented reviewer decisions that let the demo show the approval loop. A real reviewer reads each candidate; nothing here is a recommendation.",
   "approver": "demo-reviewer",
-  "left_for_a_person": "Lines whose candidates are not the product asked for (ff_fittings_compression, ff_waste_fittings, fl_overlay, sw_wc_cistern, sw_wc_seat, sw_toilet_roll_holder, sw_towel_ring, vn_duct_fixings) and dc_emulsion (white vs brilliant white fails a check, so an approval would be refused) stay in the review queue on purpose.",
+  "left_for_a_person": "Lines that stay in the review queue on purpose: assortments and 'to suit' lines (ff_fittings_compression, ff_waste_fittings, sw_wc_flush_lever, vn_duct_fixings), and cs_wc_packers, whose nearest candidates are not the product asked for. Many lines that earlier needed a reviewer now resolve without one because the kit text states the attributes the checks need (library 0.3.1); the decisions below that no longer have a queued line are simply not applied.",
   "decisions": [
     {
       "kit_line_id": "so_cap_feeds",
@@ -148,6 +148,11 @@
       "kit_line_id": "cs_fixings_solid",
       "sku_id": "SYN-WP-0003",
       "note": "universal plug 6 x 30 mm, pack of 50"
+    },
+    {
+      "kit_line_id": "wp_tanking_kit",
+      "sku_id": "SYN-TK-0002",
+      "note": "liquid tanking kit, 6 m2 coverage: an invented choice for the demo; the coverage depends on the wet area"
     }
   ]
 }

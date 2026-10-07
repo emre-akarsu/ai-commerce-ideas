@@ -7,7 +7,7 @@
 # refurbishment top picks by option/ (2026-10-06).
 id: uk.module.first_fix_plumbing
 module: first_fix_plumbing
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: First-fix plumbing
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -31,7 +31,7 @@ lines:
   options:
   - id: copper
     label: Copper
-    spec: 15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder)
+    spec: 15 mm x 3 m copper tube
     tags:
     - most_used
     default: true
@@ -89,11 +89,12 @@ lines:
       url: https://www.screwfix.com/p/hep2o-hxx03-15w-push-fit-polybutylene-barrier-pipes-15mm-x-3m-white-10-pack/5445f
       licence: unknown-copyright-facts-only
       evidence_quality: retailer
-  help: Plastic pipe must stay the maker's set distance from the boiler. Copper on exposed runs, plastic
-    on concealed runs is common.
+  help: Plastic pipe must stay the maker's set distance from the boiler. Copper on exposed runs,
+    plastic on concealed runs is common. Half-hard copper suits exposed runs and runs near the
+    boiler or cylinder.
 - id: ff_pipe_clips
   description: Pipe clips for new runs
-  spec: 15 mm pipe clips
+  spec: 15 mm plastic pipe clips, pack of 50
   unit: pack
   quantity: '1'
   provenance:
@@ -158,6 +159,7 @@ lines:
 - id: ff_iv_basin
   description: Isolating valves on the basin feed(s)
   spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+  help: A brass-finish valve is also acceptable once a person approves it.
   unit: nr
   quantity: '2'
   provenance:
@@ -175,7 +177,7 @@ lines:
   options:
   - id: slotted
     label: Slotted isolating valve
-    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated
+    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, chrome-plated
     tags:
     - budget
     - most_used
@@ -197,8 +199,7 @@ lines:
       evidence_quality: search_snippet
   - id: lever
     label: Lever isolating valve
-    spec: 15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a
-      tool
+    spec: 15 mm full-bore isolating valve, lever-operated, compression, chrome-plated
     tags:
     - premium
     default: false
@@ -210,6 +211,7 @@ lines:
 - id: ff_iv_bath
   description: Isolating valves on the bath tap feed(s)
   spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+  help: A brass-finish valve is also acceptable once a person approves it.
   unit: nr
   quantity: '2'
   provenance:
@@ -223,7 +225,7 @@ lines:
   options:
   - id: slotted
     label: Slotted isolating valve
-    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated
+    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, chrome-plated
     tags:
     - budget
     - most_used
@@ -245,8 +247,7 @@ lines:
       evidence_quality: search_snippet
   - id: lever
     label: Lever isolating valve
-    spec: 15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a
-      tool
+    spec: 15 mm full-bore isolating valve, lever-operated, compression, chrome-plated
     tags:
     - premium
     default: false
@@ -258,6 +259,7 @@ lines:
 - id: ff_iv_wc
   description: Isolating valves on the WC cistern feed(s)
   spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+  help: A brass-finish valve is also acceptable once a person approves it.
   unit: nr
   quantity: '1'
   when: wc_type != 'wall_hung'
@@ -272,7 +274,7 @@ lines:
   options:
   - id: slotted
     label: Slotted isolating valve
-    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated
+    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, chrome-plated
     tags:
     - budget
     - most_used
@@ -294,8 +296,7 @@ lines:
       evidence_quality: search_snippet
   - id: lever
     label: Lever isolating valve
-    spec: 15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a
-      tool
+    spec: 15 mm full-bore isolating valve, lever-operated, compression, chrome-plated
     tags:
     - premium
     default: false
@@ -307,6 +308,7 @@ lines:
 - id: ff_iv_shower_mixer
   description: Isolating valves on the shower mixer feed(s)
   spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+  help: A brass-finish valve is also acceptable once a person approves it.
   unit: nr
   quantity: '2'
   when: shower_type == 'mixer' or (shower_type == 'auto' and hot_water_system in ('combi', 'unvented'))
@@ -324,7 +326,7 @@ lines:
   options:
   - id: slotted
     label: Slotted isolating valve
-    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated
+    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, chrome-plated
     tags:
     - budget
     - most_used
@@ -346,8 +348,7 @@ lines:
       evidence_quality: search_snippet
   - id: lever
     label: Lever isolating valve
-    spec: 15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a
-      tool
+    spec: 15 mm full-bore isolating valve, lever-operated, compression, chrome-plated
     tags:
     - premium
     default: false
@@ -359,6 +360,7 @@ lines:
 - id: ff_iv_shower_electric
   description: Isolating valves on the electric shower feed(s)
   spec: 15 mm isolating valve, screwdriver-operated, compression or fibre-washer type
+  help: A brass-finish valve is also acceptable once a person approves it.
   unit: nr
   quantity: '1'
   when: shower_type == 'electric' or (shower_type == 'auto' and hot_water_system == 'gravity')
@@ -379,7 +381,7 @@ lines:
   options:
   - id: slotted
     label: Slotted isolating valve
-    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated
+    spec: 15 mm full-bore isolating valve, screwdriver-operated, compression, chrome-plated
     tags:
     - budget
     - most_used
@@ -401,8 +403,7 @@ lines:
       evidence_quality: search_snippet
   - id: lever
     label: Lever isolating valve
-    spec: 15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a
-      tool
+    spec: 15 mm full-bore isolating valve, lever-operated, compression, chrome-plated
     tags:
     - premium
     default: false
@@ -414,6 +415,8 @@ lines:
 - id: ff_waste_32
   description: Basin waste pipe
   spec: 32 mm waste pipe and fittings
+  help: Waste fittings are on their own line. MuPVC (PVC-U) pipe is an accepted alternative to ABS
+    once a person approves it.
   unit: m
   quantity: waste_32mm_m
   uniclass_pr:
@@ -430,7 +433,7 @@ lines:
   options:
   - id: solvent_weld
     label: Solvent-weld waste
-    spec: 32 mm solvent-weld waste pipe (ABS or PVC-U) and fittings
+    spec: 32 mm solvent-weld ABS waste pipe, 3 m lengths
     tags:
     - most_used
     default: true
@@ -464,6 +467,8 @@ lines:
 - id: ff_waste_40
   description: Bath or shower waste pipe
   spec: 40 mm waste pipe and fittings
+  help: Waste fittings are on their own line. MuPVC (PVC-U) pipe is an accepted alternative to ABS
+    once a person approves it.
   unit: m
   quantity: waste_40mm_m
   uniclass_pr:
@@ -485,7 +490,7 @@ lines:
   options:
   - id: solvent_weld
     label: Solvent-weld waste
-    spec: 40 mm solvent-weld waste pipe (ABS or PVC-U) and fittings
+    spec: 40 mm solvent-weld ABS waste pipe, 3 m lengths
     tags:
     - most_used
     default: true

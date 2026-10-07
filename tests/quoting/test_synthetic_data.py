@@ -74,7 +74,7 @@ def test_five_merchants_with_trade_files_for_one_tenant_and_one_account_file_for
 def test_the_catalogue_is_covered_by_the_trade_files(seed_items: tuple[CatalogItem, ...]) -> None:
     listed = {r["sku"] for m in TRADE for r in rows(f"prices/{m}_trade.csv")}
     known = {i.sku_id for i in seed_items}
-    assert listed <= known and len(known) == 299
+    assert listed <= known and len(known) == 352  # 299 + 53 added for the kit lines
     assert len(listed) / len(known) >= 0.90  # most of the seed; about 7% is deliberately unlisted
     assert len(known - listed) >= 5  # so that "no offer" has something to find
     per_sku = Counter(r["sku"] for m in TRADE for r in rows(f"prices/{m}_trade.csv"))

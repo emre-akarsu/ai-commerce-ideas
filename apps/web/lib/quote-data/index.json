@@ -9,29 +9,29 @@
       "scope_id": "bathroom_full",
       "scope_label": "Full bathroom refit (bath, basin, WC, shower)",
       "path": "demo-tenant-a/full.json",
-      "reviewer_decisions": 29,
+      "reviewer_decisions": 2,
       "first": {
         "lines_total": 77,
-        "priced": 2,
-        "review": 41,
-        "unmatched": 34,
+        "priced": 48,
+        "review": 7,
+        "unmatched": 20,
         "indicative": 0,
-        "no_offer": 0,
+        "no_offer": 2,
         "skipped": 0,
-        "firm_total_ex_vat": "190.90",
-        "firm_total_inc_vat": "229.08",
+        "firm_total_ex_vat": "1818.54",
+        "firm_total_inc_vat": "2182.25",
         "currency": "GBP"
       },
       "after_review": {
         "lines_total": 77,
-        "priced": 34,
-        "review": 9,
-        "unmatched": 34,
+        "priced": 50,
+        "review": 5,
+        "unmatched": 20,
         "indicative": 0,
-        "no_offer": 0,
+        "no_offer": 2,
         "skipped": 0,
-        "firm_total_ex_vat": "1315.39",
-        "firm_total_inc_vat": "1578.47",
+        "firm_total_ex_vat": "1869.40",
+        "firm_total_inc_vat": "2243.28",
         "currency": "GBP"
       },
       "options": {
@@ -43,130 +43,16 @@
           "preferred"
         ],
         "duplicates": 0,
-        "lowest_total_ex_vat": "1315.39",
-        "lowest_total_inc_vat": "1578.47",
-        "highest_total_ex_vat": "1378.43",
+        "lowest_total_ex_vat": "1869.40",
+        "lowest_total_inc_vat": "2243.28",
+        "highest_total_ex_vat": "1956.24",
         "balanced_shown": false,
         "balanced_status": "not_computed",
-        "exact": false,
-        "search_incomplete": false,
-        "excluded_lines": 43,
-        "indicative_lines": 10,
-        "has_buyer_references": false
-      },
-      "price_book": {
-        "current": 5,
-        "stale": 0,
-        "missing": 0,
-        "indicative_only": 0,
-        "gaps": 40
-      }
-    },
-    {
-      "tenant_id": "demo-tenant-a",
-      "scope_id": "bathroom_wc_only",
-      "scope_label": "WC replacement",
-      "path": "demo-tenant-a/wc_only.json",
-      "reviewer_decisions": 6,
-      "first": {
-        "lines_total": 24,
-        "priced": 1,
-        "review": 11,
-        "unmatched": 12,
-        "indicative": 0,
-        "no_offer": 0,
-        "skipped": 0,
-        "firm_total_ex_vat": "22.44",
-        "firm_total_inc_vat": "26.93",
-        "currency": "GBP"
-      },
-      "after_review": {
-        "lines_total": 24,
-        "priced": 7,
-        "review": 5,
-        "unmatched": 12,
-        "indicative": 0,
-        "no_offer": 0,
-        "skipped": 0,
-        "firm_total_ex_vat": "175.59",
-        "firm_total_inc_vat": "210.71",
-        "currency": "GBP"
-      },
-      "options": {
-        "options_shown": 2,
-        "option_ids": [
-          "cheapest",
-          "preferred"
-        ],
-        "duplicates": 2,
-        "lowest_total_ex_vat": "175.59",
-        "lowest_total_inc_vat": "210.71",
-        "highest_total_ex_vat": "183.63",
-        "balanced_shown": false,
-        "balanced_status": "not_computed",
-        "exact": true,
-        "search_incomplete": false,
-        "excluded_lines": 17,
-        "indicative_lines": 3,
-        "has_buyer_references": false
-      },
-      "price_book": {
-        "current": 5,
-        "stale": 0,
-        "missing": 0,
-        "indicative_only": 0,
-        "gaps": 15
-      }
-    },
-    {
-      "tenant_id": "demo-tenant-a",
-      "scope_id": "bathroom_cloakroom",
-      "scope_label": "Cloakroom refit (WC and basin)",
-      "path": "demo-tenant-a/cloakroom.json",
-      "reviewer_decisions": 24,
-      "first": {
-        "lines_total": 52,
-        "priced": 1,
-        "review": 31,
-        "unmatched": 20,
-        "indicative": 0,
-        "no_offer": 0,
-        "skipped": 0,
-        "firm_total_ex_vat": "22.44",
-        "firm_total_inc_vat": "26.93",
-        "currency": "GBP"
-      },
-      "after_review": {
-        "lines_total": 52,
-        "priced": 25,
-        "review": 7,
-        "unmatched": 20,
-        "indicative": 0,
-        "no_offer": 0,
-        "skipped": 0,
-        "firm_total_ex_vat": "483.40",
-        "firm_total_inc_vat": "580.08",
-        "currency": "GBP"
-      },
-      "options": {
-        "options_shown": 4,
-        "option_ids": [
-          "cheapest",
-          "fastest",
-          "preferred",
-          "balanced"
-        ],
-        "duplicates": 1,
-        "lowest_total_ex_vat": "483.40",
-        "lowest_total_inc_vat": "580.08",
-        "highest_total_ex_vat": "534.44",
-        "balanced_shown": true,
-        "balanced_status": "computed",
         "exact": false,
         "search_incomplete": false,
         "excluded_lines": 27,
-        "indicative_lines": 7,
-        "has_buyer_references": true
+        "indicative_lines": 15,
+        "has_buyer_references": false
       },
       "price_book": {
         "current": 5,
@@ -178,51 +64,51 @@
     },
     {
       "tenant_id": "demo-tenant-a",
-      "scope_id": "bathroom_wet_room",
-      "scope_label": "Wet room / level-access shower conversion",
-      "path": "demo-tenant-a/wet_room.json",
-      "reviewer_decisions": 21,
+      "scope_id": "bathroom_wc_only",
+      "scope_label": "WC replacement",
+      "path": "demo-tenant-a/wc_only.json",
+      "reviewer_decisions": 1,
       "first": {
-        "lines_total": 70,
-        "priced": 1,
-        "review": 30,
-        "unmatched": 39,
+        "lines_total": 24,
+        "priced": 11,
+        "review": 4,
+        "unmatched": 8,
         "indicative": 0,
-        "no_offer": 0,
+        "no_offer": 1,
         "skipped": 0,
-        "firm_total_ex_vat": "26.88",
-        "firm_total_inc_vat": "32.26",
+        "firm_total_ex_vat": "284.63",
+        "firm_total_inc_vat": "341.56",
         "currency": "GBP"
       },
       "after_review": {
-        "lines_total": 70,
-        "priced": 23,
-        "review": 8,
-        "unmatched": 39,
+        "lines_total": 24,
+        "priced": 12,
+        "review": 3,
+        "unmatched": 8,
         "indicative": 0,
-        "no_offer": 0,
+        "no_offer": 1,
         "skipped": 0,
-        "firm_total_ex_vat": "676.60",
-        "firm_total_inc_vat": "811.92",
+        "firm_total_ex_vat": "286.74",
+        "firm_total_inc_vat": "344.09",
         "currency": "GBP"
       },
       "options": {
         "options_shown": 3,
         "option_ids": [
           "cheapest",
-          "fastest",
+          "fewest_deliveries",
           "preferred"
         ],
         "duplicates": 1,
-        "lowest_total_ex_vat": "676.60",
-        "lowest_total_inc_vat": "811.92",
-        "highest_total_ex_vat": "690.14",
+        "lowest_total_ex_vat": "286.74",
+        "lowest_total_inc_vat": "344.09",
+        "highest_total_ex_vat": "291.56",
         "balanced_shown": false,
         "balanced_status": "not_computed",
-        "exact": false,
+        "exact": true,
         "search_incomplete": false,
-        "excluded_lines": 47,
-        "indicative_lines": 7,
+        "excluded_lines": 12,
+        "indicative_lines": 5,
         "has_buyer_references": false
       },
       "price_book": {
@@ -230,7 +116,124 @@
         "stale": 0,
         "missing": 0,
         "indicative_only": 0,
-        "gaps": 44
+        "gaps": 10
+      }
+    },
+    {
+      "tenant_id": "demo-tenant-a",
+      "scope_id": "bathroom_cloakroom",
+      "scope_label": "Cloakroom refit (WC and basin)",
+      "path": "demo-tenant-a/cloakroom.json",
+      "reviewer_decisions": 1,
+      "first": {
+        "lines_total": 52,
+        "priced": 31,
+        "review": 6,
+        "unmatched": 13,
+        "indicative": 0,
+        "no_offer": 2,
+        "skipped": 0,
+        "firm_total_ex_vat": "747.02",
+        "firm_total_inc_vat": "896.42",
+        "currency": "GBP"
+      },
+      "after_review": {
+        "lines_total": 52,
+        "priced": 32,
+        "review": 5,
+        "unmatched": 13,
+        "indicative": 0,
+        "no_offer": 2,
+        "skipped": 0,
+        "firm_total_ex_vat": "749.13",
+        "firm_total_inc_vat": "898.96",
+        "currency": "GBP"
+      },
+      "options": {
+        "options_shown": 5,
+        "option_ids": [
+          "cheapest",
+          "fewest_deliveries",
+          "fastest",
+          "preferred",
+          "balanced"
+        ],
+        "duplicates": 0,
+        "lowest_total_ex_vat": "749.13",
+        "lowest_total_inc_vat": "898.96",
+        "highest_total_ex_vat": "823.63",
+        "balanced_shown": true,
+        "balanced_status": "computed",
+        "exact": false,
+        "search_incomplete": false,
+        "excluded_lines": 20,
+        "indicative_lines": 10,
+        "has_buyer_references": true
+      },
+      "price_book": {
+        "current": 5,
+        "stale": 0,
+        "missing": 0,
+        "indicative_only": 0,
+        "gaps": 17
+      }
+    },
+    {
+      "tenant_id": "demo-tenant-a",
+      "scope_id": "bathroom_wet_room",
+      "scope_label": "Wet room / level-access shower conversion",
+      "path": "demo-tenant-a/wet_room.json",
+      "reviewer_decisions": 5,
+      "first": {
+        "lines_total": 70,
+        "priced": 29,
+        "review": 9,
+        "unmatched": 30,
+        "indicative": 0,
+        "no_offer": 2,
+        "skipped": 0,
+        "firm_total_ex_vat": "837.16",
+        "firm_total_inc_vat": "1004.59",
+        "currency": "GBP"
+      },
+      "after_review": {
+        "lines_total": 70,
+        "priced": 32,
+        "review": 6,
+        "unmatched": 30,
+        "indicative": 0,
+        "no_offer": 2,
+        "skipped": 0,
+        "firm_total_ex_vat": "1036.30",
+        "firm_total_inc_vat": "1243.56",
+        "currency": "GBP"
+      },
+      "options": {
+        "options_shown": 4,
+        "option_ids": [
+          "cheapest",
+          "fewest_deliveries",
+          "fastest",
+          "preferred"
+        ],
+        "duplicates": 0,
+        "lowest_total_ex_vat": "1036.30",
+        "lowest_total_inc_vat": "1243.56",
+        "highest_total_ex_vat": "1077.36",
+        "balanced_shown": false,
+        "balanced_status": "not_computed",
+        "exact": false,
+        "search_incomplete": false,
+        "excluded_lines": 38,
+        "indicative_lines": 8,
+        "has_buyer_references": false
+      },
+      "price_book": {
+        "current": 5,
+        "stale": 0,
+        "missing": 0,
+        "indicative_only": 0,
+        "gaps": 35
       }
     },
     {
@@ -238,29 +241,29 @@
       "scope_id": "bathroom_full",
       "scope_label": "Full bathroom refit (bath, basin, WC, shower)",
       "path": "demo-tenant-b/full.json",
-      "reviewer_decisions": 29,
+      "reviewer_decisions": 2,
       "first": {
         "lines_total": 77,
-        "priced": 2,
-        "review": 41,
-        "unmatched": 34,
-        "indicative": 0,
-        "no_offer": 0,
+        "priced": 18,
+        "review": 7,
+        "unmatched": 20,
+        "indicative": 11,
+        "no_offer": 21,
         "skipped": 0,
-        "firm_total_ex_vat": "151.28",
-        "firm_total_inc_vat": "181.54",
+        "firm_total_ex_vat": "995.63",
+        "firm_total_inc_vat": "1194.76",
         "currency": "GBP"
       },
       "after_review": {
         "lines_total": 77,
-        "priced": 16,
-        "review": 9,
-        "unmatched": 34,
-        "indicative": 6,
-        "no_offer": 12,
+        "priced": 20,
+        "review": 5,
+        "unmatched": 20,
+        "indicative": 11,
+        "no_offer": 21,
         "skipped": 0,
-        "firm_total_ex_vat": "873.63",
-        "firm_total_inc_vat": "1048.36",
+        "firm_total_ex_vat": "1043.08",
+        "firm_total_inc_vat": "1251.70",
         "currency": "GBP"
       },
       "options": {
@@ -269,15 +272,15 @@
           "cheapest"
         ],
         "duplicates": 3,
-        "lowest_total_ex_vat": "873.63",
-        "lowest_total_inc_vat": "1048.36",
-        "highest_total_ex_vat": "873.63",
+        "lowest_total_ex_vat": "1043.08",
+        "lowest_total_inc_vat": "1251.70",
+        "highest_total_ex_vat": "1043.08",
         "balanced_shown": false,
         "balanced_status": "not_computed",
         "exact": true,
         "search_incomplete": false,
-        "excluded_lines": 61,
-        "indicative_lines": 10,
+        "excluded_lines": 57,
+        "indicative_lines": 15,
         "has_buyer_references": false
       },
       "price_book": {
@@ -285,7 +288,7 @@
         "stale": 0,
         "missing": 2,
         "indicative_only": 2,
-        "gaps": 58
+        "gaps": 54
       }
     },
     {
@@ -293,29 +296,29 @@
       "scope_id": "bathroom_wc_only",
       "scope_label": "WC replacement",
       "path": "demo-tenant-b/wc_only.json",
-      "reviewer_decisions": 6,
+      "reviewer_decisions": 1,
       "first": {
         "lines_total": 24,
-        "priced": 1,
-        "review": 11,
-        "unmatched": 12,
-        "indicative": 0,
-        "no_offer": 0,
+        "priced": 4,
+        "review": 4,
+        "unmatched": 8,
+        "indicative": 3,
+        "no_offer": 5,
         "skipped": 0,
-        "firm_total_ex_vat": "18.91",
-        "firm_total_inc_vat": "22.69",
+        "firm_total_ex_vat": "108.75",
+        "firm_total_inc_vat": "130.50",
         "currency": "GBP"
       },
       "after_review": {
         "lines_total": 24,
-        "priced": 4,
-        "review": 5,
-        "unmatched": 12,
-        "indicative": 0,
-        "no_offer": 3,
+        "priced": 5,
+        "review": 3,
+        "unmatched": 8,
+        "indicative": 3,
+        "no_offer": 5,
         "skipped": 0,
-        "firm_total_ex_vat": "121.22",
-        "firm_total_inc_vat": "145.46",
+        "firm_total_ex_vat": "110.48",
+        "firm_total_inc_vat": "132.58",
         "currency": "GBP"
       },
       "options": {
@@ -324,15 +327,15 @@
           "cheapest"
         ],
         "duplicates": 3,
-        "lowest_total_ex_vat": "121.22",
-        "lowest_total_inc_vat": "145.46",
-        "highest_total_ex_vat": "121.22",
+        "lowest_total_ex_vat": "110.48",
+        "lowest_total_inc_vat": "132.58",
+        "highest_total_ex_vat": "110.48",
         "balanced_shown": false,
         "balanced_status": "not_computed",
         "exact": true,
         "search_incomplete": false,
-        "excluded_lines": 20,
-        "indicative_lines": 3,
+        "excluded_lines": 19,
+        "indicative_lines": 5,
         "has_buyer_references": false
       },
       "price_book": {
@@ -340,7 +343,7 @@
         "stale": 0,
         "missing": 2,
         "indicative_only": 2,
-        "gaps": 18
+        "gaps": 17
       }
     },
     {
@@ -348,29 +351,29 @@
       "scope_id": "bathroom_cloakroom",
       "scope_label": "Cloakroom refit (WC and basin)",
       "path": "demo-tenant-b/cloakroom.json",
-      "reviewer_decisions": 24,
+      "reviewer_decisions": 1,
       "first": {
         "lines_total": 52,
-        "priced": 1,
-        "review": 31,
-        "unmatched": 20,
-        "indicative": 0,
-        "no_offer": 0,
+        "priced": 13,
+        "review": 6,
+        "unmatched": 13,
+        "indicative": 6,
+        "no_offer": 14,
         "skipped": 0,
-        "firm_total_ex_vat": "18.91",
-        "firm_total_inc_vat": "22.69",
+        "firm_total_ex_vat": "330.34",
+        "firm_total_inc_vat": "396.41",
         "currency": "GBP"
       },
       "after_review": {
         "lines_total": 52,
-        "priced": 11,
-        "review": 7,
-        "unmatched": 20,
-        "indicative": 3,
-        "no_offer": 11,
+        "priced": 14,
+        "review": 5,
+        "unmatched": 13,
+        "indicative": 6,
+        "no_offer": 14,
         "skipped": 0,
-        "firm_total_ex_vat": "232.47",
-        "firm_total_inc_vat": "278.96",
+        "firm_total_ex_vat": "332.07",
+        "firm_total_inc_vat": "398.48",
         "currency": "GBP"
       },
       "options": {
@@ -379,15 +382,15 @@
           "cheapest"
         ],
         "duplicates": 4,
-        "lowest_total_ex_vat": "232.47",
-        "lowest_total_inc_vat": "278.96",
-        "highest_total_ex_vat": "232.47",
+        "lowest_total_ex_vat": "332.07",
+        "lowest_total_inc_vat": "398.48",
+        "highest_total_ex_vat": "332.07",
         "balanced_shown": false,
         "balanced_status": "computed",
         "exact": true,
         "search_incomplete": false,
-        "excluded_lines": 41,
-        "indicative_lines": 7,
+        "excluded_lines": 38,
+        "indicative_lines": 10,
         "has_buyer_references": true
       },
       "price_book": {
@@ -395,7 +398,7 @@
         "stale": 0,
         "missing": 2,
         "indicative_only": 2,
-        "gaps": 38
+        "gaps": 35
       }
     },
     {
@@ -403,29 +406,29 @@
       "scope_id": "bathroom_wet_room",
       "scope_label": "Wet room / level-access shower conversion",
       "path": "demo-tenant-b/wet_room.json",
-      "reviewer_decisions": 21,
+      "reviewer_decisions": 5,
       "first": {
         "lines_total": 70,
-        "priced": 1,
-        "review": 30,
-        "unmatched": 39,
-        "indicative": 0,
-        "no_offer": 0,
+        "priced": 10,
+        "review": 9,
+        "unmatched": 30,
+        "indicative": 6,
+        "no_offer": 15,
         "skipped": 0,
-        "firm_total_ex_vat": "22.82",
-        "firm_total_inc_vat": "27.38",
+        "firm_total_ex_vat": "480.10",
+        "firm_total_inc_vat": "576.12",
         "currency": "GBP"
       },
       "after_review": {
         "lines_total": 70,
-        "priced": 10,
-        "review": 8,
-        "unmatched": 39,
-        "indicative": 4,
-        "no_offer": 9,
+        "priced": 12,
+        "review": 6,
+        "unmatched": 30,
+        "indicative": 6,
+        "no_offer": 16,
         "skipped": 0,
-        "firm_total_ex_vat": "444.89",
-        "firm_total_inc_vat": "533.87",
+        "firm_total_ex_vat": "618.99",
+        "firm_total_inc_vat": "742.79",
         "currency": "GBP"
       },
       "options": {
@@ -434,15 +437,15 @@
           "cheapest"
         ],
         "duplicates": 3,
-        "lowest_total_ex_vat": "444.89",
-        "lowest_total_inc_vat": "533.87",
-        "highest_total_ex_vat": "444.89",
+        "lowest_total_ex_vat": "618.99",
+        "lowest_total_inc_vat": "742.79",
+        "highest_total_ex_vat": "618.99",
         "balanced_shown": false,
         "balanced_status": "not_computed",
         "exact": true,
         "search_incomplete": false,
-        "excluded_lines": 60,
-        "indicative_lines": 7,
+        "excluded_lines": 58,
+        "indicative_lines": 8,
         "has_buyer_references": false
       },
       "price_book": {
@@ -450,7 +453,7 @@
         "stale": 0,
         "missing": 2,
         "indicative_only": 2,
-        "gaps": 57
+        "gaps": 55
       }
     }
   ]

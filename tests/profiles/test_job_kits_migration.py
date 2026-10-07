@@ -49,6 +49,35 @@ INTENDED_CHANGES: dict[tuple[str, str, str], str] = {
     ("wet_room", "wet_room_basin", "when"): "blending valve only for an adaptation",
 }
 
+# Library 0.3.1 (2026-10-07): the spec of these lines now states the attribute the matching checks
+# need (size, grade, class, pack) where v0.1.0 said "to suit", offered alternatives, or left it out.
+# Wording only; units, quantities, formulas and provenance are still compared strictly. See
+# profiles/data/job_kits/CHANGELOG.md and evals/matching/gold/kit_bathroom_gold_v1.jsonl.
+SPEC_STATES_ATTRIBUTES_0_3_1: dict[str, tuple[str, ...]] = {
+    "so_cap_feeds": ("bathroom_full", "bathroom_cloakroom", "wc_replacement", "wet_room"),
+    "ff_pipe_clips": ("bathroom_full", "bathroom_cloakroom", "wc_replacement", "wet_room"),
+    "wp_backer_board": ("bathroom_full", "wet_room"),
+    "wp_backer_screws": ("bathroom_full", "wet_room"),
+    "wp_backer_joint_tape": ("bathroom_full", "wet_room"),
+    "wp_tanking_kit": ("bathroom_full", "wet_room"),
+    "tl_spacers": ("bathroom_full", "bathroom_cloakroom", "wet_room"),
+    "tl_wall_primer": ("bathroom_full", "bathroom_cloakroom", "wet_room"),
+    "fl_overlay": ("bathroom_full", "bathroom_cloakroom", "wet_room"),
+    "fl_levelling": ("bathroom_full", "bathroom_cloakroom", "wet_room"),
+    "sw_bath_legs": ("bathroom_full",),
+    "sw_bath_panel": ("bathroom_full",),
+    "sw_bath_waste_overflow": ("bathroom_full",),
+    "sw_bath_trap": ("bathroom_full",),
+    "sw_basin_pedestal": ("bathroom_full",),
+    "sw_basin_waste": ("bathroom_full", "bathroom_cloakroom", "wet_room"),
+    "sw_wc_cistern": ("bathroom_full", "bathroom_cloakroom", "wc_replacement", "wet_room"),
+    "sw_toilet_roll_holder": ("bathroom_full",),
+    "cs_clear_sealant_wc": ("bathroom_full", "bathroom_cloakroom", "wc_replacement", "wet_room"),
+}
+INTENDED_CHANGES.update({
+    (template, line_id, "spec"): "0.3.1: spec states the attributes the matching checks need"
+    for line_id, templates in SPEC_STATES_ATTRIBUTES_0_3_1.items() for template in templates})
+
 
 @pytest.fixture(scope="module")
 def library() -> JobKitLibrary:

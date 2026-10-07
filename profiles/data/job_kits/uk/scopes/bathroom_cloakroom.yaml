@@ -10,7 +10,7 @@ scope_id: bathroom_cloakroom
 job_type: bathroom
 scope: cloakroom
 replaces: uk.bathroom_cloakroom
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: Cloakroom refit (WC and basin)
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -174,7 +174,8 @@ modules:
     tl_wall_tiles:
       spec: Ceramic or porcelain wall tiles for the splashback, about {splashback_height_mm} mm high above
         the basin
-      option_spec_note: splashback about {splashback_height_mm} mm high above the basin
+      help: Splashback only, about {splashback_height_mm} mm high above the basin; the height sets the
+        quantity, not the product. Porcelain is accepted once a person approves it.
 - module: flooring
 - module: wc
 - module: basin
@@ -182,7 +183,9 @@ modules:
     sw_basin_taps:
       spec: Single basin mixer or pair of pillar taps, lever handles
     sw_basin_pedestal:
-      spec: Compact ceramic washbasin 400-500 mm with full pedestal, tap holes to suit taps
+      spec: 450 mm full pedestal basin, one tap hole
+      help: Compact ceramic cloakroom basin; the kit allows 400-500 mm and 450 mm is the default size.
+        The tap holes must match the taps.
     sw_basin_vanity:
       spec: Compact basin on a cloakroom vanity unit, 400-550 mm wide, tap holes to suit taps
 - module: ventilation

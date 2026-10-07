@@ -7,7 +7,7 @@
 # refurbishment top picks by option/ (2026-10-06).
 id: uk.module.consumables
 module: consumables
-version: 0.3.0
+version: 0.3.1
 market: uk
 title: Consumables and fixings
 label: synthetic/illustrative seed — not licensed data; tradesperson review required
@@ -94,7 +94,7 @@ lines:
       evidence_quality: manufacturer_doc
 - id: cs_clear_sealant_wc
   description: Clear sealant at the WC base
-  spec: Clear silicone sealant
+  spec: Clear sanitary silicone sealant, 310 ml
   unit: cartridge
   quantity: '1'
   when: wc_type != 'wall_hung'
@@ -135,7 +135,7 @@ lines:
   options:
   - id: ptfe
     label: PTFE tape
-    spec: Drinking-water approved PTFE tape, for threaded joints only
+    spec: PTFE tape for water, 12 mm x 12 m, WRAS approved
     tags:
     - budget
     - most_used
@@ -162,7 +162,8 @@ lines:
       url: https://www.diynot.com/diy/goto/post?id=1363418
       licence: unknown-copyright-facts-only
       evidence_quality: forum
-  help: 'Nothing goes on compression olives: the fitting makers advise against it.'
+  help: 'Nothing goes on compression olives: the fitting makers advise against it. For threaded
+    joints only.'
 - id: cs_plumbing_sundries
   description: Plumbing sundries allowance
   spec: Small fittings, washers and connectors not listed elsewhere

@@ -134,6 +134,8 @@ abbreviations:
   silic: silicone
   std: standard
   flex: flexible
+  1th: one tap hole
+  2th: two tap hole
 # Words that follow a leading quantity and are consumed with it ("20 sheets"). Product nouns
 # such as "boards" or "screws" are not listed: they stay in the text for product-type matching.
 count_words:

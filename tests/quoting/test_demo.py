@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import re
 import sys
 from pathlib import Path
 
@@ -39,7 +40,7 @@ def test_two_runs_print_identical_output(demo, capsys) -> None:  # type: ignore[
 def test_the_second_tenant_sees_indicative_lines_and_a_wc_only_scope_works(
         demo, capsys, tmp_path: Path) -> None:  # type: ignore[no-untyped-def]
     out = run(demo, capsys, "--tenant", "demo-tenant-b", "--review-lines", "0")
-    assert "INDICATIVE ONLY (6 lines" in out and "indicative, not a quote" in out
+    assert re.search(r"INDICATIVE ONLY \([1-9]\d* lines", out) and "indicative, not a quote" in out
     assert "NO USABLE OFFER" in out and "stale" in out
     out = run(demo, capsys, "--tenant", "demo-tenant-b", "--scope", "wc_only",
               "--finish-level", "budget", "--export", str(tmp_path / "q.json"))

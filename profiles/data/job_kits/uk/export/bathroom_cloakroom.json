@@ -2,7 +2,7 @@
   "format": "job-kit-ui/2",
   "label": "synthetic/illustrative seed — not licensed data; tradesperson review required",
   "status": "needs_tradesperson_review",
-  "library_version": "0.3.0",
+  "library_version": "0.3.1",
   "market": "uk",
   "assumption_source": "default_template",
   "scope": {
@@ -12,7 +12,7 @@
     "scope": "cloakroom",
     "title": "Cloakroom refit (WC and basin)",
     "description": "Refit a separate WC room with a WC and a small washbasin. Decent Homes requires a basin on the same floor as the WC; separate WC replacement appears as its own line in council programmes.",
-    "version": "0.3.0"
+    "version": "0.3.1"
   },
   "max_upfront_questions": 3,
   "upfront_questions": [
@@ -728,7 +728,7 @@
         {
           "id": "so_cap_feeds",
           "description": "Temporary caps for hot and cold feeds after the old fittings come out",
-          "spec": "15 mm stop ends to suit the joint system",
+          "spec": "15 mm compression stop ends",
           "unit": "nr",
           "quantity_formula": "3",
           "when": null,
@@ -1161,7 +1161,7 @@
             {
               "id": "copper",
               "label": "Copper",
-              "spec": "15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder)",
+              "spec": "15 mm x 3 m copper tube",
               "tags": [
                 "most_used"
               ],
@@ -1262,12 +1262,12 @@
             }
           ],
           "forced_by": null,
-          "help": "Plastic pipe must stay the maker's set distance from the boiler. Copper on exposed runs, plastic on concealed runs is common."
+          "help": "Plastic pipe must stay the maker's set distance from the boiler. Copper on exposed runs, plastic on concealed runs is common. Half-hard copper suits exposed runs and runs near the boiler or cylinder."
         },
         {
           "id": "ff_pipe_clips",
           "description": "Pipe clips for new runs",
-          "spec": "15 mm pipe clips",
+          "spec": "15 mm plastic pipe clips, pack of 50",
           "unit": "pack",
           "quantity_formula": "1",
           "when": null,
@@ -1394,7 +1394,7 @@
             {
               "id": "slotted",
               "label": "Slotted isolating valve",
-              "spec": "15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated",
+              "spec": "15 mm full-bore isolating valve, screwdriver-operated, compression, chrome-plated",
               "tags": [
                 "budget",
                 "most_used"
@@ -1423,7 +1423,7 @@
             {
               "id": "lever",
               "label": "Lever isolating valve",
-              "spec": "15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a tool",
+              "spec": "15 mm full-bore isolating valve, lever-operated, compression, chrome-plated",
               "tags": [
                 "premium"
               ],
@@ -1456,7 +1456,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "A brass-finish valve is also acceptable once a person approves it."
         },
         {
           "id": "ff_iv_wc",
@@ -1472,7 +1472,7 @@
             {
               "id": "slotted",
               "label": "Slotted isolating valve",
-              "spec": "15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated",
+              "spec": "15 mm full-bore isolating valve, screwdriver-operated, compression, chrome-plated",
               "tags": [
                 "budget",
                 "most_used"
@@ -1501,7 +1501,7 @@
             {
               "id": "lever",
               "label": "Lever isolating valve",
-              "spec": "15 mm isolating valve with a lever handle, chrome finish, so it can be turned off without a tool",
+              "spec": "15 mm full-bore isolating valve, lever-operated, compression, chrome-plated",
               "tags": [
                 "premium"
               ],
@@ -1528,7 +1528,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "A brass-finish valve is also acceptable once a person approves it."
         },
         {
           "id": "ff_waste_32",
@@ -1544,7 +1544,7 @@
             {
               "id": "solvent_weld",
               "label": "Solvent-weld waste",
-              "spec": "32 mm solvent-weld waste pipe (ABS or PVC-U) and fittings",
+              "spec": "32 mm solvent-weld ABS waste pipe, 3 m lengths",
               "tags": [
                 "most_used"
               ],
@@ -1603,7 +1603,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "Waste fittings are on their own line. MuPVC (PVC-U) pipe is an accepted alternative to ABS once a person approves it."
         },
         {
           "id": "ff_waste_fittings",
@@ -1676,7 +1676,7 @@
             {
               "id": "ip65_fire_rated",
               "label": "Fire-rated IP65 downlight",
-              "spec": "Fixed fire-rated LED downlight, IP65, 6-7 W, warm white or selectable colour temperature",
+              "spec": "Fire-rated LED downlight, IP65, 7 W, warm white",
               "tags": [
                 "most_used"
               ],
@@ -1743,7 +1743,7 @@
             }
           ],
           "forced_by": null,
-          "help": "The number of downlights is an allowance you can change on review."
+          "help": "The number of downlights is an allowance you can change on review. The kit allows 6-7 W and a selectable colour temperature; a person approves those. Fixed (not tilting) fitting."
         },
         {
           "id": "el_fan_isolator",
@@ -1810,7 +1810,7 @@
             {
               "id": "value_600x300",
               "label": "Value tiles",
-              "spec": "Ceramic or porcelain wall tiles 600 x 300 mm, value range; splashback about 270 mm high above the basin",
+              "spec": "Ceramic or porcelain wall tiles 600 x 300 mm, value range",
               "tags": [
                 "budget"
               ],
@@ -1838,7 +1838,7 @@
             {
               "id": "standard_300x600",
               "label": "Standard tiles",
-              "spec": "Ceramic or porcelain wall tiles 300 x 600 mm, mid range; splashback about 270 mm high above the basin",
+              "spec": "Ceramic wall tiles 300 x 600 mm",
               "tags": [
                 "most_used"
               ],
@@ -1872,7 +1872,7 @@
             {
               "id": "designer",
               "label": "Designer tiles",
-              "spec": "Designer or large-format porcelain wall tiles; splashback about 270 mm high above the basin",
+              "spec": "Designer or large-format porcelain wall tiles",
               "tags": [
                 "premium"
               ],
@@ -1913,7 +1913,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "Splashback only, about 270 mm high above the basin; the height sets the quantity, not the product. Porcelain is accepted once a person approves it."
         },
         {
           "id": "tl_wall_adhesive",
@@ -1929,7 +1929,7 @@
             {
               "id": "flexible_s1",
               "label": "Flexible S1 powder",
-              "spec": "Flexible S1 cement powder tile adhesive for walls, standard or rapid set, 20 kg bags",
+              "spec": "Flexible S1 cement powder tile adhesive, rapid set, 20 kg bag",
               "tags": [
                 "most_used"
               ],
@@ -2005,7 +2005,7 @@
             "text": "Tiles over 300 x 300 mm, porcelain and floors need a cement powder adhesive, not a ready-mixed tub; timber floors and underfloor heating need flexible S1 (S2 over 400 x 400 mm).",
             "source_url": "https://www.toppstiles.co.uk/knowledge-base/what-tile-adhesive-to-use"
           },
-          "help": null
+          "help": "Standard-set adhesive is accepted once a person approves it."
         },
         {
           "id": "tl_wall_grout",
@@ -2021,7 +2021,7 @@
             {
               "id": "flexible",
               "label": "Flexible mould-resistant grout",
-              "spec": "Flexible, water-repellent, mould-resistant cement grout for walls",
+              "spec": "Flexible cement tile grout, white, 5 kg",
               "tags": [
                 "most_used"
               ],
@@ -2103,12 +2103,12 @@
             "text": "Flexible adhesive needs a flexible grout.",
             "source_url": "https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants"
           },
-          "help": null
+          "help": "Water-repellent, mould-resistant grade: confirm on the data sheet. The colour is a default."
         },
         {
           "id": "tl_spacers",
           "description": "Tile spacers",
-          "spec": "Tile spacers to suit the grout joint",
+          "spec": "3 mm tile spacers, pack of 250",
           "unit": "pack",
           "quantity_formula": "1",
           "when": null,
@@ -2125,7 +2125,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "3 mm assumes a 3 mm grout joint; change it if the joint differs."
         },
         {
           "id": "tl_trim",
@@ -2141,7 +2141,7 @@
             {
               "id": "plastic",
               "label": "Plastic trim",
-              "spec": "White uPVC round-edge tile trim to suit tile thickness",
+              "spec": "White uPVC round-edge tile trim, 10 mm",
               "tags": [
                 "budget",
                 "most_used"
@@ -2240,7 +2240,7 @@
         {
           "id": "tl_wall_primer",
           "description": "Primer for the tiled wall substrate",
-          "spec": "Tile primer suited to the substrate",
+          "spec": "Acrylic tile primer for gypsum plaster, 5 l",
           "unit": "l",
           "quantity_formula": "ceil(wall_tiled_m2 / primer_coverage_m2_per_l)",
           "when": null,
@@ -2266,7 +2266,7 @@
             "text": "Gypsum plaster, plasterboard and anhydrite need a primer before a cement-based adhesive.",
             "source_url": "https://www.victorianplumbing.co.uk/mapei-primer-g"
           },
-          "help": null
+          "help": "Gypsum plaster is the default substrate; a general-porous primer is used on other substrates."
         },
         {
           "id": "tl_floor_tiles",
@@ -2310,7 +2310,7 @@
             {
               "id": "porcelain_600",
               "label": "Porcelain 600 x 600 mm",
-              "spec": "Slip-resistant porcelain floor tiles 600 x 600 mm",
+              "spec": "Porcelain floor tiles 600 x 600 mm, R10",
               "tags": [
                 "most_used"
               ],
@@ -2385,7 +2385,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "R10 is the least slip rating accepted; a higher rating is also acceptable."
         },
         {
           "id": "tl_floor_adhesive",
@@ -2401,7 +2401,7 @@
             {
               "id": "flexible_s1",
               "label": "Flexible S1 powder",
-              "spec": "Flexible S1 cement powder tile adhesive for floors, standard or rapid set, 20 kg bags",
+              "spec": "Flexible S1 cement powder tile adhesive, rapid set, 20 kg bag",
               "tags": [
                 "most_used"
               ],
@@ -2471,7 +2471,7 @@
             "text": "Tiles over 300 x 300 mm, porcelain and floors need a cement powder adhesive, not a ready-mixed tub; timber floors and underfloor heating need flexible S1 (S2 over 400 x 400 mm).",
             "source_url": "https://www.toppstiles.co.uk/knowledge-base/what-tile-adhesive-to-use"
           },
-          "help": null
+          "help": "Standard-set adhesive is accepted once a person approves it."
         },
         {
           "id": "tl_floor_grout",
@@ -2487,7 +2487,7 @@
             {
               "id": "flexible",
               "label": "Flexible mould-resistant grout",
-              "spec": "Flexible, water-repellent, mould-resistant cement grout for floors",
+              "spec": "Flexible cement tile grout, grey, 5 kg",
               "tags": [
                 "most_used"
               ],
@@ -2563,7 +2563,7 @@
             "text": "Flexible adhesive needs a flexible grout.",
             "source_url": "https://www.mapei.com/za/en/tools-and-downloads/coloured-grouts-and-sealants"
           },
-          "help": null
+          "help": "Water-repellent, mould-resistant grade: confirm on the data sheet. The colour is a default."
         }
       ]
     },
@@ -2575,7 +2575,7 @@
         {
           "id": "fl_overlay",
           "description": "Floor overlay board where the existing floor is not sound or flat",
-          "spec": "18 mm tongue-and-groove moisture-resistant chipboard or marine plywood",
+          "spec": "18 mm tongue and groove moisture-resistant P5 chipboard flooring panel",
           "unit": "m2",
           "quantity_formula": "floor_m2",
           "when": null,
@@ -2592,12 +2592,12 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "Marine plywood is an accepted alternative once a person approves it."
         },
         {
           "id": "fl_levelling",
           "description": "Levelling compound",
-          "spec": "Latex or cement-based smoothing and levelling compound",
+          "spec": "Latex smoothing and levelling compound, 20 kg bag",
           "unit": "pack",
           "quantity_formula": "1",
           "when": null,
@@ -2614,7 +2614,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "A cement-based compound is an accepted alternative once a person approves it."
         },
         {
           "id": "fl_safety_vinyl",
@@ -2727,7 +2727,7 @@
             {
               "id": "rimless",
               "label": "Rimless bowl",
-              "spec": "Floor-standing close-coupled WC pan with a rimless bowl, horizontal outlet, floor fixing kit",
+              "spec": "Close-coupled WC pan, rimless bowl, horizontal outlet, no seat",
               "tags": [
                 "most_used"
               ],
@@ -2780,12 +2780,12 @@
             }
           ],
           "forced_by": null,
-          "help": "Prices are for a whole set (pan, cistern and seat). Back-to-wall and wall-hung are chosen with the WC type question."
+          "help": "Prices are for a whole set (pan, cistern and seat). Back-to-wall and wall-hung are chosen with the WC type question. Floor fixing kit included; the seat is a separate line."
         },
         {
           "id": "sw_wc_cistern",
           "description": "Close-coupled cistern",
-          "spec": "Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings",
+          "spec": "Close-coupled cistern, dual flush",
           "unit": "nr",
           "quantity_formula": "1",
           "when": "wc_type == 'close_coupled'",
@@ -2808,7 +2808,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "Typically 4.5/3 l flush volumes, fittings included."
         },
         {
           "id": "sw_wc_flush_lever",
@@ -2918,7 +2918,7 @@
             {
               "id": "rigid",
               "label": "Rigid connector",
-              "spec": "Rigid 110 mm pan connector, straight or small offset, to suit the soil outlet",
+              "spec": "Straight 110 mm WC pan connector",
               "tags": [
                 "budget",
                 "most_used"
@@ -3006,7 +3006,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "A rigid pan connector with a small offset is accepted where the soil outlet needs it."
         },
         {
           "id": "sw_wc_frame",
@@ -3126,7 +3126,7 @@
             {
               "id": "soft_close",
               "label": "Soft-close seat",
-              "spec": "WC seat and cover to suit the pan, soft-close hinges",
+              "spec": "Soft-close WC seat and cover",
               "tags": [
                 "most_used"
               ],
@@ -3193,7 +3193,7 @@
         {
           "id": "sw_basin_pedestal",
           "description": "Washbasin with full pedestal",
-          "spec": "Compact ceramic washbasin 400-500 mm with full pedestal, tap holes to suit taps",
+          "spec": "450 mm full pedestal basin, one tap hole",
           "unit": "nr",
           "quantity_formula": "1",
           "when": "basin_mount == 'pedestal'",
@@ -3216,7 +3216,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "Compact ceramic cloakroom basin; the kit allows 400-500 mm and 450 mm is the default size. The tap holes must match the taps."
         },
         {
           "id": "sw_basin_wall_hung",
@@ -3322,7 +3322,7 @@
             {
               "id": "mixer",
               "label": "Basin mixer",
-              "spec": "Single-lever mono basin mixer with click waste, chrome, for a one-tap-hole basin",
+              "spec": "Chrome mono basin mixer tap with click waste",
               "tags": [
                 "most_used"
               ],
@@ -3374,7 +3374,7 @@
         {
           "id": "sw_basin_waste",
           "description": "Basin waste with plug",
-          "spec": "Basin waste, slotted if the basin has an overflow, unslotted otherwise",
+          "spec": "Slotted click-clack basin waste, chrome",
           "unit": "nr",
           "quantity_formula": "1",
           "when": null,
@@ -3397,7 +3397,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "Use an unslotted waste if the basin has no overflow."
         },
         {
           "id": "sw_basin_trap",
@@ -3413,7 +3413,7 @@
             {
               "id": "bottle",
               "label": "Bottle trap",
-              "spec": "Bottle trap 32 mm with 75 mm seal",
+              "spec": "White bottle trap 32 mm with 75 mm seal",
               "tags": [
                 "most_used"
               ],
@@ -3576,7 +3576,7 @@
             {
               "id": "braided",
               "label": "Braided connectors",
-              "spec": "15 mm x 1/2 inch x 300 mm stainless-braided flexible tap connectors, compression end, drinking-water approved",
+              "spec": "15 mm x 1/2 inch x 300 mm stainless-braided flexible tap connectors, WRAS approved",
               "tags": [
                 "budget",
                 "most_used"
@@ -3646,7 +3646,7 @@
             }
           ],
           "forced_by": null,
-          "help": "Many mono mixers come with their own tails: check the tap before ordering."
+          "help": "Many mono mixers come with their own tails: check the tap before ordering. Compression end."
         }
       ]
     },
@@ -3669,7 +3669,7 @@
             {
               "id": "timer",
               "label": "Axial fan with timer",
-              "spec": "100 mm axial extract fan with overrun timer",
+              "spec": "100 mm extractor fan with overrun timer",
               "tags": [
                 "budget"
               ],
@@ -3697,7 +3697,7 @@
             {
               "id": "humidistat_timer",
               "label": "Axial fan with humidistat and timer",
-              "spec": "100 mm axial extract fan with humidistat and overrun timer",
+              "spec": "100 mm extractor fan with humidistat and overrun timer",
               "tags": [
                 "most_used"
               ],
@@ -3793,7 +3793,7 @@
             "text": "Approved Document F: a WC needs 6 l/s extract; with no openable window the fan runs on at least 15 min.",
             "source_url": "https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf"
           },
-          "help": "A low-voltage (SELV) fan is needed if the fan sits inside a bathroom zone."
+          "help": "A low-voltage (SELV) fan is needed if the fan sits inside a bathroom zone. Axial type."
         },
         {
           "id": "vn_duct",
@@ -3809,7 +3809,7 @@
             {
               "id": "rigid_short_flex",
               "label": "Rigid duct with short flexible end",
-              "spec": "100 mm rigid duct for the main run, flexible only as the final connection",
+              "spec": "100 mm rigid duct, 1000 mm lengths",
               "tags": [
                 "most_used"
               ],
@@ -3859,7 +3859,7 @@
             "text": "Flexible duct only as the final connection, at most 1.5 m and pulled taut.",
             "source_url": "https://www.labcwarranty.co.uk/technical-blog/insulating-extraction-ducts"
           },
-          "help": null
+          "help": "Rigid duct for the main run; flexible duct only as the final connection."
         },
         {
           "id": "vn_wall_or_roof_terminal",
@@ -4082,7 +4082,7 @@
         {
           "id": "cs_clear_sealant_wc",
           "description": "Clear sealant at the WC base",
-          "spec": "Clear silicone sealant",
+          "spec": "Clear sanitary silicone sealant, 310 ml",
           "unit": "cartridge",
           "quantity_formula": "1",
           "when": "wc_type != 'wall_hung'",
@@ -4121,7 +4121,7 @@
             {
               "id": "ptfe",
               "label": "PTFE tape",
-              "spec": "Drinking-water approved PTFE tape, for threaded joints only",
+              "spec": "PTFE tape for water, 12 mm x 12 m, WRAS approved",
               "tags": [
                 "budget",
                 "most_used"
@@ -4181,7 +4181,7 @@
             }
           ],
           "forced_by": null,
-          "help": "Nothing goes on compression olives: the fitting makers advise against it."
+          "help": "Nothing goes on compression olives: the fitting makers advise against it. For threaded joints only."
         },
         {
           "id": "cs_plumbing_sundries",
@@ -4469,7 +4469,7 @@
             {
               "id": "bathroom_soft_sheen",
               "label": "Bathroom soft sheen",
-              "spec": "Bathroom soft sheen emulsion, moisture and mould resistant, white",
+              "spec": "Bathroom soft sheen emulsion, white, 5 l",
               "tags": [
                 "most_used"
               ],
@@ -4548,7 +4548,7 @@
             }
           ],
           "forced_by": null,
-          "help": null
+          "help": "Moisture and mould resistant grade: confirm on the data sheet."
         },
         {
           "id": "dc_woodwork_paint",

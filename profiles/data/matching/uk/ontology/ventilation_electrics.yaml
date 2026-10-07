@@ -22,7 +22,7 @@ types:
         values:
           basic: {label: basic, synonyms: [basic, no timer, without timer]}
           timer: {label: overrun timer, synonyms: [timer, overrun, run on]}
-          humidistat_timer: {label: humidistat and timer, synonyms: [humidistat, humidity, humidistat timer, humidistat and timer, timer and humidistat, timer humidistat]}
+          humidistat_timer: {label: humidistat and timer, synonyms: [humidistat, humidity, humidistat timer, humidistat and timer, humidistat overrun timer, humidistat and overrun timer, timer and humidistat, timer humidistat]}
           pull_cord: {label: pull cord, synonyms: [pull cord]}
       - {name: flow, label: extract rate, kind: numeric, unit: l/s, required: false, rule: ge, check: size, min: 1, max: 200, aliases: [rate, flow]}
       - name: supply
