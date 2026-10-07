@@ -1,0 +1,10 @@
+import { launch } from "./cdp.mjs";
+const b = await launch(9411);
+await b.size(1280, 900);
+await b.go("http://127.0.0.1:3204/index.html#/quote"); await b.sleep(1500);
+const t = await b.text();
+console.log("has options:", /Options/i.test(t), "| lowest total:", /Lowest total/i.test(t), "| not a quote note:", /not a supplier quote/i.test(t));
+await b.size(390, 900);
+console.log(JSON.stringify(await b.overflow()).slice(0, 120));
+console.log("logs", b.logs.slice(0, 3));
+b.close();
