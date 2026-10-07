@@ -1,0 +1,153 @@
+{
+  "id": "quoting-demo-reviewer-decisions-v1",
+  "label": "SYNTHETIC demo only: invented reviewer decisions that let the demo show the approval loop. A real reviewer reads each candidate; nothing here is a recommendation.",
+  "approver": "demo-reviewer",
+  "left_for_a_person": "Lines whose candidates are not the product asked for (ff_fittings_compression, ff_waste_fittings, fl_overlay, sw_wc_cistern, sw_wc_seat, sw_toilet_roll_holder, sw_towel_ring, vn_duct_fixings) and dc_emulsion (white vs brilliant white fails a check, so an approval would be refused) stay in the review queue on purpose.",
+  "decisions": [
+    {
+      "kit_line_id": "so_cap_feeds",
+      "sku_id": "SYN-PF-0013",
+      "note": "15 mm compression stop end matches the line"
+    },
+    {
+      "kit_line_id": "ff_iv_basin",
+      "sku_id": "SYN-IV-0006",
+      "note": "chrome 15 mm screwdriver isolating valve; the kit allows brass or chrome"
+    },
+    {
+      "kit_line_id": "ff_waste_32",
+      "sku_id": "SYN-WA-0001",
+      "note": "32 mm solvent-weld ABS waste pipe"
+    },
+    {
+      "kit_line_id": "ff_waste_40",
+      "sku_id": "SYN-WA-0002",
+      "note": "40 mm solvent-weld ABS waste pipe"
+    },
+    {
+      "kit_line_id": "el_light",
+      "sku_id": "SYN-DL-0006",
+      "note": "7 W fire-rated IP65 downlight; the kit allows 6-7 W"
+    },
+    {
+      "kit_line_id": "el_shaver_socket",
+      "sku_id": "SYN-SH-0001",
+      "note": "chrome two-gang dual-voltage socket"
+    },
+    {
+      "kit_line_id": "wp_backer_board",
+      "sku_id": "SYN-BB-0001",
+      "note": "6 mm fibre-cement backer board 1200 x 800"
+    },
+    {
+      "kit_line_id": "tl_wall_tiles",
+      "sku_id": "SYN-TL-0002",
+      "note": "ceramic wall tile 600 x 300, matt"
+    },
+    {
+      "kit_line_id": "tl_wall_adhesive",
+      "sku_id": "SYN-AD-0005",
+      "note": "flexible S1 rapid-set 20 kg adhesive (the wall and floor lines are the same normalised line)"
+    },
+    {
+      "kit_line_id": "tl_wall_grout",
+      "sku_id": "SYN-GR-0005",
+      "note": "flexible cement grout 2.5 kg (the wall and floor lines are the same normalised line, so one choice serves both)"
+    },
+    {
+      "kit_line_id": "tl_trim",
+      "sku_id": "SYN-TT-0002",
+      "note": "white round-edge uPVC trim, 8 mm"
+    },
+    {
+      "kit_line_id": "tl_floor_tiles",
+      "sku_id": "SYN-TL-0004",
+      "note": "porcelain floor tile 600 x 600"
+    },
+    {
+      "kit_line_id": "tl_floor_adhesive",
+      "sku_id": "SYN-AD-0005",
+      "note": "flexible S1 rapid-set 20 kg adhesive (same normalised line as the wall adhesive)"
+    },
+    {
+      "kit_line_id": "tl_floor_grout",
+      "sku_id": "SYN-GR-0005",
+      "note": "flexible cement grout 2.5 kg (same normalised line as the wall grout)"
+    },
+    {
+      "kit_line_id": "sw_bath_trap",
+      "sku_id": "SYN-TR-0005",
+      "note": "40 mm bottle trap"
+    },
+    {
+      "kit_line_id": "sw_basin_pedestal",
+      "sku_id": "SYN-BS-0001",
+      "note": "550 mm full pedestal basin, one tap hole"
+    },
+    {
+      "kit_line_id": "sw_basin_taps",
+      "sku_id": "SYN-BT-0001",
+      "note": "chrome mono mixer basin tap"
+    },
+    {
+      "kit_line_id": "sw_basin_waste",
+      "sku_id": "SYN-BW-0003",
+      "note": "slotted click-clack waste"
+    },
+    {
+      "kit_line_id": "sw_basin_trap",
+      "sku_id": "SYN-TR-0002",
+      "note": "32 mm chrome bottle trap"
+    },
+    {
+      "kit_line_id": "sw_tap_connectors",
+      "sku_id": "SYN-TC-0001",
+      "note": "15 mm x 1/2 in x 300 mm braided connector"
+    },
+    {
+      "kit_line_id": "sw_wc_pan_close_coupled",
+      "sku_id": "SYN-WC-0001",
+      "note": "close-coupled rimless soft-close WC"
+    },
+    {
+      "kit_line_id": "sw_wc_pan_connector",
+      "sku_id": "SYN-PC-0001",
+      "note": "straight 110 mm pan connector"
+    },
+    {
+      "kit_line_id": "sh_bath_screen_or_curtain",
+      "sku_id": "SYN-SE-0005",
+      "note": "800 mm bath screen, 6 mm glass"
+    },
+    {
+      "kit_line_id": "vn_fan",
+      "sku_id": "SYN-EF-0002",
+      "note": "100 mm humidistat and timer fan"
+    },
+    {
+      "kit_line_id": "vn_duct",
+      "sku_id": "SYN-DU-0001",
+      "note": "100 mm rigid duct"
+    },
+    {
+      "kit_line_id": "tr_towel_rail",
+      "sku_id": "SYN-TW-0001",
+      "note": "chrome ladder rail 500 x 800"
+    },
+    {
+      "kit_line_id": "cs_clear_sealant_wc",
+      "sku_id": "SYN-SI-0006",
+      "note": "general-purpose clear silicone"
+    },
+    {
+      "kit_line_id": "cs_thread_sealant",
+      "sku_id": "SYN-PT-0001",
+      "note": "water-grade PTFE tape 12 mm x 12 m"
+    },
+    {
+      "kit_line_id": "cs_fixings_solid",
+      "sku_id": "SYN-WP-0003",
+      "note": "universal plug 6 x 30 mm, pack of 50"
+    }
+  ]
+}

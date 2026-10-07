@@ -1,0 +1,1566 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quote-draft-ui/1",
+  "title": "Quote draft UI export (quote-draft-ui/1)",
+  "description": "Written by components.quoting.export from a QuoteResult. Synthetic/illustrative data while the price files are synthetic; not a supplier quote. Decimals are strings, times are ISO 8601 strings, no number is a float. Evolution is additive only: a later version adds optional fields and accepts this version's documents unchanged; readers ignore keys they do not know (docs/architecture/quoting.md). The list of firm_lines is the ONLY content of the totals.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "quote_id",
+    "tenant_id",
+    "generated_at",
+    "currency",
+    "notice",
+    "data_labels",
+    "partition",
+    "totals",
+    "firm_lines",
+    "deliveries",
+    "review_queue",
+    "indicative_lines",
+    "unmatched_lines",
+    "no_offer_lines",
+    "skipped_lines",
+    "freshness",
+    "optimisation",
+    "schema_changes"
+  ],
+  "properties": {
+    "format": {
+      "const": "quote-draft-ui/1"
+    },
+    "quote_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "$ref": "#/$defs/datetime"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "notice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "text",
+        "label"
+      ],
+      "properties": {
+        "code": {
+          "const": "not_a_supplier_quote"
+        },
+        "text": {
+          "type": "string"
+        },
+        "label": {
+          "const": "not a supplier quote"
+        }
+      }
+    },
+    "data_labels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contains_synthetic_data"
+      ],
+      "properties": {
+        "contains_synthetic_data": {
+          "type": "boolean"
+        }
+      }
+    },
+    "partition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "priced",
+        "review",
+        "unmatched",
+        "indicative_only",
+        "no_offer",
+        "skipped"
+      ],
+      "properties": {
+        "priced": {
+          "type": "integer"
+        },
+        "review": {
+          "type": "integer"
+        },
+        "unmatched": {
+          "type": "integer"
+        },
+        "indicative_only": {
+          "type": "integer"
+        },
+        "no_offer": {
+          "type": "integer"
+        },
+        "skipped": {
+          "type": "integer"
+        }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "goods",
+        "delivery",
+        "subtotal",
+        "tax_rate",
+        "tax",
+        "total_ex_tax",
+        "total_inc_tax",
+        "delivery_incomplete",
+        "currency",
+        "scope"
+      ],
+      "properties": {
+        "basis": {
+          "enum": [
+            "ex_tax",
+            "inc_tax"
+          ]
+        },
+        "goods": {
+          "$ref": "#/$defs/decimal"
+        },
+        "delivery": {
+          "$ref": "#/$defs/decimal"
+        },
+        "subtotal": {
+          "$ref": "#/$defs/decimal"
+        },
+        "tax_rate": {
+          "$ref": "#/$defs/decimal"
+        },
+        "tax": {
+          "$ref": "#/$defs/decimal"
+        },
+        "total_ex_tax": {
+          "$ref": "#/$defs/decimal"
+        },
+        "total_inc_tax": {
+          "$ref": "#/$defs/decimal"
+        },
+        "delivery_incomplete": {
+          "type": "boolean"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "scope": {
+          "const": "firm_lines_only"
+        }
+      }
+    },
+    "firm_lines": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/firm_line"
+      }
+    },
+    "deliveries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "merchant_id",
+          "line_ids",
+          "spend",
+          "fee"
+        ],
+        "properties": {
+          "merchant_id": {
+            "type": "string"
+          },
+          "line_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "spend": {
+            "$ref": "#/$defs/decimal"
+          },
+          "fee": {
+            "$ref": "#/$defs/nullable_decimal"
+          }
+        }
+      }
+    },
+    "review_queue": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/review_item"
+      }
+    },
+    "indicative_lines": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/indicative_item"
+      }
+    },
+    "unmatched_lines": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/unmatched_item"
+      }
+    },
+    "no_offer_lines": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/no_offer_item"
+      }
+    },
+    "skipped_lines": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/skipped_item"
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "as_of",
+        "offers_used",
+        "oldest_observed_at",
+        "newest_observed_at",
+        "max_age_hours_observed",
+        "by_source_kind",
+        "limits_hours"
+      ],
+      "properties": {
+        "as_of": {
+          "$ref": "#/$defs/datetime"
+        },
+        "offers_used": {
+          "type": "integer"
+        },
+        "oldest_observed_at": {
+          "$ref": "#/$defs/nullable_datetime"
+        },
+        "newest_observed_at": {
+          "$ref": "#/$defs/nullable_datetime"
+        },
+        "max_age_hours_observed": {
+          "$ref": "#/$defs/nullable_decimal"
+        },
+        "by_source_kind": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source_kind",
+              "count"
+            ],
+            "properties": {
+              "source_kind": {
+                "type": "string"
+              },
+              "count": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "limits_hours": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source_kind",
+              "hours"
+            ],
+            "properties": {
+              "source_kind": {
+                "type": "string"
+              },
+              "hours": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "optimisation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "exact",
+        "components",
+        "optimality_gap",
+        "savings_vs_line_by_line",
+        "savings_vs_single_merchant",
+        "notes"
+      ],
+      "properties": {
+        "method": {
+          "enum": [
+            "exact_dp",
+            "heuristic"
+          ]
+        },
+        "exact": {
+          "type": "boolean"
+        },
+        "components": {
+          "type": "integer"
+        },
+        "optimality_gap": {
+          "$ref": "#/$defs/decimal"
+        },
+        "savings_vs_line_by_line": {
+          "$ref": "#/$defs/decimal"
+        },
+        "savings_vs_single_merchant": {
+          "$ref": "#/$defs/nullable_decimal"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reason"
+          }
+        }
+      }
+    },
+    "schema_changes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "decimal": {
+      "type": "string",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+    },
+    "nullable_decimal": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/decimal"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "datetime": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "nullable_datetime": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/datetime"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "unit": {
+      "enum": [
+        "each",
+        "m",
+        "m2",
+        "kg",
+        "litre"
+      ]
+    },
+    "reason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "text"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_title",
+        "url",
+        "licence",
+        "evidence_quality"
+      ],
+      "properties": {
+        "source_title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "licence": {
+          "type": "string"
+        },
+        "evidence_quality": {
+          "type": "string"
+        }
+      }
+    },
+    "kit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kit_line_id",
+        "scope_id",
+        "module",
+        "description",
+        "generic_spec",
+        "option_id",
+        "option_label",
+        "kit_unit",
+        "kit_quantity",
+        "quantity_formula",
+        "forced_by",
+        "assumption_source",
+        "kind",
+        "sources"
+      ],
+      "properties": {
+        "kit_line_id": {
+          "type": "string"
+        },
+        "scope_id": {
+          "type": "string"
+        },
+        "module": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "generic_spec": {
+          "type": "string"
+        },
+        "option_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "option_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kit_unit": {
+          "type": "string"
+        },
+        "kit_quantity": {
+          "$ref": "#/$defs/decimal"
+        },
+        "quantity_formula": {
+          "type": "string"
+        },
+        "forced_by": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "text",
+                "source_url"
+              ],
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "source_url": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "assumption_source": {
+          "const": "default_template"
+        },
+        "kind": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sku_id",
+        "title",
+        "brand",
+        "score",
+        "reasons"
+      ],
+      "properties": {
+        "sku_id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "brand": {
+          "type": "string"
+        },
+        "score": {
+          "$ref": "#/$defs/decimal"
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "alternative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sku_id",
+        "title",
+        "brand",
+        "label",
+        "price"
+      ],
+      "properties": {
+        "sku_id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "brand": {
+          "type": "string"
+        },
+        "label": {
+          "const": "suggested alternative, needs approval"
+        },
+        "price": {
+          "type": "null"
+        }
+      }
+    },
+    "match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome",
+        "previously_approved",
+        "kind",
+        "reason_codes",
+        "reasons",
+        "group",
+        "parsed"
+      ],
+      "properties": {
+        "outcome": {
+          "enum": [
+            "auto_accept",
+            "review",
+            "reject",
+            "previously_approved"
+          ]
+        },
+        "previously_approved": {
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "specific",
+            "generic"
+          ]
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "group": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sku_id",
+              "title",
+              "brand"
+            ],
+            "properties": {
+              "sku_id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "brand": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "parsed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "price": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "packs",
+        "pack_content",
+        "purchased",
+        "surplus",
+        "pack_price",
+        "unit_price",
+        "goods",
+        "delivery_if_ordered_alone",
+        "landed_if_ordered_alone",
+        "basis",
+        "currency"
+      ],
+      "properties": {
+        "packs": {
+          "type": "integer"
+        },
+        "pack_content": {
+          "$ref": "#/$defs/decimal"
+        },
+        "purchased": {
+          "$ref": "#/$defs/decimal"
+        },
+        "surplus": {
+          "$ref": "#/$defs/decimal"
+        },
+        "pack_price": {
+          "$ref": "#/$defs/decimal"
+        },
+        "unit_price": {
+          "$ref": "#/$defs/decimal"
+        },
+        "goods": {
+          "$ref": "#/$defs/decimal"
+        },
+        "delivery_if_ordered_alone": {
+          "$ref": "#/$defs/nullable_decimal"
+        },
+        "landed_if_ordered_alone": {
+          "$ref": "#/$defs/decimal"
+        },
+        "basis": {
+          "enum": [
+            "ex_tax",
+            "inc_tax"
+          ]
+        },
+        "currency": {
+          "type": "string"
+        }
+      }
+    },
+    "offer_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "offer_id",
+        "merchant_id",
+        "sku_id",
+        "packs",
+        "unit_price",
+        "goods",
+        "landed_if_ordered_alone",
+        "lead_time_days",
+        "flags"
+      ],
+      "properties": {
+        "offer_id": {
+          "type": "string"
+        },
+        "merchant_id": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "packs": {
+          "type": "integer"
+        },
+        "unit_price": {
+          "$ref": "#/$defs/decimal"
+        },
+        "goods": {
+          "$ref": "#/$defs/decimal"
+        },
+        "landed_if_ordered_alone": {
+          "$ref": "#/$defs/decimal"
+        },
+        "lead_time_days": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "excluded_offer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "offer_id",
+        "merchant_id",
+        "sku_id",
+        "codes",
+        "reasons"
+      ],
+      "properties": {
+        "offer_id": {
+          "type": "string"
+        },
+        "merchant_id": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reason"
+          }
+        }
+      }
+    },
+    "indicative_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "low",
+        "high",
+        "unit",
+        "currency",
+        "basis",
+        "count",
+        "oldest_observed_at",
+        "newest_observed_at",
+        "offers"
+      ],
+      "properties": {
+        "label": {
+          "const": "indicative, not a quote"
+        },
+        "low": {
+          "$ref": "#/$defs/decimal"
+        },
+        "high": {
+          "$ref": "#/$defs/decimal"
+        },
+        "unit": {
+          "$ref": "#/$defs/unit"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "basis": {
+          "enum": [
+            "ex_tax",
+            "inc_tax"
+          ]
+        },
+        "count": {
+          "type": "integer"
+        },
+        "oldest_observed_at": {
+          "$ref": "#/$defs/datetime"
+        },
+        "newest_observed_at": {
+          "$ref": "#/$defs/datetime"
+        },
+        "offers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "offer_id",
+              "merchant_id",
+              "sku_id",
+              "unit_price",
+              "observed_at",
+              "source_kind"
+            ],
+            "properties": {
+              "offer_id": {
+                "type": "string"
+              },
+              "merchant_id": {
+                "type": "string"
+              },
+              "sku_id": {
+                "type": "string"
+              },
+              "unit_price": {
+                "$ref": "#/$defs/decimal"
+              },
+              "observed_at": {
+                "$ref": "#/$defs/datetime"
+              },
+              "source_kind": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "offer_id",
+        "source_id",
+        "source_kind",
+        "method",
+        "synthetic",
+        "licence",
+        "source_ref",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "visibility",
+        "match_tier",
+        "match_basis",
+        "substitution_approval_id"
+      ],
+      "properties": {
+        "offer_id": {
+          "type": "string"
+        },
+        "source_id": {
+          "type": "string"
+        },
+        "source_kind": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "synthetic": {
+          "type": "boolean"
+        },
+        "licence": {
+          "type": "string"
+        },
+        "source_ref": {
+          "type": "string"
+        },
+        "observed_at": {
+          "$ref": "#/$defs/datetime"
+        },
+        "valid_until": {
+          "$ref": "#/$defs/nullable_datetime"
+        },
+        "confidence": {
+          "$ref": "#/$defs/decimal"
+        },
+        "visibility": {
+          "type": "string"
+        },
+        "match_tier": {
+          "type": "string"
+        },
+        "match_basis": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "substitution_approval_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "firm_line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "position",
+        "line_id",
+        "kit_line_id",
+        "description",
+        "text",
+        "quantity",
+        "unit",
+        "kit",
+        "sku_id",
+        "product",
+        "merchant_id",
+        "offer_id",
+        "packs",
+        "pack_content",
+        "surplus",
+        "unit_price",
+        "goods_total",
+        "lead_time_days",
+        "flags",
+        "excluded_codes",
+        "assumptions",
+        "reasons",
+        "match",
+        "price",
+        "runner_ups",
+        "excluded_offers",
+        "indicative",
+        "alternatives",
+        "provenance"
+      ],
+      "properties": {
+        "position": {
+          "type": "integer"
+        },
+        "line_id": {
+          "type": "string"
+        },
+        "kit_line_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "quantity": {
+          "$ref": "#/$defs/decimal"
+        },
+        "unit": {
+          "$ref": "#/$defs/unit"
+        },
+        "kit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/kit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "product": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "title",
+            "brand"
+          ],
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "brand": {
+              "type": "string"
+            }
+          }
+        },
+        "merchant_id": {
+          "type": "string"
+        },
+        "offer_id": {
+          "type": "string"
+        },
+        "packs": {
+          "type": "integer"
+        },
+        "pack_content": {
+          "$ref": "#/$defs/decimal"
+        },
+        "surplus": {
+          "$ref": "#/$defs/decimal"
+        },
+        "unit_price": {
+          "$ref": "#/$defs/decimal"
+        },
+        "goods_total": {
+          "$ref": "#/$defs/decimal"
+        },
+        "lead_time_days": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excluded_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reason"
+          }
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reason"
+          }
+        },
+        "match": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/match"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "price": {
+          "$ref": "#/$defs/price"
+        },
+        "runner_ups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/offer_row"
+          }
+        },
+        "excluded_offers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/excluded_offer"
+          }
+        },
+        "indicative": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/indicative_range"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "alternatives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/alternative"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      }
+    },
+    "review_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "position",
+        "line_id",
+        "kit_line_id",
+        "description",
+        "text",
+        "quantity",
+        "unit",
+        "kit",
+        "outcome",
+        "reason_codes",
+        "reasons",
+        "question",
+        "candidates",
+        "alternatives",
+        "price",
+        "match"
+      ],
+      "properties": {
+        "position": {
+          "type": "integer"
+        },
+        "line_id": {
+          "type": "string"
+        },
+        "kit_line_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "quantity": {
+          "$ref": "#/$defs/decimal"
+        },
+        "unit": {
+          "$ref": "#/$defs/unit"
+        },
+        "kit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/kit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "outcome": {
+          "type": "string"
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reason"
+          }
+        },
+        "question": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/candidate"
+          }
+        },
+        "alternatives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/alternative"
+          }
+        },
+        "price": {
+          "type": "null"
+        },
+        "match": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/match"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "unmatched_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "position",
+        "line_id",
+        "kit_line_id",
+        "description",
+        "text",
+        "quantity",
+        "unit",
+        "kit",
+        "reasons",
+        "flags",
+        "closest",
+        "alternatives",
+        "price"
+      ],
+      "properties": {
+        "position": {
+          "type": "integer"
+        },
+        "line_id": {
+          "type": "string"
+        },
+        "kit_line_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "quantity": {
+          "$ref": "#/$defs/decimal"
+        },
+        "unit": {
+          "$ref": "#/$defs/unit"
+        },
+        "kit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/kit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reason"
+          }
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "closest": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/candidate"
+          }
+        },
+        "alternatives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/alternative"
+          }
+        },
+        "price": {
+          "type": "null"
+        }
+      }
+    },
+    "indicative_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "position",
+        "line_id",
+        "kit_line_id",
+        "description",
+        "text",
+        "quantity",
+        "unit",
+        "kit",
+        "label",
+        "range",
+        "flags",
+        "excluded_codes",
+        "reasons",
+        "match",
+        "price"
+      ],
+      "properties": {
+        "position": {
+          "type": "integer"
+        },
+        "line_id": {
+          "type": "string"
+        },
+        "kit_line_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "quantity": {
+          "$ref": "#/$defs/decimal"
+        },
+        "unit": {
+          "$ref": "#/$defs/unit"
+        },
+        "kit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/kit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "const": "indicative, not a quote"
+        },
+        "range": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/indicative_range"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excluded_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reason"
+          }
+        },
+        "match": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/match"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "price": {
+          "type": "null"
+        }
+      }
+    },
+    "no_offer_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "position",
+        "line_id",
+        "kit_line_id",
+        "description",
+        "text",
+        "quantity",
+        "unit",
+        "kit",
+        "status",
+        "flags",
+        "excluded_codes",
+        "excluded_offers",
+        "reasons",
+        "match",
+        "price"
+      ],
+      "properties": {
+        "position": {
+          "type": "integer"
+        },
+        "line_id": {
+          "type": "string"
+        },
+        "kit_line_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "quantity": {
+          "$ref": "#/$defs/decimal"
+        },
+        "unit": {
+          "$ref": "#/$defs/unit"
+        },
+        "kit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/kit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "no_offers",
+            "no_eligible_offer"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excluded_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excluded_offers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/excluded_offer"
+          }
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reason"
+          }
+        },
+        "match": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/match"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "price": {
+          "type": "null"
+        }
+      }
+    },
+    "skipped_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kit_line_id",
+        "description",
+        "reason",
+        "kit"
+      ],
+      "properties": {
+        "kit_line_id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "not_needed",
+            "already_have",
+            "zero_quantity"
+          ]
+        },
+        "kit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/kit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
