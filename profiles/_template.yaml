@@ -33,8 +33,10 @@ legal:
   #   required: true
   #   fields: [legal_name, registration_number, registered_office, registered_in]   # order on the message
   #   labels: { legal_name: "Company name" }   # optional wording overrides: 1-40 chars, no colon
-retention: { raw_email_days: 90, po_records_years: 7, audit_years: 7 }   # confirm against local record-keeping law
+retention: { raw_email_days: 90, po_records_years: 7, audit_years: 7, review_event_days: 180 }   # confirm against local record-keeping law
 approvals: { threshold: "REPLACE" }                                       # in base currency
+# Verification thresholds (packages/components/verify). Not tenant-overridable; defaults equal VerifyConfig's.
+verification: { arith_abs_tolerance: "0.01", arith_rel_tolerance: "0.005", vat_rel_tolerance: "0.005", price_jump_ratio: "1.5", unit_basis_tolerance: "0.05", quantity_ratio: "5", min_history_points: 2 }
 parts: { enabled_families: [deep_groove_ball_bearing, v_belt], standards: ["REPLACE"] }
 billing: { currency: REPLACE }
 ui: { language: REPLACE }

@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import dataclasses
+import json
 from decimal import Decimal
+from typing import Any
 
 import pytest
 from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 
 from aidb.session import PrivilegedRoleError
-from aidb.stage2 import PgOfferStore, PgSharedOfferWriter
+from aidb.stage2 import PgOfferStore, PgSharedOfferWriter, offer_from_doc, offer_to_doc
 from components.pricing import (
     DeliveryTerms,
     DeliveryTier,
@@ -21,6 +24,7 @@ from components.pricing import (
     PricePer,
     SourceKind,
     TenantScopeError,
+    Tranche,
 )
 from components.quoting.context import TenantOffers
 from tests.pricing.cfg import config
@@ -165,3 +169,45 @@ def test_search_filters_order_and_limit(store, tenants):
     assert [o.offer_id for o in repo.search(OfferFilter(merchant_ids=frozenset({"m2"})))] == ["o2"]
     assert [o.offer_id for o in repo.search(OfferFilter(limit=2))] == ["o1", "o2"]
     assert repo.remove("o1") is True and repo.remove("o1") is False
+
+
+# ---------------------------------------------------------------- availability tranches
+
+
+def test_availability_codec_writes_tranches_only_when_known() -> None:
+    plain = offer("o-codec-plain")
+    doc = offer_to_doc(plain)
+    assert "availability" not in doc  # stored documents without tranches stay as they were
+    assert offer_from_doc(json.loads(json.dumps(doc))) == plain  # a missing key reads as ()
+
+    known = dataclasses.replace(offer("o-codec-av"),
+                                availability=(Tranche(2, 0), Tranche(10, 3)))
+    doc = offer_to_doc(known)
+    assert doc["availability"] == [{"packs": 2, "in_days": 0}, {"packs": 10, "in_days": 3}]
+    back = offer_from_doc(json.loads(json.dumps(doc)))
+    assert back == known and back.availability == known.availability
+    assert back.packs_available_by(3) == 12
+
+
+@pytest.mark.parametrize("bad", [
+    None, {"packs": 2, "in_days": 0}, [5], [{"packs": True, "in_days": 0}],
+    [{"packs": 2, "in_days": -1}], [{"packs": 2, "in_days": 0}, {"packs": 1, "in_days": 0}],
+])
+def test_malformed_stored_availability_fails_validation_on_read(bad: Any) -> None:
+    doc = {**offer_to_doc(offer("o-codec-bad")), "availability": bad}
+    with pytest.raises(OfferValidationError):
+        offer_from_doc(doc)
+
+
+def test_availability_round_trips_through_postgres(store, admin_engine, tenants):
+    a, _ = tenants
+    repo = store.for_tenant(a)
+    known = dataclasses.replace(offer("o-av-pg", tenant=a),
+                                availability=(Tranche(2, 0), Tranche(10, 3)))
+    repo.add_many([known, offer("o-plain-pg", tenant=a)])
+    got = repo.get("o-av-pg")
+    assert got == known and got.packs_available_by(3) == 12
+    assert repo.get("o-plain-pg").availability == ()
+    with admin_engine.connect() as conn:
+        stored = conn.execute(text("SELECT data FROM offers WHERE id = 'o-plain-pg'")).scalar_one()
+    assert "availability" not in stored  # the stored document has no new key

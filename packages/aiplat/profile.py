@@ -184,6 +184,7 @@ class RetentionPolicy(_P):
     raw_email_days: int = Field(default=90, ge=1, le=365)
     po_records_years: int = Field(default=7, ge=1, le=15)
     audit_years: int = Field(default=7, ge=1, le=15)
+    review_event_days: int = Field(default=180, ge=7, le=730)
 
 
 class ApprovalPolicy(_P):
@@ -296,6 +297,22 @@ class PricingPolicy(_P):
         return v
 
 
+class VerificationPolicy(_P):
+    """Thresholds for the verification checks (packages/components/verify).
+
+    The component reads this block through VerifyConfig.from_mapping, so the field names must match
+    VerifyConfig's (tests/profiles/test_verification_policy.py checks that). Money-like and ratio
+    values are Decimal; min_history_points is an int."""
+
+    arith_abs_tolerance: Decimal = Field(default=Decimal("0.01"), ge=0)  # currency units
+    arith_rel_tolerance: Decimal = Field(default=Decimal("0.005"), ge=0, le=Decimal("0.1"))
+    vat_rel_tolerance: Decimal = Field(default=Decimal("0.005"), ge=0, le=Decimal("0.1"))
+    price_jump_ratio: Decimal = Field(default=Decimal("1.5"), gt=1)
+    unit_basis_tolerance: Decimal = Field(default=Decimal("0.05"), ge=0, le=Decimal("0.5"))
+    quantity_ratio: Decimal = Field(default=Decimal("5"), gt=1)
+    min_history_points: int = Field(default=2, ge=1, le=50)
+
+
 class BillingPolicy(_P):
     currency: str = Field(default="USD", pattern=r"^[A-Z]{3}$")
     price_per_completed_request: Decimal | None = Field(default=None, ge=0)
@@ -326,6 +343,7 @@ class DeploymentProfile(_P):
     parts: PartsPolicy = PartsPolicy()
     matching: MatchingPolicy = MatchingPolicy()
     pricing: PricingPolicy = PricingPolicy()
+    verification: VerificationPolicy = VerificationPolicy()
     billing: BillingPolicy = BillingPolicy()
     ui: UiPolicy = UiPolicy()
     features: dict[str, bool] = Field(default_factory=dict)

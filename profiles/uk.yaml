@@ -74,6 +74,7 @@ retention:
   raw_email_days: 90
   po_records_years: 6             # VAT records: at least 6 years (VAT Notice 700/21, UK-CTL-05); confirm with an accountant
   audit_years: 6
+  review_event_days: 180
 approvals: { threshold: "500" }   # placeholder in GBP, not derived from UK data; set per customer
 parts: { enabled_families: [deep_groove_ball_bearing, v_belt], standards: ["ISO 15"] }
 billing: { currency: GBP, prices_include_tax: false }

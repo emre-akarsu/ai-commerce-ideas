@@ -34,6 +34,7 @@ _CURRENCY_RE = re.compile(r"[A-Z]{3}")
 SOURCE_REF_MAX = 160
 MAX_COUNT = 1_000_000
 MAX_LEAD_TIME_DAYS = 3650
+MAX_TRANCHES = 10
 MAX_VAT_RATE = Decimal("0.5")
 _ZERO = Decimal(0)
 _ONE = Decimal(1)
@@ -228,6 +229,27 @@ class DeliveryTerms:
         return fee
 
 
+# ---------------------------------------------------------------- availability
+
+
+def _require_int(value: object, name: str, minimum: int) -> None:
+    """A real int (bool, float and Decimal are refused) that is at least `minimum`."""
+    if isinstance(value, bool) or not isinstance(value, int) or value < minimum:
+        raise OfferValidationError(f"{name} must be an integer >= {minimum}")
+
+
+@dataclass(frozen=True)
+class Tranche:
+    """`packs` packs can be supplied within `in_days` days (see `Offer.packs_available_by`)."""
+
+    packs: int
+    in_days: int
+
+    def __post_init__(self) -> None:
+        _require_int(self.packs, "tranche.packs", minimum=1)
+        _require_int(self.in_days, "tranche.in_days", minimum=0)
+
+
 # ---------------------------------------------------------------- provenance and offer
 
 
@@ -274,6 +296,8 @@ class Offer:
     account_specific: bool = False
     # The tenant confirms the price is real and that it may use it (user-supplied files, quotes).
     tenant_attested: bool = False
+    # Packs that can be supplied, by tranche. Empty means availability is unknown (no effect).
+    availability: tuple[Tranche, ...] = ()
 
     def __post_init__(self) -> None:
         for name in ("offer_id", "sku_id", "merchant_id"):
@@ -301,6 +325,7 @@ class Offer:
         self._check_visibility()
         self._check_flags()
         self._check_eligibility_fields()
+        self._check_availability()
 
     def _check_parts(self) -> None:
         if not isinstance(self.price, Price):
@@ -340,6 +365,18 @@ class Offer:
             check_token(flag, "flag")
         _set(self, "flags", tuple(sorted(set(self.flags))))
 
+    def _check_availability(self) -> None:
+        tranches = self.availability
+        if not isinstance(tranches, tuple):
+            raise OfferValidationError("availability must be a tuple of Tranche values")
+        if len(tranches) > MAX_TRANCHES:
+            raise OfferValidationError(f"availability holds at most {MAX_TRANCHES} tranches")
+        if not all(isinstance(t, Tranche) for t in tranches):
+            raise OfferValidationError("availability must hold Tranche values")
+        days = [t.in_days for t in tranches]
+        if any(a >= b for a, b in zip(days, days[1:], strict=False)):
+            raise OfferValidationError("availability in_days must be strictly increasing")
+
     @property
     def is_indicative(self) -> bool:
         """Not eligible for a quote line (see `eligibility.quote_line_eligible`): shown only as an
@@ -347,3 +384,10 @@ class Offer:
         return not quote_line_eligible(
             self.source_kind, self.price_type, self.account_specific,
             self.valid_until is not None, self.tenant_attested)
+
+    def packs_available_by(self, days: int) -> int | None:
+        """Packs that can be supplied within `days` days; None when availability is unknown."""
+        _require_int(days, "days", minimum=0)
+        if not self.availability:
+            return None
+        return sum(t.packs for t in self.availability if t.in_days <= days)

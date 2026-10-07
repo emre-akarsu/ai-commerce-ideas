@@ -57,6 +57,7 @@ from components.pricing import (
     SourceKind,
     StockStatus,
     TenantScopeError,
+    Tranche,
     VatBasis,
     Visibility,
 )
@@ -109,9 +110,21 @@ def _when(value: object) -> datetime | None:
     return None if value is None else datetime.fromisoformat(str(value))
 
 
+def _tranches_to_doc(tranches: Sequence[Tranche]) -> list[dict[str, int]]:
+    return [{"packs": t.packs, "in_days": t.in_days} for t in tranches]
+
+
+def _tranches_from_doc(doc: Mapping[str, Any]) -> tuple[Tranche, ...]:
+    """Missing key: availability is unknown (documents written before tranches existed)."""
+    rows = doc.get("availability", [])
+    if not isinstance(rows, list) or not all(isinstance(r, Mapping) for r in rows):
+        raise OfferValidationError("availability must be a list of {packs, in_days} objects")
+    return tuple(Tranche(r["packs"], r["in_days"]) for r in rows)
+
+
 def offer_to_doc(o: Offer) -> dict[str, Any]:
     p, d = o.price, o.delivery
-    return {
+    doc: dict[str, Any] = {
         "offer_id": o.offer_id, "sku_id": o.sku_id, "merchant_id": o.merchant_id,
         "source_kind": o.source_kind.value,
         "price": {
@@ -139,6 +152,9 @@ def offer_to_doc(o: Offer) -> dict[str, Any]:
         "tenant_id": o.tenant_id, "flags": list(o.flags), "price_type": o.price_type.value,
         "account_specific": o.account_specific, "tenant_attested": o.tenant_attested,
     }
+    if o.availability:  # written only when known, so documents without it stay byte-identical
+        doc["availability"] = _tranches_to_doc(o.availability)
+    return doc
 
 
 def offer_from_doc(doc: Mapping[str, Any]) -> Offer:
@@ -167,6 +183,7 @@ def offer_from_doc(doc: Mapping[str, Any]) -> Offer:
         tenant_id=doc["tenant_id"], flags=tuple(doc["flags"]),
         price_type=PriceType(doc["price_type"]), account_specific=doc["account_specific"],
         tenant_attested=doc["tenant_attested"],
+        availability=_tranches_from_doc(doc),
     )
 
 

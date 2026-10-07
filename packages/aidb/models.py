@@ -53,9 +53,11 @@ SHARED_STATE_TABLES = (
     "spent_approvals", "approval_tokens", "cap_spend", "spend_holds", "follow_up_plans",
     "kill_switches", "idempotency_keys",
 )
+# Review telemetry (migration 0006); declared at the end of this module.
+REVIEW_TABLES = ("review_events", "review_drills")
 TENANT_TABLES = (
     "tenants", *ENTITY_TABLES, "rule_uses", "events", "event_heads", *STAGE2_TABLES,
-    *SHARED_STATE_TABLES,
+    *SHARED_STATE_TABLES, *REVIEW_TABLES,
 )
 
 tenants = Table(
@@ -248,6 +250,63 @@ idempotency_keys = Table(
     Column("body", LargeBinary, nullable=False),
     Column("stored_at", TIMESTAMP(timezone=True), nullable=False),
     PrimaryKeyConstraint("tenant_id", "key"),
+)
+
+# ---- review telemetry (0006): see migrations/versions/0006_review_events.py.
+# Append-only: app_user may SELECT and INSERT only.
+review_events = Table(
+    "review_events", metadata, _tenant_ref(),
+    Column("id", Text, nullable=False),
+    Column("user_ref", Text, nullable=False),
+    Column("surface", Text, nullable=False),
+    Column("subject_id", Text, nullable=False),
+    Column("event", Text, nullable=False),
+    Column("occurred_at", TIMESTAMP(timezone=True), nullable=False),
+    Column("duration_ms", Integer, nullable=True),
+    Column("meta", JSONB, nullable=False, server_default="{}"),
+    PrimaryKeyConstraint("tenant_id", "id"),
+    CheckConstraint("tenant_id <> ''", name="review_events_tenant_nonempty"),
+    CheckConstraint("user_ref ~ '^[0-9a-f]{64}$'", name="review_events_user_ref_check"),
+    CheckConstraint(
+        "surface IN ('approval_card', 'exception', 'clarification', 'review_line', 'comparison')",
+        name="review_events_surface_check",
+    ),
+    CheckConstraint(
+        "subject_id ~ '^[A-Za-z0-9._:-]{1,64}$'",
+        name="review_events_subject_id_check",
+    ),
+    CheckConstraint(
+        "event IN ('shown', 'expanded', 'approved', 'edited', 'rejected', 'deferred', "
+        "'dismissed')",
+        name="review_events_event_check",
+    ),
+    CheckConstraint("duration_ms >= 0", name="review_events_duration_ms_check"),
+    CheckConstraint(
+        "jsonb_typeof(meta) = 'object' AND length(meta::text) <= 400",
+        name="review_events_meta_check",
+    ),
+)
+review_drills = Table(
+    "review_drills", metadata, _tenant_ref(),
+    Column("id", Text, nullable=False),
+    Column("kind", Text, nullable=False),
+    Column("subject_id", Text, nullable=False),
+    Column("expected", Text, nullable=False),
+    Column("created_by", Text, nullable=False),
+    Column("created_at", TIMESTAMP(timezone=True), nullable=False, server_default=func.now()),
+    PrimaryKeyConstraint("tenant_id", "id"),
+    UniqueConstraint("tenant_id", "subject_id", name="review_drills_tenant_subject_key"),
+    CheckConstraint("tenant_id <> ''", name="review_drills_tenant_nonempty"),
+    CheckConstraint("kind ~ '^[a-z_]{1,32}$'", name="review_drills_kind_check"),
+    CheckConstraint(
+        "subject_id ~ '^[A-Za-z0-9._:-]{1,64}$'",
+        name="review_drills_subject_id_check",
+    ),
+    CheckConstraint(
+        "expected IN ('reject', 'edit', 'flag')",
+        name="review_drills_expected_check",
+    ),
+    CheckConstraint("created_by ~ '^[0-9a-f]{64}$'", name="review_drills_created_by_check"),
 )
 
 TABLES_BY_NAME: dict[str, Table] = dict(metadata.tables)

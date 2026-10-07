@@ -6,7 +6,7 @@ description: Platform defaults
 # Company-particulars block on outbound messages: off by default. A profile whose law requires it
 # (see uk) switches it on; the values are per-tenant deployment settings, never profile data.
 legal: { business_identity: { required: false, fields: [] } }
-retention: { raw_email_days: 90, po_records_years: 7, audit_years: 7 }
+retention: { raw_email_days: 90, po_records_years: 7, audit_years: 7, review_event_days: 180 }
 approvals: { threshold: "500", send_approval_ttl_minutes: 30, substitution_ttl_hours: 24 }
 comms: { max_vendors: 4, down_now_max_vendors: 2, reply_token_ttl_days: 90 }
 tiers: { enabled: [A, B], unlock_c_after_confirmed: 50 }
@@ -17,3 +17,5 @@ features: { photo_intake: false, phone_sms_scripts: true, down_now_mode: true }
 # v1 prototype defaults, to be re-tuned on real order lines; the attribute checks have no off switch.
 matching: { auto_accept_min_score: "0.75", auto_accept_min_lead: "0.05", reject_below_score: "0.35", retrieve_top_k: 50, judge_top_k: 5, judge_examples: 3, review_show_top: 3, llm_cost_ceiling_per_1000_lines: "1.50" }
 pricing: { stale_offers: exclude_from_best, compare_basis: ex_tax, include_delivery_in_comparison: true, price_outlier_ratio: "3", allow_search_snapshot_sources: false }
+# Verification thresholds (packages/components/verify). Not tenant-overridable; defaults equal VerifyConfig's.
+verification: { arith_abs_tolerance: "0.01", arith_rel_tolerance: "0.005", vat_rel_tolerance: "0.005", price_jump_ratio: "1.5", unit_basis_tolerance: "0.05", quantity_ratio: "5", min_history_points: 2 }

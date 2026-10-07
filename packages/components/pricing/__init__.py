@@ -29,6 +29,7 @@ from .models import (
     Provenance,
     SourceKind,
     StockStatus,
+    Tranche,
     VatBasis,
     Visibility,
 )
@@ -99,6 +100,7 @@ __all__ = [
     "StockStatus",
     "TenantOfferRepository",
     "TenantScopeError",
+    "Tranche",
     "Unit",
     "UnitBasis",
     "UnmatchedLine",
