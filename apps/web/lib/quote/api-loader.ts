@@ -4,6 +4,7 @@
 import { readBundle, type Bundle } from "./bundle";
 import { parseError } from "../api";
 import { bundledKits, isReady } from "../kits/catalog";
+import { rememberQuote } from "./current-quote";
 
 export interface KitInputBody { answers: Record<string, unknown>; measurements: Record<string, string>; allowances: Record<string, string>; choices: Record<string, string>; lines: Record<string, string> }
 
@@ -52,6 +53,7 @@ export async function loadBundleFromApi(
 
     const quoteData = (await quoteRes.json()) as { id: string; quote?: unknown };
     const quoteId = quoteData.id;
+    rememberQuote(tenantId, scopeId, quoteId); // the Price books RFQ dialog prepares drafts for this quote
 
     // GET /v1/quotes/{id}/options
     const optionsRes = await fetch(`${baseUrl}/v1/quotes/${encodeURIComponent(quoteId)}/options`, {

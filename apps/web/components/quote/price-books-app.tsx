@@ -1,7 +1,7 @@
 "use client";
 // Price books: which merchants have a current price for this customer, how far each covers the job, and what to do about gaps.
 // Nothing here sends anything. The request and RFQ actions open previews with a demo-only button (rule R1).
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Badge, Button, Card, EmptyState, H2, PageHeader } from "@/components/ui/ui";
 import { Modal } from "@/components/modal";
@@ -11,7 +11,11 @@ import { loadBundle, loadBundleAsync, type BundleResult } from "@/lib/quote/cata
 import { IMPORT_EXAMPLE } from "@/lib/quote/example";
 import { filterMerchants, fmtDate, fixed, humanCode, gapsByMerchant, rankGaps, sortMerchants, STATUS_LABEL, STATUS_ORDER, statusCounts, type StatusFilter } from "@/lib/quote/calc";
 import type { Merchant, PriceBook, RequestDraft } from "@/lib/quote/types";
+import { heldQuoteId } from "@/lib/quote/current-quote";
+import type { RfqMode } from "@/lib/quote/rfq-drafts-client";
 import { CoverageBar, DataNotes, Dl, LadderPill, Limited, ReadError, ScopePicker, StatusChip, SyntheticBanner, TenantPicker, useSelection } from "./common";
+import { PriceFileUpload, type MerchantOption } from "./price-file-upload";
+import { RfqPrepare } from "./rfq-prepare";
 import { isMock } from "@/lib/api";
 
 type BundleLoadState = BundleResult | { kind: "loading" };
@@ -24,22 +28,33 @@ export function PriceBooksApp() {
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [dialog, setDialog] = useState<Dialog>(null);
 
-  // Load from API in API mode
-  useEffect(() => {
-    if (!isMock()) {
-      setIsLoading(true);
-      loadBundleAsync(sel.tenant, sel.scope)
-        .then((result) => { setRes(result); setIsLoading(false); })
-        .catch((e) => { setRes({ kind: "error", key: `${sel.tenant}/${sel.scope}`, error: String(e) }); setIsLoading(false); });
-    } else {
-      setRes(loadBundle(sel.tenant, sel.scope));
+  // Loads the price book from the API (API mode). Also used after a price file upload to refresh it.
+  const load = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      setRes(await loadBundleAsync(sel.tenant, sel.scope));
+    } catch (e) {
+      setRes({ kind: "error", key: `${sel.tenant}/${sel.scope}`, error: String(e) });
+    } finally {
       setIsLoading(false);
     }
   }, [sel.tenant, sel.scope]);
 
+  useEffect(() => {
+    if (!isMock()) {
+      load();
+    } else {
+      setRes(loadBundle(sel.tenant, sel.scope));
+      setIsLoading(false);
+    }
+  }, [sel.tenant, sel.scope, load]);
+
   useEffect(() => onLanding((l) => { if (l === "rfq") setDialog({ kind: "rfq" }); }), []);
+  // Stable, so the dialog's focus handling does not re-run when the price book refreshes behind it.
+  const closeDialog = useCallback(() => setDialog(null), []);
 
   const apiMode = !isMock();
+  const merchantOptions: readonly MerchantOption[] = res.kind === "ok" && res.bundle.priceBook.ok ? res.bundle.priceBook.book.merchants : [];
   return (
     <div data-screen="price-books">
       <PageHeader title="Price books" sub="Which merchants have a current price for you, and what is missing." actions={<Link href="/quote" className="inline-flex min-h-target items-center rounded-md border border-strong px-4 text-sm font-semibold hover:bg-sunken">Go to Quote</Link>} />
@@ -64,17 +79,19 @@ export function PriceBooksApp() {
       {res.kind === "ok" && !res.bundle.priceBook.ok && <ReadError title={res.bundle.priceBook.reason === "format" ? "Unsupported price book format" : "The price book could not be read"} errors={res.bundle.priceBook.errors} />}
       {res.kind === "ok" && res.bundle.priceBook.ok && (
         <>
-          <Book book={res.bundle.priceBook.book} filter={filter} setFilter={setFilter} open={setDialog} />
+          <Book book={res.bundle.priceBook.book} filter={filter} setFilter={setFilter} open={setDialog} api={apiMode} />
         </>
       )}
       {dialog?.kind === "request" && res.kind === "ok" && <RequestDialog merchant={dialog.merchant} draft={dialog.draft} onClose={() => setDialog(null)} />}
-      {dialog?.kind === "upload" && <UploadDialog onClose={() => setDialog(null)} />}
-      {dialog?.kind === "rfq" && res.kind === "ok" && res.bundle.priceBook.ok && <RfqDialog book={res.bundle.priceBook.book} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "upload" && <UploadDialog api={apiMode} merchants={merchantOptions} onLoaded={load} onClose={closeDialog} currency={res.kind === "ok" && res.bundle.priceBook.ok ? res.bundle.priceBook.book.currency : ""} />}
+      {dialog?.kind === "rfq" && res.kind === "ok" && res.bundle.priceBook.ok && (
+        <RfqDialog book={res.bundle.priceBook.book} onClose={closeDialog} api={apiMode} tenant={sel.tenant} scope={sel.scope} />
+      )}
     </div>
   );
 }
 
-function Book({ book, filter, setFilter, open }: { book: PriceBook; filter: StatusFilter; setFilter: (f: StatusFilter) => void; open: (d: Dialog) => void }) {
+function Book({ book, filter, setFilter, open, api }: { book: PriceBook; filter: StatusFilter; setFilter: (f: StatusFilter) => void; open: (d: Dialog) => void; api: boolean }) {
   const counts = statusCounts(book.merchants);
   const shown = sortMerchants(filterMerchants(book.merchants, filter));
   const names = new Map(book.merchants.map((m) => [m.merchantId, m.name]));
@@ -97,7 +114,7 @@ function Book({ book, filter, setFilter, open }: { book: PriceBook; filter: Stat
       </p>
       <div className="mb-4 flex flex-wrap gap-2">
         <Button variant="secondary" type="button" onClick={() => open({ kind: "upload" })}>Upload price file</Button>
-        <Button variant="secondary" type="button" onClick={() => open({ kind: "rfq" })} disabled={gaps.length === 0}>Send RFQ for these gaps</Button>
+        <Button variant="secondary" type="button" onClick={() => open({ kind: "rfq" })} disabled={gaps.length === 0}>{api ? "Review quote requests for these gaps" : "Send RFQ for these gaps"}</Button>
       </div>
       <ul className="space-y-3" aria-label="Merchants" data-merchants>
         {shown.map((m) => <MerchantCard key={m.merchantId} m={m} draft={book.requestDrafts.find((d) => d.merchantId === m.merchantId) ?? null} open={open} />)}
@@ -190,8 +207,19 @@ function RequestDialog({ merchant, draft, onClose }: { merchant: Merchant; draft
   );
 }
 
-function UploadDialog({ onClose }: { onClose: () => void }) {
+export function UploadDialog({ api, merchants, onLoaded, onClose, currency = "" }: { api: boolean; merchants: readonly MerchantOption[]; onLoaded: () => Promise<void>; onClose: () => void; currency?: string }) {
   const ex = IMPORT_EXAMPLE;
+  if (api) {
+    return (
+      <Modal open onClose={onClose} label="Upload price file">
+        <div className="max-h-[80vh] overflow-y-auto p-5" data-dialog="upload">
+          <h2 className="text-base font-semibold">Upload price file</h2>
+          <PriceFileUpload merchants={merchants} onLoaded={onLoaded} defaultCurrency={currency} />
+          <Button type="button" variant="ghost" className="mt-4" onClick={onClose}>Close</Button>
+        </div>
+      </Modal>
+    );
+  }
   return (
     <Modal open onClose={onClose} label="Upload price file">
       <div className="max-h-[80vh] overflow-y-auto p-5" data-dialog="upload">
@@ -216,17 +244,21 @@ function UploadDialog({ onClose }: { onClose: () => void }) {
   );
 }
 
-function RfqDialog({ book, onClose }: { book: PriceBook; onClose: () => void }) {
+export function RfqDialog({ book, onClose, api, tenant, scope }: { book: PriceBook; onClose: () => void; api: boolean; tenant: string; scope: string }) {
   const [done, setDone] = useState(false);
   const [individual, setIndividual] = useState(false);
   const groups = gapsByMerchant(book.gaps, book.merchants);
   const names = new Map(book.merchants.map((m) => [m.merchantId, m.name]));
   const msgs = individual ? book.rfqMessages.perItem : book.rfqMessages.perSupplier;
   const lines = new Map(book.gaps.map((g) => [g.kitLineId, g]));
+  // API mode: the quote the price book was loaded from (null until the Quote screen or this page has created one).
+  const quoteId = api ? heldQuoteId(tenant, scope) : null;
+  const mode: RfqMode = individual ? "per_item" : "per_supplier";
+  const title = api ? "Quote requests for these gaps" : "Send RFQ for these gaps";
   return (
-    <Modal open onClose={onClose} label="Send RFQ for these gaps">
+    <Modal open onClose={onClose} label={title}>
       <div className="max-h-[80vh] overflow-y-auto p-5" data-dialog="rfq">
-        <h2 className="text-base font-semibold">Send RFQ for these gaps</h2>
+        <h2 className="text-base font-semibold">{title}</h2>
         <p className="mt-1 text-sm text-mute">
           {individual ? "One quote request per item, so a supplier can receive several messages." : "One quote request per supplier, listing every line it has no current price for, biggest spend first."}
         </p>
@@ -253,12 +285,24 @@ function RfqDialog({ book, onClose }: { book: PriceBook; onClose: () => void }) 
             </details>
           ))}
         </div>
-        <p className="mt-3 rounded-md border border-warn bg-warn-soft p-2 text-xs text-warn">{DEMO_NOTE}</p>
-        {done && <p role="status" className="mt-3 text-sm font-medium" data-demo-result>Demo only: no RFQ was created or sent.</p>}
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button type="button" variant="secondary" onClick={() => setDone(true)} data-demo-button>Demo only: prepare {msgs.length > 0 ? `${msgs.length} RFQ${msgs.length === 1 ? "" : "s"}` : "RFQs"} (nothing is sent)</Button>
-          <Button type="button" variant="ghost" onClick={onClose} data-autofocus>Close</Button>
-        </div>
+        {api ? (
+          <>
+            <p className="mt-3 rounded-md border border-line p-2 text-xs text-mute" data-real-note>Nothing is sent from this screen. Each message waits for approval, and a person approves its exact text on the Requests screen before the send-service sends it.</p>
+            <div className="mt-4"><RfqPrepare key={mode} quoteId={quoteId} mode={mode} messageCount={msgs.length} names={names} /></div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button type="button" variant="ghost" onClick={onClose} data-autofocus>Close</Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="mt-3 rounded-md border border-warn bg-warn-soft p-2 text-xs text-warn">{DEMO_NOTE}</p>
+            {done && <p role="status" className="mt-3 text-sm font-medium" data-demo-result>Demo only: no RFQ was created or sent.</p>}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button type="button" variant="secondary" onClick={() => setDone(true)} data-demo-button>Demo only: prepare {msgs.length > 0 ? `${msgs.length} RFQ${msgs.length === 1 ? "" : "s"}` : "RFQs"} (nothing is sent)</Button>
+              <Button type="button" variant="ghost" onClick={onClose} data-autofocus>Close</Button>
+            </div>
+          </>
+        )}
       </div>
     </Modal>
   );
