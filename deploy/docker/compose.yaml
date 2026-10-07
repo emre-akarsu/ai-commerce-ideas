@@ -1,0 +1,108 @@
+# One VPS, everything in containers: Caddy (TLS + password), the API, PostgreSQL, a nightly backup.
+# Works on any Linux VPS with Docker (Hetzner, Google, others). Only Caddy publishes ports (80, 443);
+# the API and the database are reachable on the internal network only.
+# Honest status: the API service is the in-memory DEMO (synthetic data, nothing is sent, refuses
+# ENV=production). The database is real and migrated, ready for the Stage 1 service
+# (docs/product/10-roadmap-to-functional-app.md).
+name: rfq
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rfq_owner
+      POSTGRES_PASSWORD: ${OWNER_DB_PASSWORD:?run ./gen-secrets.sh}
+      POSTGRES_DB: rfq
+    # Sized for a small VPS (works on 1 GB; raise on a bigger one). Durability stays on.
+    command: >
+      postgres -c max_connections=30 -c shared_buffers=${PG_SHARED_BUFFERS:-128MB}
+      -c effective_cache_size=${PG_CACHE:-384MB} -c work_mem=4MB -c maintenance_work_mem=64MB
+      -c max_wal_size=512MB -c random_page_cost=1.1 -c synchronous_commit=on -c fsync=on
+      -c log_min_duration_statement=500
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rfq_owner -d rfq"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [internal]
+    mem_limit: ${DB_MEM:-512m}
+
+  migrate:
+    build: { context: ../.., dockerfile: deploy/docker/Dockerfile }
+    image: rfq-api:local
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      OWNER_DATABASE_URL: postgresql://rfq_owner:${OWNER_DB_PASSWORD}@db:5432/rfq
+    command: ["python", "-c", "import os; from aidb.migrate import upgrade; upgrade(os.environ['OWNER_DATABASE_URL']); print('migrations at head')"]
+    restart: "no"
+    networks: [internal]
+
+  dbinit:
+    # Gives the restricted app_user role its password. The app connects as app_user, never as the
+    # owner: row-level security does not apply to the table owner.
+    image: postgres:16-alpine
+    depends_on: { migrate: { condition: service_completed_successfully } }
+    environment:
+      PGPASSWORD: ${OWNER_DB_PASSWORD}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?run ./gen-secrets.sh}
+    entrypoint: ["sh", "-c", "psql -v ON_ERROR_STOP=1 -h db -U rfq_owner -d rfq -c \"ALTER ROLE app_user PASSWORD '$$APP_DB_PASSWORD'\""]
+    restart: "no"
+    networks: [internal]
+
+  api:
+    image: rfq-api:local
+    depends_on:
+      dbinit: { condition: service_completed_successfully }
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://app_user:${APP_DB_PASSWORD}@db:5432/rfq
+      DEPLOYMENT_PROFILE: uk
+      ENV: staging
+    networks: [internal]
+    mem_limit: ${API_MEM:-384m}
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [api]
+    ports: ["80:80", "443:443"]
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+      ACCESS_USER: ${ACCESS_USER:-rfq}
+      ACCESS_PASSWORD_HASH: ${ACCESS_PASSWORD_HASH:?run ./gen-secrets.sh}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${WEB_DIR:-./www}:/srv/www:ro
+      - caddy_data:/data
+    networks: [internal, public]
+    mem_limit: 128m
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
+
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      PGPASSWORD: ${OWNER_DB_PASSWORD}
+    # A dump at start and then every 24 hours, keeping 7 days, in ./backup on the host.
+    entrypoint: ["sh", "-c", "while true; do pg_dump -h db -U rfq_owner -Fc rfq > /backup/rfq-$$(date +%F).dump; find /backup -name 'rfq-*.dump' -mtime +7 -delete; sleep 86400; done"]
+    volumes: ["./backup:/backup"]
+    networks: [internal]
+    mem_limit: 128m
+
+networks:
+  internal: { internal: true }
+  public: {}
+
+volumes:
+  pgdata:
+  caddy_data:

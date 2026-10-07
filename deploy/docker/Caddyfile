@@ -1,0 +1,22 @@
+# TLS is automatic when SITE_ADDRESS is a domain pointing at the VPS. The whole site is behind a
+# password because the demo has test logins; never remove basic_auth. The API is internal only.
+{$SITE_ADDRESS} {
+	encode zstd gzip
+	basic_auth {
+		{$ACCESS_USER} {$ACCESS_PASSWORD_HASH}
+	}
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		X-Frame-Options DENY
+		-Server
+	}
+	handle_path /api/* {
+		reverse_proxy api:8000
+	}
+	handle {
+		root * /srv/www
+		try_files {path} /index.html
+		file_server
+	}
+}

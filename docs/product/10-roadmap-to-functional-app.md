@@ -2,7 +2,7 @@
 
 Status today: the offline pipeline (kit, match, price, quote, options, price book, aggregated RFQ drafts) and the demo screens work on **synthetic data**; the older RFQ flow (prepare, approve, send, reply) works **in memory**. Nothing links the two, nothing is persisted, and nothing real has been sent. Product-market fit is unproven, so each stage ends with an exit test, and stages D to F are gated on evidence. Sizing is not estimated. All hard rules (spec section 4) hold in every stage; no stage may weaken one.
 
-Hosting decision (owner, 2026-10-07): one VPS runs everything, including PostgreSQL (Google Always Free e2-micro first, see `deploy/gcp-free-tier/`). No serverless or managed database.
+Hosting decision (owner, 2026-10-07): one VPS runs everything, including PostgreSQL, no serverless or managed database. Provider is open (Google Always Free e2-micro, Hetzner or another); `deploy/docker/` is the provider-neutral Docker Compose kit and `deploy/gcp-free-tier/` the 1 GB no-Docker variant.
 
 ## Stage 1: Persist and wire (no new features, makes the demo real)
 
