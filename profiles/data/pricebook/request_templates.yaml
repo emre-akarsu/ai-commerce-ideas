@@ -1,0 +1,30 @@
+# Request-your-price-file templates (strategy step 1.4). TEXT ONLY: filled with four placeholders
+# (merchant_name, buyer_name, buyer_company, account_reference) by components.pricebook.requests.
+# No model writes any of this text. No URLs and no HTML. No legal footer: the approval and
+# send-service flow adds the footer and sends only after a person approves the exact text.
+# Wording is an unreviewed first draft (not legal advice, not tested with real merchants).
+id: price-file-request-en-gb-v1
+label: SYNTHETIC/ILLUSTRATIVE TEMPLATE TEXT, unreviewed first draft; a person approves the exact message before anything is sent
+language: en-GB
+greeting: "Dear {merchant_name} account team,"
+ask_heading: "Please send us the following:"
+asks:
+  - "The price file as a CSV or Excel file."
+  - "The period the prices are valid for (valid from and valid until dates)."
+  - "Whether the prices include VAT or exclude it, stated once for the whole file."
+  - "Your product code for each item, plus the manufacturer part number (MPN) and the barcode (GTIN) where you have them."
+  - "The pack size each price is for, and the unit it is quoted per (each, per pack, per metre, per 100)."
+  - "Your delivery terms, including delivery charges and the order value above which delivery is free."
+  - "Confirmation that we may load the file into a purchasing tool to compare prices for our own purchases."
+closing: "Thank you. We will check the prices with you before we rely on them."
+sign_off: "{buyer_name}\n{buyer_company}\nAccount reference: {account_reference}"
+variants:
+  missing:
+    subject: "Price file request for {buyer_company}, account {account_reference}"
+    intro: "We do not yet hold a price file for our trade account with {merchant_name}. Could you send us one?"
+  stale:
+    subject: "Updated price file please, {buyer_company}, account {account_reference}"
+    intro: "The price file we hold for our trade account with {merchant_name} is out of date. Could you send us a current one?"
+  indicative_only:
+    subject: "Trade price file request for {buyer_company}, account {account_reference}"
+    intro: "We only hold public list prices for {merchant_name}, which we cannot rely on for our quotes. Could you send us the prices that apply to our trade account?"

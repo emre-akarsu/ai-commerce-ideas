@@ -1,0 +1,24 @@
+{
+  "id": "pricebook-demo-reviewer-decisions-v1",
+  "label": "SYNTHETIC demo only: invented reviewer decisions for kit lines that only some scopes have, added to those of profiles/data/quoting/demo_reviewer_decisions.json. A real reviewer reads each candidate; nothing here is a recommendation.",
+  "approver": "demo-reviewer",
+  "left_for_a_person": "The other lines left in the review queue stay there on purpose: their candidates are not the product asked for (cisterns, seats, fittings, duct fixings, a plywood overlay) or fail a check (white versus brilliant white emulsion).",
+  "scopes": {
+    "full": [],
+    "wc_only": [],
+    "cloakroom": [
+      {
+        "kit_line_id": "sw_basin_pedestal",
+        "sku_id": "SYN-BS-0003",
+        "note": "500 mm full pedestal basin, one tap hole: within the 400-500 mm asked for"
+      }
+    ],
+    "wet_room": [
+      {
+        "kit_line_id": "sw_basin_wall_hung",
+        "sku_id": "SYN-BS-0005",
+        "note": "450 mm wall-hung basin, one tap hole; fixing height is an installation detail"
+      }
+    ]
+  }
+}

@@ -1,0 +1,286 @@
+{
+  "format": "price-books-ui/1",
+  "label": "SYNTHETIC/ILLUSTRATIVE DATA: fictional merchants and invented prices; not real prices, not licensed data, not a supplier quote",
+  "as_of": "2026-10-07T09:00:00+00:00",
+  "tenant_id": "demo-tenant-a",
+  "currency": "GBP",
+  "comparison_basis": "ex_tax",
+  "merchants": [
+    {
+      "merchant_id": "m-a",
+      "name": "Alpha (fictional)",
+      "status": "current",
+      "status_reason": "Newest firm prices observed 24 hours ago (limit 7 days); valid until 2026-11-06.",
+      "status_reason_code": "current",
+      "ladder_level": 2,
+      "ladder_label": "Price file or quote the customer supplied and attested",
+      "source_kinds": [
+        "trade_feed"
+      ],
+      "visibility": "tenant_private",
+      "attested": true,
+      "offers": 2,
+      "firm_offers": 2,
+      "indicative_offers": 0,
+      "quarantined": 2,
+      "as_of": "2026-10-06T09:00:00+00:00",
+      "valid_until": "2026-11-06T09:00:00+00:00",
+      "valid_until_latest": "2026-11-06T09:00:00+00:00",
+      "vat_basis": "ex_tax",
+      "vat_basis_counts": {
+        "ex_tax": 2,
+        "inc_tax": 0,
+        "unknown": 0
+      },
+      "freshness": {
+        "current": 2,
+        "stale": 0,
+        "expired": 0
+      },
+      "dominant_source_kind": "trade_feed",
+      "max_age_hours": 168,
+      "next_refresh_due": "2026-10-13T09:00:00+00:00",
+      "coverage": {
+        "lines_priced": 2,
+        "lines_total": 6,
+        "pct": "33.3"
+      }
+    },
+    {
+      "merchant_id": "m-b",
+      "name": "Beta (fictional)",
+      "status": "current",
+      "status_reason": "Newest firm prices observed 24 hours ago (limit 7 days); valid until 2026-11-06.",
+      "status_reason_code": "current",
+      "ladder_level": 2,
+      "ladder_label": "Price file or quote the customer supplied and attested",
+      "source_kinds": [
+        "trade_feed"
+      ],
+      "visibility": "tenant_private",
+      "attested": true,
+      "offers": 1,
+      "firm_offers": 1,
+      "indicative_offers": 0,
+      "quarantined": 0,
+      "as_of": "2026-10-06T09:00:00+00:00",
+      "valid_until": "2026-11-06T09:00:00+00:00",
+      "valid_until_latest": "2026-11-06T09:00:00+00:00",
+      "vat_basis": "ex_tax",
+      "vat_basis_counts": {
+        "ex_tax": 1,
+        "inc_tax": 0,
+        "unknown": 0
+      },
+      "freshness": {
+        "current": 1,
+        "stale": 0,
+        "expired": 0
+      },
+      "dominant_source_kind": "trade_feed",
+      "max_age_hours": 168,
+      "next_refresh_due": "2026-10-13T09:00:00+00:00",
+      "coverage": {
+        "lines_priced": 1,
+        "lines_total": 6,
+        "pct": "16.7"
+      }
+    },
+    {
+      "merchant_id": "m-c",
+      "name": "Gamma (fictional)",
+      "status": "indicative_only",
+      "status_reason": "Only public list prices (indicative, not a quote). A price file from your own trade account would make them firm.",
+      "status_reason_code": "indicative_public_only",
+      "ladder_level": 0,
+      "ladder_label": "Nothing yet: request for quote only",
+      "source_kinds": [
+        "affiliate_feed"
+      ],
+      "visibility": "shared",
+      "attested": false,
+      "offers": 2,
+      "firm_offers": 0,
+      "indicative_offers": 2,
+      "quarantined": 0,
+      "as_of": "2026-10-06T09:00:00+00:00",
+      "valid_until": null,
+      "valid_until_latest": null,
+      "vat_basis": "ex_tax",
+      "vat_basis_counts": {
+        "ex_tax": 2,
+        "inc_tax": 0,
+        "unknown": 0
+      },
+      "freshness": {
+        "current": 0,
+        "stale": 0,
+        "expired": 0
+      },
+      "dominant_source_kind": "affiliate_feed",
+      "max_age_hours": 48,
+      "next_refresh_due": "2026-10-08T09:00:00+00:00",
+      "coverage": {
+        "lines_priced": 0,
+        "lines_total": 6,
+        "pct": "0.0"
+      }
+    },
+    {
+      "merchant_id": "m-d",
+      "name": "Delta (fictional)",
+      "status": "missing",
+      "status_reason": "No price file for this merchant yet. Request one, or send an RFQ for the lines you need.",
+      "status_reason_code": "no_price_file",
+      "ladder_level": 0,
+      "ladder_label": "Nothing yet: request for quote only",
+      "source_kinds": [],
+      "visibility": "tenant_private",
+      "attested": false,
+      "offers": 0,
+      "firm_offers": 0,
+      "indicative_offers": 0,
+      "quarantined": 0,
+      "as_of": null,
+      "valid_until": null,
+      "valid_until_latest": null,
+      "vat_basis": "unknown",
+      "vat_basis_counts": {
+        "ex_tax": 0,
+        "inc_tax": 0,
+        "unknown": 0
+      },
+      "freshness": {
+        "current": 0,
+        "stale": 0,
+        "expired": 0
+      },
+      "dominant_source_kind": null,
+      "max_age_hours": null,
+      "next_refresh_due": null,
+      "coverage": {
+        "lines_priced": 0,
+        "lines_total": 6,
+        "pct": "0.0"
+      }
+    }
+  ],
+  "gaps": [
+    {
+      "spend_rank": 1,
+      "line_id": "l3",
+      "kit_line_id": null,
+      "text": "100mm flexible duct 3000mm",
+      "quantity": "3",
+      "unit": "each",
+      "bucket": "indicative_only",
+      "reason_code": "indicative_only",
+      "estimated_spend": "60.00",
+      "spend_basis": "indicative_low_price",
+      "merchants_without_price": [
+        "m-a",
+        "m-b",
+        "m-c",
+        "m-d"
+      ],
+      "merchants_with_indicative": [
+        "m-c"
+      ]
+    },
+    {
+      "spend_rank": 2,
+      "line_id": "l6",
+      "kit_line_id": null,
+      "text": "zzqx blorp flange widget",
+      "quantity": "10",
+      "unit": "each",
+      "bucket": "unmatched",
+      "reason_code": "no_catalogue_match",
+      "estimated_spend": null,
+      "spend_basis": "none",
+      "merchants_without_price": [
+        "m-a",
+        "m-b",
+        "m-c",
+        "m-d"
+      ],
+      "merchants_with_indicative": []
+    },
+    {
+      "spend_rank": 3,
+      "line_id": "l4",
+      "kit_line_id": null,
+      "text": "15mm compression stop end",
+      "quantity": "5",
+      "unit": "each",
+      "bucket": "no_offer",
+      "reason_code": "no_offers",
+      "estimated_spend": null,
+      "spend_basis": "none",
+      "merchants_without_price": [
+        "m-a",
+        "m-b",
+        "m-c",
+        "m-d"
+      ],
+      "merchants_with_indicative": []
+    }
+  ],
+  "request_drafts": [
+    {
+      "merchant_id": "m-c",
+      "subject": "Trade price file request for Example Ltd (fictional), account [account reference to be added]",
+      "body": "Dear Gamma (fictional) account team,\n\nWe only hold public list prices for Gamma (fictional), which we cannot rely on for our quotes. Could you send us the prices that apply to our trade account?\n\nPlease send us the following:\n- The price file as a CSV or Excel file.\n- The period the prices are valid for (valid from and valid until dates).\n- Whether the prices include VAT or exclude it, stated once for the whole file.\n- Your product code for each item, plus the manufacturer part number (MPN) and the barcode (GTIN) where you have them.\n- The pack size each price is for, and the unit it is quoted per (each, per pack, per metre, per 100).\n- Your delivery terms, including delivery charges and the order value above which delivery is free.\n- Confirmation that we may load the file into a purchasing tool to compare prices for our own purchases.\n\nThank you. We will check the prices with you before we rely on them.\n\nAlex Example\nExample Ltd (fictional)\nAccount reference: [account reference to be added]",
+      "status": "draft_not_sent"
+    },
+    {
+      "merchant_id": "m-d",
+      "subject": "Price file request for Example Ltd (fictional), account ACC-1",
+      "body": "Dear Delta (fictional) account team,\n\nWe do not yet hold a price file for our trade account with Delta (fictional). Could you send us one?\n\nPlease send us the following:\n- The price file as a CSV or Excel file.\n- The period the prices are valid for (valid from and valid until dates).\n- Whether the prices include VAT or exclude it, stated once for the whole file.\n- Your product code for each item, plus the manufacturer part number (MPN) and the barcode (GTIN) where you have them.\n- The pack size each price is for, and the unit it is quoted per (each, per pack, per metre, per 100).\n- Your delivery terms, including delivery charges and the order value above which delivery is free.\n- Confirmation that we may load the file into a purchasing tool to compare prices for our own purchases.\n\nThank you. We will check the prices with you before we rely on them.\n\nAlex Example\nExample Ltd (fictional)\nAccount reference: ACC-1",
+      "status": "draft_not_sent"
+    }
+  ],
+  "freshness_summary": {
+    "current": 2,
+    "stale": 0,
+    "missing": 1,
+    "indicative_only": 1,
+    "merchants_total": 4,
+    "oldest_as_of": "2026-10-06T09:00:00+00:00",
+    "next_refresh_due": "2026-10-08T09:00:00+00:00",
+    "overdue": 0
+  },
+  "ladder": {
+    "built_levels": [
+      0,
+      2,
+      4
+    ],
+    "levels": [
+      {
+        "level": 0,
+        "label": "Nothing yet: request for quote only"
+      },
+      {
+        "level": 1,
+        "label": "Invoices and statements (last paid, indicative)"
+      },
+      {
+        "level": 2,
+        "label": "Price file or quote the customer supplied and attested"
+      },
+      {
+        "level": 3,
+        "label": "Scheduled price file from the merchant"
+      },
+      {
+        "level": 4,
+        "label": "Contracted feed or account API"
+      }
+    ]
+  },
+  "schema_changes": [
+    "price-books-ui/1 is the first version.",
+    "Evolution is additive only: a later version adds optional fields, never renames, removes or re-types one, and never changes the meaning of a value. A reader must ignore keys it does not know and must show a new value of a documented enum as plain text."
+  ]
+}

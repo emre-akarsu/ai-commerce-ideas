@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "price-books-ui/1",
+  "title": "Price book UI export (price-books-ui/1)",
+  "description": "Written by components.pricebook.export from a PriceBook. Synthetic/illustrative data while the price files are synthetic; not a supplier quote. Decimals are strings, times are ISO 8601 strings, no number is a float. Evolution is additive only: a later version adds optional fields and accepts this version's documents unchanged; readers ignore keys they do not know (docs/architecture/pricebook.md). valid_until is the EARLIEST validity end among the offers the status rests on; valid_until_latest is the latest. ladder_level 1 (invoices) and 3 (scheduled files) are in the schema but have no data source yet.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "label", "as_of", "tenant_id", "currency", "comparison_basis", "merchants", "gaps", "request_drafts", "freshness_summary", "ladder", "schema_changes"],
+  "properties": {
+    "format": {"const": "price-books-ui/1"},
+    "label": {"type": "string"},
+    "as_of": {"$ref": "#/$defs/datetime"},
+    "tenant_id": {"type": "string"},
+    "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+    "comparison_basis": {"enum": ["ex_tax", "inc_tax"]},
+    "merchants": {"type": "array", "items": {"$ref": "#/$defs/merchant"}},
+    "gaps": {"type": "array", "items": {"$ref": "#/$defs/gap"}},
+    "request_drafts": {"type": "array", "items": {"$ref": "#/$defs/draft"}},
+    "freshness_summary": {"$ref": "#/$defs/freshness_summary"},
+    "ladder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["built_levels", "levels"],
+      "properties": {
+        "built_levels": {"type": "array", "items": {"$ref": "#/$defs/level"}},
+        "levels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["level", "label"],
+            "properties": {"level": {"$ref": "#/$defs/level"}, "label": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "schema_changes": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "datetime": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(\\+\\d{2}:\\d{2}|Z)$"},
+    "datetime_or_null": {"anyOf": [{"$ref": "#/$defs/datetime"}, {"type": "null"}]},
+    "decimal": {"type": "string", "pattern": "^-?\\d+(\\.\\d+)?$"},
+    "level": {"enum": [0, 1, 2, 3, 4]},
+    "count": {"type": "integer"},
+    "merchant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["merchant_id", "name", "status", "status_reason", "status_reason_code", "ladder_level", "ladder_label", "source_kinds", "visibility", "attested", "offers", "firm_offers", "indicative_offers", "quarantined", "as_of", "valid_until", "valid_until_latest", "vat_basis", "vat_basis_counts", "freshness", "dominant_source_kind", "max_age_hours", "next_refresh_due", "coverage"],
+      "properties": {
+        "merchant_id": {"type": "string"},
+        "name": {"type": "string"},
+        "status": {"enum": ["current", "stale", "missing", "indicative_only"]},
+        "status_reason": {"type": "string"},
+        "status_reason_code": {"type": "string"},
+        "ladder_level": {"$ref": "#/$defs/level"},
+        "ladder_label": {"type": "string"},
+        "source_kinds": {"type": "array", "items": {"type": "string"}},
+        "visibility": {"enum": ["tenant_private", "shared"]},
+        "attested": {"type": "boolean"},
+        "offers": {"$ref": "#/$defs/count"},
+        "firm_offers": {"$ref": "#/$defs/count"},
+        "indicative_offers": {"$ref": "#/$defs/count"},
+        "quarantined": {"$ref": "#/$defs/count"},
+        "as_of": {"$ref": "#/$defs/datetime_or_null"},
+        "valid_until": {"$ref": "#/$defs/datetime_or_null"},
+        "valid_until_latest": {"$ref": "#/$defs/datetime_or_null"},
+        "vat_basis": {"enum": ["ex_tax", "inc_tax", "mixed", "unknown"]},
+        "vat_basis_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ex_tax", "inc_tax", "unknown"],
+          "properties": {"ex_tax": {"$ref": "#/$defs/count"}, "inc_tax": {"$ref": "#/$defs/count"}, "unknown": {"$ref": "#/$defs/count"}}
+        },
+        "freshness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["current", "stale", "expired"],
+          "properties": {"current": {"$ref": "#/$defs/count"}, "stale": {"$ref": "#/$defs/count"}, "expired": {"$ref": "#/$defs/count"}}
+        },
+        "dominant_source_kind": {"type": ["string", "null"]},
+        "max_age_hours": {"type": ["integer", "null"]},
+        "next_refresh_due": {"$ref": "#/$defs/datetime_or_null"},
+        "coverage": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["lines_priced", "lines_total", "pct"],
+              "properties": {"lines_priced": {"$ref": "#/$defs/count"}, "lines_total": {"$ref": "#/$defs/count"}, "pct": {"$ref": "#/$defs/decimal"}}
+            }
+          ]
+        }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spend_rank", "line_id", "kit_line_id", "text", "quantity", "unit", "bucket", "reason_code", "estimated_spend", "spend_basis", "merchants_without_price", "merchants_with_indicative"],
+      "properties": {
+        "spend_rank": {"type": "integer"},
+        "line_id": {"type": "string"},
+        "kit_line_id": {"type": ["string", "null"]},
+        "text": {"type": "string"},
+        "quantity": {"$ref": "#/$defs/decimal"},
+        "unit": {"type": "string"},
+        "bucket": {"enum": ["review", "unmatched", "indicative_only", "no_offer"]},
+        "reason_code": {"type": "string"},
+        "estimated_spend": {"anyOf": [{"$ref": "#/$defs/decimal"}, {"type": "null"}]},
+        "spend_basis": {"enum": ["indicative_low_price", "none"]},
+        "merchants_without_price": {"type": "array", "items": {"type": "string"}},
+        "merchants_with_indicative": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "draft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["merchant_id", "subject", "body", "status"],
+      "properties": {
+        "merchant_id": {"type": "string"},
+        "subject": {"type": "string"},
+        "body": {"type": "string"},
+        "status": {"const": "draft_not_sent"}
+      }
+    },
+    "freshness_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["current", "stale", "missing", "indicative_only", "merchants_total", "oldest_as_of", "next_refresh_due", "overdue"],
+      "properties": {
+        "current": {"$ref": "#/$defs/count"},
+        "stale": {"$ref": "#/$defs/count"},
+        "missing": {"$ref": "#/$defs/count"},
+        "indicative_only": {"$ref": "#/$defs/count"},
+        "merchants_total": {"$ref": "#/$defs/count"},
+        "oldest_as_of": {"$ref": "#/$defs/datetime_or_null"},
+        "next_refresh_due": {"$ref": "#/$defs/datetime_or_null"},
+        "overdue": {"$ref": "#/$defs/count"}
+      }
+    }
+  }
+}
