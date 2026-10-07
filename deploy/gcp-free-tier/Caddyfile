@@ -1,0 +1,23 @@
+# Serves the single-file demo behind a password. SITE_ADDRESS is ":80" (plain HTTP, reach it through
+# an SSH tunnel or IAP) or your domain name (Caddy then gets a Let's Encrypt certificate itself).
+# The optional API listens on 127.0.0.1:8000 only and is reached through /api/ with the same password.
+{$SITE_ADDRESS} {
+	encode zstd gzip
+	basic_auth {
+		{$ACCESS_USER} {$ACCESS_PASSWORD_HASH}
+	}
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		X-Frame-Options DENY
+		-Server
+	}
+	handle_path /api/* {
+		reverse_proxy 127.0.0.1:8000
+	}
+	handle {
+		root * /srv/rfq/www
+		try_files {path} /index.html
+		file_server
+	}
+}
