@@ -4,9 +4,10 @@
 // KitSpec read by lib/kits/schema.ts, so changing a template means editing config only.
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { bundledKits, isReady, parametersFor, type CatalogEntry, type ReadyEntry } from "@/lib/kits/catalog";
-import type { KitSpec, Scalar } from "@/lib/kits/model";
+import type { KitSpec, Scalar, Tag } from "@/lib/kits/model";
 import { isUnknownAnswer, measuredDerived, resolveKit, type Resolution } from "@/lib/kits/resolve";
-import { initialWizard, lineState, STEPS, unknownIds, wizardReducer, type Step, type WizardAction, type WizardState } from "@/lib/kits/state";
+import { applyTemplate, cleanName, loadTemplates, makeTemplate, sampleTemplate, saveTemplates, templatesFor, withTemplate, type KitTemplate } from "@/lib/kits/templates";
+import { currentPreset, initialWizard, lineState, STEPS, unknownIds, wizardReducer, type Step, type WizardAction, type WizardState } from "@/lib/kits/state";
 import { assumptionTexts, completeness, indicativeTotals, ledger, money, rfqDraft, type RfqDraft } from "@/lib/kits/summary";
 import Link from "next/link";
 import { rememberQuoteScope } from "@/lib/quote/prefs";
@@ -168,11 +169,41 @@ function NavRow({ back, children }: { back?: () => void; children?: React.ReactN
 
 function ScopeStep({ entries, dispatch, heading }: WizardProps) {
   const ready = entries.filter(isReady);
+  const [saved, setSaved] = useState<KitTemplate[]>([]);
+  useEffect(() => { setSaved(loadTemplates()); }, []);
   const broken = entries.filter((e) => !e.result.ok);
   return (
     <section className="space-y-3">
       <StepHeading heading={heading} title="What is the job?" sub="Pick the scope closest to the work. You can change anything later." />
       {ready.length === 0 && <EmptyState title="No job templates found">Run npm run sync-kits, or load one on the Config tab.</EmptyState>}
+      {ready.length > 0 && (
+        <Card data-templates>
+          <H2>Start from a former quote</H2>
+          <p className="mb-2 text-sm text-mute">Reuse the answers, sizes, option picks and left-out lines of an earlier job for similar work. Prices are never copied: they always come from your current price book.</p>
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {[...saved, ...ready.map((e) => sampleTemplate(e.result.spec))].map((t) => {
+              const targets = ready.filter((e) => templatesFor(e.result.spec, [t]).length > 0 && (!t.sample || t.scopeId === e.result.spec.scope.scopeId))
+                .sort((a, b) => Number(b.result.spec.scope.scopeId === t.scopeId) - Number(a.result.spec.scope.scopeId === t.scopeId));
+              if (!targets.length) return null;
+              return (
+                <li key={t.id} className="min-w-0 rounded-md border border-line p-2 text-sm" data-template={t.id}>
+                  <span className="block break-words font-medium">{t.name}</span>
+                  <span className="block text-xs text-mute">{t.sample ? "Built-in example" : `Saved ${t.savedAt.slice(0, 10)}`}</span>
+                  <span className="mt-2 flex flex-wrap gap-2">
+                    {targets.map((e) => (
+                      <Button key={e.key} type="button" variant="secondary" data-use-template onClick={() => {
+                        const a = applyTemplate(e.result.spec, e.key, t);
+                        dispatch({ type: "template", state: a.state });
+                      }}>Use for {e.result.spec.scope.title}</Button>
+                    ))}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-2 text-xs text-mute">Templates apply to the same scope or to the same job type. Anything the new scope does not have is left out, and you confirm the measurements next. Save a job as a template on its summary; templates are kept in this browser only.</p>
+        </Card>
+      )}
       <ul className="grid gap-3 sm:grid-cols-2">
         {ready.map((e) => {
           const k = e.result.spec;
@@ -269,6 +300,7 @@ function ReviewStep({ s, dispatch, spec, res, locale, heading, back }: WizardPro
     <section className="space-y-4">
       <StepHeading heading={heading} title="Review the kit" sub={`${res.lines.length} lines in ${res.modules.length} sections, pre-filled with the template defaults. Change only what is different on this job.`} />
       <div className="flex flex-wrap items-center gap-2">{accept}<span className="text-sm text-mute">You can still change anything on the summary.</span></div>
+      <PresetBar spec={spec} s={s} dispatch={dispatch} />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-4">
           <Card>
@@ -293,6 +325,32 @@ function ReviewStep({ s, dispatch, spec, res, locale, heading, back }: WizardPro
       </div>
       <NavRow back={back}>{accept}</NavRow>
     </section>
+  );
+}
+
+const PRESETS: Array<{ tier: Tag | "defaults"; label: string; hint: string }> = [
+  { tier: "budget", label: "Budget", hint: "Lowest-cost option on every line" },
+  { tier: "most_used", label: "Most used", hint: "The usual pick on every line" },
+  { tier: "premium", label: "Premium", hint: "Higher-spec option on every line" },
+  { tier: "defaults", label: "Template defaults", hint: "Undo: back to the defaults" },
+];
+
+/** One tap sets every line to a tier, so nobody has to choose line by line. Per-line changes afterwards still win. */
+function PresetBar({ spec, s, dispatch }: { spec: KitSpec; s: WizardState; dispatch: React.Dispatch<WizardAction> }) {
+  const cur = currentPreset(spec, s);
+  const custom = Object.keys(s.choices).length;
+  return (
+    <Card data-presets>
+      <H2>Set every line at once</H2>
+      <p className="mb-2 text-sm text-mute">Pick a level for the whole kit. Lines with no option at that level keep their default. This replaces option picks you made line by line.</p>
+      <div role="group" aria-label="Level for every line" className="flex flex-wrap gap-2">
+        {PRESETS.map((p) => (
+          <Button key={p.tier} type="button" variant={cur === p.tier ? "primary" : "secondary"} aria-pressed={cur === p.tier} title={p.hint} data-preset={p.tier}
+            onClick={() => dispatch({ type: "preset", spec, tier: p.tier })}>{p.label}</Button>
+        ))}
+      </div>
+      {custom > 0 && <p className="mt-2 text-xs text-mute" data-custom-picks>{custom} line{custom === 1 ? " is" : "s are"} set by hand.</p>}
+    </Card>
   );
 }
 
@@ -388,9 +446,35 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
           </Card>
         </div>
       </div>
+      <SaveTemplate spec={spec} s={s} />
       {draft && <DraftPanel draft={draft} />}
       <NavRow back={back} />
     </section>
+  );
+}
+
+function SaveTemplate({ spec, s }: { spec: KitSpec; s: WizardState }) {
+  const [name, setName] = useState("");
+  const [msg, setMsg] = useState("");
+  function save() {
+    const t = makeTemplate(spec, s, name, new Date().toISOString(), `t-${Date.now().toString(36)}`);
+    if (!t) { setMsg("Give the template a name first."); return; }
+    setMsg(saveTemplates(withTemplate(loadTemplates(), t)) ? `Saved "${t.name}" as a template in this browser.` : "This browser blocked saving, so the template was not kept.");
+    setName("");
+  }
+  return (
+    <Card data-save-template>
+      <H2>Reuse this job</H2>
+      <p className="mb-2 text-sm text-mute">Save these answers, sizes, option picks and left-out lines as a template for similar work. No prices are saved.</p>
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="min-w-48 flex-1 text-sm font-medium">Template name
+          <input className="mt-1 min-h-target w-full rounded-md border border-strong bg-surface px-3 py-2 text-sm font-normal" value={name} maxLength={80} onChange={(e) => setName(e.target.value)}
+            placeholder={`${spec.scope.title}, ${new Date().getFullYear()}`} />
+        </label>
+        <Button type="button" variant="secondary" onClick={save} disabled={!cleanName(name)}>Save as template</Button>
+      </div>
+      {msg && <p role="status" className="mt-2 text-sm" data-template-msg>{msg}</p>}
+    </Card>
   );
 }
 

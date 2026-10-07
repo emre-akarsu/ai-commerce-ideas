@@ -127,6 +127,27 @@ await b.click("Wall-hung basin"); await b.sleep(300);
 ok("ledger: one tap opens the editor and the change shows", await b.ev(`[...document.querySelectorAll('[aria-label="Defaults we assumed"] button')].some(x=>x.innerText.includes('Wall-hung basin')&&x.innerText.includes('changed'))`));
 if (shots) await b.shot(`${out}/kits-desktop-review-edited.png`);
 
+// Defaults are pre-selected; one-tap presets; a former quote as template.
+await open(); await clickSel('[data-scope="bathroom_full"]');
+ok("defaults: every question card has one option already selected", await b.ev(`[...document.querySelectorAll('[data-question]')].length>0 && [...document.querySelectorAll('[data-question]')].every(q=>q.querySelector('input:checked')||q.querySelector('select')||q.querySelector('input[type=checkbox]'))`));
+while (!(await step()).includes("Review")) await b.click("Continue");
+const pickCount = () => b.ev(`document.querySelectorAll('[data-line] input[type=radio]:checked').length`);
+ok("presets: bar is on review with template defaults", await b.ev(`!!document.querySelector('[data-presets]')`));
+await clickSel('[data-preset="premium"]');
+ok("presets: premium pressed", await b.ev(`document.querySelector('[data-preset="premium"]').getAttribute('aria-pressed')==='true'`));
+await clickSel('[data-preset="budget"]');
+ok("presets: budget replaces premium", await b.ev(`document.querySelector('[data-preset="budget"]').getAttribute('aria-pressed')==='true' && document.querySelector('[data-preset="premium"]').getAttribute('aria-pressed')==='false'`));
+await clickSel('[data-preset="defaults"]');
+await b.click("Accept all defaults");
+await b.fill("[data-save-template] input", "My test bathroom");
+await b.click("Save as template");
+ok("template: saved", await has('Saved "My test bathroom"'));
+await b.click("Start a different job");
+ok("template: offered on the scope step", await b.ev(`[...document.querySelectorAll('[data-template]')].some(e=>e.innerText.includes('My test bathroom'))`));
+await b.ev(`[...document.querySelectorAll('[data-template]')].find(e=>e.innerText.includes('My test bathroom')).querySelector('[data-use-template]').click()`); await b.sleep(400);
+ok("template: lands on the measure step to confirm sizes", (await step()).includes("Measure"), await step());
+await b.ev(`window.localStorage.removeItem('kit-templates-v1')`);
+
 // Config tab: bad format, then a v2 sample built from a bundled kit.
 await open();
 await b.click("Config");

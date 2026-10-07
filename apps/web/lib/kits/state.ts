@@ -1,6 +1,6 @@
 // Pure wizard state: step, answers, measurements, choices and the per-line Include / Not needed /
 // Already have state. Reducers are plain functions so they are unit-tested without React.
-import { allLines, UNKNOWN_ANSWER, type KitSpec, type Scalar } from "./model";
+import { allLines, FINISH_QUESTION_ID, UNKNOWN_ANSWER, type KitSpec, type Scalar, type Tag } from "./model";
 
 export type TriState = "include" | "not_needed" | "have";
 export const TRI_STATES: readonly TriState[] = ["include", "not_needed", "have"];
@@ -38,6 +38,8 @@ export type WizardAction =
   | { type: "choose"; lineId: string; optionId: string | null }
   | { type: "line"; spec: KitSpec; lineId: string; value: TriState }
   | { type: "module"; spec: KitSpec; moduleId: string; value: TriState }
+  | { type: "preset"; spec: KitSpec; tier: Tag | "defaults" }
+  | { type: "template"; state: WizardState }
   | { type: "acceptDefaults" }
   | { type: "reset" };
 
@@ -67,6 +69,8 @@ export function wizardReducer(s: WizardState, a: WizardAction): WizardState {
     }
     case "line": return { ...s, lines: setLine(a.spec, s.lines, a.lineId, a.value) };
     case "module": return { ...s, lines: setModule(a.spec, s.lines, a.moduleId, a.value) };
+    case "preset": return applyPreset(s, a.spec, a.tier);
+    case "template": return a.state;
     case "acceptDefaults": return { ...s, acceptedDefaults: true, step: "summary" };
     case "reset": return initialWizard;
     default: return s;
@@ -105,4 +109,36 @@ export function countStates(ids: readonly string[], lines: Record<string, TriSta
   const out: TriCounts = { include: 0, not_needed: 0, have: 0 };
   for (const id of ids) out[lineState(lines, id)] += 1;
   return out;
+}
+
+// ------------------------------------------------------------------ one-tap presets
+
+/** What the whole kit currently follows: the finish level when the scope has that question, else null. */
+export function currentPreset(spec: KitSpec, s: WizardState): Tag | "defaults" | null {
+  if (Object.keys(s.choices).length) return null;
+  const q = spec.questions.find((x) => x.id === FINISH_QUESTION_ID);
+  if (!q) return null;
+  const v = s.answers[FINISH_QUESTION_ID] ?? q.default;
+  return v === "budget" || v === "most_used" || v === "premium" ? v : null;
+}
+
+/** Apply Budget / Most used / Premium to every line at once, or return to the template defaults.
+ *  Scopes with a finish-level question follow it; others get a per-line choice of the option carrying
+ *  the tag (a line with no such option keeps its default). Per-line changes made afterwards still win.
+ *  Line states (not needed / already have) and measurements are left alone. */
+export function applyPreset(s: WizardState, spec: KitSpec, tier: Tag | "defaults"): WizardState {
+  const answers = { ...s.answers };
+  const hasFinish = spec.questions.some((q) => q.id === FINISH_QUESTION_ID);
+  if (hasFinish) {
+    if (tier === "defaults") delete answers[FINISH_QUESTION_ID]; else answers[FINISH_QUESTION_ID] = tier;
+    return { ...s, answers, choices: {} };
+  }
+  const choices: Record<string, string> = {};
+  if (tier !== "defaults") {
+    for (const line of allLines(spec)) {
+      const o = line.options.find((x) => x.tags.includes(tier));
+      if (o) choices[line.id] = o.id;
+    }
+  }
+  return { ...s, choices };
 }

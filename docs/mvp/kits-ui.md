@@ -134,3 +134,10 @@ From `apps/web`:
 - **Encoding:** `demo/inline.mjs` writes `page.html` without `<meta charset="utf-8">`. Served as plain `text/html`, non-ASCII text ("—", "£", "²") shows as mojibake. It renders correctly when the host sends UTF-8. The fix is a one-line change in `inline.mjs` (not owned by this work).
 - Accessibility was designed for and checked for overflow, focus and keyboard use in a real browser. There has been no WCAG audit or screen-reader pass.
 - The wizard state is not saved. Reloading the page starts again. There is no exit-and-resume yet.
+
+## Presets and former quotes as templates (2026-10-07)
+
+* **Defaults are pre-selected** on every question and option; the person confirms or changes only what differs.
+* **Set every line at once** (Review step): Budget / Most used / Premium / Template defaults. Scopes with a `finish_level` question follow it; others get a per-line pick of the option carrying the tag, and lines with no such option keep their default. A preset replaces hand-made option picks (the screen says so); later per-line changes still win. Line states and measurements are untouched. Premium is never pre-selected, only applied on an explicit tap.
+* **Former quote as template** (`lib/kits/templates.ts`, format `kit-template/1`): "Save as template" on the summary stores answers, measurements, allowances, option picks and left-out lines in this browser (localStorage, guarded; per-viewer only). The scope step lists templates for the same scope or the same job type, plus a built-in synthetic example. Applying one drops anything the new scope does not have (counted, never guessed) and lands on the measure step so sizes are confirmed. No prices are stored: prices always come from the current price book.
+* Not built: server-side/shared templates (a template is per browser), templates that carry supplier choices, and templates for the quote screen's review decisions.
