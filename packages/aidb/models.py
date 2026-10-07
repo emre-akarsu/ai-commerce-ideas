@@ -9,6 +9,8 @@ are copies used for keys, filtering and constraints.
 
 from __future__ import annotations
 
+from typing import Any
+
 from sqlalchemy import (
     TIMESTAMP,
     BigInteger,
@@ -41,7 +43,8 @@ ENTITY_TABLES = (
     "assumptions",
 )
 # Every table below carries tenant_id and has FORCE ROW LEVEL SECURITY (tenants: id is the tenant).
-TENANT_TABLES = ("tenants", *ENTITY_TABLES, "rule_uses", "events", "event_heads")
+STAGE2_TABLES = ("offers", "approved_matches", "price_imports", "kit_templates", "quote_snapshots")
+TENANT_TABLES = ("tenants", *ENTITY_TABLES, "rule_uses", "events", "event_heads", *STAGE2_TABLES)
 
 tenants = Table(
     "tenants",
@@ -117,6 +120,67 @@ event_heads = Table(  # maintained by a trigger on events; app_user can only rea
     Column("tenant_id", Text, ForeignKey("tenants.id"), primary_key=True),
     Column("count", BigInteger, nullable=False),
     Column("last_hash", Text, nullable=False),
+)
+
+# ---- stage 2 (migration 0004). shared_offers: public platform data, no tenant_id, SELECT only.
+
+
+def _offer_table(name: str, *, tenant: bool) -> Table:
+    cols: list[Any] = [Column("id", Text, nullable=False)]
+    if tenant:
+        cols.append(Column("tenant_id", Text, ForeignKey("tenants.id"), nullable=False))
+    cols += [
+        Column("sku_id", Text, nullable=False),
+        Column("merchant_id", Text, nullable=False),
+        Column("source_kind", Text, nullable=False),
+        Column("observed_at", TIMESTAMP(timezone=True), nullable=False),
+        Column("created_at", TIMESTAMP(timezone=True), nullable=False, server_default=func.now()),
+        Column("data", JSONB, nullable=False),  # money and quantities as strings (rule 5)
+        PrimaryKeyConstraint(*(("tenant_id", "id") if tenant else ("id",))),
+    ]
+    return Table(name, metadata, *cols)
+
+
+offers = _offer_table("offers", tenant=True)
+shared_offers = _offer_table("shared_offers", tenant=False)
+
+
+def _tenant_ref() -> Column:  # type: ignore[type-arg]
+    return Column("tenant_id", Text, ForeignKey("tenants.id"), nullable=False)
+
+
+approved_matches = Table(
+    "approved_matches", metadata,
+    Column("signature", Text, nullable=False), _tenant_ref(),
+    Column("updated_at", TIMESTAMP(timezone=True), nullable=False, server_default=func.now()),
+    Column("data", JSONB, nullable=False),
+    PrimaryKeyConstraint("tenant_id", "signature"),
+)
+price_imports = Table(  # append-only
+    "price_imports", metadata,
+    Column("seq", BigInteger, nullable=False, autoincrement=True), _tenant_ref(),
+    Column("merchant_id", Text, nullable=False),
+    Column("created_at", TIMESTAMP(timezone=True), nullable=False, server_default=func.now()),
+    Column("data", JSONB, nullable=False),
+    PrimaryKeyConstraint("tenant_id", "seq"),
+)
+kit_templates = Table(
+    "kit_templates", metadata,
+    Column("id", Text, nullable=False), _tenant_ref(),
+    Column("name", Text, nullable=False), Column("scope_id", Text, nullable=False),
+    Column("saved_at", Text, nullable=False, server_default=""),
+    Column("created_at", TIMESTAMP(timezone=True), nullable=False, server_default=func.now()),
+    Column("data", JSONB, nullable=False),
+    PrimaryKeyConstraint("tenant_id", "id"),
+    UniqueConstraint("tenant_id", "scope_id", "name", name="kit_templates_scope_name_key"),
+)
+quote_snapshots = Table(  # versioned, append-only
+    "quote_snapshots", metadata,
+    Column("id", Text, nullable=False), _tenant_ref(),
+    Column("version", Integer, nullable=False),
+    Column("created_at", TIMESTAMP(timezone=True), nullable=False, server_default=func.now()),
+    Column("data", JSONB, nullable=False),
+    PrimaryKeyConstraint("tenant_id", "id", "version"),
 )
 
 TABLES_BY_NAME: dict[str, Table] = dict(metadata.tables)
