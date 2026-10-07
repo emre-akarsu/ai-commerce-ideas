@@ -8,7 +8,6 @@ from decimal import Decimal
 import pytest
 
 from components.core.fakes import FakeClock
-from components.matching.index import CatalogIndex
 from components.matching.models import CatalogItem
 from components.matching.ontology import Ontology
 from components.pricing import PackSize, PricingConfig, StockStatus, Unit, VatBasis
@@ -259,3 +258,24 @@ def test_search_reads_the_clock_once_and_is_deterministic(bare_ctx: QuotingConte
     assert search_best_price(bare_ctx, TENANT_A, ADHESIVE, D("20"), unit=Unit.KG
                              ).bucket is Bucket.NO_OFFER
     assert clock.now() == NOW + timedelta(days=40)
+
+
+def test_a_scripted_judge_can_confirm_a_marginal_accept_and_the_line_is_then_priced(
+        index: CatalogIndex, seed_items: tuple[CatalogItem, ...], ontology: Ontology,
+        pricing_cfg: PricingConfig, clock: FakeClock) -> None:
+    """The LLM is a fake (no network, no real model); it can only reorder or confirm."""
+    from components.core.fakes import FakeLLM
+
+    from .test_judge_helpers import agree_on
+
+    llm = FakeLLM(agree_on("SYN-CP-0001"))
+    ctx = context(seed_items, ontology, pricing_cfg, clock, index=index, llm=llm)
+    add(ctx.offers, offer("SYN-CP-0001", "m-x", "8.00"))  # type: ignore[arg-type]
+    text = "copper tube 15mm 3000mm"
+    without = search_best_price(
+        context(seed_items, ontology, pricing_cfg, clock, index=index), TENANT_A, text, D("3"),
+        unit=Unit.EACH)
+    assert without.bucket is Bucket.REVIEW  # no judge: a marginal accept goes to a person
+    r = search_best_price(ctx, TENANT_A, text, D("3"), unit=Unit.EACH)
+    assert r.bucket is Bucket.PRICED and r.best is not None and r.best.goods_cost == D("24.00")
+    assert len(llm.calls) == 2  # original and reversed candidate order

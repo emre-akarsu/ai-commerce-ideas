@@ -16,7 +16,7 @@ What the data deliberately contains, so the engine's gates have something to fin
 with different pack sizes (single items, multi-packs, prices per m/m2/kg/litre, prices per 100 or
 1000 pieces), ex-VAT and inc-VAT price columns, delivery fees with free-over thresholds, stale rows
 (observed long ago), expired rows, rows that give no VAT basis, out-of-stock and low-stock rows,
-minimum order quantities, a few price outliers, and about 7% of the catalogue that nobody lists.
+minimum order quantities, a few price outliers, and about 9% of the catalogue that nobody lists.
 These are NOT licensed cross-reference data and not market prices.
 """
 

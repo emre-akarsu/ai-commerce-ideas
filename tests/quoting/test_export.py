@@ -176,3 +176,55 @@ def test_untrusted_text_is_inert_in_the_export(
     doc = quote_draft_ui(build_quote(bare_ctx, TENANT_A, [nasty]))
     text = dumps(doc)
     assert "‮" not in text and "​" not in text
+
+
+# ----------------------------------------------------------------------- evolution (additive only)
+
+FROZEN = DATA.parents[2] / "tests" / "quoting" / "fixtures" / "quote_draft_ui_v1_frozen.json"
+
+
+def shapes(value: Any, path: str = "$") -> dict[str, str]:
+    """Every key path of a document with its JSON type (list items are folded into `[]`)."""
+    out: dict[str, str] = {}
+    if isinstance(value, dict):
+        for k, v in value.items():
+            out[f"{path}.{k}"] = type(v).__name__
+            out.update(shapes(v, f"{path}.{k}"))
+    elif isinstance(value, list):
+        for v in value:
+            out.update(shapes(v, f"{path}[]"))
+    return out
+
+
+def test_a_frozen_v1_document_still_validates_against_the_current_schema() -> None:
+    frozen = json.loads(FROZEN.read_text(encoding="utf-8"))
+    assert frozen["format"] == "quote-draft-ui/1"
+    validate(frozen, SCHEMA, SCHEMA)
+
+
+def test_every_v1_key_is_still_there_with_the_same_type(bare_ctx: QuotingContext) -> None:
+    """Additive evolution: keys of the frozen v1 document may gain siblings, never vanish or
+    change type (None may become a value and back, so null is compared loosely)."""
+    from components.pricing import Unit
+    from components.quoting import LineRequest
+    frozen = json.loads(FROZEN.read_text(encoding="utf-8"))
+    lines = [LineRequest("grout", "grout flexible cement 5kg", Decimal("3"), Unit.EACH),
+             LineRequest("hook", "left-handed sky hook", Decimal("1"), Unit.EACH)]
+    fresh = json.loads(dumps(quote_draft_ui(build_quote(bare_ctx, TENANT_A, lines))))
+    old, new = shapes(frozen), shapes(fresh)
+    for key, kind in old.items():
+        if "$.firm_lines" in key:
+            continue  # this probe quote has no firm line; the schema test covers their shape
+        if key in new and "NoneType" not in (kind, new[key]):
+            assert new[key] == kind, key
+    for key in ("$.format", "$.totals", "$.review_queue", "$.unmatched_lines", "$.partition"):
+        assert key in new
+
+
+def test_the_documented_enums_and_constants_are_in_the_schema() -> None:
+    assert SCHEMA["properties"]["format"] == {"const": "quote-draft-ui/1"}
+    assert SCHEMA["$defs"]["alternative"]["properties"]["label"] == {
+        "const": "suggested alternative, needs approval"}
+    assert SCHEMA["$defs"]["indicative_range"]["properties"]["label"] == {
+        "const": "indicative, not a quote"}
+    assert "schema_changes" in SCHEMA["properties"]

@@ -21,17 +21,17 @@ from decimal import Decimal
 from typing import Any
 
 from components.pricing import PricedOffer
-from components.pricing.quote import QuoteLine
+from components.pricing.quote import FreshnessSummary, OptimisationSummary, QuoteLine
 from components.pricing.reasons import Reason
 from components.pricing.results import ExcludedOffer, IndicativeRange
 
 from .models import (
     ALTERNATIVE_LABEL,
     Alternative,
-    Bucket,
     CandidateView,
     KitRef,
     LineResult,
+    LineTrace,
     OfferProvenance,
     PriceBreakdown,
     QuoteResult,
@@ -246,7 +246,8 @@ def quote_draft_ui(result: QuoteResult) -> dict[str, Any]:
             "basis": d.totals.basis, "goods": dec(d.totals.goods),
             "delivery": dec(d.totals.delivery), "subtotal": dec(d.totals.subtotal),
             "tax_rate": dec(d.totals.tax_rate), "tax": dec(d.totals.tax),
-            "total_ex_tax": dec(d.totals.total_ex_tax), "total_inc_tax": dec(d.totals.total_inc_tax),
+            "total_ex_tax": dec(d.totals.total_ex_tax),
+            "total_inc_tax": dec(d.totals.total_inc_tax),
             "delivery_incomplete": d.totals.delivery_incomplete, "currency": d.totals.currency,
             "scope": "firm_lines_only"},
         "firm_lines": [firm_line(position[x.line_id], by_id[x.line_id], x,
@@ -267,17 +268,17 @@ def quote_draft_ui(result: QuoteResult) -> dict[str, Any]:
     }
 
 
-def _prov(trace: Any) -> OfferProvenance:
-    assert trace.provenance is not None
-    return trace.provenance  # type: ignore[no-any-return]
+def _prov(trace: LineTrace) -> OfferProvenance:
+    assert trace.provenance is not None  # a firm line always has a chosen offer
+    return trace.provenance
 
 
-def _price(trace: Any) -> PriceBreakdown:
+def _price(trace: LineTrace) -> PriceBreakdown:
     assert trace.price is not None
-    return trace.price  # type: ignore[no-any-return]
+    return trace.price
 
 
-def freshness(f: Any) -> dict[str, Any]:
+def freshness(f: FreshnessSummary) -> dict[str, Any]:
     return {"as_of": when(f.as_of), "offers_used": f.offers_used,
             "oldest_observed_at": when(f.oldest_observed_at),
             "newest_observed_at": when(f.newest_observed_at),
@@ -286,7 +287,7 @@ def freshness(f: Any) -> dict[str, Any]:
             "limits_hours": [{"source_kind": k, "hours": h} for k, h in f.limits_hours]}
 
 
-def optimisation(o: Any) -> dict[str, Any]:
+def optimisation(o: OptimisationSummary) -> dict[str, Any]:
     return {"method": o.method, "exact": o.exact, "components": o.components,
             "optimality_gap": dec(o.optimality_gap),
             "savings_vs_line_by_line": dec(o.savings_vs_line_by_line),

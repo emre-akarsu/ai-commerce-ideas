@@ -124,9 +124,11 @@ def print_totals(quote: QuoteResult) -> None:
     print(f"  VAT at {t.tax_rate * 100:.0f}% {money(t.tax):>10}   total ex VAT "
           f"{money(t.total_ex_tax):>10}   total inc VAT {money(t.total_inc_tax):>10}")
     opt = quote.draft.optimisation
-    print(f"  basket: {opt.method}{'' if opt.exact else ' (not proven optimal)'}, saves {money(opt.savings_vs_line_by_line)} vs line-by-line"
-          + ("" if opt.savings_vs_single_merchant is None
-             else f", {money(opt.savings_vs_single_merchant)} vs one merchant"))
+    proof = "" if opt.exact else " (not proven optimal)"
+    versus = ("" if opt.savings_vs_single_merchant is None
+              else f", {money(opt.savings_vs_single_merchant)} vs one merchant")
+    print(f"  basket: {opt.method}{proof}, saves {money(opt.savings_vs_line_by_line)} "
+          f"vs line-by-line{versus}")
     if t.delivery_incomplete:
         print("  delivery terms missing for some merchant: delivery may be understated")
 
@@ -147,7 +149,8 @@ def print_queue(quote: QuoteResult, show: int) -> None:
     for r in quote.indicative_lines:
         rng = r.indicative
         if rng is not None:
-            span = money(rng.low) if rng.low == rng.high else f"{money(rng.low)} to {money(rng.high)}"
+            span = (money(rng.low) if rng.low == rng.high
+                    else f"{money(rng.low)} to {money(rng.high)}")
             print(f"  {r.line_id:26} {span} {rng.currency} per "
                   f"{rng.unit.value} (list price, {rng.count} source(s), indicative, not a quote)")
     print(f"\nNO USABLE OFFER ({len(quote.no_offer_lines)} lines)")

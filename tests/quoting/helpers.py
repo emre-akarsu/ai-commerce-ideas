@@ -7,6 +7,7 @@ from decimal import Decimal
 
 from components.core.domain import UoM
 from components.core.fakes import FakeClock
+from components.core.ports import LLMProvider
 from components.matching.approvals import InMemoryApprovedMatchStore
 from components.matching.engine import MatchingEngine
 from components.matching.index import CatalogIndex
@@ -73,9 +74,10 @@ def add(store: InMemoryOfferStore, *offers: Offer) -> None:
 
 
 def context(items: tuple[CatalogItem, ...], ontology: Ontology, cfg: PricingConfig,
-            clock: FakeClock, index: CatalogIndex | None = None) -> QuotingContext:
+            clock: FakeClock, index: CatalogIndex | None = None,
+            llm: LLMProvider | None = None) -> QuotingContext:
     engine = MatchingEngine(index or CatalogIndex(items, ontology),
-                            InMemoryApprovedMatchStore(clock))
+                            InMemoryApprovedMatchStore(clock), llm=llm)
     return QuotingContext(engine=engine, offers=InMemoryOfferStore(cfg), pricing=cfg, clock=clock)
 
 

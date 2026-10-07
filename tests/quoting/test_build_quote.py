@@ -208,3 +208,21 @@ def test_a_line_with_only_unusable_offers_is_reported_not_dropped(
     assert quote.partition()["no_offer"] == 1
     assert quote.draft.no_offer_lines[0].excluded_codes == ("out_of_stock",)
     assert quote.draft.lines == ()
+
+
+def test_kit_quantities_become_whole_catalogue_packs_with_exact_decimals(
+        bare_ctx: QuotingContext) -> None:
+    """11.22 m2 of 600 x 300 tiles (0.18 m2 each) needs 63 tiles; the merchant sells boxes of 8
+    (1.44 m2): 8 boxes, 64 tiles, 11.52 m2 bought, no float anywhere."""
+    from components.pricing import PackSize
+    add(bare_ctx.offers, offer("SYN-TL-0002", "m-t", "40.00",  # type: ignore[arg-type]
+                               pack=PackSize(D("8"))))
+    quote = build_quote(bare_ctx, TENANT_A, [LineRequest(
+        "tiles", "Ceramic Wall Tile 600 x 300mm Matt", D("11.22000"), Unit.M2)])
+    (line,) = quote.priced_lines
+    best = line.best
+    assert best is not None and best.packs == 8
+    assert best.pack_content == D("1.44") and best.purchased == D("11.52")
+    assert best.surplus == D("0.30") and best.goods_cost == D("320.00")
+    assert best.unit_price == D("27.7778")  # 40.00 per 1.44 m2
+    assert quote.draft.lines[0].packs == 8
