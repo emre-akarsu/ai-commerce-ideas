@@ -20,7 +20,7 @@ const overflowLog = [];
 const has = async (s) => (await b.text()).includes(s);
 const clickSel = async (sel) => { const r = await b.ev(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});if(!e)return false;e.click();return true})()`); await b.sleep(400); return r; };
 const toStep = () => b.ev(`(()=>{const h=document.querySelector('[data-step-heading]');if(h)h.scrollIntoView({block:'start'});return true})()`);
-const step = () => b.ev(`document.querySelector('[aria-current=step]')?.innerText ?? ''`);
+const step = () => b.ev(`document.querySelector('[data-wizard-track] [aria-current=step]')?.innerText ?? ''`);
 async function checkOverflow(label) {
   const o = await b.overflow();
   overflowLog.push(`${label.padEnd(44)} scrollW ${o.scrollW} of ${o.w}${o.bad.length ? " " + JSON.stringify(o.bad) : ""}`);
