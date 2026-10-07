@@ -8,6 +8,7 @@ from decimal import Decimal
 import pytest
 
 from components.core.fakes import FakeClock
+from components.matching.index import CatalogIndex
 from components.matching.models import CatalogItem
 from components.matching.ontology import Ontology
 from components.pricing import PackSize, PricingConfig, StockStatus, Unit, VatBasis
