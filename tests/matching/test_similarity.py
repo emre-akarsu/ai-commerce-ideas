@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 import math
+import os
+import subprocess
+import sys
+from pathlib import Path
 
 import pytest
 
@@ -96,9 +100,28 @@ def test_hashing_embedder_golden_vector_guards_the_hash_function() -> None:
     # fails on purpose, regenerate the vector and re-check the eval.
     v = HashingEmbedder(dim=8).embed("plasterboard 12.5mm")
     assert list(v) == pytest.approx(
-        [0.0, -0.382641, 0.36442, 0.747062, -0.382641, 0.127547, 0.0, 0.0], abs=1e-6
+        [0.175882, -0.175882, 0.175882, -0.854282, 0.0, -0.351763, 0.150756, -0.175882], abs=1e-6
     )
     assert HashingEmbedder(dim=8).embed("") == tuple(0.0 for _ in range(8))
+
+
+def test_hashing_embedder_is_identical_across_processes_and_hash_seeds() -> None:
+    """The built-in hash() is salted per process; zlib.crc32 is not. Run the embedder in two
+    fresh interpreters with different PYTHONHASHSEED values and compare with this process."""
+    code = (
+        "from components.matching.embedding import HashingEmbedder;"
+        "print(repr(HashingEmbedder(dim=16).embed('plasterboard 12.5mm tapered 2400x1200')))"
+    )
+    packages = str(Path(__file__).resolve().parents[2] / "packages")
+    outputs = []
+    for seed in ("1", "424242"):
+        env = {**os.environ, "PYTHONHASHSEED": seed, "PYTHONPATH": packages}
+        done = subprocess.run(  # noqa: S603 - fixed interpreter and fixed code string
+            [sys.executable, "-c", code], env=env, capture_output=True, text=True, check=True
+        )
+        outputs.append(done.stdout.strip())
+    here = repr(HashingEmbedder(dim=16).embed("plasterboard 12.5mm tapered 2400x1200"))
+    assert outputs[0] == outputs[1] == here
 
 
 def test_hashing_embedder_ranks_similar_text_higher() -> None:

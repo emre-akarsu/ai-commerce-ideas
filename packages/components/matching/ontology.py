@@ -274,7 +274,9 @@ class Ontology:
                 texts.extend((a.label, *a.aliases))
                 for v in a.values.values():
                     texts.extend((v.label, *v.synonyms))
-            self._cache[key] = frozenset(tok for text in texts for tok in self.normaliser.tokens(text))
+            self._cache[key] = frozenset(
+                tok for text in texts for tok in self.normaliser.tokens(text)
+            )
         vocab: frozenset[str] = self._cache[key]
         return vocab
 
@@ -308,7 +310,9 @@ def _class_codes(entry: ProductType) -> list[tuple[str, ClassCode]]:
     return found
 
 
-def validate_type_entry(type_id: str, raw: Mapping[str, Any], registry: VerifiedCodes) -> ProductType:
+def validate_type_entry(
+    type_id: str, raw: Mapping[str, Any], registry: VerifiedCodes
+) -> ProductType:
     """Schema-check one entry and verify its classification codes; raise OntologyError."""
     if not _ID.match(type_id):
         raise OntologyError(f"type id {type_id!r} must be snake_case")

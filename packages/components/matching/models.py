@@ -154,7 +154,7 @@ class CheckCode(StrEnum):
 
 
 class CheckOutcome(StrEnum):
-    PASS = "pass"
+    PASSED = "pass"
     FAIL = "fail"
     UNVERIFIABLE = "unverifiable"
     UNRESOLVED = "unresolved"
@@ -171,7 +171,7 @@ class CheckResult(_Frozen):
     @property
     def blocks(self) -> bool:
         """A failed OR unverifiable (or unresolved) check blocks auto-accept."""
-        return self.outcome is not CheckOutcome.PASS
+        return self.outcome is not CheckOutcome.PASSED
 
 
 class Scores(_Frozen):

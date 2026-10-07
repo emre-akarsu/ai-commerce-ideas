@@ -4,6 +4,7 @@ See docs/architecture/pricing-engine.md. Nothing here reads a network, a file or
 handed in, time comes from an injected `Clock`, and nothing is sent or ordered.
 """
 
+from .best_price import price_line, price_line_from_offers
 from .config import PricingConfig
 from .errors import (
     DuplicateOfferError,
@@ -28,6 +29,14 @@ from .models import (
     VatBasis,
     Visibility,
 )
+from .repository import (
+    InMemoryOfferStore,
+    OfferFilter,
+    OfferRepository,
+    SharedOfferWriter,
+    TenantOfferRepository,
+)
+from .results import ExcludedOffer, IndicativeRange, LineStatus, PricedLine, PricedOffer
 from .units import Unit, UnitBasis
 
 __all__ = [
