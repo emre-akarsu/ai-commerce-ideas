@@ -19,7 +19,17 @@ export type Landing = "options" | "rfq";
 const LAND_KEY = "journey-landing-v1";
 const STAGE_KEY = "journey-stage-v1";
 /** Remembers where the next screen should open (scroll to Options, or open the RFQ preview). Read once. */
-export function queueLanding(l: Landing): void { try { window.sessionStorage.setItem(LAND_KEY, l); } catch { /* storage may be blocked */ } }
+export function queueLanding(l: Landing): void {
+  try { window.sessionStorage.setItem(LAND_KEY, l); } catch { /* storage may be blocked */ }
+  window.dispatchEvent(new Event("journey-landing")); // a screen that is already open acts on it at once
+}
+/** Runs `fn` with the queued landing now (a screen opened by a stage link) and whenever a stage link is used on this screen. */
+export function onLanding(fn: (l: Landing) => void): () => void {
+  const run = () => { const l = takeLanding(); if (l) fn(l); };
+  run();
+  window.addEventListener("journey-landing", run);
+  return () => window.removeEventListener("journey-landing", run);
+}
 export function takeLanding(): Landing | null {
   try { const v = window.sessionStorage.getItem(LAND_KEY); window.sessionStorage.removeItem(LAND_KEY); return v === "options" || v === "rfq" ? v : null; } catch { return null; }
 }

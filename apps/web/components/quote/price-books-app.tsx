@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Badge, Button, Card, EmptyState, H2, PageHeader } from "@/components/ui/ui";
 import { Modal } from "@/components/modal";
 import { cn } from "@/lib/utils";
-import { takeLanding } from "@/lib/quote/prefs";
+import { onLanding } from "@/lib/quote/prefs";
 import { loadBundle } from "@/lib/quote/catalog";
 import { IMPORT_EXAMPLE } from "@/lib/quote/example";
 import { filterMerchants, fmtDate, fixed, humanCode, gapsByMerchant, rankGaps, sortMerchants, STATUS_LABEL, STATUS_ORDER, statusCounts, type StatusFilter } from "@/lib/quote/calc";
@@ -20,7 +20,7 @@ export function PriceBooksApp() {
   const res = useMemo(() => loadBundle(sel.tenant, sel.scope), [sel.tenant, sel.scope]);
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [dialog, setDialog] = useState<Dialog>(null);
-  useEffect(() => { if (takeLanding() === "rfq") setDialog({ kind: "rfq" }); }, []);
+  useEffect(() => onLanding((l) => { if (l === "rfq") setDialog({ kind: "rfq" }); }), []);
 
   return (
     <div data-screen="price-books">

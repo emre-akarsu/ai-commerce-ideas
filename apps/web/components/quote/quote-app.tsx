@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Card, EmptyState, PageHeader } from "@/components/ui/ui";
 import { cn } from "@/lib/utils";
-import { takeLanding } from "@/lib/quote/prefs";
+import { onLanding } from "@/lib/quote/prefs";
 import { loadBundle } from "@/lib/quote/catalog";
 import { appliedDecisions, barShares, checkQuote, groupByMerchant, partitionRows, partitionTotal, quoteForStage, type PartitionRow, type Stage } from "@/lib/quote/calc";
 import type { Quote } from "@/lib/quote/types";
@@ -21,7 +21,7 @@ export function QuoteApp() {
   const [chosen, setChosen] = useState<Record<string, string>>({});
   const res = useMemo(() => loadBundle(sel.tenant, sel.scope), [sel.tenant, sel.scope]);
   useEffect(() => { setChosen({}); }, [sel.tenant, sel.scope, stage]);
-  useEffect(() => { if (takeLanding() === "options") setTimeout(() => document.querySelector('[data-section="options"]')?.scrollIntoView({ block: "start" }), 150); }, []);
+  useEffect(() => onLanding((l) => { if (l === "options") setTimeout(() => document.querySelector('[data-section="options"]')?.scrollIntoView({ block: "start" }), 150); }), []);
   const choose = (lineId: string, sku: string) => setChosen((c) => { const n = { ...c }; if (n[lineId] === sku) delete n[lineId]; else n[lineId] = sku; return n; });
 
   const read = res.kind === "ok" ? quoteForStage(res.bundle, stage) : null;
