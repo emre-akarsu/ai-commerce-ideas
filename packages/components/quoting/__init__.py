@@ -11,6 +11,10 @@ from .context import QuotingContext, TenantOffers
 from .errors import QuotingConfigError, QuotingError
 from .export import FORMAT, dumps, quote_draft_ui
 from .kit_lines import order_lines_from_kit
+from .options import build_options, quote_options
+from .options_config import OptionsConfig, OptionsError
+from .options_export import OPTIONS_FORMAT, options_dumps, quote_options_ui
+from .options_models import OptionSet, QuoteOption
 from .models import (
     Alternative,
     Bucket,
@@ -30,6 +34,7 @@ from .search import search_best_price
 
 __all__ = [
     "FORMAT",
+    "OPTIONS_FORMAT",
     "Alternative",
     "Bucket",
     "CandidateView",
@@ -39,6 +44,10 @@ __all__ = [
     "LineRequest",
     "LineResult",
     "LineTrace",
+    "OptionSet",
+    "OptionsConfig",
+    "OptionsError",
+    "QuoteOption",
     "QuoteResult",
     "QuotingConfig",
     "QuotingConfigError",
@@ -48,9 +57,13 @@ __all__ = [
     "SkippedLine",
     "TenantOffers",
     "approve_match",
+    "build_options",
     "build_quote",
     "dumps",
+    "options_dumps",
     "order_lines_from_kit",
     "quote_draft_ui",
+    "quote_options",
+    "quote_options_ui",
     "search_best_price",
 ]
