@@ -631,8 +631,8 @@ def test_money_fields_are_exact_decimals_with_the_minor_unit_exponent(data: st.D
     res = run(line(quantity=qty), offers, config(pricing={"stale_offers": "flag_only"},
                                                  outlier_offers="flag_only"))
     for p in res.ranked:
-        for money in (p.goods_cost, p.landed_total):
-            assert isinstance(money, Decimal) and money.as_tuple().exponent == -2
+        for amount in (p.goods_cost, p.landed_total):
+            assert isinstance(amount, Decimal) and amount.as_tuple().exponent == -2
         assert p.delivery_cost is None or p.delivery_cost.as_tuple().exponent == -2
         assert p.landed_total == p.goods_cost + (p.delivery_cost or D(0))
         assert p.packs >= p.offer.min_order_qty and p.packs % p.offer.order_multiple == 0

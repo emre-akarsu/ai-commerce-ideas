@@ -496,7 +496,7 @@ class LineParser:
 
     def _size_ambiguities(self, work: _Work, elements: list[bd.Element],
                           ptype: ProductType | None) -> list[Ambiguity]:
-        """A `20 x 12.5mm` chain is a size only when the certain type has a plausible size for it."""
+        """A `20 x 12.5mm` chain is a size only if the certain type has a plausible size."""
         found: list[Ambiguity] = []
         qty_like = {id(s.payload) for s in work.slots if s.kind == "size" and s.qty_like}
         for i, el in enumerate(elements):

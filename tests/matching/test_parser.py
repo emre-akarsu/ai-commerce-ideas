@@ -157,7 +157,7 @@ def test_metres_are_inferred_only_for_small_decimal_chains(parser: LineParser) -
     ],
 )
 def test_size_chains_normalise_to_mm(parser: LineParser, text: str, values: tuple[object, ...]) -> None:
-    p = parse(parser, f"board {text}")
+    p = parse(parser, f"plasterboard {text}")
     assert p.sizes[0].values == tuple(D(str(v)) for v in values), text
     assert p.sizes[0].unit == "mm"
 
