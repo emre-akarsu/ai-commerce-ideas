@@ -1,0 +1,7618 @@
+# Generated once by a throw-away script; edit by hand from now on.
+id: uk-matching-catalogue-seed
+label: 'SYNTHETIC/ILLUSTRATIVE catalogue seed: fictional brands, SKU ids, MPNs and GTINs; not real products, not
+  real prices, not licensed data'
+status: needs_tradesperson_review
+note: GTINs use the restricted 200-299 GS1 prefix range with valid check digits. Near-duplicates (12.5 vs 15 mm,
+  standard vs MR vs fire, 2400x1200 vs 1800x900, 38x63 vs 38x89, C16 vs C24, 3.5x32 vs 3.5x38, 15 vs 22 mm, standard
+  vs S1, 20 vs 5 kg) are deliberate. A few rows carry model_inference or missing attributes on purpose (hard rule
+  3).
+items:
+- sku_id: SYN-PB-0001
+  title: Standard Plasterboard TE 12.5mm x 2400mm x 1200mm
+  brand: Aldwick Board Co
+  mpn: ALDPB606-01
+  gtin: '2000000000015'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_84
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: standard
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0002
+  title: SE STD P/Board 2.4 x 1.2m 12.5mm
+  brand: SynthGyp
+  mpn: SYNPB183-02
+  gtin: '2000000000022'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_84
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: standard
+    source: manufacturer_table
+  - name: edge
+    value: square
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0003
+  title: SynthGyp Standard Plasterboard 12.5mm Tapered Edge 1800 x 900
+  brand: SynthGyp
+  mpn: SYNPB790-03
+  gtin: '2000000000039'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_84
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: standard
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1800'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0004
+  title: 12.5 x 900 x 1800mm Standard Wallboard SE
+  brand: Aldwick Board Co
+  mpn: ALDPB393-04
+  gtin: '2000000000046'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_84
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: standard
+    source: manufacturer_table
+  - name: edge
+    value: square
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1800'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0005
+  title: Standard Plasterboard TE 15mm x 2400mm x 1200mm
+  brand: SynthGyp
+  mpn: SYNPB395-05
+  gtin: '2000000000053'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_84
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: standard
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0006
+  title: SE STD P/Board 2.4 x 1.2m 15mm
+  brand: SynthGyp
+  mpn: SYNPB622-06
+  gtin: '2000000000060'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_84
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: standard
+    source: manufacturer_table
+  - name: edge
+    value: square
+    source: manufacturer_table
+  - name: thickness
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0007
+  title: Aldwick Board Co Standard Plasterboard 15mm Tapered Edge 1800 x 900
+  brand: Aldwick Board Co
+  mpn: ALDPB301-07
+  gtin: '2000000000077'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_84
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: standard
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1800'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0008
+  title: 15 x 900 x 1800mm Standard Wallboard SE
+  brand: SynthGyp
+  mpn: SYNPB901-08
+  gtin: '2000000000084'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_84
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: standard
+    source: manufacturer_table
+  - name: edge
+    value: square
+    source: manufacturer_table
+  - name: thickness
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1800'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0009
+  title: Moisture Resistant Plasterboard TE 12.5mm x 2400mm x 1200mm
+  brand: SynthGyp
+  mpn: SYNPB672-09
+  gtin: '2000000000091'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_52
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes: &id001
+  - name: board_type
+    value: moisture_resistant
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0010
+  title: SE MO P/Board 2.4 x 1.2m 12.5mm
+  brand: Aldwick Board Co
+  mpn: ALDPB338-10
+  gtin: '2000000000107'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_52
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: moisture_resistant
+    source: manufacturer_table
+  - name: edge
+    value: square
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0011
+  title: SynthGyp Moisture Resistant Plasterboard 12.5mm Tapered Edge 1800 x 900
+  brand: SynthGyp
+  mpn: SYNPB636-11
+  gtin: '2000000000114'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_52
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: moisture_resistant
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1800'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0012
+  title: 12.5 x 900 x 1800mm Moisture Resistant Wallboard SE
+  brand: SynthGyp
+  mpn: SYNPB740-12
+  gtin: '2000000000121'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_52
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: moisture_resistant
+    source: manufacturer_table
+  - name: edge
+    value: square
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1800'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0013
+  title: Moisture Resistant Plasterboard TE 15mm x 2400mm x 1200mm
+  brand: Aldwick Board Co
+  mpn: ALDPB637-13
+  gtin: '2000000000138'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_52
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: moisture_resistant
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0014
+  title: SE MO P/Board 2.4 x 1.2m 15mm
+  brand: SynthGyp
+  mpn: SYNPB825-14
+  gtin: '2000000000145'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_52
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: moisture_resistant
+    source: manufacturer_table
+  - name: edge
+    value: square
+    source: manufacturer_table
+  - name: thickness
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0015
+  title: SynthGyp Moisture Resistant Plasterboard 15mm Tapered Edge 1800 x 900
+  brand: SynthGyp
+  mpn: SYNPB657-15
+  gtin: '2000000000152'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_52
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: moisture_resistant
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1800'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0016
+  title: 15 x 900 x 1800mm Moisture Resistant Wallboard SE
+  brand: Aldwick Board Co
+  mpn: ALDPB980-16
+  gtin: '2000000000169'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_52
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: moisture_resistant
+    source: manufacturer_table
+  - name: edge
+    value: square
+    source: manufacturer_table
+  - name: thickness
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1800'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0017
+  title: Fire Resistant Plasterboard TE 12.5mm x 2400mm x 1200mm
+  brand: SynthGyp
+  mpn: SYNPB873-17
+  gtin: '2000000000176'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_33
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: fire_resistant
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0018
+  title: TE FI P/Board 1.8 x 0.9m 12.5mm
+  brand: SynthGyp
+  mpn: SYNPB877-18
+  gtin: '2000000000183'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_33
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: fire_resistant
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1800'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0019
+  title: Aldwick Board Co Fire Resistant Plasterboard 15mm Tapered Edge 2400 x 1200
+  brand: Aldwick Board Co
+  mpn: ALDPB132-19
+  gtin: '2000000000190'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_33
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: fire_resistant
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0020
+  title: 15 x 900 x 1800mm Fire Resistant Wallboard TE
+  brand: SynthGyp
+  mpn: SYNPB210-20
+  gtin: '2000000000206'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_33
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: fire_resistant
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1800'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0021
+  title: Acoustic Plasterboard TE 12.5mm x 2400mm x 1200mm
+  brand: SynthGyp
+  mpn: SYNPB111-21
+  gtin: '2000000000213'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_80
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: sound_insulation
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0022
+  title: TE AC P/Board 2.4 x 1.2m 15mm
+  brand: Aldwick Board Co
+  mpn: ALDPB340-22
+  gtin: '2000000000220'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_80
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: sound_insulation
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0900
+  title: MR Plasterboard Tapered Edge 12.5mm 2400 x 1200mm (merchant B listing)
+  brand: SynthGyp
+  mpn: SYNPB672-09
+  gtin: '2000000000091'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_52
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes: *id001
+- sku_id: SYN-PB-0023
+  title: Moisture Resistant Plasterboard 12.5mm 2400x1200 (edge not in feed)
+  brand: Aldwick Board Co
+  mpn: ALDPB219-23
+  gtin: '2000000000237'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_52
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: moisture_resistant
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2.4'
+    unit: m
+    source: manufacturer_table
+  - name: width
+    value: '120'
+    unit: cm
+    source: manufacturer_table
+- sku_id: SYN-PB-0024
+  title: Standard Plasterboard TE 12.5mm 2400 x 1200 (type inferred by a model)
+  brand: SynthGyp
+  mpn: SYNPB182-24
+  gtin: '2000000000244'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_84
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: standard
+    source: model_inference
+    confidence: 0.9
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0025
+  title: Wallboard 12.5 x 1200 x 2400 TE (messy feed text)
+  brand: Aldwick Board Co
+  mpn: ALDPB858-25
+  gtin: '2000000000251'
+  product_type: plasterboard
+  uniclass_pr: null
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: board_type
+    value: Standard
+    source: rule
+  - name: edge
+    value: Tapered Edge
+    source: rule
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PB-0026
+  title: Discontinued Standard Plasterboard TE 12.5mm 2400x1200
+  brand: SynthGyp
+  mpn: SYNPB363-26
+  gtin: '2000000000268'
+  product_type: plasterboard
+  uniclass_pr: Pr_25_71_35_84
+  etim_class: EC003143
+  pack_size: 1
+  uom: each
+  active: false
+  attributes:
+  - name: board_type
+    value: standard
+    source: manufacturer_table
+  - name: edge
+    value: tapered
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-BB-0001
+  title: Fibre Cement Tile Backer Board 6mm 1200 x 800mm
+  brand: TileSynth Pro
+  mpn: TILBB572-01
+  gtin: '2000000000275'
+  product_type: cement_backer_board
+  uniclass_pr: Pr_25_71_11
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: core
+    value: cement_fibre
+    source: manufacturer_table
+  - name: thickness
+    value: '6'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-BB-0002
+  title: Fibre Cement Tile Backer Board 12mm 1200 x 800mm
+  brand: TileSynth Pro
+  mpn: TILBB689-02
+  gtin: '2000000000282'
+  product_type: cement_backer_board
+  uniclass_pr: Pr_25_71_11
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: core
+    value: cement_fibre
+    source: manufacturer_table
+  - name: thickness
+    value: '12'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-BB-0003
+  title: XPS Cement Coated Tile Backer Board 10mm 1200 x 600mm
+  brand: TileSynth Pro
+  mpn: TILBB537-03
+  gtin: '2000000000299'
+  product_type: cement_backer_board
+  uniclass_pr: Pr_25_71_11
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: core
+    value: xps_coated
+    source: manufacturer_table
+  - name: thickness
+    value: '10'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-BB-0004
+  title: XPS Cement Coated Tile Backer Board 12.5mm 1200 x 600mm
+  brand: TileSynth Pro
+  mpn: TILBB477-04
+  gtin: '2000000000305'
+  product_type: cement_backer_board
+  uniclass_pr: Pr_25_71_11
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: core
+    value: xps_coated
+    source: manufacturer_table
+  - name: thickness
+    value: '12.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-BB-0005
+  title: XPS Cement Coated Tile Backer Board 20mm 1200 x 600mm
+  brand: TileSynth Pro
+  mpn: TILBB996-05
+  gtin: '2000000000312'
+  product_type: cement_backer_board
+  uniclass_pr: Pr_25_71_11
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: core
+    value: xps_coated
+    source: manufacturer_table
+  - name: thickness
+    value: '20'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-BB-0006
+  title: Fibre Cement Tile Backer Board 12mm 1200 x 600mm
+  brand: TileSynth Pro
+  mpn: TILBB322-06
+  gtin: '2000000000329'
+  product_type: cement_backer_board
+  uniclass_pr: Pr_25_71_11
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: core
+    value: cement_fibre
+    source: manufacturer_table
+  - name: thickness
+    value: '12'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0001
+  title: CLS Studwork Timber 38 x 63 x 2400mm C16
+  brand: Brindle Timber
+  mpn: BRITM187-01
+  gtin: '2000000000336'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: cls
+    source: manufacturer_table
+  - name: strength_grade
+    value: c16
+    source: manufacturer_table
+  - name: thickness
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '63'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0002
+  title: CLS Studwork Timber 38 x 63 x 3000mm C16
+  brand: Brindle Timber
+  mpn: BRITM610-02
+  gtin: '2000000000343'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: cls
+    source: manufacturer_table
+  - name: strength_grade
+    value: c16
+    source: manufacturer_table
+  - name: thickness
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '63'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0003
+  title: CLS Studwork Timber 38 x 63 x 2400mm C24
+  brand: Brindle Timber
+  mpn: BRITM317-03
+  gtin: '2000000000350'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: cls
+    source: manufacturer_table
+  - name: strength_grade
+    value: c24
+    source: manufacturer_table
+  - name: thickness
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '63'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0004
+  title: CLS Studwork Timber 38 x 63 x 3000mm C24
+  brand: Brindle Timber
+  mpn: BRITM270-04
+  gtin: '2000000000367'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: cls
+    source: manufacturer_table
+  - name: strength_grade
+    value: c24
+    source: manufacturer_table
+  - name: thickness
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '63'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0005
+  title: 38x89 CLS Studwork 2.4m C16
+  brand: Brindle Timber
+  mpn: BRITM161-05
+  gtin: '2000000000374'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: cls
+    source: manufacturer_table
+  - name: strength_grade
+    value: c16
+    source: manufacturer_table
+  - name: thickness
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '89'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0006
+  title: CLS Studwork Timber 38 x 89 x 3000mm C16
+  brand: Brindle Timber
+  mpn: BRITM782-06
+  gtin: '2000000000381'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: cls
+    source: manufacturer_table
+  - name: strength_grade
+    value: c16
+    source: manufacturer_table
+  - name: thickness
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '89'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0007
+  title: CLS Studwork Timber 38 x 89 x 2400mm C24
+  brand: Brindle Timber
+  mpn: BRITM828-07
+  gtin: '2000000000398'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: cls
+    source: manufacturer_table
+  - name: strength_grade
+    value: c24
+    source: manufacturer_table
+  - name: thickness
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '89'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0008
+  title: 38x89 CLS Studwork 3m C24
+  brand: Brindle Timber
+  mpn: BRITM164-08
+  gtin: '2000000000404'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: cls
+    source: manufacturer_table
+  - name: strength_grade
+    value: c24
+    source: manufacturer_table
+  - name: thickness
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '89'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0009
+  title: PAR Softwood Timber 38 x 63 x 2400mm C16
+  brand: Brindle Timber
+  mpn: BRITM379-09
+  gtin: '2000000000411'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: par
+    source: manufacturer_table
+  - name: strength_grade
+    value: c16
+    source: manufacturer_table
+  - name: thickness
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '63'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0010
+  title: PAR Softwood Timber 47 x 100 x 2400mm C24
+  brand: Brindle Timber
+  mpn: BRITM496-10
+  gtin: '2000000000428'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: par
+    source: manufacturer_table
+  - name: strength_grade
+    value: c24
+    source: manufacturer_table
+  - name: thickness
+    value: '47'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0011
+  title: 47x100 PAR Softwood 3m C16
+  brand: Brindle Timber
+  mpn: BRITM333-11
+  gtin: '2000000000435'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: par
+    source: manufacturer_table
+  - name: strength_grade
+    value: c16
+    source: manufacturer_table
+  - name: thickness
+    value: '47'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0012
+  title: PSE Softwood Timber 38 x 63 x 2400mm C16
+  brand: Brindle Timber
+  mpn: BRITM465-12
+  gtin: '2000000000442'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: pse
+    source: manufacturer_table
+  - name: strength_grade
+    value: c16
+    source: manufacturer_table
+  - name: thickness
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '63'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0013
+  title: PSE Softwood Timber 47 x 100 x 2400mm C24
+  brand: Brindle Timber
+  mpn: BRITM139-13
+  gtin: '2000000000459'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: pse
+    source: manufacturer_table
+  - name: strength_grade
+    value: c24
+    source: manufacturer_table
+  - name: thickness
+    value: '47'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2400'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TM-0014
+  title: 47x100 Sawn Softwood 3m C16
+  brand: Brindle Timber
+  mpn: BRITM100-14
+  gtin: '2000000000466'
+  product_type: timber_stud
+  uniclass_pr: Pr_20_76_88
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: sawn
+    source: manufacturer_table
+  - name: strength_grade
+    value: c16
+    source: manufacturer_table
+  - name: thickness
+    value: '47'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-MS-0001
+  title: Metal C Stud 48mm x 3000mm galvanised
+  brand: Quillon Framing
+  mpn: QUIMS745-01
+  gtin: '2000000000473'
+  product_type: metal_stud
+  uniclass_pr: Pr_20_76_51_22
+  etim_class: EC004499
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: stud
+    source: manufacturer_table
+  - name: web_width
+    value: '48'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: gauge
+    value: '0.5'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-MS-0002
+  title: Metal C Stud 70mm x 3000mm galvanised
+  brand: Quillon Framing
+  mpn: QUIMS803-02
+  gtin: '2000000000480'
+  product_type: metal_stud
+  uniclass_pr: Pr_20_76_51_22
+  etim_class: EC004499
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: stud
+    source: manufacturer_table
+  - name: web_width
+    value: '70'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: gauge
+    value: '0.5'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-MS-0003
+  title: Metal C Stud 70mm x 3600mm galvanised
+  brand: Quillon Framing
+  mpn: QUIMS350-03
+  gtin: '2000000000497'
+  product_type: metal_stud
+  uniclass_pr: Pr_20_76_51_22
+  etim_class: EC004499
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: stud
+    source: manufacturer_table
+  - name: web_width
+    value: '70'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3600'
+    unit: mm
+    source: manufacturer_table
+  - name: gauge
+    value: '0.5'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-MS-0004
+  title: Metal U Track 48mm x 3000mm galvanised
+  brand: Quillon Framing
+  mpn: QUIMS770-04
+  gtin: '2000000000503'
+  product_type: metal_stud
+  uniclass_pr: Pr_20_76_51_22
+  etim_class: EC004499
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: track
+    source: manufacturer_table
+  - name: web_width
+    value: '48'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: gauge
+    value: '0.5'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-MS-0005
+  title: Metal U Track 70mm x 3000mm galvanised
+  brand: Quillon Framing
+  mpn: QUIMS314-05
+  gtin: '2000000000510'
+  product_type: metal_stud
+  uniclass_pr: Pr_20_76_51_22
+  etim_class: EC004499
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: track
+    source: manufacturer_table
+  - name: web_width
+    value: '70'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: gauge
+    value: '0.5'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-MS-0006
+  title: Metal U Track 70mm x 3600mm galvanised
+  brand: Quillon Framing
+  mpn: QUIMS971-06
+  gtin: '2000000000527'
+  product_type: metal_stud
+  uniclass_pr: Pr_20_76_51_22
+  etim_class: EC004499
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: track
+    source: manufacturer_table
+  - name: web_width
+    value: '70'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3600'
+    unit: mm
+    source: manufacturer_table
+  - name: gauge
+    value: '0.5'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-MS-0007
+  title: Metal C Stud 92mm x 3000mm galvanised
+  brand: Quillon Framing
+  mpn: QUIMS200-07
+  gtin: '2000000000534'
+  product_type: metal_stud
+  uniclass_pr: Pr_20_76_51_22
+  etim_class: EC004499
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: stud
+    source: manufacturer_table
+  - name: web_width
+    value: '92'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: gauge
+    value: '0.5'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-MS-0008
+  title: Metal U Track 92mm x 3000mm galvanised
+  brand: Quillon Framing
+  mpn: QUIMS226-08
+  gtin: '2000000000541'
+  product_type: metal_stud
+  uniclass_pr: Pr_20_76_51_22
+  etim_class: EC004499
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: track
+    source: manufacturer_table
+  - name: web_width
+    value: '92'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: gauge
+    value: '0.5'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-DS-0001
+  title: Drywall Screw 3.5 x 25mm Coarse Thread Box of 200
+  brand: FixSynth
+  mpn: FIXDS520-01
+  gtin: '2000000000558'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '25'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: coarse
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0002
+  title: Plasterboard Screws 3.5x25 coarse thread x1000
+  brand: FixSynth
+  mpn: FIXDS939-02
+  gtin: '2000000000565'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 1000
+  uom: per_1000
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '25'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: coarse
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1000'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0003
+  title: Drywall Screw 3.5 x 25mm Fine Thread Box of 200
+  brand: FixSynth
+  mpn: FIXDS141-03
+  gtin: '2000000000572'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '25'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: fine
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0004
+  title: Plasterboard Screws 3.5x25 fine thread x1000
+  brand: FixSynth
+  mpn: FIXDS830-04
+  gtin: '2000000000589'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 1000
+  uom: per_1000
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '25'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: fine
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1000'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0005
+  title: Plasterboard Screws 3.5x32 coarse thread x200
+  brand: FixSynth
+  mpn: FIXDS794-05
+  gtin: '2000000000596'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '32'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: coarse
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0006
+  title: Drywall Screw 3.5 x 32mm Coarse Thread Box of 1000
+  brand: FixSynth
+  mpn: FIXDS643-06
+  gtin: '2000000000602'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 1000
+  uom: per_1000
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '32'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: coarse
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1000'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0007
+  title: Plasterboard Screws 3.5x32 fine thread x200
+  brand: FixSynth
+  mpn: FIXDS693-07
+  gtin: '2000000000619'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '32'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: fine
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0008
+  title: Drywall Screw 3.5 x 32mm Fine Thread Box of 1000
+  brand: FixSynth
+  mpn: FIXDS415-08
+  gtin: '2000000000626'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 1000
+  uom: per_1000
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '32'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: fine
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1000'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0009
+  title: Plasterboard Screws 3.5x38 coarse thread x200
+  brand: FixSynth
+  mpn: FIXDS594-09
+  gtin: '2000000000633'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: coarse
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0010
+  title: Drywall Screw 3.5 x 38mm Coarse Thread Box of 1000
+  brand: FixSynth
+  mpn: FIXDS680-10
+  gtin: '2000000000640'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 1000
+  uom: per_1000
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: coarse
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1000'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0011
+  title: Plasterboard Screws 3.5x38 fine thread x200
+  brand: FixSynth
+  mpn: FIXDS257-11
+  gtin: '2000000000657'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: fine
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0012
+  title: Drywall Screw 3.5 x 38mm Fine Thread Box of 1000
+  brand: FixSynth
+  mpn: FIXDS232-12
+  gtin: '2000000000664'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 1000
+  uom: per_1000
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: fine
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1000'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0013
+  title: Drywall Screw 3.5 x 42mm Coarse Thread Box of 1000
+  brand: FixSynth
+  mpn: FIXDS574-13
+  gtin: '2000000000671'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 1000
+  uom: per_1000
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '42'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: coarse
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1000'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DS-0014
+  title: Drywall Screw 3.5 x 42mm Fine Thread Box of 1000
+  brand: FixSynth
+  mpn: FIXDS640-14
+  gtin: '2000000000688'
+  product_type: drywall_screw
+  uniclass_pr: Pr_20_29_76_65
+  etim_class: null
+  pack_size: 1000
+  uom: per_1000
+  active: true
+  attributes:
+  - name: diameter
+    value: '3.5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '42'
+    unit: mm
+    source: manufacturer_table
+  - name: thread
+    value: fine
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1000'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WS-0001
+  title: Countersunk Pozi Wood Screw 4.0 x 30mm Zinc Box of 200
+  brand: Quillon Fixings
+  mpn: QUIWS208-01
+  gtin: '2000000000695'
+  product_type: wood_screw
+  uniclass_pr: Pr_20_29_76_98
+  etim_class: EC002385
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '4.0'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '30'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: zinc
+    source: manufacturer_table
+  - name: drive
+    value: pozi
+    source: manufacturer_table
+  - name: head
+    value: countersunk
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WS-0002
+  title: Countersunk Pozi Wood Screw 4.0 x 40mm Zinc Box of 200
+  brand: Quillon Fixings
+  mpn: QUIWS605-02
+  gtin: '2000000000701'
+  product_type: wood_screw
+  uniclass_pr: Pr_20_29_76_98
+  etim_class: EC002385
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '4.0'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: zinc
+    source: manufacturer_table
+  - name: drive
+    value: pozi
+    source: manufacturer_table
+  - name: head
+    value: countersunk
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WS-0003
+  title: Countersunk Pozi Wood Screw 4.0 x 50mm Zinc Box of 200
+  brand: Quillon Fixings
+  mpn: QUIWS759-03
+  gtin: '2000000000718'
+  product_type: wood_screw
+  uniclass_pr: Pr_20_29_76_98
+  etim_class: EC002385
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '4.0'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '50'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: zinc
+    source: manufacturer_table
+  - name: drive
+    value: pozi
+    source: manufacturer_table
+  - name: head
+    value: countersunk
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WS-0004
+  title: Countersunk Pozi Wood Screw 5.0 x 50mm Zinc Box of 200
+  brand: Quillon Fixings
+  mpn: QUIWS334-04
+  gtin: '2000000000725'
+  product_type: wood_screw
+  uniclass_pr: Pr_20_29_76_98
+  etim_class: EC002385
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '5.0'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '50'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: zinc
+    source: manufacturer_table
+  - name: drive
+    value: pozi
+    source: manufacturer_table
+  - name: head
+    value: countersunk
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WS-0005
+  title: Countersunk Pozi Wood Screw 5.0 x 60mm Zinc Box of 200
+  brand: Quillon Fixings
+  mpn: QUIWS594-05
+  gtin: '2000000000732'
+  product_type: wood_screw
+  uniclass_pr: Pr_20_29_76_98
+  etim_class: EC002385
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '5.0'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '60'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: zinc
+    source: manufacturer_table
+  - name: drive
+    value: pozi
+    source: manufacturer_table
+  - name: head
+    value: countersunk
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WS-0006
+  title: Countersunk Pozi Wood Screw 4.0 x 40mm Stainless Box of 200
+  brand: Quillon Fixings
+  mpn: QUIWS408-06
+  gtin: '2000000000749'
+  product_type: wood_screw
+  uniclass_pr: Pr_20_29_76_98
+  etim_class: EC002385
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '4.0'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: stainless
+    source: manufacturer_table
+  - name: drive
+    value: pozi
+    source: manufacturer_table
+  - name: head
+    value: countersunk
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WS-0007
+  title: Countersunk Pozi Wood Screw 5.0 x 50mm Stainless Box of 200
+  brand: Quillon Fixings
+  mpn: QUIWS244-07
+  gtin: '2000000000756'
+  product_type: wood_screw
+  uniclass_pr: Pr_20_29_76_98
+  etim_class: EC002385
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '5.0'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '50'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: stainless
+    source: manufacturer_table
+  - name: drive
+    value: pozi
+    source: manufacturer_table
+  - name: head
+    value: countersunk
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WS-0008
+  title: Countersunk Pozi Wood Screw 4.0 x 30mm Stainless Box of 200
+  brand: Quillon Fixings
+  mpn: QUIWS973-08
+  gtin: '2000000000763'
+  product_type: wood_screw
+  uniclass_pr: Pr_20_29_76_98
+  etim_class: EC002385
+  pack_size: 200
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '4.0'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '30'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: stainless
+    source: manufacturer_table
+  - name: drive
+    value: pozi
+    source: manufacturer_table
+  - name: head
+    value: countersunk
+    source: manufacturer_table
+  - name: pack_qty
+    value: '200'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WP-0001
+  title: Standard Wall Plug 6 x 30mm Pack of 100
+  brand: Quillon Fixings
+  mpn: QUIWP652-01
+  gtin: '2000000000770'
+  product_type: wall_plug
+  uniclass_pr: Pr_20_29_63_63
+  etim_class: EC000089
+  pack_size: 100
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '6'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '30'
+    unit: mm
+    source: manufacturer_table
+  - name: plug_type
+    value: standard
+    source: manufacturer_table
+  - name: pack_qty
+    value: '100'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WP-0002
+  title: Standard Wall Plug 8 x 40mm Pack of 100
+  brand: Quillon Fixings
+  mpn: QUIWP172-02
+  gtin: '2000000000787'
+  product_type: wall_plug
+  uniclass_pr: Pr_20_29_63_63
+  etim_class: EC000089
+  pack_size: 100
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '8'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: plug_type
+    value: standard
+    source: manufacturer_table
+  - name: pack_qty
+    value: '100'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WP-0003
+  title: Universal Wall Plug 6 x 30mm Pack of 50
+  brand: Quillon Fixings
+  mpn: QUIWP174-03
+  gtin: '2000000000794'
+  product_type: wall_plug
+  uniclass_pr: Pr_20_29_63_63
+  etim_class: EC000089
+  pack_size: 50
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '6'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '30'
+    unit: mm
+    source: manufacturer_table
+  - name: plug_type
+    value: universal
+    source: manufacturer_table
+  - name: pack_qty
+    value: '50'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WP-0004
+  title: Universal Wall Plug 8 x 40mm Pack of 50
+  brand: Quillon Fixings
+  mpn: QUIWP167-04
+  gtin: '2000000000800'
+  product_type: wall_plug
+  uniclass_pr: Pr_20_29_63_63
+  etim_class: EC000089
+  pack_size: 50
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '8'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: plug_type
+    value: universal
+    source: manufacturer_table
+  - name: pack_qty
+    value: '50'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WP-0005
+  title: Standard Wall Plug 5 x 25mm Pack of 100
+  brand: Quillon Fixings
+  mpn: QUIWP866-05
+  gtin: '2000000000817'
+  product_type: wall_plug
+  uniclass_pr: Pr_20_29_63_63
+  etim_class: EC000089
+  pack_size: 100
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '25'
+    unit: mm
+    source: manufacturer_table
+  - name: plug_type
+    value: standard
+    source: manufacturer_table
+  - name: pack_qty
+    value: '100'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-WP-0006
+  title: Standard Wall Plug 10 x 50mm Pack of 50
+  brand: Quillon Fixings
+  mpn: QUIWP555-06
+  gtin: '2000000000824'
+  product_type: wall_plug
+  uniclass_pr: Pr_20_29_63_63
+  etim_class: EC000089
+  pack_size: 50
+  uom: per_100
+  active: true
+  attributes:
+  - name: diameter
+    value: '10'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '50'
+    unit: mm
+    source: manufacturer_table
+  - name: plug_type
+    value: standard
+    source: manufacturer_table
+  - name: pack_qty
+    value: '50'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-CF-0001
+  title: Spring Toggle Cavity Fixing M5x50 Pack of 10
+  brand: Quillon Fixings
+  mpn: QUICF997-01
+  gtin: '2000000000831'
+  product_type: cavity_fixing
+  uniclass_pr: Pr_20_29_03
+  etim_class: EC000040
+  pack_size: 10
+  uom: each
+  active: true
+  attributes:
+  - name: fixing_type
+    value: spring_toggle
+    source: manufacturer_table
+  - name: diameter
+    value: '5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '50'
+    unit: mm
+    source: manufacturer_table
+  - name: pack_qty
+    value: '10'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-CF-0002
+  title: Spring Toggle Cavity Fixing M6x50 Pack of 10
+  brand: Quillon Fixings
+  mpn: QUICF701-02
+  gtin: '2000000000848'
+  product_type: cavity_fixing
+  uniclass_pr: Pr_20_29_03
+  etim_class: EC000040
+  pack_size: 10
+  uom: each
+  active: true
+  attributes:
+  - name: fixing_type
+    value: spring_toggle
+    source: manufacturer_table
+  - name: diameter
+    value: '6'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '50'
+    unit: mm
+    source: manufacturer_table
+  - name: pack_qty
+    value: '10'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-CF-0003
+  title: Gravity Toggle Cavity Fixing M5x50 Pack of 10
+  brand: Quillon Fixings
+  mpn: QUICF707-03
+  gtin: '2000000000855'
+  product_type: cavity_fixing
+  uniclass_pr: Pr_20_29_03
+  etim_class: EC000040
+  pack_size: 10
+  uom: each
+  active: true
+  attributes:
+  - name: fixing_type
+    value: gravity_toggle
+    source: manufacturer_table
+  - name: diameter
+    value: '5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '50'
+    unit: mm
+    source: manufacturer_table
+  - name: pack_qty
+    value: '10'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-CF-0004
+  title: Expanding Cavity Fixing M5x37 Pack of 10
+  brand: Quillon Fixings
+  mpn: QUICF917-04
+  gtin: '2000000000862'
+  product_type: cavity_fixing
+  uniclass_pr: Pr_20_29_03
+  etim_class: EC000040
+  pack_size: 10
+  uom: each
+  active: true
+  attributes:
+  - name: fixing_type
+    value: expanding
+    source: manufacturer_table
+  - name: diameter
+    value: '5'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '37'
+    unit: mm
+    source: manufacturer_table
+  - name: pack_qty
+    value: '10'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-CF-0005
+  title: Expanding Cavity Fixing M6x37 Pack of 10
+  brand: Quillon Fixings
+  mpn: QUICF216-05
+  gtin: '2000000000879'
+  product_type: cavity_fixing
+  uniclass_pr: Pr_20_29_03
+  etim_class: EC000040
+  pack_size: 10
+  uom: each
+  active: true
+  attributes:
+  - name: fixing_type
+    value: expanding
+    source: manufacturer_table
+  - name: diameter
+    value: '6'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '37'
+    unit: mm
+    source: manufacturer_table
+  - name: pack_qty
+    value: '10'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-CF-0006
+  title: Spring Toggle Cavity Fixing M4x50 Pack of 10
+  brand: Quillon Fixings
+  mpn: QUICF577-06
+  gtin: '2000000000886'
+  product_type: cavity_fixing
+  uniclass_pr: Pr_20_29_03
+  etim_class: EC000040
+  pack_size: 10
+  uom: each
+  active: true
+  attributes:
+  - name: fixing_type
+    value: spring_toggle
+    source: manufacturer_table
+  - name: diameter
+    value: '4'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '50'
+    unit: mm
+    source: manufacturer_table
+  - name: pack_qty
+    value: '10'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-AD-0001
+  title: Standard Powder Tile Adhesive Grey 20kg
+  brand: TileSynth Pro
+  mpn: TILAD281-01
+  gtin: '2000000000893'
+  product_type: tile_adhesive
+  uniclass_pr: Pr_20_31_02_89
+  etim_class: EC011707
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: form
+    value: powder
+    source: manufacturer_table
+  - name: deformability
+    value: standard
+    source: manufacturer_table
+  - name: speed
+    value: normal
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '20'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-AD-0002
+  title: Standard Powder Tile Adhesive Grey 5kg
+  brand: TileSynth Pro
+  mpn: TILAD930-02
+  gtin: '2000000000909'
+  product_type: tile_adhesive
+  uniclass_pr: Pr_20_31_02_89
+  etim_class: EC011707
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: form
+    value: powder
+    source: manufacturer_table
+  - name: deformability
+    value: standard
+    source: manufacturer_table
+  - name: speed
+    value: normal
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '5000'
+    unit: g
+    source: manufacturer_table
+- sku_id: SYN-AD-0003
+  title: Flexible S1 Powder Tile Adhesive Grey 20kg
+  brand: TileSynth Pro
+  mpn: TILAD965-03
+  gtin: '2000000000916'
+  product_type: tile_adhesive
+  uniclass_pr: Pr_20_31_02_89
+  etim_class: EC011707
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: form
+    value: powder
+    source: manufacturer_table
+  - name: deformability
+    value: s1
+    source: manufacturer_table
+  - name: speed
+    value: normal
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '20'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-AD-0004
+  title: Flexible S1 Powder Tile Adhesive Grey 5kg
+  brand: TileSynth Pro
+  mpn: TILAD322-04
+  gtin: '2000000000923'
+  product_type: tile_adhesive
+  uniclass_pr: Pr_20_31_02_89
+  etim_class: EC011707
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: form
+    value: powder
+    source: manufacturer_table
+  - name: deformability
+    value: s1
+    source: manufacturer_table
+  - name: speed
+    value: normal
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '5'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-AD-0005
+  title: Flexible S1 Powder Tile Adhesive Rapid Set Grey 20kg
+  brand: TileSynth Pro
+  mpn: TILAD724-05
+  gtin: '2000000000930'
+  product_type: tile_adhesive
+  uniclass_pr: Pr_20_31_02_89
+  etim_class: EC011707
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: form
+    value: powder
+    source: manufacturer_table
+  - name: deformability
+    value: s1
+    source: manufacturer_table
+  - name: speed
+    value: rapid
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '20'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-AD-0006
+  title: Flexible S1 Powder Tile Adhesive White 20kg
+  brand: TileSynth Pro
+  mpn: TILAD360-06
+  gtin: '2000000000947'
+  product_type: tile_adhesive
+  uniclass_pr: Pr_20_31_02_89
+  etim_class: EC011707
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: form
+    value: powder
+    source: manufacturer_table
+  - name: deformability
+    value: s1
+    source: manufacturer_table
+  - name: speed
+    value: normal
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+  - name: pack_weight
+    value: '20'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-AD-0007
+  title: Highly Flexible S2 Powder Tile Adhesive Grey 20kg
+  brand: TileSynth Pro
+  mpn: TILAD207-07
+  gtin: '2000000000954'
+  product_type: tile_adhesive
+  uniclass_pr: Pr_20_31_02_89
+  etim_class: EC011707
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: form
+    value: powder
+    source: manufacturer_table
+  - name: deformability
+    value: s2
+    source: manufacturer_table
+  - name: speed
+    value: normal
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '20000'
+    unit: g
+    source: manufacturer_table
+- sku_id: SYN-AD-0008
+  title: Highly Flexible S2 Powder Tile Adhesive White 15kg
+  brand: TileSynth Pro
+  mpn: TILAD736-08
+  gtin: '2000000000961'
+  product_type: tile_adhesive
+  uniclass_pr: Pr_20_31_02_89
+  etim_class: EC011707
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: form
+    value: powder
+    source: manufacturer_table
+  - name: deformability
+    value: s2
+    source: manufacturer_table
+  - name: speed
+    value: normal
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+  - name: pack_weight
+    value: '15'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-AD-0009
+  title: Standard Ready Mixed Tile Adhesive Tub White 5kg
+  brand: TileSynth Pro
+  mpn: TILAD621-09
+  gtin: '2000000000978'
+  product_type: tile_adhesive
+  uniclass_pr: Pr_20_31_02_89
+  etim_class: EC011707
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: form
+    value: ready_mixed
+    source: manufacturer_table
+  - name: deformability
+    value: standard
+    source: manufacturer_table
+  - name: speed
+    value: normal
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+  - name: pack_weight
+    value: '5'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-AD-0010
+  title: Standard Ready Mixed Tile Adhesive Tub White 15kg
+  brand: TileSynth Pro
+  mpn: TILAD695-10
+  gtin: '2000000000985'
+  product_type: tile_adhesive
+  uniclass_pr: Pr_20_31_02_89
+  etim_class: EC011707
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: form
+    value: ready_mixed
+    source: manufacturer_table
+  - name: deformability
+    value: standard
+    source: manufacturer_table
+  - name: speed
+    value: normal
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+  - name: pack_weight
+    value: '15'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-AD-0011
+  title: Flexible S1 Powder Tile Adhesive Grey 10kg
+  brand: TileSynth Pro
+  mpn: TILAD176-11
+  gtin: '2000000000992'
+  product_type: tile_adhesive
+  uniclass_pr: Pr_20_31_02_89
+  etim_class: EC011707
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: form
+    value: powder
+    source: manufacturer_table
+  - name: deformability
+    value: s1
+    source: manufacturer_table
+  - name: speed
+    value: normal
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '10'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-AD-0012
+  title: Standard Powder Tile Adhesive Rapid Set Grey 20kg
+  brand: TileSynth Pro
+  mpn: TILAD524-12
+  gtin: '2000000001005'
+  product_type: tile_adhesive
+  uniclass_pr: Pr_20_31_02_89
+  etim_class: EC011707
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: form
+    value: powder
+    source: manufacturer_table
+  - name: deformability
+    value: standard
+    source: manufacturer_table
+  - name: speed
+    value: rapid
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '20000'
+    unit: g
+    source: manufacturer_table
+- sku_id: SYN-GR-0001
+  title: Cement Tile Grout White 5kg
+  brand: TileSynth Pro
+  mpn: TILGR827-01
+  gtin: '2000000001012'
+  product_type: tile_grout
+  uniclass_pr: Pr_20_31_53_16
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: grout_type
+    value: cement
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+  - name: pack_weight
+    value: '5'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-GR-0002
+  title: Cement Tile Grout Grey 5kg
+  brand: TileSynth Pro
+  mpn: TILGR286-02
+  gtin: '2000000001029'
+  product_type: tile_grout
+  uniclass_pr: Pr_20_31_53_16
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: grout_type
+    value: cement
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '5'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-GR-0003
+  title: Flexible Cement Tile Grout White 5kg
+  brand: TileSynth Pro
+  mpn: TILGR123-03
+  gtin: '2000000001036'
+  product_type: tile_grout
+  uniclass_pr: Pr_20_31_53_16
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: grout_type
+    value: flexible_cement
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+  - name: pack_weight
+    value: '5'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-GR-0004
+  title: Flexible Cement Tile Grout Grey 5kg
+  brand: TileSynth Pro
+  mpn: TILGR906-04
+  gtin: '2000000001043'
+  product_type: tile_grout
+  uniclass_pr: Pr_20_31_53_16
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: grout_type
+    value: flexible_cement
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '5'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-GR-0005
+  title: Flexible Cement Tile Grout Grey 2.5kg
+  brand: TileSynth Pro
+  mpn: TILGR512-05
+  gtin: '2000000001050'
+  product_type: tile_grout
+  uniclass_pr: Pr_20_31_53_16
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: grout_type
+    value: flexible_cement
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '2.5'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-GR-0006
+  title: Flexible Cement Tile Grout Charcoal 5kg
+  brand: TileSynth Pro
+  mpn: TILGR108-06
+  gtin: '2000000001067'
+  product_type: tile_grout
+  uniclass_pr: Pr_20_31_53_16
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: grout_type
+    value: flexible_cement
+    source: manufacturer_table
+  - name: colour
+    value: charcoal
+    source: manufacturer_table
+  - name: pack_weight
+    value: '5'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-GR-0007
+  title: Epoxy Tile Grout White 5kg
+  brand: TileSynth Pro
+  mpn: TILGR569-07
+  gtin: '2000000001074'
+  product_type: tile_grout
+  uniclass_pr: Pr_20_31_53_27
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: grout_type
+    value: epoxy
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+  - name: pack_weight
+    value: '5'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-GR-0008
+  title: Epoxy Tile Grout Grey 2.5kg
+  brand: TileSynth Pro
+  mpn: TILGR210-08
+  gtin: '2000000001081'
+  product_type: tile_grout
+  uniclass_pr: Pr_20_31_53_27
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: grout_type
+    value: epoxy
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '2.5'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-GR-0009
+  title: Cement Tile Grout Grey 10kg
+  brand: TileSynth Pro
+  mpn: TILGR480-09
+  gtin: '2000000001098'
+  product_type: tile_grout
+  uniclass_pr: Pr_20_31_53_16
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: grout_type
+    value: cement
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_weight
+    value: '10'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-GR-0010
+  title: Flexible Cement Tile Grout Beige 5kg
+  brand: TileSynth Pro
+  mpn: TILGR217-10
+  gtin: '2000000001104'
+  product_type: tile_grout
+  uniclass_pr: Pr_20_31_53_16
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: grout_type
+    value: flexible_cement
+    source: manufacturer_table
+  - name: colour
+    value: beige
+    source: manufacturer_table
+  - name: pack_weight
+    value: '5'
+    unit: kg
+    source: manufacturer_table
+- sku_id: SYN-SI-0001
+  title: Sanitary Silicone Sealant White 310ml
+  brand: SealSynth
+  mpn: SEASI583-01
+  gtin: '2000000001111'
+  product_type: silicone_sealant
+  uniclass_pr: Pr_30_31_76_77
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: application
+    value: sanitary
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+  - name: pack_volume
+    value: '310'
+    unit: ml
+    source: manufacturer_table
+- sku_id: SYN-SI-0002
+  title: Sanitary Silicone Sealant Clear 310ml
+  brand: SealSynth
+  mpn: SEASI734-02
+  gtin: '2000000001128'
+  product_type: silicone_sealant
+  uniclass_pr: Pr_30_31_76_77
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: application
+    value: sanitary
+    source: manufacturer_table
+  - name: colour
+    value: clear
+    source: manufacturer_table
+  - name: pack_volume
+    value: '310'
+    unit: ml
+    source: manufacturer_table
+- sku_id: SYN-SI-0003
+  title: Sanitary Silicone Sealant White 300ml
+  brand: SealSynth
+  mpn: SEASI166-03
+  gtin: '2000000001135'
+  product_type: silicone_sealant
+  uniclass_pr: Pr_30_31_76_77
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: application
+    value: sanitary
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+  - name: pack_volume
+    value: '300'
+    unit: ml
+    source: manufacturer_table
+- sku_id: SYN-SI-0004
+  title: Sanitary Silicone Sealant Grey 310ml
+  brand: SealSynth
+  mpn: SEASI806-04
+  gtin: '2000000001142'
+  product_type: silicone_sealant
+  uniclass_pr: Pr_30_31_76_77
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: application
+    value: sanitary
+    source: manufacturer_table
+  - name: colour
+    value: grey
+    source: manufacturer_table
+  - name: pack_volume
+    value: '310'
+    unit: ml
+    source: manufacturer_table
+- sku_id: SYN-SI-0005
+  title: General Purpose Silicone Sealant White 310ml
+  brand: SealSynth
+  mpn: SEASI542-05
+  gtin: '2000000001159'
+  product_type: silicone_sealant
+  uniclass_pr: Pr_30_31_76_77
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: application
+    value: general_purpose
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+  - name: pack_volume
+    value: '310'
+    unit: ml
+    source: manufacturer_table
+- sku_id: SYN-SI-0006
+  title: General Purpose Silicone Sealant Clear 310ml
+  brand: SealSynth
+  mpn: SEASI273-06
+  gtin: '2000000001166'
+  product_type: silicone_sealant
+  uniclass_pr: Pr_30_31_76_77
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: application
+    value: general_purpose
+    source: manufacturer_table
+  - name: colour
+    value: clear
+    source: manufacturer_table
+  - name: pack_volume
+    value: '310'
+    unit: ml
+    source: manufacturer_table
+- sku_id: SYN-SI-0007
+  title: Glazing Silicone Sealant Clear 310ml
+  brand: SealSynth
+  mpn: SEASI431-07
+  gtin: '2000000001173'
+  product_type: silicone_sealant
+  uniclass_pr: Pr_30_31_76_77
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: application
+    value: glazing
+    source: manufacturer_table
+  - name: colour
+    value: clear
+    source: manufacturer_table
+  - name: pack_volume
+    value: '310'
+    unit: ml
+    source: manufacturer_table
+- sku_id: SYN-SI-0008
+  title: Sanitary Silicone Sealant Black 310ml
+  brand: SealSynth
+  mpn: SEASI946-08
+  gtin: '2000000001180'
+  product_type: silicone_sealant
+  uniclass_pr: Pr_30_31_76_77
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: application
+    value: sanitary
+    source: manufacturer_table
+  - name: colour
+    value: black
+    source: manufacturer_table
+  - name: pack_volume
+    value: '310'
+    unit: ml
+    source: manufacturer_table
+- sku_id: SYN-PT-0001
+  title: PTFE Tape Water 12mm x 12m
+  brand: Pipesynth
+  mpn: PIPPT603-01
+  gtin: '2000000001197'
+  product_type: ptfe_tape
+  uniclass_pr: Pr_65_52_62_65
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: service
+    value: water
+    source: manufacturer_table
+  - name: width
+    value: '12'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '12000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PT-0002
+  title: PTFE Tape Gas 12mm x 12m
+  brand: Pipesynth
+  mpn: PIPPT333-02
+  gtin: '2000000001203'
+  product_type: ptfe_tape
+  uniclass_pr: Pr_65_52_62_65
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: service
+    value: gas
+    source: manufacturer_table
+  - name: width
+    value: '12'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '12000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PT-0003
+  title: PTFE Tape Water 19mm x 12m
+  brand: Pipesynth
+  mpn: PIPPT662-03
+  gtin: '2000000001210'
+  product_type: ptfe_tape
+  uniclass_pr: Pr_65_52_62_65
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: service
+    value: water
+    source: manufacturer_table
+  - name: width
+    value: '19'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '12000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PT-0004
+  title: PTFE Tape Water 12mm x 25m
+  brand: Pipesynth
+  mpn: PIPPT903-04
+  gtin: '2000000001227'
+  product_type: ptfe_tape
+  uniclass_pr: Pr_65_52_62_65
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: service
+    value: water
+    source: manufacturer_table
+  - name: width
+    value: '12'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '25000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TK-0001
+  title: Liquid Tanking Kit 4m2 with primer and tape
+  brand: TileSynth Pro
+  mpn: TILTK176-01
+  gtin: '2000000001234'
+  product_type: tanking_kit
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: system
+    value: liquid
+    source: manufacturer_table
+  - name: coverage
+    value: '4'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-TK-0002
+  title: Liquid Tanking Kit 6m2 with primer and tape
+  brand: TileSynth Pro
+  mpn: TILTK523-02
+  gtin: '2000000001241'
+  product_type: tanking_kit
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: system
+    value: liquid
+    source: manufacturer_table
+  - name: coverage
+    value: '6'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-TK-0003
+  title: Sheet Tanking Kit 4m2 with primer and tape
+  brand: TileSynth Pro
+  mpn: TILTK598-03
+  gtin: '2000000001258'
+  product_type: tanking_kit
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: system
+    value: sheet
+    source: manufacturer_table
+  - name: coverage
+    value: '4'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-TK-0004
+  title: Liquid Tanking Kit 2m2 with primer and tape
+  brand: TileSynth Pro
+  mpn: TILTK706-04
+  gtin: '2000000001265'
+  product_type: tanking_kit
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: system
+    value: liquid
+    source: manufacturer_table
+  - name: coverage
+    value: '2'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-PR-0001
+  title: Acrylic Primer for Gypsum 1L
+  brand: TileSynth Pro
+  mpn: TILPR614-01
+  gtin: '2000000001272'
+  product_type: primer
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: substrate
+    value: gypsum_plaster
+    source: manufacturer_table
+  - name: pack_volume
+    value: '1'
+    unit: l
+    source: manufacturer_table
+- sku_id: SYN-PR-0002
+  title: Acrylic Primer for Gypsum 5L
+  brand: TileSynth Pro
+  mpn: TILPR650-02
+  gtin: '2000000001289'
+  product_type: primer
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: substrate
+    value: gypsum_plaster
+    source: manufacturer_table
+  - name: pack_volume
+    value: '5'
+    unit: l
+    source: manufacturer_table
+- sku_id: SYN-PR-0003
+  title: Acrylic Primer for General 5L
+  brand: TileSynth Pro
+  mpn: TILPR565-03
+  gtin: '2000000001296'
+  product_type: primer
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: substrate
+    value: general_porous
+    source: manufacturer_table
+  - name: pack_volume
+    value: '5'
+    unit: l
+    source: manufacturer_table
+- sku_id: SYN-PR-0004
+  title: Acrylic Primer for General 1L
+  brand: TileSynth Pro
+  mpn: TILPR745-04
+  gtin: '2000000001302'
+  product_type: primer
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: substrate
+    value: general_porous
+    source: manufacturer_table
+  - name: pack_volume
+    value: '1'
+    unit: l
+    source: manufacturer_table
+- sku_id: SYN-PA-0001
+  title: Brilliant White Matt Bathroom Emulsion 2.5L
+  brand: Coatsynth
+  mpn: COAPA758-01
+  gtin: '2000000001319'
+  product_type: paint
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: matt
+    source: manufacturer_table
+  - name: colour
+    value: brilliant_white
+    source: manufacturer_table
+  - name: use
+    value: bathroom
+    source: manufacturer_table
+  - name: pack_volume
+    value: '2.5'
+    unit: l
+    source: manufacturer_table
+- sku_id: SYN-PA-0002
+  title: Brilliant White Soft Sheen Bathroom Emulsion 2.5L
+  brand: Coatsynth
+  mpn: COAPA467-02
+  gtin: '2000000001326'
+  product_type: paint
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: soft_sheen
+    source: manufacturer_table
+  - name: colour
+    value: brilliant_white
+    source: manufacturer_table
+  - name: use
+    value: bathroom
+    source: manufacturer_table
+  - name: pack_volume
+    value: '2.5'
+    unit: l
+    source: manufacturer_table
+- sku_id: SYN-PA-0003
+  title: Brilliant White Matt General Emulsion 5L
+  brand: Coatsynth
+  mpn: COAPA155-03
+  gtin: '2000000001333'
+  product_type: paint
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: matt
+    source: manufacturer_table
+  - name: colour
+    value: brilliant_white
+    source: manufacturer_table
+  - name: use
+    value: general
+    source: manufacturer_table
+  - name: pack_volume
+    value: '5'
+    unit: l
+    source: manufacturer_table
+- sku_id: SYN-PA-0004
+  title: White Matt General Emulsion 5L
+  brand: Coatsynth
+  mpn: COAPA889-04
+  gtin: '2000000001340'
+  product_type: paint
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: matt
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+  - name: use
+    value: general
+    source: manufacturer_table
+  - name: pack_volume
+    value: '5'
+    unit: l
+    source: manufacturer_table
+- sku_id: SYN-PA-0005
+  title: Brilliant White Silk General Emulsion 2.5L
+  brand: Coatsynth
+  mpn: COAPA397-05
+  gtin: '2000000001357'
+  product_type: paint
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: silk
+    source: manufacturer_table
+  - name: colour
+    value: brilliant_white
+    source: manufacturer_table
+  - name: use
+    value: general
+    source: manufacturer_table
+  - name: pack_volume
+    value: '2.5'
+    unit: l
+    source: manufacturer_table
+- sku_id: SYN-PA-0006
+  title: Magnolia Soft Sheen Bathroom Emulsion 2.5L
+  brand: Coatsynth
+  mpn: COAPA879-06
+  gtin: '2000000001364'
+  product_type: paint
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: soft_sheen
+    source: manufacturer_table
+  - name: colour
+    value: magnolia
+    source: manufacturer_table
+  - name: use
+    value: bathroom
+    source: manufacturer_table
+  - name: pack_volume
+    value: '2.5'
+    unit: l
+    source: manufacturer_table
+- sku_id: SYN-PA-0007
+  title: Brilliant White Matt Bathroom Emulsion 5L
+  brand: Coatsynth
+  mpn: COAPA525-07
+  gtin: '2000000001371'
+  product_type: paint
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: matt
+    source: manufacturer_table
+  - name: colour
+    value: brilliant_white
+    source: manufacturer_table
+  - name: use
+    value: bathroom
+    source: manufacturer_table
+  - name: pack_volume
+    value: '5'
+    unit: l
+    source: manufacturer_table
+- sku_id: SYN-PA-0008
+  title: Brilliant White Soft Sheen Bathroom Emulsion 5L
+  brand: Coatsynth
+  mpn: COAPA165-08
+  gtin: '2000000001388'
+  product_type: paint
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: soft_sheen
+    source: manufacturer_table
+  - name: colour
+    value: brilliant_white
+    source: manufacturer_table
+  - name: use
+    value: bathroom
+    source: manufacturer_table
+  - name: pack_volume
+    value: '5'
+    unit: l
+    source: manufacturer_table
+- sku_id: SYN-CP-0001
+  title: Copper Tube 15mm x 3m
+  brand: Pipesynth
+  mpn: PIPCP315-01
+  gtin: '2000000001395'
+  product_type: copper_pipe
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-CP-0002
+  title: Copper Tube 22mm x 3m
+  brand: Pipesynth
+  mpn: PIPCP555-02
+  gtin: '2000000001401'
+  product_type: copper_pipe
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-CP-0003
+  title: Copper Tube 28mm x 3m
+  brand: Pipesynth
+  mpn: PIPCP191-03
+  gtin: '2000000001418'
+  product_type: copper_pipe
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '28'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-CP-0004
+  title: Copper Tube 15mm x 2m
+  brand: Pipesynth
+  mpn: PIPCP701-04
+  gtin: '2000000001425'
+  product_type: copper_pipe
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-CP-0005
+  title: Copper Tube 22mm x 2m
+  brand: Pipesynth
+  mpn: PIPCP665-05
+  gtin: '2000000001432'
+  product_type: copper_pipe
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-CP-0006
+  title: Copper Tube 15mm x 5m
+  brand: Pipesynth
+  mpn: PIPCP619-06
+  gtin: '2000000001449'
+  product_type: copper_pipe
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '5000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PP-0001
+  title: PEX Barrier Pipe Coil 15mm x 25m
+  brand: Pipesynth
+  mpn: PIPPP936-01
+  gtin: '2000000001456'
+  product_type: plastic_barrier_pipe
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: pex
+    source: manufacturer_table
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '25000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PP-0002
+  title: PEX Barrier Pipe Coil 15mm x 50m
+  brand: Pipesynth
+  mpn: PIPPP738-02
+  gtin: '2000000001463'
+  product_type: plastic_barrier_pipe
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: pex
+    source: manufacturer_table
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '50000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PP-0003
+  title: PB Barrier Pipe Coil 15mm x 25m
+  brand: Pipesynth
+  mpn: PIPPP185-03
+  gtin: '2000000001470'
+  product_type: plastic_barrier_pipe
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: pb
+    source: manufacturer_table
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '25000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PP-0004
+  title: PEX Barrier Pipe Coil 22mm x 25m
+  brand: Pipesynth
+  mpn: PIPPP777-04
+  gtin: '2000000001487'
+  product_type: plastic_barrier_pipe
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: pex
+    source: manufacturer_table
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '25000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PP-0005
+  title: PB Barrier Pipe Coil 22mm x 25m
+  brand: Pipesynth
+  mpn: PIPPP514-05
+  gtin: '2000000001494'
+  product_type: plastic_barrier_pipe
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: pb
+    source: manufacturer_table
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '25000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0001
+  title: 15mm Compression 90 Degree Elbow
+  brand: Pipesynth
+  mpn: PIPPF905-01
+  gtin: '2000000001500'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: elbow
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0002
+  title: 22mm Compression 90 Degree Elbow
+  brand: Pipesynth
+  mpn: PIPPF391-02
+  gtin: '2000000001517'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: elbow
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0003
+  title: 15mm Push Fit 90 Degree Elbow
+  brand: Pipesynth
+  mpn: PIPPF716-03
+  gtin: '2000000001524'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: elbow
+    source: manufacturer_table
+  - name: joint_method
+    value: push_fit
+    source: manufacturer_table
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0004
+  title: 22mm Push Fit 90 Degree Elbow
+  brand: Pipesynth
+  mpn: PIPPF984-04
+  gtin: '2000000001531'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: elbow
+    source: manufacturer_table
+  - name: joint_method
+    value: push_fit
+    source: manufacturer_table
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0005
+  title: 15mm Compression Straight Coupler
+  brand: Pipesynth
+  mpn: PIPPF587-05
+  gtin: '2000000001548'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: coupler
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0006
+  title: 22mm Compression Straight Coupler
+  brand: Pipesynth
+  mpn: PIPPF542-06
+  gtin: '2000000001555'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: coupler
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0007
+  title: 15mm Push Fit Straight Coupler
+  brand: Pipesynth
+  mpn: PIPPF216-07
+  gtin: '2000000001562'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: coupler
+    source: manufacturer_table
+  - name: joint_method
+    value: push_fit
+    source: manufacturer_table
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0008
+  title: 22mm Push Fit Straight Coupler
+  brand: Pipesynth
+  mpn: PIPPF553-08
+  gtin: '2000000001579'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: coupler
+    source: manufacturer_table
+  - name: joint_method
+    value: push_fit
+    source: manufacturer_table
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0009
+  title: 15mm Compression Equal Tee
+  brand: Pipesynth
+  mpn: PIPPF238-09
+  gtin: '2000000001586'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: tee
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0010
+  title: 22mm Compression Equal Tee
+  brand: Pipesynth
+  mpn: PIPPF594-10
+  gtin: '2000000001593'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: tee
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0011
+  title: 15mm Push Fit Equal Tee
+  brand: Pipesynth
+  mpn: PIPPF114-11
+  gtin: '2000000001609'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: tee
+    source: manufacturer_table
+  - name: joint_method
+    value: push_fit
+    source: manufacturer_table
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0012
+  title: 22mm Push Fit Equal Tee
+  brand: Pipesynth
+  mpn: PIPPF606-12
+  gtin: '2000000001616'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: tee
+    source: manufacturer_table
+  - name: joint_method
+    value: push_fit
+    source: manufacturer_table
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0013
+  title: 15mm Compression Stop End
+  brand: Pipesynth
+  mpn: PIPPF106-13
+  gtin: '2000000001623'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: stop_end
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PF-0014
+  title: 22mm Compression Stop End
+  brand: Pipesynth
+  mpn: PIPPF566-14
+  gtin: '2000000001630'
+  product_type: pipe_fitting
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: fitting_form
+    value: stop_end
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-IV-0001
+  title: 15mm Compression Isolating Valve Screwdriver Brass
+  brand: Pipesynth
+  mpn: PIPIV257-01
+  gtin: '2000000001647'
+  product_type: isolating_valve
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: operation
+    value: screwdriver
+    source: manufacturer_table
+  - name: finish
+    value: brass
+    source: manufacturer_table
+- sku_id: SYN-IV-0002
+  title: 15mm Compression Isolating Valve Lever Chrome
+  brand: Pipesynth
+  mpn: PIPIV674-02
+  gtin: '2000000001654'
+  product_type: isolating_valve
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: operation
+    value: lever
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-IV-0003
+  title: 22mm Compression Isolating Valve Screwdriver Brass
+  brand: Pipesynth
+  mpn: PIPIV549-03
+  gtin: '2000000001661'
+  product_type: isolating_valve
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: operation
+    value: screwdriver
+    source: manufacturer_table
+  - name: finish
+    value: brass
+    source: manufacturer_table
+- sku_id: SYN-IV-0004
+  title: 22mm Compression Isolating Valve Lever Chrome
+  brand: Pipesynth
+  mpn: PIPIV537-04
+  gtin: '2000000001678'
+  product_type: isolating_valve
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '22'
+    unit: mm
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: operation
+    value: lever
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-IV-0005
+  title: 15mm Push Fit Isolating Valve Screwdriver Brass
+  brand: Pipesynth
+  mpn: PIPIV464-05
+  gtin: '2000000001685'
+  product_type: isolating_valve
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: joint_method
+    value: push_fit
+    source: manufacturer_table
+  - name: operation
+    value: screwdriver
+    source: manufacturer_table
+  - name: finish
+    value: brass
+    source: manufacturer_table
+- sku_id: SYN-IV-0006
+  title: 15mm Compression Isolating Valve Screwdriver Chrome
+  brand: Pipesynth
+  mpn: PIPIV833-06
+  gtin: '2000000001692'
+  product_type: isolating_valve
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: joint_method
+    value: compression
+    source: manufacturer_table
+  - name: operation
+    value: screwdriver
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-TC-0001
+  title: Flexible Tap Connector 15mm x 1/2in x 300mm braided
+  brand: Pipesynth
+  mpn: PIPTC743-01
+  gtin: '2000000001708'
+  product_type: tap_connector
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '300'
+    unit: mm
+    source: manufacturer_table
+  - name: tap_thread
+    value: half_inch
+    source: manufacturer_table
+- sku_id: SYN-TC-0002
+  title: Flexible Tap Connector 15mm x 1/2in x 500mm braided
+  brand: Pipesynth
+  mpn: PIPTC200-02
+  gtin: '2000000001715'
+  product_type: tap_connector
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '500'
+    unit: mm
+    source: manufacturer_table
+  - name: tap_thread
+    value: half_inch
+    source: manufacturer_table
+- sku_id: SYN-TC-0003
+  title: Flexible Tap Connector 15mm x 3/8in x 300mm braided
+  brand: Pipesynth
+  mpn: PIPTC811-03
+  gtin: '2000000001722'
+  product_type: tap_connector
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '300'
+    unit: mm
+    source: manufacturer_table
+  - name: tap_thread
+    value: three_eighth_inch
+    source: manufacturer_table
+- sku_id: SYN-TC-0004
+  title: Flexible Tap Connector 15mm x 1/2in x 150mm braided
+  brand: Pipesynth
+  mpn: PIPTC847-04
+  gtin: '2000000001739'
+  product_type: tap_connector
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '15'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '150'
+    unit: mm
+    source: manufacturer_table
+  - name: tap_thread
+    value: half_inch
+    source: manufacturer_table
+- sku_id: SYN-TR-0001
+  title: 32mm Bottle Trap White
+  brand: Wastesynth
+  mpn: WASTR261-01
+  gtin: '2000000001746'
+  product_type: trap
+  uniclass_pr: Pr_65_52_25_98
+  etim_class: EC010195
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '32'
+    unit: mm
+    source: manufacturer_table
+  - name: trap_form
+    value: bottle
+    source: manufacturer_table
+  - name: seal_depth
+    value: '75'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TR-0002
+  title: 32mm Bottle Trap Chrome
+  brand: Wastesynth
+  mpn: WASTR415-02
+  gtin: '2000000001753'
+  product_type: trap
+  uniclass_pr: Pr_65_52_25_98
+  etim_class: EC010195
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '32'
+    unit: mm
+    source: manufacturer_table
+  - name: trap_form
+    value: bottle
+    source: manufacturer_table
+  - name: seal_depth
+    value: '75'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-TR-0003
+  title: 32mm Tubular P Trap White
+  brand: Wastesynth
+  mpn: WASTR112-03
+  gtin: '2000000001760'
+  product_type: trap
+  uniclass_pr: Pr_65_52_25_98
+  etim_class: EC010195
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '32'
+    unit: mm
+    source: manufacturer_table
+  - name: trap_form
+    value: tubular_p
+    source: manufacturer_table
+  - name: seal_depth
+    value: '75'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TR-0004
+  title: 40mm Bath Shallow Trap White
+  brand: Wastesynth
+  mpn: WASTR526-04
+  gtin: '2000000001777'
+  product_type: trap
+  uniclass_pr: Pr_65_52_25_98
+  etim_class: EC010195
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: trap_form
+    value: bath_shallow
+    source: manufacturer_table
+  - name: seal_depth
+    value: '38'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TR-0005
+  title: 40mm Bottle Trap White
+  brand: Wastesynth
+  mpn: WASTR139-05
+  gtin: '2000000001784'
+  product_type: trap
+  uniclass_pr: Pr_65_52_25_98
+  etim_class: EC010195
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: trap_form
+    value: bottle
+    source: manufacturer_table
+  - name: seal_depth
+    value: '75'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TR-0006
+  title: 40mm Tubular P Trap White
+  brand: Wastesynth
+  mpn: WASTR666-06
+  gtin: '2000000001791'
+  product_type: trap
+  uniclass_pr: Pr_65_52_25_98
+  etim_class: EC010195
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: trap_form
+    value: tubular_p
+    source: manufacturer_table
+  - name: seal_depth
+    value: '75'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TR-0007
+  title: 32mm Tubular S Trap White
+  brand: Wastesynth
+  mpn: WASTR541-07
+  gtin: '2000000001807'
+  product_type: trap
+  uniclass_pr: Pr_65_52_25_98
+  etim_class: EC010195
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '32'
+    unit: mm
+    source: manufacturer_table
+  - name: trap_form
+    value: tubular_s
+    source: manufacturer_table
+  - name: seal_depth
+    value: '75'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TR-0008
+  title: 40mm Bottle Trap Chrome
+  brand: Wastesynth
+  mpn: WASTR131-08
+  gtin: '2000000001814'
+  product_type: trap
+  uniclass_pr: Pr_65_52_25_98
+  etim_class: EC010195
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: trap_form
+    value: bottle
+    source: manufacturer_table
+  - name: seal_depth
+    value: '75'
+    unit: mm
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-WA-0001
+  title: 32mm Solvent Weld Abs Waste Pipe 3m
+  brand: Wastesynth
+  mpn: WASWA373-01
+  gtin: '2000000001821'
+  product_type: waste_pipe
+  uniclass_pr: Pr_65_52_03_02
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '32'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: system
+    value: solvent_weld_abs
+    source: manufacturer_table
+- sku_id: SYN-WA-0002
+  title: 40mm Solvent Weld Abs Waste Pipe 3m
+  brand: Wastesynth
+  mpn: WASWA388-02
+  gtin: '2000000001838'
+  product_type: waste_pipe
+  uniclass_pr: Pr_65_52_03_02
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: system
+    value: solvent_weld_abs
+    source: manufacturer_table
+- sku_id: SYN-WA-0003
+  title: 32mm Solvent Weld Mupvc Waste Pipe 3m
+  brand: Wastesynth
+  mpn: WASWA648-03
+  gtin: '2000000001845'
+  product_type: waste_pipe
+  uniclass_pr: Pr_65_52_03_52
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '32'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: system
+    value: solvent_weld_mupvc
+    source: manufacturer_table
+- sku_id: SYN-WA-0004
+  title: 40mm Solvent Weld Mupvc Waste Pipe 3m
+  brand: Wastesynth
+  mpn: WASWA858-04
+  gtin: '2000000001852'
+  product_type: waste_pipe
+  uniclass_pr: Pr_65_52_03_52
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: system
+    value: solvent_weld_mupvc
+    source: manufacturer_table
+- sku_id: SYN-WA-0005
+  title: 32mm Push Fit Pp Waste Pipe 3m
+  brand: Wastesynth
+  mpn: WASWA673-05
+  gtin: '2000000001869'
+  product_type: waste_pipe
+  uniclass_pr: Pr_65_52_03_66
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '32'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: system
+    value: push_fit_pp
+    source: manufacturer_table
+- sku_id: SYN-WA-0006
+  title: 40mm Push Fit Pp Waste Pipe 3m
+  brand: Wastesynth
+  mpn: WASWA569-06
+  gtin: '2000000001876'
+  product_type: waste_pipe
+  uniclass_pr: Pr_65_52_03_66
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: system
+    value: push_fit_pp
+    source: manufacturer_table
+- sku_id: SYN-WA-0007
+  title: 50mm Solvent Weld Abs Waste Pipe 3m
+  brand: Wastesynth
+  mpn: WASWA617-07
+  gtin: '2000000001883'
+  product_type: waste_pipe
+  uniclass_pr: Pr_65_52_03_02
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '50'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+  - name: system
+    value: solvent_weld_abs
+    source: manufacturer_table
+- sku_id: SYN-BW-0001
+  title: Slotted Click Clack Basin Waste Chrome
+  brand: Wastesynth
+  mpn: WASBW638-01
+  gtin: '2000000001890'
+  product_type: basin_waste
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: slotted
+    value: slotted
+    source: manufacturer_table
+  - name: mechanism
+    value: click_clack
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-BW-0002
+  title: Unslotted Click Clack Basin Waste Chrome
+  brand: Wastesynth
+  mpn: WASBW348-02
+  gtin: '2000000001906'
+  product_type: basin_waste
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: slotted
+    value: unslotted
+    source: manufacturer_table
+  - name: mechanism
+    value: click_clack
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-BW-0003
+  title: Slotted Click Clack Basin Waste White
+  brand: Wastesynth
+  mpn: WASBW749-03
+  gtin: '2000000001913'
+  product_type: basin_waste
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: slotted
+    value: slotted
+    source: manufacturer_table
+  - name: mechanism
+    value: click_clack
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-BW-0004
+  title: Unslotted Click Clack Basin Waste White
+  brand: Wastesynth
+  mpn: WASBW817-04
+  gtin: '2000000001920'
+  product_type: basin_waste
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: slotted
+    value: unslotted
+    source: manufacturer_table
+  - name: mechanism
+    value: click_clack
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-PC-0001
+  title: Straight WC Pan Connector 110mm
+  brand: Wastesynth
+  mpn: WASPC957-01
+  gtin: '2000000001937'
+  product_type: pan_connector
+  uniclass_pr: Pr_40_20_93_93
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: connector_type
+    value: straight
+    source: manufacturer_table
+  - name: diameter
+    value: '110'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PC-0002
+  title: Offset WC Pan Connector 110mm
+  brand: Wastesynth
+  mpn: WASPC676-02
+  gtin: '2000000001944'
+  product_type: pan_connector
+  uniclass_pr: Pr_40_20_93_93
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: connector_type
+    value: offset
+    source: manufacturer_table
+  - name: diameter
+    value: '110'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-PC-0003
+  title: Flexible WC Pan Connector 110mm
+  brand: Wastesynth
+  mpn: WASPC214-03
+  gtin: '2000000001951'
+  product_type: pan_connector
+  uniclass_pr: Pr_40_20_93_93
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: connector_type
+    value: flexible
+    source: manufacturer_table
+  - name: diameter
+    value: '110'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-WC-0001
+  title: Close Coupled WC Rimless Soft Close
+  brand: Aquasynth
+  mpn: AQUWC643-01
+  gtin: '2000000001968'
+  product_type: wc
+  uniclass_pr: Pr_40_20_93_94
+  etim_class: EC011289
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: construction
+    value: close_coupled
+    source: manufacturer_table
+  - name: outlet
+    value: horizontal
+    source: manufacturer_table
+  - name: rim
+    value: rimless
+    source: manufacturer_table
+  - name: seat
+    value: soft_close
+    source: manufacturer_table
+- sku_id: SYN-WC-0002
+  title: Close Coupled WC Rimmed Standard Seat
+  brand: Aquasynth
+  mpn: AQUWC245-02
+  gtin: '2000000001975'
+  product_type: wc
+  uniclass_pr: Pr_40_20_93_94
+  etim_class: EC011289
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: construction
+    value: close_coupled
+    source: manufacturer_table
+  - name: outlet
+    value: horizontal
+    source: manufacturer_table
+  - name: rim
+    value: rimmed
+    source: manufacturer_table
+  - name: seat
+    value: standard_seat
+    source: manufacturer_table
+- sku_id: SYN-WC-0003
+  title: Close Coupled WC Rimless Standard Seat
+  brand: Aquasynth
+  mpn: AQUWC509-03
+  gtin: '2000000001982'
+  product_type: wc
+  uniclass_pr: Pr_40_20_93_94
+  etim_class: EC011289
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: construction
+    value: close_coupled
+    source: manufacturer_table
+  - name: outlet
+    value: horizontal
+    source: manufacturer_table
+  - name: rim
+    value: rimless
+    source: manufacturer_table
+  - name: seat
+    value: standard_seat
+    source: manufacturer_table
+- sku_id: SYN-WC-0004
+  title: Close Coupled WC Rimmed Soft Close
+  brand: Aquasynth
+  mpn: AQUWC964-04
+  gtin: '2000000001999'
+  product_type: wc
+  uniclass_pr: Pr_40_20_93_94
+  etim_class: EC011289
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: construction
+    value: close_coupled
+    source: manufacturer_table
+  - name: outlet
+    value: horizontal
+    source: manufacturer_table
+  - name: rim
+    value: rimmed
+    source: manufacturer_table
+  - name: seat
+    value: soft_close
+    source: manufacturer_table
+- sku_id: SYN-WC-0005
+  title: Back To Wall WC Rimless Soft Close
+  brand: Aquasynth
+  mpn: AQUWC803-05
+  gtin: '2000000002002'
+  product_type: wc
+  uniclass_pr: Pr_40_20_93_94
+  etim_class: EC011289
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: construction
+    value: back_to_wall
+    source: manufacturer_table
+  - name: outlet
+    value: horizontal
+    source: manufacturer_table
+  - name: rim
+    value: rimless
+    source: manufacturer_table
+  - name: seat
+    value: soft_close
+    source: manufacturer_table
+- sku_id: SYN-WC-0006
+  title: Wall Hung WC Rimless Soft Close
+  brand: Aquasynth
+  mpn: AQUWC860-06
+  gtin: '2000000002019'
+  product_type: wc
+  uniclass_pr: Pr_40_20_93_94
+  etim_class: EC011289
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: construction
+    value: wall_hung
+    source: manufacturer_table
+  - name: outlet
+    value: horizontal
+    source: manufacturer_table
+  - name: rim
+    value: rimless
+    source: manufacturer_table
+  - name: seat
+    value: soft_close
+    source: manufacturer_table
+- sku_id: SYN-WC-0007
+  title: Close Coupled WC Rimless No Seat
+  brand: Aquasynth
+  mpn: AQUWC169-07
+  gtin: '2000000002026'
+  product_type: wc
+  uniclass_pr: Pr_40_20_93_94
+  etim_class: EC011289
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: construction
+    value: close_coupled
+    source: manufacturer_table
+  - name: outlet
+    value: horizontal
+    source: manufacturer_table
+  - name: rim
+    value: rimless
+    source: manufacturer_table
+  - name: seat
+    value: no_seat
+    source: manufacturer_table
+- sku_id: SYN-WC-0008
+  title: Back To Wall WC Rimmed Standard Seat
+  brand: Aquasynth
+  mpn: AQUWC972-08
+  gtin: '2000000002033'
+  product_type: wc
+  uniclass_pr: Pr_40_20_93_94
+  etim_class: EC011289
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: construction
+    value: back_to_wall
+    source: manufacturer_table
+  - name: outlet
+    value: horizontal
+    source: manufacturer_table
+  - name: rim
+    value: rimmed
+    source: manufacturer_table
+  - name: seat
+    value: standard_seat
+    source: manufacturer_table
+- sku_id: SYN-BS-0001
+  title: 550mm Full Pedestal Basin 1TH
+  brand: Aquasynth
+  mpn: AQUBS283-01
+  gtin: '2000000002040'
+  product_type: basin
+  uniclass_pr: Pr_40_20_96_63
+  etim_class: EC011550
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: basin_type
+    value: full_pedestal
+    source: manufacturer_table
+  - name: width
+    value: '550'
+    unit: mm
+    source: manufacturer_table
+  - name: tap_holes
+    value: one_hole
+    source: manufacturer_table
+- sku_id: SYN-BS-0002
+  title: 550mm Full Pedestal Basin 2TH
+  brand: Aquasynth
+  mpn: AQUBS840-02
+  gtin: '2000000002057'
+  product_type: basin
+  uniclass_pr: Pr_40_20_96_63
+  etim_class: EC011550
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: basin_type
+    value: full_pedestal
+    source: manufacturer_table
+  - name: width
+    value: '550'
+    unit: mm
+    source: manufacturer_table
+  - name: tap_holes
+    value: two_hole
+    source: manufacturer_table
+- sku_id: SYN-BS-0003
+  title: 500mm Full Pedestal Basin 1TH
+  brand: Aquasynth
+  mpn: AQUBS541-03
+  gtin: '2000000002064'
+  product_type: basin
+  uniclass_pr: Pr_40_20_96_63
+  etim_class: EC011550
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: basin_type
+    value: full_pedestal
+    source: manufacturer_table
+  - name: width
+    value: '500'
+    unit: mm
+    source: manufacturer_table
+  - name: tap_holes
+    value: one_hole
+    source: manufacturer_table
+- sku_id: SYN-BS-0004
+  title: 450mm Full Pedestal Basin 1TH
+  brand: Aquasynth
+  mpn: AQUBS474-04
+  gtin: '2000000002071'
+  product_type: basin
+  uniclass_pr: Pr_40_20_96_63
+  etim_class: EC011550
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: basin_type
+    value: full_pedestal
+    source: manufacturer_table
+  - name: width
+    value: '450'
+    unit: mm
+    source: manufacturer_table
+  - name: tap_holes
+    value: one_hole
+    source: manufacturer_table
+- sku_id: SYN-BS-0005
+  title: 450mm Wall Hung Basin 1TH
+  brand: Aquasynth
+  mpn: AQUBS125-05
+  gtin: '2000000002088'
+  product_type: basin
+  uniclass_pr: Pr_40_20_96_96
+  etim_class: EC011550
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: basin_type
+    value: wall_hung
+    source: manufacturer_table
+  - name: width
+    value: '450'
+    unit: mm
+    source: manufacturer_table
+  - name: tap_holes
+    value: one_hole
+    source: manufacturer_table
+- sku_id: SYN-BS-0006
+  title: 550mm Wall Hung Basin 1TH
+  brand: Aquasynth
+  mpn: AQUBS718-06
+  gtin: '2000000002095'
+  product_type: basin
+  uniclass_pr: Pr_40_20_96_96
+  etim_class: EC011550
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: basin_type
+    value: wall_hung
+    source: manufacturer_table
+  - name: width
+    value: '550'
+    unit: mm
+    source: manufacturer_table
+  - name: tap_holes
+    value: one_hole
+    source: manufacturer_table
+- sku_id: SYN-BS-0007
+  title: 550mm Semi Pedestal Basin 1TH
+  brand: Aquasynth
+  mpn: AQUBS376-07
+  gtin: '2000000002101'
+  product_type: basin
+  uniclass_pr: null
+  etim_class: EC011550
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: basin_type
+    value: semi_pedestal
+    source: manufacturer_table
+  - name: width
+    value: '550'
+    unit: mm
+    source: manufacturer_table
+  - name: tap_holes
+    value: one_hole
+    source: manufacturer_table
+- sku_id: SYN-BS-0008
+  title: 550mm Countertop Basin 1TH
+  brand: Aquasynth
+  mpn: AQUBS596-08
+  gtin: '2000000002118'
+  product_type: basin
+  uniclass_pr: Pr_40_20_96_18
+  etim_class: EC011550
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: basin_type
+    value: countertop
+    source: manufacturer_table
+  - name: width
+    value: '550'
+    unit: mm
+    source: manufacturer_table
+  - name: tap_holes
+    value: one_hole
+    source: manufacturer_table
+- sku_id: SYN-BA-0001
+  title: Acrylic Single Ended Bath 1700 x 700mm
+  brand: Aquasynth
+  mpn: AQUBA317-01
+  gtin: '2000000002125'
+  product_type: bath
+  uniclass_pr: Pr_40_20_06_08
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: length
+    value: '1700'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '700'
+    unit: mm
+    source: manufacturer_table
+  - name: material
+    value: acrylic
+    source: manufacturer_table
+  - name: ended
+    value: single_ended
+    source: manufacturer_table
+- sku_id: SYN-BA-0002
+  title: Acrylic Single Ended Bath 1700 x 750mm
+  brand: Aquasynth
+  mpn: AQUBA520-02
+  gtin: '2000000002132'
+  product_type: bath
+  uniclass_pr: Pr_40_20_06_08
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: length
+    value: '1700'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '750'
+    unit: mm
+    source: manufacturer_table
+  - name: material
+    value: acrylic
+    source: manufacturer_table
+  - name: ended
+    value: single_ended
+    source: manufacturer_table
+- sku_id: SYN-BA-0003
+  title: Acrylic Double Ended Bath 1800 x 800mm
+  brand: Aquasynth
+  mpn: AQUBA980-03
+  gtin: '2000000002149'
+  product_type: bath
+  uniclass_pr: Pr_40_20_06_08
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: length
+    value: '1800'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: material
+    value: acrylic
+    source: manufacturer_table
+  - name: ended
+    value: double_ended
+    source: manufacturer_table
+- sku_id: SYN-BA-0004
+  title: Steel Single Ended Bath 1700 x 700mm
+  brand: Aquasynth
+  mpn: AQUBA906-04
+  gtin: '2000000002156'
+  product_type: bath
+  uniclass_pr: Pr_40_20_06_08
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: length
+    value: '1700'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '700'
+    unit: mm
+    source: manufacturer_table
+  - name: material
+    value: steel
+    source: manufacturer_table
+  - name: ended
+    value: single_ended
+    source: manufacturer_table
+- sku_id: SYN-BA-0005
+  title: Acrylic Single Ended Bath 1600 x 700mm
+  brand: Aquasynth
+  mpn: AQUBA764-05
+  gtin: '2000000002163'
+  product_type: bath
+  uniclass_pr: Pr_40_20_06_08
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: length
+    value: '1600'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '700'
+    unit: mm
+    source: manufacturer_table
+  - name: material
+    value: acrylic
+    source: manufacturer_table
+  - name: ended
+    value: single_ended
+    source: manufacturer_table
+- sku_id: SYN-BA-0006
+  title: Acrylic Single Ended Bath 1500 x 700mm
+  brand: Aquasynth
+  mpn: AQUBA746-06
+  gtin: '2000000002170'
+  product_type: bath
+  uniclass_pr: Pr_40_20_06_08
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: length
+    value: '1500'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '700'
+    unit: mm
+    source: manufacturer_table
+  - name: material
+    value: acrylic
+    source: manufacturer_table
+  - name: ended
+    value: single_ended
+    source: manufacturer_table
+- sku_id: SYN-ST-0001
+  title: Stone Resin Shower Tray Rectangular 1200 x 800mm
+  brand: Aquasynth
+  mpn: AQUST766-01
+  gtin: '2000000002187'
+  product_type: shower_tray
+  uniclass_pr: Pr_40_20_06_84
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: length
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: shape
+    value: rectangular
+    source: manufacturer_table
+  - name: material
+    value: stone_resin
+    source: manufacturer_table
+  - name: height
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-ST-0002
+  title: Stone Resin Shower Tray Square 900 x 900mm
+  brand: Aquasynth
+  mpn: AQUST996-02
+  gtin: '2000000002194'
+  product_type: shower_tray
+  uniclass_pr: Pr_40_20_06_84
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: length
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+  - name: shape
+    value: square
+    source: manufacturer_table
+  - name: material
+    value: stone_resin
+    source: manufacturer_table
+  - name: height
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-ST-0003
+  title: Stone Resin Shower Tray Quadrant 900 x 900mm
+  brand: Aquasynth
+  mpn: AQUST937-03
+  gtin: '2000000002200'
+  product_type: shower_tray
+  uniclass_pr: Pr_40_20_06_84
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: length
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+  - name: shape
+    value: quadrant
+    source: manufacturer_table
+  - name: material
+    value: stone_resin
+    source: manufacturer_table
+  - name: height
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-ST-0004
+  title: Stone Resin Shower Tray Rectangular 1400 x 900mm
+  brand: Aquasynth
+  mpn: AQUST165-04
+  gtin: '2000000002217'
+  product_type: shower_tray
+  uniclass_pr: Pr_40_20_06_84
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: length
+    value: '1400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+  - name: shape
+    value: rectangular
+    source: manufacturer_table
+  - name: material
+    value: stone_resin
+    source: manufacturer_table
+  - name: height
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-ST-0005
+  title: Acrylic Shower Tray Square 800 x 800mm
+  brand: Aquasynth
+  mpn: AQUST671-05
+  gtin: '2000000002224'
+  product_type: shower_tray
+  uniclass_pr: Pr_40_20_06_84
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: length
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: shape
+    value: square
+    source: manufacturer_table
+  - name: material
+    value: acrylic
+    source: manufacturer_table
+  - name: height
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-ST-0006
+  title: Acrylic Shower Tray Rectangular 1200 x 800mm
+  brand: Aquasynth
+  mpn: AQUST452-06
+  gtin: '2000000002231'
+  product_type: shower_tray
+  uniclass_pr: Pr_40_20_06_84
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: length
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: shape
+    value: rectangular
+    source: manufacturer_table
+  - name: material
+    value: acrylic
+    source: manufacturer_table
+  - name: height
+    value: '40'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-SE-0001
+  title: Hinged Door Shower 800mm 6mm Glass
+  brand: Aquasynth
+  mpn: AQUSE266-01
+  gtin: '2000000002248'
+  product_type: shower_enclosure
+  uniclass_pr: Pr_40_20_06_80
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: style
+    value: hinged_door
+    source: manufacturer_table
+  - name: width
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: glass_thickness
+    value: '6'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-SE-0002
+  title: Sliding Door Shower 1200mm 6mm Glass
+  brand: Aquasynth
+  mpn: AQUSE535-02
+  gtin: '2000000002255'
+  product_type: shower_enclosure
+  uniclass_pr: Pr_40_20_06_80
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: style
+    value: sliding_door
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: glass_thickness
+    value: '6'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-SE-0003
+  title: Quadrant Shower 900mm 6mm Glass
+  brand: Aquasynth
+  mpn: AQUSE320-03
+  gtin: '2000000002262'
+  product_type: shower_enclosure
+  uniclass_pr: Pr_40_20_06_79
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: style
+    value: quadrant
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+  - name: glass_thickness
+    value: '6'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-SE-0004
+  title: Walk In Panel Shower 1200mm 8mm Glass
+  brand: Aquasynth
+  mpn: AQUSE741-04
+  gtin: '2000000002279'
+  product_type: shower_enclosure
+  uniclass_pr: Pr_40_20_06_82
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: style
+    value: walk_in_panel
+    source: manufacturer_table
+  - name: width
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: glass_thickness
+    value: '8'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-SE-0005
+  title: Bath Screen Shower 800mm 6mm Glass
+  brand: Aquasynth
+  mpn: AQUSE645-05
+  gtin: '2000000002286'
+  product_type: shower_enclosure
+  uniclass_pr: Pr_40_20_06_82
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: style
+    value: bath_screen
+    source: manufacturer_table
+  - name: width
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: glass_thickness
+    value: '6'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-SE-0006
+  title: Hinged Door Shower 760mm 6mm Glass
+  brand: Aquasynth
+  mpn: AQUSE537-06
+  gtin: '2000000002293'
+  product_type: shower_enclosure
+  uniclass_pr: Pr_40_20_06_80
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: style
+    value: hinged_door
+    source: manufacturer_table
+  - name: width
+    value: '760'
+    unit: mm
+    source: manufacturer_table
+  - name: glass_thickness
+    value: '6'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-SE-0007
+  title: Sliding Door Shower 1400mm 8mm Glass
+  brand: Aquasynth
+  mpn: AQUSE687-07
+  gtin: '2000000002309'
+  product_type: shower_enclosure
+  uniclass_pr: Pr_40_20_06_80
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: style
+    value: sliding_door
+    source: manufacturer_table
+  - name: width
+    value: '1400'
+    unit: mm
+    source: manufacturer_table
+  - name: glass_thickness
+    value: '8'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-SE-0008
+  title: Walk In Panel Shower 900mm 8mm Glass
+  brand: Aquasynth
+  mpn: AQUSE852-08
+  gtin: '2000000002316'
+  product_type: shower_enclosure
+  uniclass_pr: Pr_40_20_06_82
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: style
+    value: walk_in_panel
+    source: manufacturer_table
+  - name: width
+    value: '900'
+    unit: mm
+    source: manufacturer_table
+  - name: glass_thickness
+    value: '8'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-SV-0001
+  title: Exposed Bar Thermostatic Shower Valve High Pressure
+  brand: Aquasynth
+  mpn: AQUSV583-01
+  gtin: '2000000002323'
+  product_type: shower_valve
+  uniclass_pr: Pr_40_20_87_80
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: valve_type
+    value: exposed_bar
+    source: manufacturer_table
+  - name: control
+    value: thermostatic
+    source: manufacturer_table
+  - name: pressure_rating
+    value: high_pressure
+    source: manufacturer_table
+  - name: outlets
+    value: single
+    source: manufacturer_table
+- sku_id: SYN-SV-0002
+  title: Exposed Bar Thermostatic Shower Valve Low Pressure
+  brand: Aquasynth
+  mpn: AQUSV236-02
+  gtin: '2000000002330'
+  product_type: shower_valve
+  uniclass_pr: Pr_40_20_87_80
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: valve_type
+    value: exposed_bar
+    source: manufacturer_table
+  - name: control
+    value: thermostatic
+    source: manufacturer_table
+  - name: pressure_rating
+    value: low_pressure
+    source: manufacturer_table
+  - name: outlets
+    value: single
+    source: manufacturer_table
+- sku_id: SYN-SV-0003
+  title: Concealed Thermostatic Shower Valve High Pressure
+  brand: Aquasynth
+  mpn: AQUSV333-03
+  gtin: '2000000002347'
+  product_type: shower_valve
+  uniclass_pr: Pr_40_20_87_80
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: valve_type
+    value: concealed
+    source: manufacturer_table
+  - name: control
+    value: thermostatic
+    source: manufacturer_table
+  - name: pressure_rating
+    value: high_pressure
+    source: manufacturer_table
+  - name: outlets
+    value: single
+    source: manufacturer_table
+- sku_id: SYN-SV-0004
+  title: Exposed Bar Manual Shower Valve High Pressure
+  brand: Aquasynth
+  mpn: AQUSV388-04
+  gtin: '2000000002354'
+  product_type: shower_valve
+  uniclass_pr: Pr_40_20_87_80
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: valve_type
+    value: exposed_bar
+    source: manufacturer_table
+  - name: control
+    value: manual
+    source: manufacturer_table
+  - name: pressure_rating
+    value: high_pressure
+    source: manufacturer_table
+  - name: outlets
+    value: single
+    source: manufacturer_table
+- sku_id: SYN-SV-0005
+  title: Concealed Thermostatic Shower Valve Low Pressure
+  brand: Aquasynth
+  mpn: AQUSV599-05
+  gtin: '2000000002361'
+  product_type: shower_valve
+  uniclass_pr: Pr_40_20_87_80
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: valve_type
+    value: concealed
+    source: manufacturer_table
+  - name: control
+    value: thermostatic
+    source: manufacturer_table
+  - name: pressure_rating
+    value: low_pressure
+    source: manufacturer_table
+  - name: outlets
+    value: single
+    source: manufacturer_table
+- sku_id: SYN-SV-0006
+  title: Exposed Bar Manual Shower Valve Low Pressure
+  brand: Aquasynth
+  mpn: AQUSV198-06
+  gtin: '2000000002378'
+  product_type: shower_valve
+  uniclass_pr: Pr_40_20_87_80
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: valve_type
+    value: exposed_bar
+    source: manufacturer_table
+  - name: control
+    value: manual
+    source: manufacturer_table
+  - name: pressure_rating
+    value: low_pressure
+    source: manufacturer_table
+  - name: outlets
+    value: single
+    source: manufacturer_table
+- sku_id: SYN-BT-0001
+  title: Mono Mixer Basin Tap Chrome
+  brand: Aquasynth
+  mpn: AQUBT366-01
+  gtin: '2000000002385'
+  product_type: basin_tap
+  uniclass_pr: Pr_40_20_87_98
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: tap_form
+    value: mono_mixer
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+  - name: waste
+    value: with_waste
+    source: manufacturer_table
+- sku_id: SYN-BT-0002
+  title: Mono Mixer Basin Tap Chrome
+  brand: Aquasynth
+  mpn: AQUBT817-02
+  gtin: '2000000002392'
+  product_type: basin_tap
+  uniclass_pr: Pr_40_20_87_98
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: tap_form
+    value: mono_mixer
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+  - name: waste
+    value: no_waste
+    source: manufacturer_table
+- sku_id: SYN-BT-0003
+  title: Mono Mixer Basin Tap Black
+  brand: Aquasynth
+  mpn: AQUBT649-03
+  gtin: '2000000002408'
+  product_type: basin_tap
+  uniclass_pr: Pr_40_20_87_98
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: tap_form
+    value: mono_mixer
+    source: manufacturer_table
+  - name: finish
+    value: black
+    source: manufacturer_table
+  - name: waste
+    value: with_waste
+    source: manufacturer_table
+- sku_id: SYN-BT-0004
+  title: Pillar Pair Basin Tap Chrome
+  brand: Aquasynth
+  mpn: AQUBT532-04
+  gtin: '2000000002415'
+  product_type: basin_tap
+  uniclass_pr: Pr_40_20_87_98
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: tap_form
+    value: pillar_pair
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+  - name: waste
+    value: no_waste
+    source: manufacturer_table
+- sku_id: SYN-BT-0005
+  title: Mono Mixer Basin Tap Brushed Brass
+  brand: Aquasynth
+  mpn: AQUBT418-05
+  gtin: '2000000002422'
+  product_type: basin_tap
+  uniclass_pr: Pr_40_20_87_98
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: tap_form
+    value: mono_mixer
+    source: manufacturer_table
+  - name: finish
+    value: brushed_brass
+    source: manufacturer_table
+  - name: waste
+    value: no_waste
+    source: manufacturer_table
+- sku_id: SYN-BT-0006
+  title: Pillar Pair Basin Tap Chrome
+  brand: Aquasynth
+  mpn: AQUBT984-06
+  gtin: '2000000002439'
+  product_type: basin_tap
+  uniclass_pr: Pr_40_20_87_98
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: tap_form
+    value: pillar_pair
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+  - name: waste
+    value: with_waste
+    source: manufacturer_table
+- sku_id: SYN-TW-0001
+  title: Chrome Ladder Towel Rail 500 x 800mm central heating
+  brand: Heatsynth
+  mpn: HEATW178-01
+  gtin: '2000000002446'
+  product_type: towel_rail
+  uniclass_pr: Pr_40_20_76_90
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: width
+    value: '500'
+    unit: mm
+    source: manufacturer_table
+  - name: height
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: fuel
+    value: central_heating
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-TW-0002
+  title: White Ladder Towel Rail 500 x 800mm central heating
+  brand: Heatsynth
+  mpn: HEATW527-02
+  gtin: '2000000002453'
+  product_type: towel_rail
+  uniclass_pr: Pr_40_20_76_90
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: width
+    value: '500'
+    unit: mm
+    source: manufacturer_table
+  - name: height
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: fuel
+    value: central_heating
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TW-0003
+  title: Chrome Ladder Towel Rail 500 x 800mm electric
+  brand: Heatsynth
+  mpn: HEATW368-03
+  gtin: '2000000002460'
+  product_type: towel_rail
+  uniclass_pr: Pr_40_20_76_90
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: width
+    value: '500'
+    unit: mm
+    source: manufacturer_table
+  - name: height
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: fuel
+    value: electric
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-TW-0004
+  title: Chrome Ladder Towel Rail 600 x 1200mm central heating
+  brand: Heatsynth
+  mpn: HEATW500-04
+  gtin: '2000000002477'
+  product_type: towel_rail
+  uniclass_pr: Pr_40_20_76_90
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: height
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: fuel
+    value: central_heating
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-TW-0005
+  title: Chrome Ladder Towel Rail 500 x 1200mm central heating
+  brand: Heatsynth
+  mpn: HEATW131-05
+  gtin: '2000000002484'
+  product_type: towel_rail
+  uniclass_pr: Pr_40_20_76_90
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: width
+    value: '500'
+    unit: mm
+    source: manufacturer_table
+  - name: height
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: fuel
+    value: central_heating
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-TW-0006
+  title: Chrome Ladder Towel Rail 500 x 800mm dual fuel
+  brand: Heatsynth
+  mpn: HEATW629-06
+  gtin: '2000000002491'
+  product_type: towel_rail
+  uniclass_pr: Pr_40_20_76_90
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: width
+    value: '500'
+    unit: mm
+    source: manufacturer_table
+  - name: height
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: fuel
+    value: dual_fuel
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-TW-0007
+  title: Anthracite Ladder Towel Rail 600 x 800mm central heating
+  brand: Heatsynth
+  mpn: HEATW812-07
+  gtin: '2000000002507'
+  product_type: towel_rail
+  uniclass_pr: Pr_40_20_76_90
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: height
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: fuel
+    value: central_heating
+    source: manufacturer_table
+  - name: finish
+    value: anthracite
+    source: manufacturer_table
+- sku_id: SYN-TW-0008
+  title: Chrome Ladder Towel Rail 400 x 800mm central heating
+  brand: Heatsynth
+  mpn: HEATW265-08
+  gtin: '2000000002514'
+  product_type: towel_rail
+  uniclass_pr: Pr_40_20_76_90
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: width
+    value: '400'
+    unit: mm
+    source: manufacturer_table
+  - name: height
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: fuel
+    value: central_heating
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+- sku_id: SYN-EF-0001
+  title: 100mm Timer Extractor Fan MAINS
+  brand: Ventsynth
+  mpn: VENEF376-01
+  gtin: '2000000002521'
+  product_type: extractor_fan
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: duct_diameter
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: control
+    value: timer
+    source: manufacturer_table
+  - name: supply
+    value: mains
+    source: manufacturer_table
+  - name: flow
+    value: '54.0'
+    unit: m3/h
+    source: manufacturer_table
+- sku_id: SYN-EF-0002
+  title: 100mm Humidistat Timer Extractor Fan MAINS
+  brand: Ventsynth
+  mpn: VENEF612-02
+  gtin: '2000000002538'
+  product_type: extractor_fan
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: duct_diameter
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: control
+    value: humidistat_timer
+    source: manufacturer_table
+  - name: supply
+    value: mains
+    source: manufacturer_table
+  - name: flow
+    value: '15'
+    unit: l/s
+    source: manufacturer_table
+- sku_id: SYN-EF-0003
+  title: 100mm Basic Extractor Fan MAINS
+  brand: Ventsynth
+  mpn: VENEF248-03
+  gtin: '2000000002545'
+  product_type: extractor_fan
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: duct_diameter
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: control
+    value: basic
+    source: manufacturer_table
+  - name: supply
+    value: mains
+    source: manufacturer_table
+  - name: flow
+    value: '54.0'
+    unit: m3/h
+    source: manufacturer_table
+- sku_id: SYN-EF-0004
+  title: 150mm Timer Extractor Fan MAINS
+  brand: Ventsynth
+  mpn: VENEF617-04
+  gtin: '2000000002552'
+  product_type: extractor_fan
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: duct_diameter
+    value: '150'
+    unit: mm
+    source: manufacturer_table
+  - name: control
+    value: timer
+    source: manufacturer_table
+  - name: supply
+    value: mains
+    source: manufacturer_table
+  - name: flow
+    value: '30'
+    unit: l/s
+    source: manufacturer_table
+- sku_id: SYN-EF-0005
+  title: 100mm Timer Extractor Fan SELV
+  brand: Ventsynth
+  mpn: VENEF245-05
+  gtin: '2000000002569'
+  product_type: extractor_fan
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: duct_diameter
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: control
+    value: timer
+    source: manufacturer_table
+  - name: supply
+    value: selv
+    source: manufacturer_table
+  - name: flow
+    value: '54.0'
+    unit: m3/h
+    source: manufacturer_table
+- sku_id: SYN-EF-0006
+  title: 100mm Pull Cord Extractor Fan MAINS
+  brand: Ventsynth
+  mpn: VENEF337-06
+  gtin: '2000000002576'
+  product_type: extractor_fan
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: duct_diameter
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: control
+    value: pull_cord
+    source: manufacturer_table
+  - name: supply
+    value: mains
+    source: manufacturer_table
+  - name: flow
+    value: '15'
+    unit: l/s
+    source: manufacturer_table
+- sku_id: SYN-DU-0001
+  title: 100mm Rigid Duct 1000mm
+  brand: Ventsynth
+  mpn: VENDU690-01
+  gtin: '2000000002583'
+  product_type: duct
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: duct_form
+    value: rigid
+    source: manufacturer_table
+  - name: length
+    value: '1000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-DU-0002
+  title: 100mm Rigid Duct 1500mm
+  brand: Ventsynth
+  mpn: VENDU965-02
+  gtin: '2000000002590'
+  product_type: duct
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: duct_form
+    value: rigid
+    source: manufacturer_table
+  - name: length
+    value: '1500'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-DU-0003
+  title: 100mm Flexible Duct 3000mm
+  brand: Ventsynth
+  mpn: VENDU272-03
+  gtin: '2000000002606'
+  product_type: duct
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: duct_form
+    value: flexible
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-DU-0004
+  title: 150mm Rigid Duct 1000mm
+  brand: Ventsynth
+  mpn: VENDU578-04
+  gtin: '2000000002613'
+  product_type: duct
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '150'
+    unit: mm
+    source: manufacturer_table
+  - name: duct_form
+    value: rigid
+    source: manufacturer_table
+  - name: length
+    value: '1000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-DU-0005
+  title: 100mm Insulated Duct 3000mm
+  brand: Ventsynth
+  mpn: VENDU370-05
+  gtin: '2000000002620'
+  product_type: duct
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: diameter
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: duct_form
+    value: insulated
+    source: manufacturer_table
+  - name: length
+    value: '3000'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-DL-0001
+  title: LED Downlight IP65 Fire Rated 5W Pack of 1
+  brand: Lumisynth
+  mpn: LUMDL344-01
+  gtin: '2000000002637'
+  product_type: downlight
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: ip_rating
+    value: ip65
+    source: manufacturer_table
+  - name: fire_rating
+    value: fire_rated
+    source: manufacturer_table
+  - name: wattage
+    value: '5'
+    unit: w
+    source: manufacturer_table
+  - name: colour_temp
+    value: warm_white
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DL-0002
+  title: LED Downlight IP65 Fire Rated 5W Pack of 4
+  brand: Lumisynth
+  mpn: LUMDL583-02
+  gtin: '2000000002644'
+  product_type: downlight
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 4
+  uom: each
+  active: true
+  attributes:
+  - name: ip_rating
+    value: ip65
+    source: manufacturer_table
+  - name: fire_rating
+    value: fire_rated
+    source: manufacturer_table
+  - name: wattage
+    value: '5'
+    unit: w
+    source: manufacturer_table
+  - name: colour_temp
+    value: warm_white
+    source: manufacturer_table
+  - name: pack_qty
+    value: '4'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DL-0003
+  title: LED Downlight IP44 Fire Rated 5W Pack of 1
+  brand: Lumisynth
+  mpn: LUMDL351-03
+  gtin: '2000000002651'
+  product_type: downlight
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: ip_rating
+    value: ip44
+    source: manufacturer_table
+  - name: fire_rating
+    value: fire_rated
+    source: manufacturer_table
+  - name: wattage
+    value: '5'
+    unit: w
+    source: manufacturer_table
+  - name: colour_temp
+    value: warm_white
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DL-0004
+  title: LED Downlight IP65 5W Pack of 1
+  brand: Lumisynth
+  mpn: LUMDL693-04
+  gtin: '2000000002668'
+  product_type: downlight
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: ip_rating
+    value: ip65
+    source: manufacturer_table
+  - name: fire_rating
+    value: not_rated
+    source: manufacturer_table
+  - name: wattage
+    value: '5'
+    unit: w
+    source: manufacturer_table
+  - name: colour_temp
+    value: warm_white
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DL-0005
+  title: LED Downlight IP67 Fire Rated 6W Pack of 1
+  brand: Lumisynth
+  mpn: LUMDL328-05
+  gtin: '2000000002675'
+  product_type: downlight
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: ip_rating
+    value: ip67
+    source: manufacturer_table
+  - name: fire_rating
+    value: fire_rated
+    source: manufacturer_table
+  - name: wattage
+    value: '6'
+    unit: w
+    source: manufacturer_table
+  - name: colour_temp
+    value: warm_white
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-DL-0006
+  title: LED Downlight IP65 Fire Rated 7W Pack of 1
+  brand: Lumisynth
+  mpn: LUMDL538-06
+  gtin: '2000000002682'
+  product_type: downlight
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: ip_rating
+    value: ip65
+    source: manufacturer_table
+  - name: fire_rating
+    value: fire_rated
+    source: manufacturer_table
+  - name: wattage
+    value: '7'
+    unit: w
+    source: manufacturer_table
+  - name: colour_temp
+    value: warm_white
+    source: manufacturer_table
+  - name: pack_qty
+    value: '1'
+    unit: nr
+    source: manufacturer_table
+- sku_id: SYN-SH-0001
+  title: Dual Voltage Shaver Socket Chrome two gang
+  brand: Lumisynth
+  mpn: LUMSH488-01
+  gtin: '2000000002699'
+  product_type: shaver_socket
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+  - name: gang
+    value: two_gang
+    source: manufacturer_table
+- sku_id: SYN-SH-0002
+  title: Dual Voltage Shaver Socket White two gang
+  brand: Lumisynth
+  mpn: LUMSH225-02
+  gtin: '2000000002705'
+  product_type: shaver_socket
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: white
+    source: manufacturer_table
+  - name: gang
+    value: two_gang
+    source: manufacturer_table
+- sku_id: SYN-SH-0003
+  title: Dual Voltage Shaver Socket Black two gang
+  brand: Lumisynth
+  mpn: LUMSH101-03
+  gtin: '2000000002712'
+  product_type: shaver_socket
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: black
+    source: manufacturer_table
+  - name: gang
+    value: two_gang
+    source: manufacturer_table
+- sku_id: SYN-SH-0004
+  title: Dual Voltage Shaver Socket Chrome one gang
+  brand: Lumisynth
+  mpn: LUMSH574-04
+  gtin: '2000000002729'
+  product_type: shaver_socket
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+  - name: gang
+    value: one_gang
+    source: manufacturer_table
+- sku_id: SYN-MI-0001
+  title: LED Illuminated Bathroom Mirror 600 x 800mm
+  brand: Lumisynth
+  mpn: LUMMI213-01
+  gtin: '2000000002736'
+  product_type: mirror
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: height
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: illumination
+    value: led
+    source: manufacturer_table
+- sku_id: SYN-MI-0002
+  title: Plain Bathroom Mirror 500 x 700mm
+  brand: Lumisynth
+  mpn: LUMMI765-02
+  gtin: '2000000002743'
+  product_type: mirror
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: width
+    value: '500'
+    unit: mm
+    source: manufacturer_table
+  - name: height
+    value: '700'
+    unit: mm
+    source: manufacturer_table
+  - name: illumination
+    value: plain
+    source: manufacturer_table
+- sku_id: SYN-MI-0003
+  title: LED Illuminated Bathroom Mirror 390 x 500mm
+  brand: Lumisynth
+  mpn: LUMMI561-03
+  gtin: '2000000002750'
+  product_type: mirror
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: width
+    value: '390'
+    unit: mm
+    source: manufacturer_table
+  - name: height
+    value: '500'
+    unit: mm
+    source: manufacturer_table
+  - name: illumination
+    value: led
+    source: manufacturer_table
+- sku_id: SYN-MI-0004
+  title: Plain Bathroom Mirror 600 x 800mm
+  brand: Lumisynth
+  mpn: LUMMI977-04
+  gtin: '2000000002767'
+  product_type: mirror
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: height
+    value: '800'
+    unit: mm
+    source: manufacturer_table
+  - name: illumination
+    value: plain
+    source: manufacturer_table
+- sku_id: SYN-UF-0001
+  title: Electric Underfloor Heating Mat 150W/m2 1m2
+  brand: Heatsynth
+  mpn: HEAUF257-01
+  gtin: '2000000002774'
+  product_type: ufh_mat
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: output
+    value: '150'
+    unit: w/m2
+    source: manufacturer_table
+  - name: area
+    value: '1'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-UF-0002
+  title: Electric Underfloor Heating Mat 150W/m2 2m2
+  brand: Heatsynth
+  mpn: HEAUF826-02
+  gtin: '2000000002781'
+  product_type: ufh_mat
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: output
+    value: '150'
+    unit: w/m2
+    source: manufacturer_table
+  - name: area
+    value: '2'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-UF-0003
+  title: Electric Underfloor Heating Mat 150W/m2 3m2
+  brand: Heatsynth
+  mpn: HEAUF885-03
+  gtin: '2000000002798'
+  product_type: ufh_mat
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: output
+    value: '150'
+    unit: w/m2
+    source: manufacturer_table
+  - name: area
+    value: '3'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-UF-0004
+  title: Electric Underfloor Heating Mat 150W/m2 4m2
+  brand: Heatsynth
+  mpn: HEAUF185-04
+  gtin: '2000000002804'
+  product_type: ufh_mat
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: output
+    value: '150'
+    unit: w/m2
+    source: manufacturer_table
+  - name: area
+    value: '4'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-UF-0005
+  title: Electric Underfloor Heating Mat 100W/m2 2m2
+  brand: Heatsynth
+  mpn: HEAUF422-05
+  gtin: '2000000002811'
+  product_type: ufh_mat
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: output
+    value: '100'
+    unit: w/m2
+    source: manufacturer_table
+  - name: area
+    value: '2'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-UF-0006
+  title: Electric Underfloor Heating Mat 200W/m2 2m2
+  brand: Heatsynth
+  mpn: HEAUF840-06
+  gtin: '2000000002828'
+  product_type: ufh_mat
+  uniclass_pr: null
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: output
+    value: '200'
+    unit: w/m2
+    source: manufacturer_table
+  - name: area
+    value: '2'
+    unit: m2
+    source: manufacturer_table
+- sku_id: SYN-TT-0001
+  title: Round Edge Upvc Tile Trim White 10mm 2.5m
+  brand: TileSynth Pro
+  mpn: TILTT506-01
+  gtin: '2000000002835'
+  product_type: trim
+  uniclass_pr: Pr_35_93_96_12
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: round_edge
+    source: manufacturer_table
+  - name: material
+    value: upvc
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+  - name: depth
+    value: '10'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2500'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TT-0002
+  title: Round Edge Upvc Tile Trim White 8mm 2.5m
+  brand: TileSynth Pro
+  mpn: TILTT644-02
+  gtin: '2000000002842'
+  product_type: trim
+  uniclass_pr: Pr_35_93_96_12
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: round_edge
+    source: manufacturer_table
+  - name: material
+    value: upvc
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+  - name: depth
+    value: '8'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2500'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TT-0003
+  title: Round Edge Upvc Tile Trim White 12mm 2.5m
+  brand: TileSynth Pro
+  mpn: TILTT100-03
+  gtin: '2000000002859'
+  product_type: trim
+  uniclass_pr: Pr_35_93_96_12
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: round_edge
+    source: manufacturer_table
+  - name: material
+    value: upvc
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+  - name: depth
+    value: '12'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2500'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TT-0004
+  title: Straight Edge Aluminium Tile Trim Chrome 10mm 2.5m
+  brand: TileSynth Pro
+  mpn: TILTT144-04
+  gtin: '2000000002866'
+  product_type: trim
+  uniclass_pr: Pr_35_93_96_12
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: straight_edge
+    source: manufacturer_table
+  - name: material
+    value: aluminium
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+  - name: depth
+    value: '10'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2500'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TT-0005
+  title: Straight Edge Aluminium Tile Trim Brushed 10mm 2.5m
+  brand: TileSynth Pro
+  mpn: TILTT311-05
+  gtin: '2000000002873'
+  product_type: trim
+  uniclass_pr: Pr_35_93_96_12
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: straight_edge
+    source: manufacturer_table
+  - name: material
+    value: aluminium
+    source: manufacturer_table
+  - name: finish
+    value: brushed
+    source: manufacturer_table
+  - name: depth
+    value: '10'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2500'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TT-0006
+  title: Straight Edge Upvc Tile Trim White 10mm 2.5m
+  brand: TileSynth Pro
+  mpn: TILTT805-06
+  gtin: '2000000002880'
+  product_type: trim
+  uniclass_pr: Pr_35_93_96_12
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: straight_edge
+    source: manufacturer_table
+  - name: material
+    value: upvc
+    source: manufacturer_table
+  - name: finish
+    value: white
+    source: manufacturer_table
+  - name: depth
+    value: '10'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2500'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TT-0007
+  title: Round Edge Aluminium Tile Trim Chrome 10mm 2.5m
+  brand: TileSynth Pro
+  mpn: TILTT339-07
+  gtin: '2000000002897'
+  product_type: trim
+  uniclass_pr: Pr_35_93_96_12
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: round_edge
+    source: manufacturer_table
+  - name: material
+    value: aluminium
+    source: manufacturer_table
+  - name: finish
+    value: chrome
+    source: manufacturer_table
+  - name: depth
+    value: '10'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2500'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TT-0008
+  title: Straight Edge Stainless Tile Trim Brushed 8mm 2.5m
+  brand: TileSynth Pro
+  mpn: TILTT694-08
+  gtin: '2000000002903'
+  product_type: trim
+  uniclass_pr: Pr_35_93_96_12
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: profile
+    value: straight_edge
+    source: manufacturer_table
+  - name: material
+    value: stainless
+    source: manufacturer_table
+  - name: finish
+    value: brushed
+    source: manufacturer_table
+  - name: depth
+    value: '8'
+    unit: mm
+    source: manufacturer_table
+  - name: length
+    value: '2500'
+    unit: mm
+    source: manufacturer_table
+- sku_id: SYN-TL-0001
+  title: Ceramic Wall Tile 600 x 300mm Gloss
+  brand: Tilesynth Studio
+  mpn: TILTL177-01
+  gtin: '2000000002910'
+  product_type: tile
+  uniclass_pr: Pr_35_93_96_19
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: ceramic
+    source: manufacturer_table
+  - name: length
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '300'
+    unit: mm
+    source: manufacturer_table
+  - name: use
+    value: wall
+    source: manufacturer_table
+  - name: surface
+    value: gloss
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TL-0002
+  title: Ceramic Wall Tile 600 x 300mm Matt
+  brand: Tilesynth Studio
+  mpn: TILTL303-02
+  gtin: '2000000002927'
+  product_type: tile
+  uniclass_pr: Pr_35_93_96_19
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: ceramic
+    source: manufacturer_table
+  - name: length
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '300'
+    unit: mm
+    source: manufacturer_table
+  - name: use
+    value: wall
+    source: manufacturer_table
+  - name: surface
+    value: matt
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TL-0003
+  title: Porcelain Wall And Floor Tile 600 x 300mm Matt
+  brand: Tilesynth Studio
+  mpn: TILTL640-03
+  gtin: '2000000002934'
+  product_type: tile
+  uniclass_pr: Pr_35_93_96_63
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: porcelain
+    source: manufacturer_table
+  - name: length
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '300'
+    unit: mm
+    source: manufacturer_table
+  - name: use
+    value: wall_and_floor
+    source: manufacturer_table
+  - name: surface
+    value: matt
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TL-0004
+  title: Porcelain Floor Tile 600 x 600mm Matt
+  brand: Tilesynth Studio
+  mpn: TILTL253-04
+  gtin: '2000000002941'
+  product_type: tile
+  uniclass_pr: Pr_35_93_96_63
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: porcelain
+    source: manufacturer_table
+  - name: length
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: use
+    value: floor
+    source: manufacturer_table
+  - name: surface
+    value: matt
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TL-0005
+  title: Ceramic Wall Tile 200 x 100mm Gloss
+  brand: Tilesynth Studio
+  mpn: TILTL784-05
+  gtin: '2000000002958'
+  product_type: tile
+  uniclass_pr: Pr_35_93_96_19
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: ceramic
+    source: manufacturer_table
+  - name: length
+    value: '200'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '100'
+    unit: mm
+    source: manufacturer_table
+  - name: use
+    value: wall
+    source: manufacturer_table
+  - name: surface
+    value: gloss
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TL-0006
+  title: Porcelain Floor Tile 300 x 300mm Matt
+  brand: Tilesynth Studio
+  mpn: TILTL473-06
+  gtin: '2000000002965'
+  product_type: tile
+  uniclass_pr: Pr_35_93_96_63
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: porcelain
+    source: manufacturer_table
+  - name: length
+    value: '300'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '300'
+    unit: mm
+    source: manufacturer_table
+  - name: use
+    value: floor
+    source: manufacturer_table
+  - name: surface
+    value: matt
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TL-0007
+  title: Ceramic Wall Tile 400 x 250mm Gloss
+  brand: Tilesynth Studio
+  mpn: TILTL548-07
+  gtin: '2000000002972'
+  product_type: tile
+  uniclass_pr: Pr_35_93_96_19
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: ceramic
+    source: manufacturer_table
+  - name: length
+    value: '400'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '250'
+    unit: mm
+    source: manufacturer_table
+  - name: use
+    value: wall
+    source: manufacturer_table
+  - name: surface
+    value: gloss
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table
+- sku_id: SYN-TL-0008
+  title: Porcelain Wall And Floor Tile 1200 x 600mm Matt
+  brand: Tilesynth Studio
+  mpn: TILTL854-08
+  gtin: '2000000002989'
+  product_type: tile
+  uniclass_pr: Pr_35_93_96_63
+  etim_class: null
+  pack_size: 1
+  uom: each
+  active: true
+  attributes:
+  - name: material
+    value: porcelain
+    source: manufacturer_table
+  - name: length
+    value: '1200'
+    unit: mm
+    source: manufacturer_table
+  - name: width
+    value: '600'
+    unit: mm
+    source: manufacturer_table
+  - name: use
+    value: wall_and_floor
+    source: manufacturer_table
+  - name: surface
+    value: matt
+    source: manufacturer_table
+  - name: colour
+    value: white
+    source: manufacturer_table

@@ -77,6 +77,10 @@ TEMPLATES: dict[str, str] = {
     "tie_break": "Offers {winner_id} and {other_id} tie on cost; the {criterion} rule decides.",
     "indicative_range": "Indicative only, not a quote: {low} to {high} {currency} per {unit} "
                         "({basis}) from {count} search snapshot(s).",
+    "basket_exact": "Basket solved exactly over {components} independent group(s) of lines.",
+    "basket_heuristic": "Basket solved by greedy search with local improvement for {lines} "
+                        "line(s) (exact search limit {limit} lines per group); the true optimum "
+                        "is at most {gap} {currency} lower.",
     "no_offers": "No offers were found for the approved SKUs of line {line_id}.",
     "no_eligible_offer": "Offers exist for line {line_id} but none is eligible; see the excluded "
                          "offers.",
