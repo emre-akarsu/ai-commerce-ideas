@@ -10,6 +10,13 @@ reviewer_decisions}, and `<out>/index.json` listing every combination with its h
 * `price_book` is `price-books-ui/1` (components.pricebook), built from the quote AFTER review
   (the state a person would be looking at), so coverage and gaps reflect the approvals.
 * `quote_first` and `quote_after_review` are `quote-draft-ui/1` (components.quoting).
+* `quote_options` is `quote-options-ui/1` (components.quoting `quote_options`), built from the
+  quote AFTER review with the demo buyer inputs recorded in `options_inputs`: a SYNTHETIC
+  preferred-supplier list (the tenant's own private price files, first two in manifest order) and,
+  for ONE scope per tenant (`REFERENCE_SCOPE`), an invented budget, required-by date and delivery
+  cap, so the balanced option can appear. The other scopes carry no references, so the export says
+  why there is no balanced option. The options compare prices the customer holds; they are not a
+  market-wide best price, and nothing is chosen, sent or ordered.
 * `reviewer_decisions` lists the SYNTHETIC decisions applied to the review queue: those of the
   quoting demo (profiles/data/quoting/demo_reviewer_decisions.json) wherever their kit line is in
   the queue, plus the invented extras in profiles/data/pricebook/reviewer_decisions_extra.json.
@@ -26,7 +33,8 @@ import argparse
 import json
 import sys
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -57,11 +65,14 @@ from components.pricebook import (  # noqa: E402
 from components.pricing import InMemoryOfferStore, PricingConfig  # noqa: E402
 from components.quoting import (  # noqa: E402
     QuoteResult,
+    OptionsConfig,
     QuotingContext,
     approve_match,
     build_quote,
     order_lines_from_kit,
     quote_draft_ui,
+    quote_options,
+    quote_options_ui,
 )
 from components.quoting.export import dumps  # noqa: E402
 from components.quoting.loading import load_price_files, specs_from_manifest  # noqa: E402
@@ -75,6 +86,16 @@ TENANTS = ("demo-tenant-a", "demo-tenant-b")
 SCOPES = ("full", "wc_only", "cloakroom", "wet_room")
 LABEL = ("SYNTHETIC/ILLUSTRATIVE DEMO DATA: fictional merchants, invented prices and invented "
          "reviewer decisions; not real prices, not a supplier quote; nothing is sent or ordered")
+# SYNTHETIC buyer inputs for the quote options (invented; a real buyer would supply their own).
+# Only the scope named here gets a budget, a required-by date and a delivery cap, so the balanced
+# option appears for it; every other scope has no buyer reference and shows why there is none.
+REFERENCE_SCOPE = {"demo-tenant-a": "cloakroom", "demo-tenant-b": "cloakroom"}
+DEMO_REFERENCES = {  # tenant -> (budget_total on the ex-VAT basis, required_by, max_deliveries)
+    "demo-tenant-a": (Decimal("490"), date(2026, 10, 10), 3),
+    "demo-tenant-b": (Decimal("240"), date(2026, 10, 10), 1),
+}
+INPUTS_LABEL = ("SYNTHETIC demo buyer inputs: an invented preferred-supplier list and, for one "
+                "scope per customer, an invented budget, required-by date and delivery cap")
 BUYERS = {  # invented buyers for the request drafts
     "demo-tenant-a": ("Alex Example", "Example Bathrooms Ltd (fictional)"),
     "demo-tenant-b": ("Sam Sample", "Sample Fitters Ltd (fictional)"),
@@ -166,6 +187,35 @@ def request_context(world: World, tenant: str) -> RequestContext:
     return RequestContext(buyer_name=name, buyer_company=company, account_references=refs)
 
 
+def demo_preferred(world: World, tenant: str) -> list[str]:
+    """A SYNTHETIC preferred-supplier list: the tenant's first two private price files, in
+    manifest order (the same rule as scripts/demo_quote.py)."""
+    own = [f["merchant_id"] for f in world.manifest["files"] if f.get("tenant_id") == tenant]
+    return list(dict.fromkeys(own))[:2]
+
+
+def options_inputs(world: World, tenant: str, scope: str) -> dict[str, Any]:
+    """The demo buyer inputs used for the options of one combination, as plain JSON."""
+    out: dict[str, Any] = {
+        "label": INPUTS_LABEL, "synthetic": True,
+        "preferred_merchants": demo_preferred(world, tenant),
+        "budget_total": None, "budget_vat_basis": None, "required_by": None,
+        "max_deliveries": None, "has_references": False}
+    if REFERENCE_SCOPE.get(tenant) == scope:
+        budget, required_by, cap = DEMO_REFERENCES[tenant]
+        out.update(budget_total=str(budget), budget_vat_basis=world.pricing.compare_basis,
+                   required_by=required_by.isoformat(), max_deliveries=cap, has_references=True)
+    return out
+
+
+def options_config(inputs: dict[str, Any]) -> OptionsConfig:
+    if not inputs["has_references"]:
+        return OptionsConfig()
+    return OptionsConfig(budget_total=Decimal(inputs["budget_total"]),
+                         required_by=date.fromisoformat(inputs["required_by"]),
+                         max_deliveries=inputs["max_deliveries"])
+
+
 def export_combination(world: World, tenant: str, scope: str) -> dict[str, Any]:
     ctx, imports = fresh_context(world)
     spec = world.library.scope(f"bathroom_{scope}")
@@ -178,6 +228,9 @@ def export_combination(world: World, tenant: str, scope: str) -> dict[str, Any]:
                             quote=after, imports=imports)
     drafts = draft_requests(world.template, book.merchants, request_context(world, tenant))
     first_doc = quote_draft_ui(first)
+    inputs = options_inputs(world, tenant, scope)
+    options = quote_options(after, ctx.pricing, ctx.clock, preferred=inputs["preferred_merchants"],
+                            config=options_config(inputs))
     return {
         "meta": {
             "format": "quote-data-bundle/1", "label": LABEL, "synthetic": True,
@@ -191,6 +244,8 @@ def export_combination(world: World, tenant: str, scope: str) -> dict[str, Any]:
         "quote_first": first_doc,
         "quote_after_review": quote_draft_ui(after) if applied else first_doc,
         "reviewer_decisions": applied,
+        "quote_options": quote_options_ui(options),
+        "options_inputs": inputs,
     }
 
 
@@ -203,6 +258,26 @@ def headline(doc: dict[str, Any]) -> dict[str, Any]:
             "currency": t["currency"]}
 
 
+def options_headline(doc: dict[str, Any]) -> dict[str, Any]:
+    opts = doc["options"]
+    totals = [(Decimal(o["totals"]["total_ex_tax"]), o["totals"]["total_inc_tax"]) for o in opts]
+    low = min(totals) if totals else None
+    high = max(totals) if totals else None
+    return {
+        "options_shown": len(opts), "option_ids": [o["option_id"] for o in opts],
+        "duplicates": len(doc["duplicates"]),
+        "lowest_total_ex_vat": str(low[0]) if low else None,
+        "lowest_total_inc_vat": low[1] if low else None,
+        "highest_total_ex_vat": str(high[0]) if high else None,
+        "balanced_shown": any(o["option_id"] == "balanced" for o in opts),
+        "balanced_status": doc["config"]["balanced"]["status"],
+        "exact": doc["optimiser"]["exact"],
+        "search_incomplete": doc["optimiser"]["search_incomplete"],
+        "excluded_lines": len(doc["excluded_lines"]),
+        "indicative_lines": len(doc["indicative_block"]["lines"]),
+    }
+
+
 def index_entry(tenant: str, scope: str, bundle: dict[str, Any]) -> dict[str, Any]:
     book = bundle["price_book"]
     return {
@@ -211,6 +286,8 @@ def index_entry(tenant: str, scope: str, bundle: dict[str, Any]) -> dict[str, An
         "reviewer_decisions": len(bundle["reviewer_decisions"]),
         "first": headline(bundle["quote_first"]),
         "after_review": headline(bundle["quote_after_review"]),
+        "options": options_headline(bundle["quote_options"])
+        | {"has_buyer_references": bundle["options_inputs"]["has_references"]},
         "price_book": {k: book["freshness_summary"][k] for k in
                        ("current", "stale", "missing", "indicative_only")}
         | {"gaps": len(book["gaps"])},

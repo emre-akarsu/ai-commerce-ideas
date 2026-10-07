@@ -10,17 +10,19 @@ Both screens always show "Synthetic demo data: fictional merchants and prices", 
 | --- | --- |
 | `lib/quote/schema.ts` | Tolerant reader `readQuote` for `quote-draft-ui/1`. Hand-written. |
 | `lib/quote/pricebook.ts` | Tolerant reader `readPriceBook` for `price-books-ui/1`. |
-| `lib/quote/bundle.ts` | Reads one data file `{meta, price_book, quote_first, quote_after_review, reviewer_decisions[]}`. |
+| `lib/quote/bundle.ts` | Reads one data file `{meta, price_book, quote_first, quote_after_review, reviewer_decisions[], quote_options, options_inputs}` (the last two are optional: an older file shows "no options"). |
+| `lib/quote/options.ts` | Tolerant reader `readOptions` for `quote-options-ui/1` and `readOptionsInputs` for the demo buyer inputs. Hand-written. |
+| `lib/quote/options-calc.ts` | Plain-language helpers: VAT-basis labels, flag texts, lead-time text with the unknown marker, difference text, balanced weight rows, optimiser notes, excluded-line text. No arithmetic on money beyond the sign of a difference. |
 | `lib/quote/read-util.ts`, `types.ts` | Shared reader helpers and the normalized model. |
 | `lib/quote/calc.ts` | Exact decimal helpers (on `lib/kits/decimal.ts`), partition, checks, grouping, stage picker, sorting, filtering, dates. |
 | `lib/quote/catalog.ts` | Customers, scopes, kit scope id to file name map, `loadBundle(tenant, scope)`. No fixture fallback: a pair with no data says so. |
 | `lib/quote/generated.ts` | Written by `scripts/sync-quote-data.mjs`. Do not edit. |
 | `lib/quote/prefs.ts`, `example.ts` | Remembered customer and scope (sessionStorage, guarded); the static import-report example. |
-| `components/quote/` | `quote-app.tsx`, `lines.tsx` (sections), `price-books-app.tsx`, `common.tsx`. |
+| `components/quote/` | `quote-app.tsx`, `lines.tsx` (sections), `options.tsx` (Options section), `price-books-app.tsx`, `common.tsx`. |
 | `scripts/sync-quote-data.mjs` | `npm run sync-quote-data` (`-- --check` fails when stale). |
-| `tests/quote-reader.test.ts`, `tests/quote-calc.test.ts`, `tests/quote-generated.test.ts` | Readers and helpers on fixtures; every generated customer and scope read, partition and arithmetic checked. |
-| `tests/fixtures/` (unit tests only; the screens never use them) | `quote-draft-ui-v1-frozen.json` (copy of `tests/quoting/fixtures/quote_draft_ui_v1_frozen.json`), `quote-draft-ui-v1-rich*.json` (hand-made, schema-valid), `price-books-ui-v1.json`, `quote-bundle-v1.json`. |
-| `e2e/quote.mjs` | Browser run: both screens, 1280 / 390 / 360 px, light and dark. Saves `docs/mvp/screenshots/quote-*.png` and `price-books-*.png`. |
+| `tests/quote-reader.test.ts`, `tests/quote-calc.test.ts`, `tests/quote-generated.test.ts`, `tests/quote-options.test.ts` | Readers and helpers on fixtures; every generated customer and scope read, partition and arithmetic checked. |
+| `tests/fixtures/` (unit tests only; the screens never use them) | `quote-draft-ui-v1-frozen.json` (copy of `tests/quoting/fixtures/quote_draft_ui_v1_frozen.json`), `quote-draft-ui-v1-rich*.json` (hand-made, schema-valid), `price-books-ui-v1.json`, `quote-bundle-v1.json`, `quote-options-ui-v1-frozen.json` (copy of `tests/quoting/fixtures/quote_options_ui_v1_frozen.json`). |
+| `e2e/quote.mjs` | Browser run: both screens, 1280 / 390 / 360 px, light and dark. Also the Options section on both customers and several scopes. Saves `docs/mvp/screenshots/quote-*.png` and `price-books-*.png`. |
 
 ## Data source
 
@@ -30,7 +32,7 @@ Shapes confirmed against the real files: `meta` has `tenant_id`, `scope_id`, `sc
 
 ## Readers
 
-- `format` is `quote-draft-ui/<major>[.<minor>]` or `price-books-ui/<major>[.<minor>]`. Only major 1 is read. Another major shows "Unsupported ... format" naming what can be read. A missing or foreign `format` is also a clear error. Nothing is guessed.
+- `format` is `quote-draft-ui/<major>[.<minor>]`, `price-books-ui/<major>[.<minor>]` or `quote-options-ui/<major>[.<minor>]`. Only major 1 is read. Another major shows "Unsupported ... format" naming what can be read. A missing or foreign `format` is also a clear error. Nothing is guessed.
 - Unknown fields are ignored and listed once per kind in a "notes from the reader" disclosure. Missing or `null` optional fields get defaults (empty lists, `none`, unknown fee). A missing `totals`, `partition` or `firm_lines` refuses the quote.
 - Decimals stay strings. A JSON number where a decimal string is expected is **not** accepted (it could be a float); it becomes `0.00` with a note.
 - An unknown enum value (unit, status, no-offer status, skip reason) is shown as text. An unknown merchant status shows as "Missing (raw value)".
@@ -46,6 +48,22 @@ Scope picker (full bathroom, WC only, cloakroom, wet room), customer picker (lab
 - **Firm lines by merchant:** quantity, packs, unit price, line total, flags, and a "Why this price" expander with the templated reason codes and assumptions, other offers kept out, next best offers and provenance (source, observed, valid until, confidence, visibility, match tier, licence, synthetic flag).
 - **Review queue:** the question, the top three candidates with their reasons and scores, and Choose buttons. Choosing only changes local state on this page; the line stays out of the totals and the page says so. Switching stage, customer or scope clears the choices.
 - **Indicative lines:** dashed boxes, always "indicative, not a quote", never in the totals. **Unmatched** (services, no product) and **No-offer** (stale, VAT unknown, expired) lines show the export's reasons. Skipped kit lines and the freshness summary follow.
+
+### Options (multi-supplier comparison)
+
+An "Options" section sits above the line lists. It reads `quote_options` (`quote-options-ui/1`, `docs/architecture/quote-options.md`) and `options_inputs` from the data file, both written by `scripts/export_demo_data.py` (`docs/architecture/pricebook.md` section 8.1). Both are built from the quote **after** the invented reviews, so under "First quote" the section says so and the totals above it differ; under "After my reviews" the lowest-total option equals the totals card.
+
+- **Cards** in the export's fixed order (lowest total cost, fewest deliveries, fastest, preferred suppliers, balanced when present). The order is stated as not being a recommendation. An option that equals another is one card; the others appear as "Fewest deliveries: same as Lowest total cost" lines (customer B has one merchant with private prices, so all its options collapse into one card).
+- **Each card** shows total ex VAT and total inc VAT, each as "GBP n.nn ex VAT" / "inc VAT"; the difference against the lowest total with its basis (or "Same total as the lowest total"); suppliers; deliveries (one per supplier order); latest lead time with a marker "some lead times unknown" and the count of lines that state none (the number is then "n days or more"); the balanced score when there is one ("0 is best", with its rank only among the shown options); flags in plain language (a closed vocabulary, unknown ones shown as text); the export's templated trade-off sentences, unchanged; an expander "By supplier: goods and delivery" with goods and delivery per supplier and the totals line; and **Select this option**.
+- **Select this option** only sets local state on the page (toggle). A panel says "Nothing is ordered and nothing is sent", that the choice is forgotten when customer, job or stage changes, and what a real flow would do (requests drafted per supplier for a person to approve; only an approved message can be sent, by the send service). It does not write anything and records no event (R1, R6).
+- **Balanced option panel**: when computed, the weights (50/25/15/10, labelled unsourced placeholders) each with the buyer input it depends on (budget, required-by date, delivery limit, preferred list), and the inputs used, labelled invented. When not computed, the reason: the buyer gave no budget, date or delivery limit and the app does not invent one. Only one scope per customer (the cloakroom) has references in the demo data.
+- **Optimiser note**: when the lowest total could not be proven (heuristic basket search) or a subset search stopped at its limit, a note says so in plain words, including that an option may show a lower total than the one called lowest. This is the case for every scope except the small WC-only quote of customer A and all of customer B.
+- **Lines in no option** (expander, with counts per bucket) and an **indicative block** apart from every option, each line labelled "indicative, not a quote" with its range and its VAT basis. Indicative prices are in no option and no total.
+- The section never claims a market-wide best price: the intro says the options compare the prices this customer holds.
+
+Screenshots (`docs/mvp/screenshots/`, `desktop`, `desktop-dark`, `mobile`, `mobile-dark`): `quote-<mode>-7-options-a-cloakroom.png` (balanced option, unproven lowest total), `-7-options-a-full.png` (no balanced option), `-7-options-b-cloakroom.png` (all options the same), `-8-options-selected.png` (demo-only next step), `-9-options-balanced.png` (weights, inputs, lines in no option, indicative block).
+
+Reader rules are those above: unknown fields ignored and noted, null or missing optional fields defaulted, other major versions refused with a message, money kept as strings (a JSON number is refused), a missing `quote_options` shows "This data file has no options".
 
 ## Price books screen
 
@@ -73,4 +91,6 @@ From `apps/web`: `npm run lint`, `npm run typecheck`, `npm test`. Browser run: `
 - A few unmatched line texts are about 200 characters; they wrap, nothing overflows at 360 px.
 - "Build quote" on the kit wizard summary only opens `/quote` with the kit's scope pre-selected; it does not carry the wizard's answers, so the quote is the pre-generated one for that scope, not for the person's edited kit.
 - No endpoint backs these screens. Request, upload, RFQ and choose are demonstrations (R1, R6); wiring them means the existing request and approval workflow.
+- The options come from the after-review quote and the demo buyer inputs; there is no UI to change the budget, date, delivery limit or preferred list, and selecting an option records nothing. The balanced weights are unsourced placeholders and cannot be edited here.
+- On the generated data the optimiser is exact only for customer A's WC-only quote and for customer B; elsewhere an option can be cheaper than the one called lowest total (shown as such, never hidden).
 - Prices shown in the fixtures are invented and say nothing about real prices, merchants or savings.

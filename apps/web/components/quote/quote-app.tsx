@@ -9,6 +9,7 @@ import { loadBundle } from "@/lib/quote/catalog";
 import { appliedDecisions, barShares, checkQuote, groupByMerchant, partitionRows, partitionTotal, quoteForStage, type PartitionRow, type Stage } from "@/lib/quote/calc";
 import type { Quote } from "@/lib/quote/types";
 import { DataNotes, ReadError, ScopePicker, SyntheticBanner, TenantPicker, useSelection } from "./common";
+import { OptionsSection } from "./options";
 import { DecisionsPanel, FirmSection, FreshnessCard, IndicativeSection, NoOfferSection, ReviewSection, SkippedSection, TotalsCard, UnmatchedSection } from "./lines";
 
 const TONE_BG: Record<PartitionRow["tone"], string> = { ok: "bg-ok", accent: "bg-accent", warn: "bg-warn", mute: "bg-strong", bad: "bg-bad" };
@@ -71,6 +72,7 @@ function QuoteBody({ quote, bundle, stage, chosen, choose }: { quote: Quote; bun
   }, [bundle]);
   const groups = useMemo(() => groupByMerchant(quote), [quote]);
   const checks = useMemo(() => checkQuote(quote), [quote]);
+  const optionsQuote = bundle.quoteAfter.ok ? bundle.quoteAfter.quote : quote;
   const decisions = useMemo(() => (bundle.quoteFirst.ok && bundle.quoteAfter.ok ? appliedDecisions(bundle.quoteFirst.quote, bundle.quoteAfter.quote, bundle.decisions) : []), [bundle]);
   return (
     <div className="space-y-6" data-stage-shown={stage}>
@@ -78,6 +80,7 @@ function QuoteBody({ quote, bundle, stage, chosen, choose }: { quote: Quote; bun
       <TotalsCard q={quote} names={names} groups={groups} checks={checks} />
       <PartitionBar q={quote} />
       {stage === "after" && <DecisionsPanel rows={decisions} />}
+      <OptionsSection key={`${bundle.meta.tenantId}/${bundle.meta.scopeId}/${stage}`} options={bundle.options} inputs={bundle.optionsInputs} quote={optionsQuote} names={names} stage={stage} />
       <FirmSection groups={groups} names={names} currency={quote.currency} />
       <ReviewSection items={quote.review} chosen={chosen} onChoose={choose} />
       <IndicativeSection items={quote.indicative} names={names} currency={quote.currency} />

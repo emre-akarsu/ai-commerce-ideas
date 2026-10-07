@@ -34,6 +34,26 @@
         "firm_total_inc_vat": "1578.47",
         "currency": "GBP"
       },
+      "options": {
+        "options_shown": 4,
+        "option_ids": [
+          "cheapest",
+          "fewest_deliveries",
+          "fastest",
+          "preferred"
+        ],
+        "duplicates": 0,
+        "lowest_total_ex_vat": "1315.39",
+        "lowest_total_inc_vat": "1578.47",
+        "highest_total_ex_vat": "1378.43",
+        "balanced_shown": false,
+        "balanced_status": "not_computed",
+        "exact": false,
+        "search_incomplete": false,
+        "excluded_lines": 43,
+        "indicative_lines": 10,
+        "has_buyer_references": false
+      },
       "price_book": {
         "current": 5,
         "stale": 0,
@@ -71,6 +91,24 @@
         "firm_total_ex_vat": "175.59",
         "firm_total_inc_vat": "210.71",
         "currency": "GBP"
+      },
+      "options": {
+        "options_shown": 2,
+        "option_ids": [
+          "cheapest",
+          "preferred"
+        ],
+        "duplicates": 2,
+        "lowest_total_ex_vat": "175.59",
+        "lowest_total_inc_vat": "210.71",
+        "highest_total_ex_vat": "183.63",
+        "balanced_shown": false,
+        "balanced_status": "not_computed",
+        "exact": true,
+        "search_incomplete": false,
+        "excluded_lines": 17,
+        "indicative_lines": 3,
+        "has_buyer_references": false
       },
       "price_book": {
         "current": 5,
@@ -110,6 +148,26 @@
         "firm_total_inc_vat": "580.08",
         "currency": "GBP"
       },
+      "options": {
+        "options_shown": 4,
+        "option_ids": [
+          "cheapest",
+          "fastest",
+          "preferred",
+          "balanced"
+        ],
+        "duplicates": 1,
+        "lowest_total_ex_vat": "483.40",
+        "lowest_total_inc_vat": "580.08",
+        "highest_total_ex_vat": "534.44",
+        "balanced_shown": true,
+        "balanced_status": "computed",
+        "exact": false,
+        "search_incomplete": false,
+        "excluded_lines": 27,
+        "indicative_lines": 7,
+        "has_buyer_references": true
+      },
       "price_book": {
         "current": 5,
         "stale": 0,
@@ -147,6 +205,25 @@
         "firm_total_ex_vat": "676.60",
         "firm_total_inc_vat": "811.92",
         "currency": "GBP"
+      },
+      "options": {
+        "options_shown": 3,
+        "option_ids": [
+          "cheapest",
+          "fastest",
+          "preferred"
+        ],
+        "duplicates": 1,
+        "lowest_total_ex_vat": "676.60",
+        "lowest_total_inc_vat": "811.92",
+        "highest_total_ex_vat": "690.14",
+        "balanced_shown": false,
+        "balanced_status": "not_computed",
+        "exact": false,
+        "search_incomplete": false,
+        "excluded_lines": 47,
+        "indicative_lines": 7,
+        "has_buyer_references": false
       },
       "price_book": {
         "current": 5,
@@ -186,6 +263,23 @@
         "firm_total_inc_vat": "1048.36",
         "currency": "GBP"
       },
+      "options": {
+        "options_shown": 1,
+        "option_ids": [
+          "cheapest"
+        ],
+        "duplicates": 3,
+        "lowest_total_ex_vat": "873.63",
+        "lowest_total_inc_vat": "1048.36",
+        "highest_total_ex_vat": "873.63",
+        "balanced_shown": false,
+        "balanced_status": "not_computed",
+        "exact": true,
+        "search_incomplete": false,
+        "excluded_lines": 61,
+        "indicative_lines": 10,
+        "has_buyer_references": false
+      },
       "price_book": {
         "current": 1,
         "stale": 0,
@@ -223,6 +317,23 @@
         "firm_total_ex_vat": "121.22",
         "firm_total_inc_vat": "145.46",
         "currency": "GBP"
+      },
+      "options": {
+        "options_shown": 1,
+        "option_ids": [
+          "cheapest"
+        ],
+        "duplicates": 3,
+        "lowest_total_ex_vat": "121.22",
+        "lowest_total_inc_vat": "145.46",
+        "highest_total_ex_vat": "121.22",
+        "balanced_shown": false,
+        "balanced_status": "not_computed",
+        "exact": true,
+        "search_incomplete": false,
+        "excluded_lines": 20,
+        "indicative_lines": 3,
+        "has_buyer_references": false
       },
       "price_book": {
         "current": 1,
@@ -262,6 +373,23 @@
         "firm_total_inc_vat": "278.96",
         "currency": "GBP"
       },
+      "options": {
+        "options_shown": 1,
+        "option_ids": [
+          "cheapest"
+        ],
+        "duplicates": 4,
+        "lowest_total_ex_vat": "232.47",
+        "lowest_total_inc_vat": "278.96",
+        "highest_total_ex_vat": "232.47",
+        "balanced_shown": false,
+        "balanced_status": "computed",
+        "exact": true,
+        "search_incomplete": false,
+        "excluded_lines": 41,
+        "indicative_lines": 7,
+        "has_buyer_references": true
+      },
       "price_book": {
         "current": 1,
         "stale": 0,
@@ -299,6 +427,23 @@
         "firm_total_ex_vat": "444.89",
         "firm_total_inc_vat": "533.87",
         "currency": "GBP"
+      },
+      "options": {
+        "options_shown": 1,
+        "option_ids": [
+          "cheapest"
+        ],
+        "duplicates": 3,
+        "lowest_total_ex_vat": "444.89",
+        "lowest_total_inc_vat": "533.87",
+        "highest_total_ex_vat": "444.89",
+        "balanced_shown": false,
+        "balanced_status": "not_computed",
+        "exact": true,
+        "search_incomplete": false,
+        "excluded_lines": 60,
+        "indicative_lines": 7,
+        "has_buyer_references": false
       },
       "price_book": {
         "current": 1,

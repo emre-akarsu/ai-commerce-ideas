@@ -14188,5 +14188,930 @@
       "source": "pricebook demo",
       "label": "synthetic, invented for the demo"
     }
-  ]
+  ],
+  "quote_options": {
+    "format": "quote-options-ui/1",
+    "tenant_id": "demo-tenant-b",
+    "generated_at": "2026-10-07T09:00:00+00:00",
+    "currency": "GBP",
+    "vat": {
+      "basis": "ex_tax",
+      "basis_label": "ex VAT",
+      "rate": "0.20",
+      "statement": "All prices are shown ex VAT unless a figure states otherwise."
+    },
+    "notice": {
+      "code": "not_a_supplier_quote",
+      "text": "This is a comparison of prices observed in the data sources, at the times shown. It is not a quote from any supplier, not an offer that can be accepted and not a reservation of stock. Prices, stock and delivery terms can change, and VAT, delivery and rounding are estimates on the stated basis. Nothing has been sent or ordered.",
+      "label": "not a supplier quote"
+    },
+    "data_labels": {
+      "contains_synthetic_data": true
+    },
+    "config": {
+      "kinds": [
+        "cheapest",
+        "fewest_deliveries",
+        "fastest",
+        "preferred",
+        "balanced"
+      ],
+      "tolerance_pct": "5",
+      "fastest_tolerance_pct": "5",
+      "max_options": 5,
+      "preferred_merchants": [
+        "m-halden"
+      ],
+      "balanced": {
+        "status": "computed",
+        "why_not": null,
+        "weights_status": "unsourced_placeholder",
+        "weights": {
+          "total": "50",
+          "lead_time": "25",
+          "deliveries": "15",
+          "preferred": "10"
+        },
+        "references": {
+          "source": "buyer",
+          "budget_total": "240",
+          "budget_vat_basis": "ex_tax",
+          "required_by": "2026-10-10",
+          "required_by_days": 3,
+          "max_deliveries": 1
+        }
+      }
+    },
+    "optimiser": {
+      "method": "exact_dp",
+      "exact": true,
+      "cheapest_total": "232.47",
+      "vat_basis": "ex_tax",
+      "solver_calls": 4,
+      "search_incomplete": false
+    },
+    "firm_line_ids": [
+      "cs_clear_sealant_wc",
+      "cs_fixings_solid",
+      "cs_sanitary_silicone",
+      "el_light",
+      "sw_basin_waste",
+      "sw_wc_pan_close_coupled",
+      "tl_floor_adhesive",
+      "tl_floor_tiles",
+      "tl_wall_adhesive",
+      "tl_wall_tiles",
+      "vn_fan"
+    ],
+    "options": [
+      {
+        "option_id": "cheapest",
+        "kinds": [
+          "cheapest",
+          "fewest_deliveries",
+          "fastest",
+          "preferred",
+          "balanced"
+        ],
+        "label": "Lowest total cost",
+        "totals": {
+          "currency": "GBP",
+          "vat_basis": "ex_tax",
+          "goods": "232.47",
+          "delivery": "0",
+          "subtotal": "232.47",
+          "tax_rate": "0.20",
+          "tax": "46.49",
+          "total_ex_tax": "232.47",
+          "total_inc_tax": "278.96",
+          "delivery_incomplete": false
+        },
+        "comparison": {
+          "vat_basis": "ex_tax",
+          "extra_vs_cheapest": "0.00",
+          "savings_vs_most_expensive": "0.00"
+        },
+        "merchant_count": 1,
+        "delivery_count": 1,
+        "lead_time": {
+          "latest_days": 5,
+          "complete": false,
+          "per_line": [
+            {
+              "line_id": "cs_clear_sealant_wc",
+              "days": 1
+            },
+            {
+              "line_id": "cs_fixings_solid",
+              "days": null
+            },
+            {
+              "line_id": "cs_sanitary_silicone",
+              "days": 0
+            },
+            {
+              "line_id": "el_light",
+              "days": 2
+            },
+            {
+              "line_id": "sw_basin_waste",
+              "days": 1
+            },
+            {
+              "line_id": "sw_wc_pan_close_coupled",
+              "days": 4
+            },
+            {
+              "line_id": "tl_floor_adhesive",
+              "days": 2
+            },
+            {
+              "line_id": "tl_floor_tiles",
+              "days": 0
+            },
+            {
+              "line_id": "tl_wall_adhesive",
+              "days": 2
+            },
+            {
+              "line_id": "tl_wall_tiles",
+              "days": 5
+            },
+            {
+              "line_id": "vn_fan",
+              "days": 0
+            }
+          ],
+          "unknown_line_ids": [
+            "cs_fixings_solid"
+          ]
+        },
+        "uncovered_line_ids": [],
+        "preferred_line_ids": [
+          "cs_clear_sealant_wc",
+          "cs_fixings_solid",
+          "cs_sanitary_silicone",
+          "el_light",
+          "sw_basin_waste",
+          "sw_wc_pan_close_coupled",
+          "tl_floor_adhesive",
+          "tl_floor_tiles",
+          "tl_wall_adhesive",
+          "tl_wall_tiles",
+          "vn_fan"
+        ],
+        "balanced": {
+          "score": "0.7343",
+          "score_rank": 1
+        },
+        "pareto": {
+          "dominated": false,
+          "dominated_by": []
+        },
+        "flags": [
+          "after_required_date",
+          "indicative_excluded",
+          "lead_time_unknown",
+          "low_stock",
+          "stock_unknown"
+        ],
+        "reasons": [
+          {
+            "code": "total_is_lowest",
+            "text": "Lowest total of all options: 232.47 GBP ex VAT."
+          },
+          {
+            "code": "deliveries_same",
+            "text": "1 delivery(ies), as many as the lowest-total option."
+          },
+          {
+            "code": "lead_unknown",
+            "text": "1 line(s) state no lead time, so the latest lead time is unknown and may be later than shown."
+          },
+          {
+            "code": "preferred_coverage",
+            "text": "11 of 11 line(s) come from your preferred suppliers."
+          },
+          {
+            "code": "balanced_score",
+            "text": "Balanced score 0.7343 (0 is best), measured against your own budget, required-by date and delivery limit; the weights are unsourced placeholders."
+          },
+          {
+            "code": "after_required_date",
+            "text": "Delivery is after your required-by date, or its date is unknown."
+          },
+          {
+            "code": "indicative_excluded",
+            "text": "Indicative prices exist for 7 line(s) and are shown apart; they are in no option."
+          }
+        ],
+        "single_supplier": null,
+        "deliveries": [
+          {
+            "merchant_id": "m-halden",
+            "line_ids": [
+              "cs_clear_sealant_wc",
+              "cs_fixings_solid",
+              "cs_sanitary_silicone",
+              "el_light",
+              "sw_basin_waste",
+              "sw_wc_pan_close_coupled",
+              "tl_floor_adhesive",
+              "tl_floor_tiles",
+              "tl_wall_adhesive",
+              "tl_wall_tiles",
+              "vn_fan"
+            ],
+            "spend": "232.47",
+            "fee": "0.00",
+            "fee_known": true,
+            "vat_basis": "ex_tax"
+          }
+        ],
+        "lines": [
+          {
+            "line_id": "cs_clear_sealant_wc",
+            "description": "Clear sealant at the WC base",
+            "sku_id": "SYN-SI-0006",
+            "offer_id": "synth-halden-account-b:4e9ce2973b4ed0090368",
+            "merchant_id": "m-halden",
+            "packs": 1,
+            "unit_price": "3.7500",
+            "goods": "3.75",
+            "vat_basis": "ex_tax",
+            "lead_time_days": 1,
+            "stock_status": "in_stock",
+            "flags": [],
+            "match": {
+              "tier": "A",
+              "basis": null
+            },
+            "provenance": {
+              "offer_id": "synth-halden-account-b:4e9ce2973b4ed0090368",
+              "source_id": "synth-halden-account-b",
+              "source_kind": "trade_feed",
+              "method": "file_row",
+              "synthetic": true,
+              "licence": "tenant-supplied-synthetic",
+              "source_ref": "halden_account_tenant_b.csv#row=77",
+              "observed_at": "2026-10-05T08:00:00+00:00",
+              "valid_until": "2026-11-05T00:00:00+00:00",
+              "confidence": "0.90",
+              "visibility": "tenant_private"
+            }
+          },
+          {
+            "line_id": "cs_fixings_solid",
+            "description": "Fixings for wall-mounted fittings in solid walls",
+            "sku_id": "SYN-WP-0003",
+            "offer_id": "synth-halden-account-b:0df4ec17c1014f9699ce",
+            "merchant_id": "m-halden",
+            "packs": 1,
+            "unit_price": "0.0347",
+            "goods": "1.73",
+            "vat_basis": "ex_tax",
+            "lead_time_days": null,
+            "stock_status": "unknown",
+            "flags": [
+              "lead_time_unknown",
+              "stock_unknown"
+            ],
+            "match": {
+              "tier": "A",
+              "basis": null
+            },
+            "provenance": {
+              "offer_id": "synth-halden-account-b:0df4ec17c1014f9699ce",
+              "source_id": "synth-halden-account-b",
+              "source_kind": "trade_feed",
+              "method": "file_row",
+              "synthetic": true,
+              "licence": "tenant-supplied-synthetic",
+              "source_ref": "halden_account_tenant_b.csv#row=117",
+              "observed_at": "2026-10-05T08:00:00+00:00",
+              "valid_until": "2026-11-05T00:00:00+00:00",
+              "confidence": "0.90",
+              "visibility": "tenant_private"
+            }
+          },
+          {
+            "line_id": "cs_sanitary_silicone",
+            "description": "Sanitary silicone sealant",
+            "sku_id": "SYN-SI-0003",
+            "offer_id": "synth-halden-account-b:7bf2be1256fba8070bcb",
+            "merchant_id": "m-halden",
+            "packs": 1,
+            "unit_price": "3.9100",
+            "goods": "3.91",
+            "vat_basis": "ex_tax",
+            "lead_time_days": 0,
+            "stock_status": "in_stock",
+            "flags": [],
+            "match": {
+              "tier": "A",
+              "basis": "rule_match"
+            },
+            "provenance": {
+              "offer_id": "synth-halden-account-b:7bf2be1256fba8070bcb",
+              "source_id": "synth-halden-account-b",
+              "source_kind": "trade_feed",
+              "method": "file_row",
+              "synthetic": true,
+              "licence": "tenant-supplied-synthetic",
+              "source_ref": "halden_account_tenant_b.csv#row=75",
+              "observed_at": "2026-10-05T08:00:00+00:00",
+              "valid_until": "2026-11-05T00:00:00+00:00",
+              "confidence": "0.90",
+              "visibility": "tenant_private"
+            }
+          },
+          {
+            "line_id": "el_light",
+            "description": "Bathroom ceiling light",
+            "sku_id": "SYN-DL-0006",
+            "offer_id": "synth-halden-account-b:17932ba524bbb2e1f83f",
+            "merchant_id": "m-halden",
+            "packs": 1,
+            "unit_price": "4.4680",
+            "goods": "22.34",
+            "vat_basis": "ex_tax",
+            "lead_time_days": 2,
+            "stock_status": "in_stock",
+            "flags": [],
+            "match": {
+              "tier": "A",
+              "basis": null
+            },
+            "provenance": {
+              "offer_id": "synth-halden-account-b:17932ba524bbb2e1f83f",
+              "source_id": "synth-halden-account-b",
+              "source_kind": "trade_feed",
+              "method": "file_row",
+              "synthetic": true,
+              "licence": "tenant-supplied-synthetic",
+              "source_ref": "halden_account_tenant_b.csv#row=20",
+              "observed_at": "2026-10-05T08:00:00+00:00",
+              "valid_until": "2026-11-05T00:00:00+00:00",
+              "confidence": "0.90",
+              "visibility": "tenant_private"
+            }
+          },
+          {
+            "line_id": "sw_basin_waste",
+            "description": "Basin waste with plug",
+            "sku_id": "SYN-BW-0003",
+            "offer_id": "synth-halden-account-b:40a40cace36c1639e4c1",
+            "merchant_id": "m-halden",
+            "packs": 1,
+            "unit_price": "6.2400",
+            "goods": "6.24",
+            "vat_basis": "ex_tax",
+            "lead_time_days": 1,
+            "stock_status": "in_stock",
+            "flags": [],
+            "match": {
+              "tier": "A",
+              "basis": null
+            },
+            "provenance": {
+              "offer_id": "synth-halden-account-b:40a40cace36c1639e4c1",
+              "source_id": "synth-halden-account-b",
+              "source_kind": "trade_feed",
+              "method": "file_row",
+              "synthetic": true,
+              "licence": "tenant-supplied-synthetic",
+              "source_ref": "halden_account_tenant_b.csv#row=14",
+              "observed_at": "2026-10-05T08:00:00+00:00",
+              "valid_until": "2026-11-05T00:00:00+00:00",
+              "confidence": "0.90",
+              "visibility": "tenant_private"
+            }
+          },
+          {
+            "line_id": "sw_wc_pan_close_coupled",
+            "description": "Close-coupled WC pan",
+            "sku_id": "SYN-WC-0001",
+            "offer_id": "synth-halden-account-b:abcec22c1542f15ad119",
+            "merchant_id": "m-halden",
+            "packs": 1,
+            "unit_price": "96.8300",
+            "goods": "96.83",
+            "vat_basis": "ex_tax",
+            "lead_time_days": 4,
+            "stock_status": "low_stock",
+            "flags": [
+              "low_stock"
+            ],
+            "match": {
+              "tier": "A",
+              "basis": "rule_match"
+            },
+            "provenance": {
+              "offer_id": "synth-halden-account-b:abcec22c1542f15ad119",
+              "source_id": "synth-halden-account-b",
+              "source_kind": "trade_feed",
+              "method": "file_row",
+              "synthetic": true,
+              "licence": "tenant-supplied-synthetic",
+              "source_ref": "halden_account_tenant_b.csv#row=111",
+              "observed_at": "2026-10-05T08:00:00+00:00",
+              "valid_until": "2026-11-05T00:00:00+00:00",
+              "confidence": "0.90",
+              "visibility": "tenant_private"
+            }
+          },
+          {
+            "line_id": "tl_floor_adhesive",
+            "description": "Floor tile adhesive",
+            "sku_id": "SYN-AD-0005",
+            "offer_id": "synth-halden-account-b:479c104c36c652e4d3ff",
+            "merchant_id": "m-halden",
+            "packs": 1,
+            "unit_price": "0.7185",
+            "goods": "14.37",
+            "vat_basis": "ex_tax",
+            "lead_time_days": 2,
+            "stock_status": "in_stock",
+            "flags": [],
+            "match": {
+              "tier": "A",
+              "basis": null
+            },
+            "provenance": {
+              "offer_id": "synth-halden-account-b:479c104c36c652e4d3ff",
+              "source_id": "synth-halden-account-b",
+              "source_kind": "trade_feed",
+              "method": "file_row",
+              "synthetic": true,
+              "licence": "tenant-supplied-synthetic",
+              "source_ref": "halden_account_tenant_b.csv#row=1",
+              "observed_at": "2026-10-05T08:00:00+00:00",
+              "valid_until": "2026-11-05T00:00:00+00:00",
+              "confidence": "0.90",
+              "visibility": "tenant_private"
+            }
+          },
+          {
+            "line_id": "tl_floor_tiles",
+            "description": "Floor tiles",
+            "sku_id": "SYN-TL-0004",
+            "offer_id": "synth-halden-account-b:cee4c16d1bb329cc7421",
+            "merchant_id": "m-halden",
+            "packs": 1,
+            "unit_price": "13.6167",
+            "goods": "39.22",
+            "vat_basis": "ex_tax",
+            "lead_time_days": 0,
+            "stock_status": "in_stock",
+            "flags": [],
+            "match": {
+              "tier": "A",
+              "basis": "rule_match"
+            },
+            "provenance": {
+              "offer_id": "synth-halden-account-b:cee4c16d1bb329cc7421",
+              "source_id": "synth-halden-account-b",
+              "source_kind": "trade_feed",
+              "method": "file_row",
+              "synthetic": true,
+              "licence": "tenant-supplied-synthetic",
+              "source_ref": "halden_account_tenant_b.csv#row=91",
+              "observed_at": "2026-10-05T08:00:00+00:00",
+              "valid_until": "2026-11-05T00:00:00+00:00",
+              "confidence": "0.90",
+              "visibility": "tenant_private"
+            }
+          },
+          {
+            "line_id": "tl_wall_adhesive",
+            "description": "Wall tile adhesive",
+            "sku_id": "SYN-AD-0005",
+            "offer_id": "synth-halden-account-b:479c104c36c652e4d3ff",
+            "merchant_id": "m-halden",
+            "packs": 1,
+            "unit_price": "0.7185",
+            "goods": "14.37",
+            "vat_basis": "ex_tax",
+            "lead_time_days": 2,
+            "stock_status": "in_stock",
+            "flags": [],
+            "match": {
+              "tier": "A",
+              "basis": null
+            },
+            "provenance": {
+              "offer_id": "synth-halden-account-b:479c104c36c652e4d3ff",
+              "source_id": "synth-halden-account-b",
+              "source_kind": "trade_feed",
+              "method": "file_row",
+              "synthetic": true,
+              "licence": "tenant-supplied-synthetic",
+              "source_ref": "halden_account_tenant_b.csv#row=1",
+              "observed_at": "2026-10-05T08:00:00+00:00",
+              "valid_until": "2026-11-05T00:00:00+00:00",
+              "confidence": "0.90",
+              "visibility": "tenant_private"
+            }
+          },
+          {
+            "line_id": "tl_wall_tiles",
+            "description": "Wall tiles",
+            "sku_id": "SYN-TL-0002",
+            "offer_id": "synth-halden-account-b:60a48de058ce2c888a5f",
+            "merchant_id": "m-halden",
+            "packs": 2,
+            "unit_price": "15.8083",
+            "goods": "5.69",
+            "vat_basis": "ex_tax",
+            "lead_time_days": 5,
+            "stock_status": "low_stock",
+            "flags": [
+              "low_stock"
+            ],
+            "match": {
+              "tier": "A",
+              "basis": null
+            },
+            "provenance": {
+              "offer_id": "synth-halden-account-b:60a48de058ce2c888a5f",
+              "source_id": "synth-halden-account-b",
+              "source_kind": "trade_feed",
+              "method": "file_row",
+              "synthetic": true,
+              "licence": "tenant-supplied-synthetic",
+              "source_ref": "halden_account_tenant_b.csv#row=89",
+              "observed_at": "2026-10-06T08:00:00+00:00",
+              "valid_until": "2026-11-05T00:00:00+00:00",
+              "confidence": "0.90",
+              "visibility": "tenant_private"
+            }
+          },
+          {
+            "line_id": "vn_fan",
+            "description": "Extractor fan with run-on timer",
+            "sku_id": "SYN-EF-0002",
+            "offer_id": "synth-halden-account-b:b04ed06e468e113759d6",
+            "merchant_id": "m-halden",
+            "packs": 1,
+            "unit_price": "24.0200",
+            "goods": "24.02",
+            "vat_basis": "ex_tax",
+            "lead_time_days": 0,
+            "stock_status": "in_stock",
+            "flags": [],
+            "match": {
+              "tier": "A",
+              "basis": null
+            },
+            "provenance": {
+              "offer_id": "synth-halden-account-b:b04ed06e468e113759d6",
+              "source_id": "synth-halden-account-b",
+              "source_kind": "trade_feed",
+              "method": "file_row",
+              "synthetic": true,
+              "licence": "tenant-supplied-synthetic",
+              "source_ref": "halden_account_tenant_b.csv#row=30",
+              "observed_at": "2026-10-05T08:00:00+00:00",
+              "valid_until": "2026-11-05T00:00:00+00:00",
+              "confidence": "0.90",
+              "visibility": "tenant_private"
+            }
+          }
+        ]
+      }
+    ],
+    "duplicates": [
+      {
+        "kind": "fewest_deliveries",
+        "same_as": "cheapest",
+        "reason": {
+          "code": "same_as",
+          "text": "Same as Lowest total cost."
+        }
+      },
+      {
+        "kind": "fastest",
+        "same_as": "cheapest",
+        "reason": {
+          "code": "same_as",
+          "text": "Same as Lowest total cost."
+        }
+      },
+      {
+        "kind": "preferred",
+        "same_as": "cheapest",
+        "reason": {
+          "code": "same_as",
+          "text": "Same as Lowest total cost."
+        }
+      },
+      {
+        "kind": "balanced",
+        "same_as": "cheapest",
+        "reason": {
+          "code": "same_as",
+          "text": "Same as Lowest total cost."
+        }
+      }
+    ],
+    "not_shown": [],
+    "pareto": {
+      "axes": [
+        "total",
+        "latest_lead_time",
+        "merchants"
+      ],
+      "front": [
+        "cheapest"
+      ],
+      "dominated": []
+    },
+    "excluded_lines": [
+      {
+        "line_id": "cs_plumbing_sundries",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "cs_thread_sealant",
+        "bucket": "no_eligible_offer"
+      },
+      {
+        "line_id": "cs_wc_packers",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "dc_emulsion",
+        "bucket": "review"
+      },
+      {
+        "line_id": "dc_filler",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "dc_sundries",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "dc_woodwork_paint",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "el_fan_cable",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "el_fan_isolator",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "ff_fittings_compression",
+        "bucket": "review"
+      },
+      {
+        "line_id": "ff_iv_basin",
+        "bucket": "indicative_only"
+      },
+      {
+        "line_id": "ff_iv_wc",
+        "bucket": "indicative_only"
+      },
+      {
+        "line_id": "ff_pipe_15",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "ff_pipe_clips",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "ff_waste_32",
+        "bucket": "no_eligible_offer"
+      },
+      {
+        "line_id": "ff_waste_fittings",
+        "bucket": "review"
+      },
+      {
+        "line_id": "fl_levelling",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "fl_overlay",
+        "bucket": "review"
+      },
+      {
+        "line_id": "so_cap_feeds",
+        "bucket": "no_offers"
+      },
+      {
+        "line_id": "so_protection",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "so_remove_fittings",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "sw_basin_pedestal",
+        "bucket": "no_offers"
+      },
+      {
+        "line_id": "sw_basin_taps",
+        "bucket": "no_eligible_offer"
+      },
+      {
+        "line_id": "sw_basin_trap",
+        "bucket": "no_eligible_offer"
+      },
+      {
+        "line_id": "sw_tap_connectors",
+        "bucket": "indicative_only"
+      },
+      {
+        "line_id": "sw_wc_cistern",
+        "bucket": "review"
+      },
+      {
+        "line_id": "sw_wc_flush_lever",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "sw_wc_pan_connector",
+        "bucket": "no_eligible_offer"
+      },
+      {
+        "line_id": "sw_wc_seat",
+        "bucket": "review"
+      },
+      {
+        "line_id": "tl_floor_grout",
+        "bucket": "no_eligible_offer"
+      },
+      {
+        "line_id": "tl_spacers",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "tl_trim",
+        "bucket": "no_eligible_offer"
+      },
+      {
+        "line_id": "tl_wall_grout",
+        "bucket": "no_eligible_offer"
+      },
+      {
+        "line_id": "tl_wall_primer",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "vn_condensation_trap",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "vn_duct",
+        "bucket": "no_eligible_offer"
+      },
+      {
+        "line_id": "vn_duct_fixings",
+        "bucket": "review"
+      },
+      {
+        "line_id": "vn_overrun_commissioning",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "vn_wall_or_roof_terminal",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "ws_disposal",
+        "bucket": "unmatched"
+      },
+      {
+        "line_id": "ws_rubble_sacks",
+        "bucket": "unmatched"
+      }
+    ],
+    "indicative_block": {
+      "label": "indicative, not a quote",
+      "note": "Indicative prices are in no option and in no total.",
+      "lines": [
+        {
+          "line_id": "cs_fixings_solid",
+          "description": "Fixings for wall-mounted fittings in solid walls",
+          "label": "indicative, not a quote",
+          "low": "0.0526",
+          "high": "0.0526",
+          "unit": "each",
+          "currency": "GBP",
+          "vat_basis": "ex_tax",
+          "count": 1,
+          "oldest_observed_at": "2026-10-06T08:00:00+00:00",
+          "newest_observed_at": "2026-10-06T08:00:00+00:00",
+          "price": null
+        },
+        {
+          "line_id": "cs_sanitary_silicone",
+          "description": "Sanitary silicone sealant",
+          "label": "indicative, not a quote",
+          "low": "4.9140",
+          "high": "4.9140",
+          "unit": "each",
+          "currency": "GBP",
+          "vat_basis": "ex_tax",
+          "count": 1,
+          "oldest_observed_at": "2026-10-06T08:00:00+00:00",
+          "newest_observed_at": "2026-10-06T08:00:00+00:00",
+          "price": null
+        },
+        {
+          "line_id": "ff_iv_basin",
+          "description": "Isolating valves on the basin feed(s)",
+          "label": "indicative, not a quote",
+          "low": "5.0683",
+          "high": "5.0683",
+          "unit": "each",
+          "currency": "GBP",
+          "vat_basis": "ex_tax",
+          "count": 1,
+          "oldest_observed_at": "2026-10-06T08:00:00+00:00",
+          "newest_observed_at": "2026-10-06T08:00:00+00:00",
+          "price": null
+        },
+        {
+          "line_id": "ff_iv_wc",
+          "description": "Isolating valves on the WC cistern feed(s)",
+          "label": "indicative, not a quote",
+          "low": "5.0683",
+          "high": "5.0683",
+          "unit": "each",
+          "currency": "GBP",
+          "vat_basis": "ex_tax",
+          "count": 1,
+          "oldest_observed_at": "2026-10-06T08:00:00+00:00",
+          "newest_observed_at": "2026-10-06T08:00:00+00:00",
+          "price": null
+        },
+        {
+          "line_id": "sw_tap_connectors",
+          "description": "Flexible tap connectors",
+          "label": "indicative, not a quote",
+          "low": "4.3083",
+          "high": "4.3083",
+          "unit": "each",
+          "currency": "GBP",
+          "vat_basis": "ex_tax",
+          "count": 1,
+          "oldest_observed_at": "2026-10-06T08:00:00+00:00",
+          "newest_observed_at": "2026-10-06T08:00:00+00:00",
+          "price": null
+        },
+        {
+          "line_id": "sw_wc_pan_close_coupled",
+          "description": "Close-coupled WC pan",
+          "label": "indicative, not a quote",
+          "low": "140.6500",
+          "high": "140.6500",
+          "unit": "each",
+          "currency": "GBP",
+          "vat_basis": "ex_tax",
+          "count": 1,
+          "oldest_observed_at": "2026-10-06T08:00:00+00:00",
+          "newest_observed_at": "2026-10-06T08:00:00+00:00",
+          "price": null
+        },
+        {
+          "line_id": "tl_floor_tiles",
+          "description": "Floor tiles",
+          "label": "indicative, not a quote",
+          "low": "19.4167",
+          "high": "19.4167",
+          "unit": "m2",
+          "currency": "GBP",
+          "vat_basis": "ex_tax",
+          "count": 1,
+          "oldest_observed_at": "2026-10-06T08:00:00+00:00",
+          "newest_observed_at": "2026-10-06T08:00:00+00:00",
+          "price": null
+        }
+      ]
+    },
+    "notes": [],
+    "schema_changes": [
+      "quote-options-ui/1 is the first version.",
+      "Evolution is additive only: a later version adds optional fields, never renames, removes or re-types one, and never changes the meaning of a value. A reader must ignore keys it does not know and must not fail on a new value of a documented enum it can show as text. A reader never computes money from this export."
+    ]
+  },
+  "options_inputs": {
+    "label": "SYNTHETIC demo buyer inputs: an invented preferred-supplier list and, for one scope per customer, an invented budget, required-by date and delivery cap",
+    "synthetic": true,
+    "preferred_merchants": [
+      "m-halden"
+    ],
+    "budget_total": "240",
+    "budget_vat_basis": "ex_tax",
+    "required_by": "2026-10-10",
+    "max_deliveries": 1,
+    "has_references": true
+  }
 }

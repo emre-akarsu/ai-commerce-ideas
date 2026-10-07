@@ -7,6 +7,7 @@ import dataclasses
 import importlib.util
 import json
 import sys
+from decimal import Decimal
 from typing import Any
 
 import pytest
@@ -18,6 +19,7 @@ from .conftest import DATA, ROOT, TENANT_A, TENANT_B, read_json
 SCRIPT = ROOT / "scripts" / "export_demo_data.py"
 QUOTE_SCHEMA = read_json(ROOT / "profiles" / "data" / "quoting" / "quote-draft-ui.schema.json")
 BOOK_SCHEMA = read_json(DATA / "price-books-ui.schema.json")
+OPTIONS_SCHEMA = read_json(ROOT / "profiles" / "data" / "quoting" / "quote-options-ui.schema.json")
 SCOPES = ("full", "wc_only", "cloakroom", "wet_room")
 OUT = ROOT / "apps" / "web" / "lib" / "quote-data"
 
@@ -48,7 +50,7 @@ def test_one_file_per_tenant_and_scope_plus_an_index(files: dict[str, str]) -> N
     b = bundles(files)
     for (tenant, scope), doc in b.items():
         assert list(doc) == ["meta", "price_book", "quote_first", "quote_after_review",
-                             "reviewer_decisions"]
+                             "reviewer_decisions", "quote_options", "options_inputs"]
         assert doc["meta"]["tenant_id"] == tenant and doc["meta"]["scope_id"] == f"bathroom_{scope}"
         assert doc["price_book"]["tenant_id"] == tenant
         assert doc["quote_first"]["tenant_id"] == doc["quote_after_review"]["tenant_id"] == tenant
@@ -59,6 +61,8 @@ def test_every_document_validates_against_its_schema(files: dict[str, str]) -> N
         validate(doc["price_book"], BOOK_SCHEMA, BOOK_SCHEMA)
         for key in ("quote_first", "quote_after_review"):
             validate(doc[key], QUOTE_SCHEMA, QUOTE_SCHEMA)
+        validate(doc["quote_options"], OPTIONS_SCHEMA, OPTIONS_SCHEMA)
+        assert doc["quote_options"]["format"] == "quote-options-ui/1"
         assert doc["price_book"]["format"] == "price-books-ui/1"
         assert doc["quote_first"]["format"] == doc["quote_after_review"]["format"] == (
             "quote-draft-ui/1")
@@ -215,3 +219,93 @@ def test_with_no_decisions_the_after_review_quote_equals_the_first(demo) -> None
     assert bundle["quote_after_review"] == bundle["quote_first"]
     assert bundle["quote_first"]["partition"]["review"] > 0
     validate(bundle["price_book"], BOOK_SCHEMA, BOOK_SCHEMA)
+
+
+# ---- quote options (quote-options-ui/1) and the demo buyer inputs behind them -----------------
+
+REFERENCE_SCOPE = {TENANT_A: "cloakroom", TENANT_B: "cloakroom"}
+
+
+def test_options_are_built_from_the_after_review_quote(files: dict[str, str]) -> None:
+    for (tenant, scope), doc in bundles(files).items():
+        opts, quote = doc["quote_options"], doc["quote_after_review"]
+        assert opts["tenant_id"] == tenant
+        assert opts["data_labels"]["contains_synthetic_data"] is True
+        assert opts["notice"]["label"] == "not a supplier quote"
+        assert opts["firm_line_ids"] == sorted(x["line_id"] for x in quote["firm_lines"])
+        cheapest = opts["options"][0]
+        assert cheapest["option_id"] == "cheapest"
+        assert cheapest["totals"]["total_ex_tax"] == quote["totals"]["total_ex_tax"], scope
+        assert cheapest["totals"]["total_inc_tax"] == quote["totals"]["total_inc_tax"], scope
+        # every quoted line is in the options or named as excluded; indicative stays apart
+        partition = quote["partition"]
+        assert len(opts["firm_line_ids"]) == partition["priced"]
+        assert len(opts["excluded_lines"]) == sum(partition.values()) - partition["priced"]
+        assert all(i["price"] is None and i["label"] == "indicative, not a quote"
+                   for i in opts["indicative_block"]["lines"])
+
+
+def test_options_inputs_are_synthetic_and_the_balanced_option_needs_references(
+        files: dict[str, str]) -> None:
+    for (tenant, scope), doc in bundles(files).items():
+        inputs, opts = doc["options_inputs"], doc["quote_options"]
+        assert inputs["synthetic"] is True and "SYNTHETIC" in inputs["label"]
+        assert inputs["preferred_merchants"] == opts["config"]["preferred_merchants"]
+        assert inputs["preferred_merchants"], "a demo preferred list is always given"
+        shown = {o["option_id"] for o in opts["options"]}
+        balanced = opts["config"]["balanced"]
+        if REFERENCE_SCOPE[tenant] == scope:
+            assert inputs["has_references"] is True
+            assert inputs["budget_total"] and inputs["required_by"] and inputs["max_deliveries"]
+            assert balanced["status"] == "computed" and balanced["why_not"] is None
+            assert balanced["references"]["budget_total"] == inputs["budget_total"]
+            assert balanced["references"]["required_by"] == inputs["required_by"]
+            assert balanced["references"]["max_deliveries"] == inputs["max_deliveries"]
+            assert any("balanced" in o["kinds"] for o in opts["options"])
+        else:
+            assert inputs["has_references"] is False
+            assert inputs["budget_total"] is inputs["required_by"] is None
+            assert inputs["max_deliveries"] is None
+            assert balanced["status"] == "not_computed" and balanced["why_not"]
+            assert "balanced" not in shown
+            assert {n["reason"]["code"] for n in opts["not_shown"]} == {"no_buyer_references"}
+            assert all(o["balanced"]["score"] is None for o in opts["options"])
+
+
+def test_tenant_a_cloakroom_shows_a_distinct_balanced_option(files: dict[str, str]) -> None:
+    opts = bundles(files)[(TENANT_A, "cloakroom")]["quote_options"]
+    assert [o["option_id"] for o in opts["options"]] == [
+        "cheapest", "fastest", "preferred", "balanced"]
+    assert [d["kind"] for d in opts["duplicates"]] == ["fewest_deliveries"]
+    assert opts["optimiser"]["exact"] is False
+
+
+def test_tenant_b_options_are_duplicates_of_the_one_merchant_basket(files: dict[str, str]) -> None:
+    for scope in SCOPES:
+        opts = bundles(files)[(TENANT_B, scope)]["quote_options"]
+        assert [o["option_id"] for o in opts["options"]] == ["cheapest"]
+        assert opts["options"][0]["merchant_count"] == 1
+        assert {d["same_as"] for d in opts["duplicates"]} == {"cheapest"}
+
+
+def test_options_never_mention_the_other_tenant(files: dict[str, str]) -> None:
+    for (tenant, _), doc in bundles(files).items():
+        text = json.dumps(doc["quote_options"]) + json.dumps(doc["options_inputs"])
+        other = TENANT_B if tenant == TENANT_A else TENANT_A
+        assert other not in text
+
+
+def test_the_index_carries_the_option_headlines(files: dict[str, str]) -> None:
+    index = json.loads(files["index.json"])
+    b = bundles(files)
+    for e in index["combinations"]:
+        doc = b[(e["tenant_id"], e["path"].split("/")[1][:-5])]
+        o, opts = e["options"], doc["quote_options"]["options"]
+        assert o["options_shown"] == len(opts) and o["option_ids"] == [
+            x["option_id"] for x in opts]
+        assert o["lowest_total_ex_vat"] == str(min(
+            Decimal(x["totals"]["total_ex_tax"]) for x in opts))
+        assert o["balanced_shown"] == any(x["option_id"] == "balanced" for x in opts)
+        assert o["has_buyer_references"] == doc["options_inputs"]["has_references"]
+        assert o["search_incomplete"] == doc["quote_options"]["optimiser"]["search_incomplete"]
+        assert o["excluded_lines"] == len(doc["quote_options"]["excluded_lines"])

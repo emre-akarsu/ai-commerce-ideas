@@ -2,6 +2,8 @@
 // lib/quote-data/: every customer and scope, first quote and after reviews, at 1280 px and 390 px (plus 360 px), light and dark.
 // Compares what is on screen with lib/quote-data/index.json (counts, totals, merchant statuses). Checks the synthetic banner, the
 // not-a-quote note, page-level overflow, 40 px targets, focus, "Why this price", demo-only buttons, dialogs and console errors.
+// Also the Options section (multi-supplier comparison): option cards against index.json, VAT basis on every amount, balanced panel,
+// select-this-option (demo only), indicative block apart, overflow with every expander open, both tenants, several scopes.
 // Saves docs/mvp/screenshots/quote-*.png and price-books-*.png.
 // Usage: node e2e/quote.mjs   (WEB_URL, OUT_DIR; QUOTE_PATH=/page.html#/quote PB_PATH=/page.html#/price-books for the demo; SHOTS=0 skips screenshots)
 import { readFileSync } from "node:fs";
@@ -30,6 +32,8 @@ const smallTargets = () => b.ev(`[...document.querySelectorAll('main button, mai
 async function open(path) { await b.go(base + path); await b.sleep(900); if (path.includes("#")) { await b.ev("location.reload()"); await b.sleep(1300); } }
 const top = () => b.ev("window.scrollTo(0,0)");
 const scrollTo = (s) => b.ev(`document.querySelector(${JSON.stringify(s)})?.scrollIntoView({block:'start'})`);
+// below the sticky header, so the section heading is visible in the screenshot
+const scrollBelowHeader = async (s) => { await scrollTo(s); await b.ev(`window.scrollBy(0,-72)`); await b.sleep(150); };
 const partitionNumbers = () => b.ev(`Object.fromEntries([...document.querySelectorAll('[data-count]')].map(e=>[e.dataset.count,Number(e.querySelector('.num').innerText)]))`);
 async function pick(tenant, scope) { await setSelect("[data-tenant]", tenant); await setSelect("[data-scope]", scope); }
 
@@ -43,6 +47,35 @@ async function checkQuote(tag, c, stage) {
   ok(`${tag}: not-a-quote note and banner`, (await has("This is not a supplier quote.")) && (await has("Synthetic demo data: fictional merchants and prices")));
 }
 
+
+// ------------------------------------------------------------- the Options section
+async function checkOptions(tag, c) {
+  const o = c.options;
+  ok(`${tag}: options section present, above the firm lines`, await b.ev(`(()=>{const s=document.querySelector('[data-section=options]');const f=document.querySelector('[data-section=firm]');return !!s&&!!f&&(s.compareDocumentPosition(f)&Node.DOCUMENT_POSITION_FOLLOWING)!==0})()`));
+  ok(`${tag}: ${o.options_shown} option card(s) as in index.json`, (await count("[data-option]")) === o.options_shown, String(await count("[data-option]")));
+  const ids = await b.ev(`[...document.querySelectorAll('[data-option]')].map(e=>e.dataset.option)`);
+  ok(`${tag}: option order is the export's (${o.option_ids.join(", ")})`, JSON.stringify(ids) === JSON.stringify(o.option_ids), JSON.stringify(ids));
+  ok(`${tag}: every card has ex VAT and inc VAT totals with the basis beside each`, await b.ev(`[...document.querySelectorAll('[data-option]')].every(e=>/GBP [0-9,]+\\.[0-9]{2} ex VAT/.test(e.querySelector('[data-option-total=ex]').innerText)&&/GBP [0-9,]+\\.[0-9]{2} inc VAT/.test(e.querySelector('[data-option-total=inc]').innerText))`));
+  ok(`${tag}: every difference names its VAT basis (or says same total)`, await b.ev(`[...document.querySelectorAll('[data-option]')].every(e=>{const t=e.querySelector('[data-option-diff]').innerText;return t.startsWith('Same total')||/ (ex|inc) VAT /.test(t)})`));
+  ok(`${tag}: lowest total shown equals the index (${o.lowest_total_ex_vat} ex VAT)`, await b.ev(`document.querySelector('[data-option]').querySelector('[data-option-total=ex]').innerText.includes(${JSON.stringify(money(o.lowest_total_ex_vat))})`));
+  ok(`${tag}: suppliers, deliveries, lead time, flags, sentences and selector on every card`, await b.ev(`[...document.querySelectorAll('[data-option]')].every(e=>e.querySelector('[data-option-suppliers]')&&e.querySelector('[data-option-deliveries]')&&e.querySelector('[data-option-lead]')&&e.querySelector('[data-option-reasons]')&&e.querySelector('[data-select-option]')&&e.querySelector('[data-option-breakdown]'))`));
+  ok(`${tag}: duplicates are labelled "same as" (${o.duplicates})`, (await count("[data-option-same] li")) === o.duplicates);
+  ok(`${tag}: balanced option ${o.balanced_shown ? "shown" : "not shown"}, panel says ${o.balanced_status}`, ((await count('[data-option="balanced"]')) === 1) === o.balanced_shown && (await b.ev(`document.querySelector('[data-balanced-panel]').dataset.balancedStatus`)) === o.balanced_status);
+  if (o.balanced_status === "computed") ok(`${tag}: balanced weights and the inputs they depend on`, await b.ev(`(()=>{const t=document.querySelector('[data-balanced-weights]').innerText;return t.includes('Total cost')&&t.includes('depends on your budget')&&t.includes('required-by')&&t.includes('limit')&&document.querySelector('[data-balanced-panel]').innerText.includes('unsourced placeholders')})()`));
+  else ok(`${tag}: reason there is no balanced option`, await b.ev(`document.querySelector('[data-balanced-why]').innerText.includes('There is no balanced option')`));
+  ok(`${tag}: optimiser note ${o.exact ? "absent" : "present"} (${o.exact ? "exact" : "not proven"})`, ((await count("[data-options-note]")) > 0) === (!o.exact || o.search_incomplete));
+  ok(`${tag}: lines in no option = ${o.excluded_lines}`, o.excluded_lines === 0 ? !(await sel("[data-options-excluded]")) : await b.ev(`document.querySelector('[data-options-excluded] summary').innerText.includes('(${o.excluded_lines})')`));
+  ok(`${tag}: indicative block ${o.indicative_lines ? "labelled apart" : "absent"}`, o.indicative_lines ? await b.ev(`(()=>{const e=document.querySelector('[data-options-indicative]');return !!e&&e.innerText.includes('indicative, not a quote')&&!e.closest('[data-option]')})()`) : !(await sel("[data-options-indicative]")));
+  ok(`${tag}: not-a-quote and not-a-market-price wording`, await b.ev(`document.querySelector('[data-options-intro]').innerText.includes('not a market-wide best price')`));
+}
+async function selectFlow(tag) {
+  const n = await count("[data-select-option]");
+  await clickSel("[data-select-option]", n - 1);
+  ok(`${tag}: select shows the demo-only next step and says nothing is ordered or sent`, await b.ev(`(()=>{const e=document.querySelector('[data-option-next]');return !!e&&e.innerText.includes('Nothing is ordered and nothing is sent')&&e.innerText.includes('demo only')})()`));
+  ok(`${tag}: selecting does not move the totals`, await b.ev(`document.querySelector('[data-total=inc]').innerText.length>0`));
+  ok(`${tag}: selected card is marked pressed`, (await count('[data-select-option][aria-pressed=true]')) === 1);
+}
+
 // ------------------------------------------------------------- every customer and scope, both stages (desktop and mobile, light)
 for (const [mode, w, h, mobile] of [["desktop", 1280, 900, false], ["mobile", 390, 844, true]]) {
   await b.dark(false); await b.size(w, h, mobile);
@@ -51,6 +84,11 @@ for (const [mode, w, h, mobile] of [["desktop", 1280, 900, false], ["mobile", 39
     await open(quotePath); await pick(c.tenant_id, c.scope_id);
     await checkQuote(`${tag} first`, c, "first");
     ok(`${tag} first: overflow`, await overflow(`${tag} quote first`));
+    await checkOptions(`${tag} options`, c);
+    await b.ev(`document.querySelectorAll('[data-section=options] details').forEach(d=>d.open=true)`); await b.sleep(200);
+    ok(`${tag} options: overflow with every expander open`, await overflow(`${tag} options expanded`));
+    ok(`${tag} options: targets >= 40 px`, (await smallTargets()).length === 0, (await smallTargets()).join(" | "));
+    if (c.tenant_id === A && c.scope_id === "bathroom_cloakroom" || c.tenant_id === B && c.scope_id === "bathroom_full") await selectFlow(`${tag} options`);
     await clickSel('[data-stage="after"]');
     await checkQuote(`${tag} after`, c, "after");
     ok(`${tag} after: decisions panel labelled invented`, (await sel("[data-decisions]")) && (await b.ev(`document.querySelector('[data-decisions]').innerText.includes('invented')`)));
@@ -138,12 +176,27 @@ for (const [mode, w, h, mobile, dark] of modes) {
   // customer B quote
   await open(quotePath); await pick(B, "bathroom_full");
   if (shots && (mode === "desktop" || mode === "mobile")) { await top(); await b.shot(`${out}/quote-${mode}-customer-b.png`); }
+
+  // Options: customer A cloakroom (balanced option, preferred list, unproven lowest total), customer A full (no balanced option), customer B cloakroom (all duplicates)
+  for (const [tenant, scope, name] of [[A, "bathroom_cloakroom", "a-cloakroom"], [A, "bathroom_full", "a-full"], [B, "bathroom_cloakroom", "b-cloakroom"]]) {
+    await open(quotePath); await pick(tenant, scope);
+    const c = combos.find((x) => x.tenant_id === tenant && x.scope_id === scope);
+    await checkOptions(`${mode} options ${name}`, c);
+    ok(`${mode} options ${name}: overflow`, await overflow(`${mode} options ${name}`));
+    if (shots) { await scrollBelowHeader('[data-section="options"]'); await b.shot(`${out}/quote-${mode}-7-options-${name}.png`); }
+    await selectFlow(`${mode} options ${name}`);
+    if (shots && name === "a-cloakroom") { await scrollBelowHeader("[data-option-next]"); await b.shot(`${out}/quote-${mode}-8-options-selected.png`); }
+    await b.ev(`document.querySelectorAll('[data-section=options] details').forEach(d=>d.open=true)`); await b.sleep(250);
+    ok(`${mode} options ${name}: overflow with every expander open`, await overflow(`${mode} options ${name} expanded`));
+    if (shots && name === "a-cloakroom") { await scrollBelowHeader("[data-balanced-panel]"); await b.shot(`${out}/quote-${mode}-9-options-balanced.png`); }
+  }
 }
 // 360 px with everything open
 await b.dark(false); await b.size(360, 740, true);
 await open(pbPath); await pick(B, "bathroom_wet_room"); await clickSel("[data-gaps] [data-limited-toggle]");
 ok("360 price books (B, wet room, all gaps): overflow", await overflow("360 price-books B wet room all gaps"));
 await open(quotePath); await pick(A, "bathroom_wet_room"); await clickSel('[data-stage="after"]');
+ok("360 options (A, wet room, after, all open): present", (await count("[data-option]")) > 0);
 for (const s of ["review", "unmatched"]) await clickSel(`[data-section=${s}] [data-limited-toggle]`);
 await b.ev(`document.querySelectorAll('details').forEach(d=>d.open=true)`); await b.sleep(300);
 ok("360 quote (A, wet room, after, all open): overflow", await overflow("360 quote A wet room after all open"));

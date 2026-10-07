@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // Copies the generated quote data (lib/quote-data/index.json and <tenant>/<scope>.json, each
-// { meta, price_book, quote_first, quote_after_review, reviewer_decisions[] }) into the bundle by writing lib/quote/generated.ts,
+// { meta, price_book, quote_first, quote_after_review, reviewer_decisions[], quote_options, options_inputs }) into the bundle by writing lib/quote/generated.ts,
 // which imports every file statically so `next build` and the single-file demo both include it.
 // lib/quote-data/ is written by the Python side; this script only reads it.
 // Usage: npm run sync-quote-data            (validate and write lib/quote/generated.ts)
 //        npm run sync-quote-data -- --check (exit 1 when generated.ts is stale or a file is malformed)
-// Checks are shallow on purpose (JSON parses, formats start with price-books-ui/ and quote-draft-ui/); the app's tolerant readers
+// Checks are shallow on purpose (JSON parses, formats start with price-books-ui/, quote-draft-ui/ and, when present, quote-options-ui/); the app's tolerant readers
 // do the real reading and show a clear error for anything they cannot read.
 import fs from "node:fs";
 import path from "node:path";
@@ -31,6 +31,7 @@ if (fs.existsSync(src)) {
       if (!fmt(doc.price_book).startsWith("price-books-ui/")) problems.push(`${rel}: price_book.format is "${fmt(doc.price_book)}", expected price-books-ui/<n>`);
       if (!fmt(doc.quote_first).startsWith("quote-draft-ui/")) problems.push(`${rel}: quote_first.format is "${fmt(doc.quote_first)}", expected quote-draft-ui/<n>`);
       if (!fmt(doc.quote_after_review).startsWith("quote-draft-ui/")) problems.push(`${rel}: quote_after_review.format is "${fmt(doc.quote_after_review)}", expected quote-draft-ui/<n>`);
+      if (doc.quote_options !== undefined && doc.quote_options !== null && !fmt(doc.quote_options).startsWith("quote-options-ui/")) problems.push(`${rel}: quote_options.format is "${fmt(doc.quote_options)}", expected quote-options-ui/<n>`);
       files.push({ key: `${tenant}/${path.basename(f, ".json")}`, rel });
     }
   }
