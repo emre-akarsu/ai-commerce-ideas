@@ -17,7 +17,7 @@ class VerifyConfig:
     vat_rel_tolerance: Decimal = Decimal("0.005")    # share, on the VAT arithmetic
     price_jump_ratio: Decimal = Decimal("1.5")       # flag above last paid x ratio or below / ratio
     unit_basis_tolerance: Decimal = Decimal("0.05")  # how close a price must be to a unit factor
-    quantity_ratio: Decimal = Decimal("5")           # flag above usual x ratio or below usual / ratio
+    quantity_ratio: Decimal = Decimal("5")           # flag above usual x ratio or below / ratio
     min_history_points: int = 2                      # history needed before any plausibility flag
 
     def __post_init__(self) -> None:
