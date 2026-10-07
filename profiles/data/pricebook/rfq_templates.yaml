@@ -1,0 +1,24 @@
+# Quote-request (RFQ) template. TEXT ONLY, filled by components.pricebook.rfq_messages.
+# Default mode: ONE aggregated message per supplier listing all of that supplier's lines.
+# Optional mode: individual, one message per line. No model writes this text. No URLs, no HTML,
+# no legal footer: the approval and send-service flow adds the footer and sends only after a person
+# approves the exact text (R1). Unreviewed first draft, not tested with real merchants.
+id: rfq-en-gb-v1
+label: SYNTHETIC/ILLUSTRATIVE TEMPLATE TEXT, unreviewed first draft; a person approves the exact message before anything is sent
+language: en-GB
+greeting: "Dear {merchant_name} account team,"
+aggregated:
+  subject: "Quote request for {line_count} items, {buyer_company}, account {account_reference}"
+  intro: "Could you quote for the {line_count} items listed below, as one quote?"
+individual:
+  subject: "Quote request for 1 item, {buyer_company}, account {account_reference}"
+  intro: "Could you quote for the item listed below?"
+ask_heading: "For each item please state:"
+asks:
+  - "The unit price and the unit it is quoted per (each, per pack, per metre, per 100)."
+  - "Whether the price includes VAT or excludes it."
+  - "The date until which the quote is valid."
+  - "Stock availability and lead time."
+  - "Delivery charge, and the order value above which delivery is free."
+closing: "Thank you. We will check the quote with you before we order."
+sign_off: "{buyer_name}\n{buyer_company}\nAccount reference: {account_reference}"

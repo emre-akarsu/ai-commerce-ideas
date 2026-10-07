@@ -189,14 +189,35 @@ function UploadDialog({ onClose }: { onClose: () => void }) {
 
 function RfqDialog({ book, onClose }: { book: PriceBook; onClose: () => void }) {
   const [done, setDone] = useState(false);
+  const [individual, setIndividual] = useState(false);
   const groups = gapsByMerchant(book.gaps, book.merchants);
+  const names = new Map(book.merchants.map((m) => [m.merchantId, m.name]));
+  const msgs = individual ? book.rfqMessages.perItem : book.rfqMessages.perSupplier;
+  const lines = new Map(book.gaps.map((g) => [g.kitLineId, g]));
   return (
     <Modal open onClose={onClose} label="Send RFQ for these gaps">
       <div className="max-h-[80vh] overflow-y-auto p-5" data-dialog="rfq">
         <h2 className="text-base font-semibold">Send RFQ for these gaps</h2>
-        <p className="mt-1 text-sm text-mute">One request per merchant, listing the lines it has no current price for, biggest spend first.</p>
+        <p className="mt-1 text-sm text-mute">
+          {individual ? "One quote request per item, so a supplier can receive several messages." : "One quote request per supplier, listing every line it has no current price for, biggest spend first."}
+        </p>
+        <fieldset className="mt-3" data-rfq-mode>
+          <legend className="sr-only">How to group the quote requests</legend>
+          <label className="mr-4 inline-flex min-h-target cursor-pointer items-center gap-2 text-sm">
+            <input type="radio" name="rfq-mode" checked={!individual} onChange={() => setIndividual(false)} data-mode="per_supplier" /> One quote per supplier (default)
+          </label>
+          <label className="inline-flex min-h-target cursor-pointer items-center gap-2 text-sm">
+            <input type="radio" name="rfq-mode" checked={individual} onChange={() => setIndividual(true)} data-mode="per_item" disabled={book.rfqMessages.perItem.length === 0} /> Individual quotes, one per item
+          </label>
+        </fieldset>
         <div className="mt-3 space-y-3">
-          {groups.map((g) => (
+          {msgs.length > 0 ? msgs.map((m, i) => (
+            <details key={`${m.merchantId}-${i}`} data-rfq-merchant={m.merchantId} data-rfq-message className="rounded-md border border-line px-3">
+              <summary className="min-h-target cursor-pointer py-2 text-sm font-semibold break-words">{names.get(m.merchantId) ?? m.merchantId} <span className="font-normal text-mute">({m.lineIds.length} line{m.lineIds.length === 1 ? "" : "s"}{individual ? `: ${lines.get(m.lineIds[0] ?? "")?.text ?? m.lineIds[0]}` : ""})</span></summary>
+              <p className="break-words rounded-md bg-sunken p-2 text-sm" data-draft-subject>{m.subject}</p>
+              <pre className="my-2 max-h-64 overflow-y-auto whitespace-pre-wrap break-words rounded-md bg-sunken p-2 font-sans text-sm" data-draft-body>{m.body}</pre>
+            </details>
+          )) : groups.map((g) => (
             <details key={g.merchantId} data-rfq-merchant={g.merchantId} className="rounded-md border border-line px-3">
               <summary className="min-h-target cursor-pointer py-2 text-sm font-semibold break-words">{g.name} <span className="font-normal text-mute">({g.gaps.length} line{g.gaps.length === 1 ? "" : "s"})</span></summary>
               <ul className="list-disc space-y-0.5 pb-3 pl-5 text-sm">{g.gaps.map((x) => <li key={x.kitLineId} className="break-words">{x.text || x.kitLineId} <span className="text-xs text-mute">(spend rank {x.spendRank})</span></li>)}</ul>
@@ -206,7 +227,7 @@ function RfqDialog({ book, onClose }: { book: PriceBook; onClose: () => void }) 
         <p className="mt-3 rounded-md border border-warn bg-warn-soft p-2 text-xs text-warn">{DEMO_NOTE}</p>
         {done && <p role="status" className="mt-3 text-sm font-medium" data-demo-result>Demo only: no RFQ was created or sent.</p>}
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button type="button" variant="secondary" onClick={() => setDone(true)} data-demo-button>Demo only: prepare RFQs (nothing is sent)</Button>
+          <Button type="button" variant="secondary" onClick={() => setDone(true)} data-demo-button>Demo only: prepare {msgs.length > 0 ? `${msgs.length} RFQ${msgs.length === 1 ? "" : "s"}` : "RFQs"} (nothing is sent)</Button>
           <Button type="button" variant="ghost" onClick={onClose} data-autofocus>Close</Button>
         </div>
       </div>

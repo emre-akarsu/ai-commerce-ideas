@@ -32,6 +32,7 @@ from .requests import (
     draft_request,
     draft_requests,
 )
+from .rfq_messages import RfqMessage, RfqMode, RfqTemplate, draft_rfq_messages
 
 __all__ = [
     "ACCOUNT_REFERENCE_MISSING",
@@ -56,6 +57,9 @@ __all__ = [
     "RequestTemplateError",
     "RfqGapGroup",
     "RfqGapItem",
+    "RfqMessage",
+    "RfqMode",
+    "RfqTemplate",
     "SpendBasis",
     "TenantOffers",
     "VatSummary",
@@ -63,6 +67,7 @@ __all__ = [
     "compute_gaps",
     "draft_request",
     "draft_requests",
+    "draft_rfq_messages",
     "dumps",
     "ladder_level",
     "price_books_ui",

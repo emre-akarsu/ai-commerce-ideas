@@ -21,6 +21,7 @@ from typing import Any
 from .ladder import BUILT_LEVELS, LEVEL_LABELS
 from .models import FreshnessSummary, GapLine, MerchantBook, PriceBook
 from .requests import RequestDraft
+from .rfq_messages import RfqMessage
 
 FORMAT = "price-books-ui/1"
 SYNTHETIC_LABEL = ("SYNTHETIC/ILLUSTRATIVE DATA: fictional merchants and invented prices; not "
@@ -93,9 +94,22 @@ def _freshness(f: FreshnessSummary) -> dict[str, Any]:
     }
 
 
+def _rfq_message(m: RfqMessage) -> dict[str, Any]:
+    return {"merchant_id": m.merchant_id, "mode": m.mode, "subject": m.subject, "body": m.body,
+            "line_ids": list(m.line_ids), "status": m.status}
+
+
 def price_books_ui(book: PriceBook, drafts: Sequence[RequestDraft] = (),
-                   *, label: str | None = None) -> dict[str, Any]:
+                   *, label: str | None = None,
+                   rfq_per_supplier: Sequence[RfqMessage] | None = None,
+                   rfq_per_item: Sequence[RfqMessage] | None = None) -> dict[str, Any]:
     """The whole price book as a JSON-ready dictionary."""
+    rfq: dict[str, Any] = {}
+    if rfq_per_supplier is not None or rfq_per_item is not None:
+        rfq = {"rfq_messages": {
+            "default_mode": "per_supplier",
+            "per_supplier": [_rfq_message(m) for m in rfq_per_supplier or ()],
+            "per_item": [_rfq_message(m) for m in rfq_per_item or ()]}}
     default = SYNTHETIC_LABEL if book.contains_synthetic_data else REAL_LABEL
     return {
         "format": FORMAT,
@@ -109,6 +123,7 @@ def price_books_ui(book: PriceBook, drafts: Sequence[RequestDraft] = (),
         "request_drafts": [{"merchant_id": d.merchant_id, "subject": d.subject, "body": d.body,
                             "status": d.status}
                            for d in sorted(drafts, key=lambda d: d.merchant_id)],
+        **rfq,
         "freshness_summary": _freshness(book.freshness),
         "ladder": {"built_levels": list(BUILT_LEVELS),
                    "levels": [{"level": k, "label": v} for k, v in LEVEL_LABELS.items()]},

@@ -92,6 +92,28 @@ Templated text only; no model writes any of it. The template is `profiles/data/p
 * **What it asks for**: the price file as CSV or Excel; the validity period; whether prices include VAT; product code, MPN and GTIN; pack size and unit per price; delivery terms with charges and the free-delivery threshold; and whether the file may be loaded into a purchasing tool.
 * **No URLs, no legal footer, no sending.** The footer is added, and the message is sent, only by the existing approval and send-service flow after a person approves the exact text (R1). A draft has `status: draft_not_sent`. Drafts are made only for merchants whose status is `missing`, `stale` or `indicative_only`.
 
+## 6a. Quote-request (RFQ) messages: aggregated per supplier (`rfq_messages.py`)
+
+Decision (owner, 2026-10-07): communications are aggregated, not per item. `draft_rfq_messages`
+turns the per-supplier line groups (`rfq_for_gaps`) into templated drafts
+(`profiles/data/pricebook/rfq_templates.yaml`, no model text):
+
+* `RfqMode.PER_SUPPLIER` (default): ONE message per supplier listing all of that supplier's lines,
+  with the asks (unit price and unit, VAT basis, validity date, stock and lead time, delivery terms).
+* `RfqMode.PER_ITEM` (on request): one message per line, for a user who wants individual quotes.
+* Both modes cover exactly the same lines, so switching never drops or adds a line.
+* Line text is the buyer's own wording: a link, address, markup, braces or control characters
+  in it is refused, never repaired. The rendered text is checked once more for links and markup.
+* A draft is data (`status: draft_not_sent`). The approval and send-service flow approves the
+  exact text and sends it (R1); there is no footer and no transport here. The same applies to the
+  request-your-price-file drafts, which are already one message per merchant.
+* Export: optional additive key `rfq_messages {default_mode, per_supplier[], per_item[]}` in
+  `price-books-ui/1`; readers that do not know it ignore it. The web "Send RFQ for these gaps"
+  dialog shows the exact subject and body and has a toggle "One quote per supplier (default)" /
+  "Individual quotes, one per item".
+* Not built: wiring to the real RFQ prepare/approve/send flow, and per-supplier aggregation for
+  RFQs of lines that were priced (only gap lines are grouped today).
+
 ## 7. The export `price-books-ui/1` (`export.py`)
 
 Schema: `profiles/data/pricebook/price-books-ui.schema.json` (JSON Schema 2020-12). Output is byte-identical for identical input (tested, including across processes and hash seeds): fixed key order, merchants in id order, gaps in rank order, drafts in merchant order, Decimals as strings, times as ISO 8601 strings, no float (a test parses it refusing floats).

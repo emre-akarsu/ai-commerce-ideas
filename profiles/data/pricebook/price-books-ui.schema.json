@@ -16,6 +16,7 @@
     "merchants": {"type": "array", "items": {"$ref": "#/$defs/merchant"}},
     "gaps": {"type": "array", "items": {"$ref": "#/$defs/gap"}},
     "request_drafts": {"type": "array", "items": {"$ref": "#/$defs/draft"}},
+    "rfq_messages": {"type": "object", "properties": {"default_mode": {"type": "string"}, "per_supplier": {"type": "array", "items": {"$ref": "#/$defs/rfq_message"}}, "per_item": {"type": "array", "items": {"$ref": "#/$defs/rfq_message"}}}},
     "freshness_summary": {"$ref": "#/$defs/freshness_summary"},
     "ladder": {
       "type": "object",
@@ -112,6 +113,7 @@
         "merchants_with_indicative": {"type": "array", "items": {"type": "string"}}
       }
     },
+    "rfq_message": {"type": "object", "required": ["merchant_id", "mode", "subject", "body", "line_ids", "status"], "properties": {"merchant_id": {"type": "string"}, "mode": {"type": "string"}, "subject": {"type": "string"}, "body": {"type": "string"}, "line_ids": {"type": "array", "items": {"type": "string"}}, "status": {"type": "string"}}},
     "draft": {
       "type": "object",
       "additionalProperties": false,

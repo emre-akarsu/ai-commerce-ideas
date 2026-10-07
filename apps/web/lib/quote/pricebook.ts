@@ -1,6 +1,6 @@
 // Tolerant reader for the price book export (price-books-ui/1). Same rules as schema.ts.
 import { bool, formatMajor, int, intOrNull, isObj, Notes, objs, str, strOrNull, strs, isDecimalString, decOrNull } from "./read-util";
-import type { Gap, Merchant, MerchantStatus, PriceBook, RequestDraft } from "./types";
+import type { Gap, Merchant, MerchantStatus, PriceBook, RequestDraft, RfqMessage } from "./types";
 
 export const PRICEBOOK_FAMILY = "price-books-ui";
 export const PRICEBOOK_MAJORS: readonly number[] = [1];
@@ -23,7 +23,7 @@ export function readPriceBook(raw: unknown): PriceBookRead {
   }
   if (!Array.isArray(raw.merchants)) return { ok: false, reason: "invalid", errors: ['The required "merchants" list is missing, so the price book cannot be shown.'] };
   const n = new Notes();
-  n.known(raw, "price book", ["format", "label", "as_of", "tenant_id", "currency", "comparison_basis", "merchants", "gaps", "request_drafts", "freshness_summary"]);
+  n.known(raw, "price book", ["format", "label", "as_of", "tenant_id", "currency", "comparison_basis", "merchants", "gaps", "request_drafts", "rfq_messages", "freshness_summary", "ladder", "schema_changes"]);
   const book: PriceBook = {
     format: String(raw.format), label: str(raw.label), asOf: str(raw.as_of), tenantId: str(raw.tenant_id), currency: str(raw.currency), comparisonBasis: str(raw.comparison_basis, "ex_tax"),
     merchants: objs(raw.merchants).map((o) => readMerchant(n, o)),
@@ -31,6 +31,7 @@ export function readPriceBook(raw: unknown): PriceBookRead {
       return { kitLineId: str(o.kit_line_id, str(o.line_id)), text: str(o.text), spendRank: int(o.spend_rank, 9999), merchantsWithoutPrice: strs(o.merchants_without_price), quantity: isDecimalString(o.quantity) ? o.quantity : null, unit: strOrNull(o.unit),
         bucket: strOrNull(o.bucket), estimatedSpend: decOrNull(n, "gap", "estimated_spend", o.estimated_spend), spendBasis: strOrNull(o.spend_basis), merchantsWithIndicative: strs(o.merchants_with_indicative) }; }),
     requestDrafts: objs(raw.request_drafts).map((o): RequestDraft => { n.known(o, "request draft", ["merchant_id", "subject", "body"]); return { merchantId: str(o.merchant_id), subject: str(o.subject), body: str(o.body) }; }),
+    rfqMessages: readRfq(n, raw.rfq_messages),
     freshnessSummary: summary(raw.freshness_summary), notes: n.list,
   };
   return { ok: true, book, notes: n.list };
@@ -60,4 +61,12 @@ function readMerchant(n: Notes, o: Record<string, unknown>): Merchant {
     coverage: { linesPriced: priced, linesTotal: total, pct: isDecimalString(cov.pct) ? cov.pct : total ? String(Math.floor((priced * 1000) / total) / 10) : "0" },
     nextRefreshDue: strOrNull(o.next_refresh_due),
   };
+}
+
+/** rfq_messages is optional (added later, additive): missing or malformed means no drafted messages and the screen falls back to the plain gap list. */
+function readRfq(n: Notes, v: unknown): { perSupplier: RfqMessage[]; perItem: RfqMessage[] } {
+  if (!isObj(v)) return { perSupplier: [], perItem: [] };
+  n.known(v, "rfq messages", ["default_mode", "per_supplier", "per_item"]);
+  const read = (x: unknown): RfqMessage[] => objs(x).map((o) => { n.known(o, "rfq message", ["merchant_id", "mode", "subject", "body", "line_ids", "status"]); return { merchantId: str(o.merchant_id), mode: str(o.mode), subject: str(o.subject), body: str(o.body), lineIds: strs(o.line_ids) }; });
+  return { perSupplier: read(v.per_supplier), perItem: read(v.per_item) };
 }

@@ -526,6 +526,883 @@
       }
     ],
     "request_drafts": [],
+    "rfq_messages": {
+      "default_mode": "per_supplier",
+      "per_supplier": [
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_supplier",
+          "subject": "Quote request for 15 items, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the 15 items listed below, as one quote?\n\n1. Small fittings, washers and connectors not listed elsewhere - quantity 1 each\n2. Plastic packers - quantity 1 each\n3. Bathroom soft sheen emulsion, moisture and mould resistant, white - quantity 1 litre\n4. Surface filler - quantity 1 each\n5. Masking tape, abrasive paper, rollers and brushes - quantity 1 each\n6. Undercoat and gloss - quantity 1 each\n7. 15 mm compression fittings with olives - quantity 1 each\n8. 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated - quantity 1 each\n9. 15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder) - quantity 1 m\n10. 15 mm pipe clips - quantity 1 each\n11. Dust sheets and self-adhesive floor protection film - quantity 1 each\n12. Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings - quantity 1 each\n13. Flush actuator to suit the cistern - quantity 1 each\n14. WC seat and cover to suit the pan, soft-close hinges - quantity 1 each\n15. Reinforced rubble sacks - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "cs_plumbing_sundries",
+            "cs_wc_packers",
+            "dc_emulsion",
+            "dc_filler",
+            "dc_sundries",
+            "dc_woodwork_paint",
+            "ff_fittings_compression",
+            "ff_iv_wc",
+            "ff_pipe_15",
+            "ff_pipe_clips",
+            "so_protection",
+            "sw_wc_cistern",
+            "sw_wc_flush_lever",
+            "sw_wc_seat",
+            "ws_rubble_sacks"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_supplier",
+          "subject": "Quote request for 15 items, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the 15 items listed below, as one quote?\n\n1. Small fittings, washers and connectors not listed elsewhere - quantity 1 each\n2. Plastic packers - quantity 1 each\n3. Bathroom soft sheen emulsion, moisture and mould resistant, white - quantity 1 litre\n4. Surface filler - quantity 1 each\n5. Masking tape, abrasive paper, rollers and brushes - quantity 1 each\n6. Undercoat and gloss - quantity 1 each\n7. 15 mm compression fittings with olives - quantity 1 each\n8. 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated - quantity 1 each\n9. 15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder) - quantity 1 m\n10. 15 mm pipe clips - quantity 1 each\n11. Dust sheets and self-adhesive floor protection film - quantity 1 each\n12. Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings - quantity 1 each\n13. Flush actuator to suit the cistern - quantity 1 each\n14. WC seat and cover to suit the pan, soft-close hinges - quantity 1 each\n15. Reinforced rubble sacks - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "cs_plumbing_sundries",
+            "cs_wc_packers",
+            "dc_emulsion",
+            "dc_filler",
+            "dc_sundries",
+            "dc_woodwork_paint",
+            "ff_fittings_compression",
+            "ff_iv_wc",
+            "ff_pipe_15",
+            "ff_pipe_clips",
+            "so_protection",
+            "sw_wc_cistern",
+            "sw_wc_flush_lever",
+            "sw_wc_seat",
+            "ws_rubble_sacks"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_supplier",
+          "subject": "Quote request for 15 items, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the 15 items listed below, as one quote?\n\n1. Small fittings, washers and connectors not listed elsewhere - quantity 1 each\n2. Plastic packers - quantity 1 each\n3. Bathroom soft sheen emulsion, moisture and mould resistant, white - quantity 1 litre\n4. Surface filler - quantity 1 each\n5. Masking tape, abrasive paper, rollers and brushes - quantity 1 each\n6. Undercoat and gloss - quantity 1 each\n7. 15 mm compression fittings with olives - quantity 1 each\n8. 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated - quantity 1 each\n9. 15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder) - quantity 1 m\n10. 15 mm pipe clips - quantity 1 each\n11. Dust sheets and self-adhesive floor protection film - quantity 1 each\n12. Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings - quantity 1 each\n13. Flush actuator to suit the cistern - quantity 1 each\n14. WC seat and cover to suit the pan, soft-close hinges - quantity 1 each\n15. Reinforced rubble sacks - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "cs_plumbing_sundries",
+            "cs_wc_packers",
+            "dc_emulsion",
+            "dc_filler",
+            "dc_sundries",
+            "dc_woodwork_paint",
+            "ff_fittings_compression",
+            "ff_iv_wc",
+            "ff_pipe_15",
+            "ff_pipe_clips",
+            "so_protection",
+            "sw_wc_cistern",
+            "sw_wc_flush_lever",
+            "sw_wc_seat",
+            "ws_rubble_sacks"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_supplier",
+          "subject": "Quote request for 15 items, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the 15 items listed below, as one quote?\n\n1. Small fittings, washers and connectors not listed elsewhere - quantity 1 each\n2. Plastic packers - quantity 1 each\n3. Bathroom soft sheen emulsion, moisture and mould resistant, white - quantity 1 litre\n4. Surface filler - quantity 1 each\n5. Masking tape, abrasive paper, rollers and brushes - quantity 1 each\n6. Undercoat and gloss - quantity 1 each\n7. 15 mm compression fittings with olives - quantity 1 each\n8. 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated - quantity 1 each\n9. 15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder) - quantity 1 m\n10. 15 mm pipe clips - quantity 1 each\n11. Dust sheets and self-adhesive floor protection film - quantity 1 each\n12. Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings - quantity 1 each\n13. Flush actuator to suit the cistern - quantity 1 each\n14. WC seat and cover to suit the pan, soft-close hinges - quantity 1 each\n15. Reinforced rubble sacks - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "cs_plumbing_sundries",
+            "cs_wc_packers",
+            "dc_emulsion",
+            "dc_filler",
+            "dc_sundries",
+            "dc_woodwork_paint",
+            "ff_fittings_compression",
+            "ff_iv_wc",
+            "ff_pipe_15",
+            "ff_pipe_clips",
+            "so_protection",
+            "sw_wc_cistern",
+            "sw_wc_flush_lever",
+            "sw_wc_seat",
+            "ws_rubble_sacks"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_supplier",
+          "subject": "Quote request for 15 items, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the 15 items listed below, as one quote?\n\n1. Small fittings, washers and connectors not listed elsewhere - quantity 1 each\n2. Plastic packers - quantity 1 each\n3. Bathroom soft sheen emulsion, moisture and mould resistant, white - quantity 1 litre\n4. Surface filler - quantity 1 each\n5. Masking tape, abrasive paper, rollers and brushes - quantity 1 each\n6. Undercoat and gloss - quantity 1 each\n7. 15 mm compression fittings with olives - quantity 1 each\n8. 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated - quantity 1 each\n9. 15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder) - quantity 1 m\n10. 15 mm pipe clips - quantity 1 each\n11. Dust sheets and self-adhesive floor protection film - quantity 1 each\n12. Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings - quantity 1 each\n13. Flush actuator to suit the cistern - quantity 1 each\n14. WC seat and cover to suit the pan, soft-close hinges - quantity 1 each\n15. Reinforced rubble sacks - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "cs_plumbing_sundries",
+            "cs_wc_packers",
+            "dc_emulsion",
+            "dc_filler",
+            "dc_sundries",
+            "dc_woodwork_paint",
+            "ff_fittings_compression",
+            "ff_iv_wc",
+            "ff_pipe_15",
+            "ff_pipe_clips",
+            "so_protection",
+            "sw_wc_cistern",
+            "sw_wc_flush_lever",
+            "sw_wc_seat",
+            "ws_rubble_sacks"
+          ],
+          "status": "draft_not_sent"
+        }
+      ],
+      "per_item": [
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Small fittings, washers and connectors not listed elsewhere - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "cs_plumbing_sundries"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Plastic packers - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "cs_wc_packers"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Bathroom soft sheen emulsion, moisture and mould resistant, white - quantity 1 litre\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "dc_emulsion"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Surface filler - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "dc_filler"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Masking tape, abrasive paper, rollers and brushes - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "dc_sundries"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Undercoat and gloss - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "dc_woodwork_paint"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm compression fittings with olives - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "ff_fittings_compression"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "ff_iv_wc"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder) - quantity 1 m\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "ff_pipe_15"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm pipe clips - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "ff_pipe_clips"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Dust sheets and self-adhesive floor protection film - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "so_protection"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "sw_wc_cistern"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Flush actuator to suit the cistern - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "sw_wc_flush_lever"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. WC seat and cover to suit the pan, soft-close hinges - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "sw_wc_seat"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-brindlecote",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1001",
+          "body": "Dear Brindlecote Builders Merchants (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Reinforced rubble sacks - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1001",
+          "line_ids": [
+            "ws_rubble_sacks"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Small fittings, washers and connectors not listed elsewhere - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "cs_plumbing_sundries"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Plastic packers - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "cs_wc_packers"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Bathroom soft sheen emulsion, moisture and mould resistant, white - quantity 1 litre\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "dc_emulsion"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Surface filler - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "dc_filler"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Masking tape, abrasive paper, rollers and brushes - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "dc_sundries"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Undercoat and gloss - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "dc_woodwork_paint"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm compression fittings with olives - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "ff_fittings_compression"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "ff_iv_wc"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder) - quantity 1 m\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "ff_pipe_15"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm pipe clips - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "ff_pipe_clips"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Dust sheets and self-adhesive floor protection film - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "so_protection"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "sw_wc_cistern"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Flush actuator to suit the cistern - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "sw_wc_flush_lever"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. WC seat and cover to suit the pan, soft-close hinges - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "sw_wc_seat"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-corvane",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1002",
+          "body": "Dear Corvane DIY Warehouse (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Reinforced rubble sacks - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1002",
+          "line_ids": [
+            "ws_rubble_sacks"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Small fittings, washers and connectors not listed elsewhere - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "cs_plumbing_sundries"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Plastic packers - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "cs_wc_packers"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Bathroom soft sheen emulsion, moisture and mould resistant, white - quantity 1 litre\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "dc_emulsion"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Surface filler - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "dc_filler"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Masking tape, abrasive paper, rollers and brushes - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "dc_sundries"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Undercoat and gloss - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "dc_woodwork_paint"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm compression fittings with olives - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "ff_fittings_compression"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "ff_iv_wc"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder) - quantity 1 m\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "ff_pipe_15"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm pipe clips - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "ff_pipe_clips"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Dust sheets and self-adhesive floor protection film - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "so_protection"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "sw_wc_cistern"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Flush actuator to suit the cistern - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "sw_wc_flush_lever"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. WC seat and cover to suit the pan, soft-close hinges - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "sw_wc_seat"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-halden",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1003",
+          "body": "Dear Halden Trade Counter (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Reinforced rubble sacks - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1003",
+          "line_ids": [
+            "ws_rubble_sacks"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Small fittings, washers and connectors not listed elsewhere - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "cs_plumbing_sundries"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Plastic packers - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "cs_wc_packers"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Bathroom soft sheen emulsion, moisture and mould resistant, white - quantity 1 litre\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "dc_emulsion"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Surface filler - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "dc_filler"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Masking tape, abrasive paper, rollers and brushes - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "dc_sundries"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Undercoat and gloss - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "dc_woodwork_paint"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm compression fittings with olives - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "ff_fittings_compression"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "ff_iv_wc"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder) - quantity 1 m\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "ff_pipe_15"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm pipe clips - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "ff_pipe_clips"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Dust sheets and self-adhesive floor protection film - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "so_protection"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "sw_wc_cistern"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Flush actuator to suit the cistern - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "sw_wc_flush_lever"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. WC seat and cover to suit the pan, soft-close hinges - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "sw_wc_seat"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-northgate",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1004",
+          "body": "Dear Northgate Plumb Supply (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Reinforced rubble sacks - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1004",
+          "line_ids": [
+            "ws_rubble_sacks"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Small fittings, washers and connectors not listed elsewhere - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "cs_plumbing_sundries"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Plastic packers - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "cs_wc_packers"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Bathroom soft sheen emulsion, moisture and mould resistant, white - quantity 1 litre\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "dc_emulsion"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Surface filler - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "dc_filler"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Masking tape, abrasive paper, rollers and brushes - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "dc_sundries"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Undercoat and gloss - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "dc_woodwork_paint"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm compression fittings with olives - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "ff_fittings_compression"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm full-bore isolating valve, screwdriver-operated, compression, brass or chrome-plated - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "ff_iv_wc"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm copper supply pipe (half-hard, for exposed runs and near the boiler or cylinder) - quantity 1 m\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "ff_pipe_15"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. 15 mm pipe clips - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "ff_pipe_clips"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Dust sheets and self-adhesive floor protection film - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "so_protection"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Close-coupled cistern with dual flush (for example 4.5/3 l) and fittings - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "sw_wc_cistern"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Flush actuator to suit the cistern - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "sw_wc_flush_lever"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. WC seat and cover to suit the pan, soft-close hinges - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "sw_wc_seat"
+          ],
+          "status": "draft_not_sent"
+        },
+        {
+          "merchant_id": "m-pennywell",
+          "mode": "per_item",
+          "subject": "Quote request for 1 item, Example Bathrooms Ltd (fictional), account ACC-A-1005",
+          "body": "Dear Pennywell Bathroom Centre (fictional) account team,\n\nCould you quote for the item listed below?\n\n1. Reinforced rubble sacks - quantity 1 each\n\nFor each item please state:\n- The unit price and the unit it is quoted per (each, per pack, per metre, per 100).\n- Whether the price includes VAT or excludes it.\n- The date until which the quote is valid.\n- Stock availability and lead time.\n- Delivery charge, and the order value above which delivery is free.\n\nThank you. We will check the quote with you before we order.\n\nAlex Example\nExample Bathrooms Ltd (fictional)\nAccount reference: ACC-A-1005",
+          "line_ids": [
+            "ws_rubble_sacks"
+          ],
+          "status": "draft_not_sent"
+        }
+      ]
+    },
     "freshness_summary": {
       "current": 5,
       "stale": 0,

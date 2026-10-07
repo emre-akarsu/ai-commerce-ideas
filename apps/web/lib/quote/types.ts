@@ -57,10 +57,11 @@ export interface Gap {
   kitLineId: string; text: string; spendRank: number; merchantsWithoutPrice: string[]; quantity: string | null; unit: string | null; bucket: string | null;
   estimatedSpend: string | null; spendBasis: string | null; merchantsWithIndicative: string[];
 }
+export interface RfqMessage { merchantId: string; mode: string; subject: string; body: string; lineIds: string[] }
 export interface RequestDraft { merchantId: string; subject: string; body: string }
 export interface PriceBook {
   format: string; label: string; asOf: string; tenantId: string; currency: string; comparisonBasis: string; merchants: Merchant[]; gaps: Gap[];
-  requestDrafts: RequestDraft[]; freshnessSummary: Array<{ key: string; value: string }>; notes: string[];
+  requestDrafts: RequestDraft[]; rfqMessages: { perSupplier: RfqMessage[]; perItem: RfqMessage[] }; freshnessSummary: Array<{ key: string; value: string }>; notes: string[];
 }
 export interface ReviewerDecision { kitLineId: string | null; lineId: string | null; skuId: string; note: string; approver: string | null }
 export interface BundleMeta { tenantId: string; scopeId: string; scopeLabel: string; synthetic: boolean; extra: Array<{ key: string; value: string }> }

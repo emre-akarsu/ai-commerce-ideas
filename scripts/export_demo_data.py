@@ -57,15 +57,19 @@ from components.pricebook import (  # noqa: E402
     MerchantInfo,
     RequestContext,
     RequestTemplate,
+    RfqMode,
+    RfqTemplate,
     build_price_book,
     draft_requests,
+    draft_rfq_messages,
     price_books_ui,
+    rfq_for_gaps,
     summaries_from_reports,
 )
 from components.pricing import InMemoryOfferStore, PricingConfig  # noqa: E402
 from components.quoting import (  # noqa: E402
-    QuoteResult,
     OptionsConfig,
+    QuoteResult,
     QuotingContext,
     approve_match,
     build_quote,
@@ -119,6 +123,7 @@ class World:
     texts: dict[str, str]
     merchants: tuple[MerchantInfo, ...]
     template: RequestTemplate
+    rfq_template: RfqTemplate
     decisions: dict[str, Any]
     extras: dict[str, Any]
 
@@ -143,6 +148,8 @@ def build_world() -> World:
                for f in manifest["files"]},
         merchants=tuple(MerchantInfo(m["merchant_id"], m["name"]) for m in manifest["merchants"]),
         template=RequestTemplate.from_mapping(template),
+        rfq_template=RfqTemplate.from_mapping(yaml.safe_load(
+            (PRICEBOOK / "rfq_templates.yaml").read_text(encoding="utf-8"))),
         decisions=read_json(QUOTING / "demo_reviewer_decisions.json"),
         extras=read_json(PRICEBOOK / "reviewer_decisions_extra.json"))
 
@@ -227,6 +234,11 @@ def export_combination(world: World, tenant: str, scope: str) -> dict[str, Any]:
     book = build_price_book(ctx.offers, tenant, world.merchants, world.pricing, ctx.clock,
                             quote=after, imports=imports)
     drafts = draft_requests(world.template, book.merchants, request_context(world, tenant))
+    rctx = request_context(world, tenant)
+    groups = rfq_for_gaps(book.gaps)
+    names = {m.merchant_id: m.name for m in world.merchants}
+    rfq = {k: draft_rfq_messages(world.rfq_template, groups, names, rctx, mode)
+           for k, mode in (("per_supplier", RfqMode.PER_SUPPLIER), ("per_item", RfqMode.PER_ITEM))}
     first_doc = quote_draft_ui(first)
     inputs = options_inputs(world, tenant, scope)
     options = quote_options(after, ctx.pricing, ctx.clock, preferred=inputs["preferred_merchants"],
@@ -240,7 +252,9 @@ def export_combination(world: World, tenant: str, scope: str) -> dict[str, Any]:
             "formats": "price-books-ui/1, quote-draft-ui/1",
             "generated_by": "scripts/export_demo_data.py",
         },
-        "price_book": price_books_ui(book, drafts, label=LABEL),
+        "price_book": price_books_ui(
+            book, drafts, label=LABEL, rfq_per_supplier=rfq["per_supplier"],
+            rfq_per_item=rfq["per_item"]),
         "quote_first": first_doc,
         "quote_after_review": quote_draft_ui(after) if applied else first_doc,
         "reviewer_decisions": applied,

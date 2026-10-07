@@ -141,6 +141,11 @@ for (const [mode, w, h, mobile, dark] of modes) {
     await b.key("Escape");
     await b.click("Send RFQ for these gaps");
     ok(`${mode} price books: RFQ groups gaps per merchant`, (await count("[data-rfq-merchant]")) === 5);
+    ok(`${mode} price books: RFQ default is one aggregated message per supplier`, (await count("[data-rfq-message]")) === 5 && (await sel('[data-mode="per_supplier"]:checked')));
+    await clickSel('[data-mode="per_item"]'); await b.sleep(200);
+    ok(`${mode} price books: individual mode shows one message per item`, (await count("[data-rfq-message]")) > 5);
+    await clickSel('[data-mode="per_supplier"]'); await b.sleep(200);
+    ok(`${mode} price books: back to one message per supplier`, (await count("[data-rfq-message]")) === 5);
     await clickSel("[data-rfq-merchant] summary");
     if (shots) await b.shot(`${out}/price-books-${mode}-rfq.png`);
     ok(`${mode} price books: RFQ dialog overflow`, await overflow(`${mode} rfq dialog`));

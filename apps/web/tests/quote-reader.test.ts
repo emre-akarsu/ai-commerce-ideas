@@ -162,3 +162,23 @@ describe("readBundle", () => {
     }
   });
 });
+
+describe("rfq_messages (aggregated per supplier, individual on request)", () => {
+  it("reads the generated bundles: one message per supplier, more messages in individual mode, same lines", () => {
+    for (const raw of Object.values(GENERATED)) {
+      const r = readBundle(raw);
+      if ("error" in r || !r.priceBook.ok) throw new Error("unreadable generated bundle");
+      const { perSupplier, perItem } = r.priceBook.book.rfqMessages;
+      expect(perSupplier.length).toBeGreaterThan(0);
+      expect(new Set(perSupplier.map((m) => m.merchantId)).size).toBe(perSupplier.length);
+      expect(perItem.length).toBeGreaterThanOrEqual(perSupplier.length);
+      const ids = (ms: typeof perItem) => ms.flatMap((m) => m.lineIds.map((l) => `${m.merchantId}/${l}`)).sort();
+      expect(ids(perItem)).toEqual(ids(perSupplier));
+    }
+  });
+  it("a price book without rfq_messages still reads, with no messages", () => {
+    const r = readPriceBook(clone(pb));
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.book.rfqMessages).toEqual({ perSupplier: [], perItem: [] });
+  });
+});
