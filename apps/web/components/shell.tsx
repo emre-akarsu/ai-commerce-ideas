@@ -11,6 +11,7 @@ import { peek } from "@/lib/store";
 import { can, humanise, type Capability, type Role } from "@/lib/flow";
 import type { RequestView } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { JourneyBar, JourneyNav } from "@/components/journey";
 
 interface NavItem { href: string; label: string; short: string; cap?: Capability; key: string }
 const NAV: NavItem[] = [
@@ -113,7 +114,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             ) : <Badge tone="gray">{humanise(role)}{label ? ` · ${label}` : ""}</Badge>}
           </div>
         </header>
-        <main id="main" tabIndex={-1} className="mx-auto w-full max-w-5xl flex-1 px-4 py-5 pb-28 outline-none md:px-6 md:pb-10">{children}</main>
+        <JourneyNav />
+        <main id="main" tabIndex={-1} className="mx-auto w-full max-w-5xl flex-1 px-4 py-5 pb-28 outline-none md:px-6 md:pb-10">{children}<JourneyBar /></main>
       </div>
 
       <nav aria-label="Main (mobile)" className="fixed inset-x-0 bottom-0 z-30 flex overflow-x-auto border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">

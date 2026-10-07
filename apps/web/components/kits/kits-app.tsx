@@ -126,18 +126,25 @@ function Wizard(p: WizardProps) {
 }
 
 function Stepper({ steps, at, go }: { steps: Step[]; at: number; go: (s: Step) => void }) {
+  // Infographic track: numbered nodes joined by a progress line; earlier steps show a check and can be reopened.
+  const n = Math.max(steps.length, 1);
   return (
-    <nav aria-label="Wizard steps">
-      <ol className="grid gap-1" style={{ gridTemplateColumns: `repeat(${Math.max(steps.length, 1)}, minmax(0, 1fr))` }}>
+    <nav aria-label="Wizard steps" data-wizard-track>
+      <ol className="relative grid" style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
+        <span aria-hidden className="absolute top-4 h-0.5 rounded-full bg-line" style={{ left: `${50 / n}%`, right: `${50 / n}%` }} />
+        <span aria-hidden className="absolute top-4 h-0.5 rounded-full bg-accent transition-all" style={{ left: `${50 / n}%`, width: `${n > 1 ? (at / (n - 1)) * ((n - 1) / n) * 100 : 0}%` }} />
         {steps.map((id, i) => {
           const label = STEPS.find((x) => x.id === id)?.label ?? id;
           const state = i < at ? "done" : i === at ? "current" : "todo";
           return (
-            <li key={id} className="min-w-0">
+            <li key={id} className="relative min-w-0">
               <button type="button" disabled={state === "todo"} onClick={() => go(id)} aria-current={state === "current" ? "step" : undefined}
-                className={cn("flex min-h-target w-full flex-col items-start justify-center rounded-md border-t-4 px-0.5 pt-1 text-left text-[11px] font-semibold disabled:cursor-default sm:px-2 sm:text-sm",
-                  state === "current" ? "border-accent text-ink" : state === "done" ? "border-accent/50 text-accent hover:bg-sunken" : "border-line text-mute")}>
-                <span className="block w-full truncate"><span className="hidden sm:inline">{i + 1}. </span>{label}</span>
+                className="flex min-h-target w-full flex-col items-center gap-1 rounded-md px-0.5 text-center text-[11px] font-semibold disabled:cursor-default sm:text-sm">
+                <span className={cn("relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs",
+                  state === "current" ? "border-accent bg-accent text-accent-ink shadow-md" : state === "done" ? "border-accent bg-surface text-accent" : "border-strong bg-surface text-mute")}>
+                  {state === "done" ? <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 10.5l3.5 3.5 7.5-8" /></svg> : i + 1}
+                </span>
+                <span className={cn("block w-full truncate", state === "todo" ? "text-mute" : "text-ink")}>{label}</span>
               </button>
             </li>
           );

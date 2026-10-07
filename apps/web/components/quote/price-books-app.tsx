@@ -1,11 +1,12 @@
 "use client";
 // Price books: which merchants have a current price for this customer, how far each covers the job, and what to do about gaps.
 // Nothing here sends anything. The request and RFQ actions open previews with a demo-only button (rule R1).
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Badge, Button, Card, EmptyState, H2, PageHeader } from "@/components/ui/ui";
 import { Modal } from "@/components/modal";
 import { cn } from "@/lib/utils";
+import { takeLanding } from "@/lib/quote/prefs";
 import { loadBundle } from "@/lib/quote/catalog";
 import { IMPORT_EXAMPLE } from "@/lib/quote/example";
 import { filterMerchants, fmtDate, fixed, humanCode, gapsByMerchant, rankGaps, sortMerchants, STATUS_LABEL, STATUS_ORDER, statusCounts, type StatusFilter } from "@/lib/quote/calc";
@@ -19,6 +20,7 @@ export function PriceBooksApp() {
   const res = useMemo(() => loadBundle(sel.tenant, sel.scope), [sel.tenant, sel.scope]);
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [dialog, setDialog] = useState<Dialog>(null);
+  useEffect(() => { if (takeLanding() === "rfq") setDialog({ kind: "rfq" }); }, []);
 
   return (
     <div data-screen="price-books">

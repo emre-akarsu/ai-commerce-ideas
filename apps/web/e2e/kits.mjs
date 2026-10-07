@@ -131,7 +131,6 @@ if (shots) await b.shot(`${out}/kits-desktop-review-edited.png`);
 await open(); await clickSel('[data-scope="bathroom_full"]');
 ok("defaults: every question card has one option already selected", await b.ev(`[...document.querySelectorAll('[data-question]')].length>0 && [...document.querySelectorAll('[data-question]')].every(q=>q.querySelector('input:checked')||q.querySelector('select')||q.querySelector('input[type=checkbox]'))`));
 while (!(await step()).includes("Review")) await b.click("Continue");
-const pickCount = () => b.ev(`document.querySelectorAll('[data-line] input[type=radio]:checked').length`);
 ok("presets: bar is on review with template defaults", await b.ev(`!!document.querySelector('[data-presets]')`));
 await clickSel('[data-preset="premium"]');
 ok("presets: premium pressed", await b.ev(`document.querySelector('[data-preset="premium"]').getAttribute('aria-pressed')==='true'`));
@@ -147,6 +146,19 @@ ok("template: offered on the scope step", await b.ev(`[...document.querySelector
 await b.ev(`[...document.querySelectorAll('[data-template]')].find(e=>e.innerText.includes('My test bathroom')).querySelector('[data-use-template]').click()`); await b.sleep(400);
 ok("template: lands on the measure step to confirm sizes", (await step()).includes("Measure"), await step());
 await b.ev(`window.localStorage.removeItem('kit-templates-v1')`);
+
+// Journey top navigation: five stages, clickable, with landings.
+await open();
+ok("journey: track with five stages, Job kit current", await b.ev(`document.querySelectorAll('[data-journey] [data-stage]').length===5 && document.querySelector('[data-journey] [data-stage="kit"]').dataset.state==='current'`));
+await clickSel('[data-journey] [data-stage="prices"] a'); await b.sleep(500);
+ok("journey: Prices opens the price books with the stage current", await b.ev(`document.querySelector('[data-journey] [data-stage="prices"]').dataset.state==='current' && document.querySelector('[data-journey] [data-stage="kit"]').dataset.state==='done'`));
+await clickSel('[data-journey] [data-stage="request"] a'); await b.sleep(700);
+ok("journey: Request quotes opens the RFQ preview", await b.ev(`!!document.querySelector('[data-dialog="rfq"]')`));
+await b.key("Escape");
+await clickSel('[data-journey] [data-stage="compare"] a'); await b.sleep(700);
+ok("journey: Compare lands on the options", await b.ev(`document.querySelector('[data-journey] [data-stage="compare"]').dataset.state==='current' && !!document.querySelector('[data-section="options"]')`));
+ok("journey: back and next bar", await b.ev(`document.querySelector('[data-journey-bar]').innerText.includes('Next: Request quotes')`));
+await b.ev(`window.sessionStorage.clear()`);
 
 // Config tab: bad format, then a v2 sample built from a bundled kit.
 await open();
