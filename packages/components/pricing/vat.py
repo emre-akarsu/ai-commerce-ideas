@@ -44,7 +44,8 @@ def resolve_basis(price: Price, cfg: PricingConfig) -> VatOutcome:
     target = _compare_basis(cfg)
     if not cfg.tax_active:
         return VatOutcome(basis=target)
-    basis, flags = price.vat_basis, ()
+    basis = price.vat_basis
+    flags: tuple[str, ...] = ()
     if basis is VatBasis.UNKNOWN:
         default = cfg.quote_basis_default
         if cfg.unknown_basis == "assume_default_flag" and default != "unknown":

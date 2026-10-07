@@ -23,12 +23,16 @@ from datetime import datetime
 from typing import Protocol, runtime_checkable
 
 from .config import PricingConfig
+from .eligibility import PriceType
 from .errors import DuplicateOfferError, OfferValidationError, TenantScopeError
 from .models import Offer, SourceKind, Visibility
 from .text import check_id
 
 MAX_LIMIT = 100_000
 _STRUCTURED_REF = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:#=/-]{0,127}")
+# Licence tags that allow storage in the shared dataset. Only synthetic seed data by default; a
+# deployment adds a tag here only after the licence has been read and recorded (ADR-013 Q7).
+DEFAULT_SHAREABLE_LICENCES = frozenset({"synthetic-illustrative"})
 
 
 @dataclass(frozen=True)
@@ -99,7 +103,7 @@ def _check_offer(offer: object, config: PricingConfig) -> Offer:
 
 
 class TenantOfferRepository:
-    """In-memory `OfferRepository` for one tenant. Create it with `InMemoryOfferStore.for_tenant`."""
+    """In-memory `OfferRepository` for one tenant (from `InMemoryOfferStore.for_tenant`)."""
 
     __slots__ = ("_config", "_lock", "_own", "_shared", "_tenant")
 
@@ -179,7 +183,7 @@ class SharedOfferWriter:
     It has no read methods. Shared data holds only structured fields (spec R10): vendor quotes
     (`manual_quote`), tenant-private offers and free-text references are refused."""
 
-    __slots__ = ("_config", "_lock", "_private", "_shared")
+    __slots__ = ("_config", "_licences", "_lock", "_private", "_shared")
 
     def __init__(
         self,
@@ -187,7 +191,9 @@ class SharedOfferWriter:
         private: dict[str, dict[str, Offer]],
         config: PricingConfig,
         lock: threading.RLock,
+        shareable_licences: frozenset[str] = DEFAULT_SHAREABLE_LICENCES,
     ) -> None:
+        self._licences = shareable_licences
         self._shared = shared
         self._private = private
         self._config = config
@@ -213,12 +219,15 @@ class SharedOfferWriter:
                 self._shared[offer.offer_id] = offer
             return len(batch)
 
-    @staticmethod
-    def _check_shareable(offer: Offer) -> None:
-        if offer.visibility is not Visibility.SHARED:
-            raise TenantScopeError("only shared offers can be written to the shared dataset")
-        if offer.source_kind is SourceKind.MANUAL_QUOTE:
+    def _check_shareable(self, offer: Offer) -> None:
+        if offer.visibility is not Visibility.SHARED or offer.account_specific:
+            raise TenantScopeError("account-specific and tenant-private offers are never shared")
+        if offer.source_kind is SourceKind.MANUAL_QUOTE or offer.price_type in (
+            PriceType.ACCOUNT_SPECIFIC, PriceType.QUOTED
+        ):
             raise TenantScopeError("a vendor quote is not shareable list data")
+        if offer.licence not in self._licences:
+            raise TenantScopeError(f"licence {offer.licence} does not allow shared storage")
         if offer.source_ref and _STRUCTURED_REF.fullmatch(offer.source_ref) is None:
             raise TenantScopeError("free text may not enter the shared dataset")
 
@@ -231,8 +240,12 @@ class SharedOfferWriter:
 class InMemoryOfferStore:
     """Process-wide holder. Hand `for_tenant(...)` capabilities to code, never the store itself."""
 
-    def __init__(self, config: PricingConfig) -> None:
+    def __init__(
+        self, config: PricingConfig,
+        shareable_licences: frozenset[str] = DEFAULT_SHAREABLE_LICENCES,
+    ) -> None:
         self._config = config
+        self._licences = shareable_licences
         self._lock = threading.RLock()
         self._shared_offers: dict[str, Offer] = {}
         self._private_offers: dict[str, dict[str, Offer]] = {}
@@ -245,4 +258,4 @@ class InMemoryOfferStore:
 
     def shared_writer(self) -> SharedOfferWriter:
         return SharedOfferWriter(
-            self._shared_offers, self._private_offers, self._config, self._lock)
+            self._shared_offers, self._private_offers, self._config, self._lock, self._licences)

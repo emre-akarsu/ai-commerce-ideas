@@ -155,3 +155,9 @@ def test_test_helper_builds_the_uk_like_config() -> None:
     assert cfg.vat_rate == D("0.20") and cfg.compare_basis == "ex_tax"
     assert cfg.tax_active is True
     assert PricingConfig.from_mapping(MIN_MONEY).tax_active is False
+
+
+def test_source_kinds_equal_the_profile_vocabulary() -> None:
+    from aiplat.profile import MATCHING_SOURCE_KINDS
+
+    assert tuple(k.value for k in SourceKind) == MATCHING_SOURCE_KINDS

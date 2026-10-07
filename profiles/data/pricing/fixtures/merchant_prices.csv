@@ -1,0 +1,10 @@
+code,merchant,price_ex_vat,currency,pack_qty,min_qty,multiple,stock,lead_days,delivery_fee,free_over,valid_until,title,product_url
+sku-pb-125-2400x1200,merchant-alpha,8.40,GBP,1,1,1,in stock,2,6.00,100,2026-11-05T00:00:00+00:00,Synthetic 12.5mm plasterboard 2400x1200,https://shop.example/p/pb125
+sku-pb-125-2400x1200,merchant-bravo,8.95,GBP,1,1,1,in stock,1,4.50,75,2026-11-05T00:00:00+00:00,Synthetic 12.5mm plasterboard 2400x1200,https://shop.example/p/pb125
+sku-pb-125-2400x1200,merchant-charlie,8.60,GBP,1,1,1,low stock,3,9.00,,2026-11-05T00:00:00+00:00,Synthetic 12.5mm plasterboard 2400x1200,https://shop.example/p/pb125
+sku-cement-25kg,merchant-alpha,5.10,GBP,1,1,1,in stock,2,6.00,100,2026-11-05T00:00:00+00:00,Synthetic cement 25kg bag,https://shop.example/p/c25
+sku-cement-25kg,merchant-bravo,5.60,GBP,1,1,1,in stock,1,4.50,75,2026-11-05T00:00:00+00:00,Synthetic cement 25kg bag,https://shop.example/p/c25
+sku-screw-4x40,merchant-bravo,9.80,GBP,200,1,1,in stock,1,4.50,75,2026-11-05T00:00:00+00:00,Synthetic screws 4x40 box of 200,https://shop.example/p/s440
+sku-screw-4x40,merchant-charlie,21.50,GBP,500,1,1,in stock,3,9.00,,2026-11-05T00:00:00+00:00,Synthetic screws 4x40 box of 500,https://shop.example/p/s440
+sku-bad-price,merchant-alpha,not-a-price,GBP,1,1,1,in stock,2,6.00,100,2026-11-05T00:00:00+00:00,Synthetic broken row,https://shop.example/p/bad
+sku-no-pack,merchant-alpha,3.00,GBP,,1,1,in stock,2,6.00,100,2026-11-05T00:00:00+00:00,Synthetic row without pack size,https://shop.example/p/np

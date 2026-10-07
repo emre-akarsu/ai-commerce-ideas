@@ -22,7 +22,7 @@ from .decimals import ceil_div, frac_to_decimal
 from .delivery import FeeSchedule, compile_terms
 from .freshness import Freshness, assess_freshness
 from .lines import MatchedSku, ResolvedLine
-from .models import Offer, PricePer, StockStatus, VatBasis
+from .models import Offer, StockStatus, VatBasis
 from .units import Unit, pack_content
 from .vat import convert, resolve_basis
 

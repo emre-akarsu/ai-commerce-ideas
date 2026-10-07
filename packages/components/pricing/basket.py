@@ -214,7 +214,7 @@ def _dp(p: _Problem, lines: list[int], upper: int, budget: int, cap: int) -> dic
         table = _merchant_table(p, j, avail[j], bit, base[j])
         amask = sum(bit[i] for i in avail[j])
         nxt: dict[int, tuple[int, int]] = {}
-        for mask in sorted(states):
+        for mask in sorted(states, reverse=True):  # carrying over an earlier merchant first
             key, free_bits = states[mask], amask & ~mask
             sub = free_bits
             while True:

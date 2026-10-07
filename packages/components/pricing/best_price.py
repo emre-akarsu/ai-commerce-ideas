@@ -30,7 +30,7 @@ from .config import PricingConfig
 from .decimals import frac_to_decimal, fraction_to_exact_decimal, median, quantize_places
 from .explain import Ctx, SanityNote, explain, surplus_reason
 from .lines import ResolvedLine
-from .models import Offer
+from .models import Offer, SourceKind
 from .reasons import Reason, make_reason
 from .repository import OfferFilter, OfferRepository
 from .results import ExcludedOffer, IndicativeRange, LineStatus, PricedLine, PricedOffer
@@ -222,7 +222,8 @@ def price_line_from_offers(
     group = {s.sku_id: s for s in line.skus}
     pool = sorted(
         (o for o in offers if o.sku_id in group
-         and (cfg.allow_search_snapshot_sources or not o.is_indicative)),
+         and (cfg.allow_search_snapshot_sources
+              or o.source_kind is not SourceKind.SEARCH_SNAPSHOT)),
         key=lambda o: o.offer_id)
     if len({o.offer_id for o in pool}) != len(pool):
         raise ValueError("duplicate offer ids in the offers to price")

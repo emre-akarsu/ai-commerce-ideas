@@ -10,12 +10,17 @@ import time
 from decimal import Decimal
 from typing import Any
 
-import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from components.pricing import DeliveryTerms, DeliveryTier, Offer, PricedLine, price_line_from_offers
-from components.pricing.basket import BasketResult, optimise_basket
+from components.pricing import (
+    DeliveryTerms,
+    DeliveryTier,
+    Offer,
+    PricedLine,
+    price_line_from_offers,
+)
+from components.pricing.basket import optimise_basket
 
 from .cfg import NOW, config
 from .factories import line, offer
@@ -185,7 +190,7 @@ def test_totals_are_exact_decimals_that_add_up(lines: list[PricedLine]) -> None:
     assert res.goods_total == sum((c.offer.goods_cost for c in res.choices), D("0.00"))
     assert res.goods_total == sum((o.goods for o in res.orders), D("0.00"))
     assert res.delivery_total == sum((o.delivery or D(0) for o in res.orders), D("0.00"))
-    assert sorted(l for o in res.orders for l in o.line_ids) == sorted(c.line_id for c in res.choices)
+    assert sorted(lid for o in res.orders for lid in o.line_ids) == sorted(c.line_id for c in res.choices)
 
 
 @PROP
@@ -224,10 +229,11 @@ def test_a_large_group_falls_back_with_a_gap_note_and_a_small_one_stays_exact() 
     big = optimise_basket(lines, CFG)  # 14 lines in one group > 12
     assert not big.exact and big.method == "heuristic" and big.optimality_gap is not None
     assert big.comparison_total <= big.line_by_line_total
-    forced_exact = optimise_basket(lines, config(basket_exact_max_lines=14))
+    forced_exact = optimise_basket(
+        lines, config(basket_exact_max_lines=14, basket_work_budget=100_000_000))
     assert forced_exact.exact
     assert forced_exact.comparison_total <= big.comparison_total
-    assert "heuristic" in big.notes[-1].text
+    assert "greedy" in big.notes[-1].text
 
 
 def test_work_budget_exhaustion_falls_back_instead_of_running_long() -> None:

@@ -30,6 +30,10 @@ from components.pricing.repository import (
 from .cfg import NOW, config
 from .factories import offer
 
+
+def shared(offer_id: str, **kw: Any) -> Offer:
+    return offer(offer_id, tenant=None, **kw)
+
 PROP = settings(max_examples=250, deadline=None, derandomize=True, database=None,
                 suppress_health_check=[HealthCheck.too_slow])
 TENANTS = ("t1", "t2", "t3")
@@ -48,10 +52,10 @@ def ids(offers: tuple[Offer, ...]) -> list[str]:
 
 def test_shared_offers_are_visible_to_every_tenant() -> None:
     s = store()
-    s.shared_writer().add_shared(offer("pub1"))
+    s.shared_writer().add_shared(shared("pub1"))
     assert ids(s.for_tenant("t1").search()) == ["pub1"]
     assert ids(s.for_tenant("t2").search()) == ["pub1"]
-    assert s.for_tenant("t3").get("pub1") == offer("pub1")
+    assert s.for_tenant("t3").get("pub1") == shared("pub1")
 
 
 def test_private_offers_are_visible_only_to_their_tenant() -> None:
@@ -66,7 +70,7 @@ def test_private_offers_are_visible_only_to_their_tenant() -> None:
 
 def test_tenant_a_never_sees_tenant_b_private_offers_by_any_call_path() -> None:
     s = store()
-    s.shared_writer().add_shared(offer("pub", sku="s1", merchant="m1"))
+    s.shared_writer().add_shared(shared("pub", sku="s1", merchant="m1"))
     b = s.for_tenant("t2")
     secret = offer("b-secret", tenant="t2", sku="s1", merchant="m1", amount="1.00")
     b.add(secret)
@@ -145,7 +149,7 @@ def _matches(o: Offer, f: OfferFilter) -> bool:
 def test_a_tenant_can_write_only_its_own_private_offers() -> None:
     a = store().for_tenant("t1")
     with pytest.raises(TenantScopeError):
-        a.add(offer("x"))  # shared: only the platform writer may add these
+        a.add(shared("x"))  # shared: only the platform writer may add these
     with pytest.raises(TenantScopeError):
         a.add(offer("x", tenant="t2"))  # another tenant's namespace
     a.add(offer("ok", tenant="t1"))
@@ -163,14 +167,14 @@ def test_the_same_offer_id_can_exist_in_two_tenants_so_ids_are_not_an_oracle() -
 
 def test_ids_must_stay_unique_within_what_a_tenant_can_see() -> None:
     s = store()
-    s.shared_writer().add_shared(offer("pub"))
+    s.shared_writer().add_shared(shared("pub"))
     with pytest.raises(DuplicateOfferError):
         s.for_tenant("t1").add(offer("pub", tenant="t1"))  # would shadow a shared offer
     s.for_tenant("t1").add(offer("mine", tenant="t1"))
     with pytest.raises(DuplicateOfferError):  # platform side only: never visible to a tenant
-        s.shared_writer().add_shared(offer("mine"))
+        s.shared_writer().add_shared(shared("mine"))
     with pytest.raises(DuplicateOfferError):
-        s.shared_writer().add_shared(offer("pub"))
+        s.shared_writer().add_shared(shared("pub"))
 
 
 def test_add_many_is_all_or_nothing() -> None:
@@ -191,7 +195,7 @@ def test_the_currency_must_be_accepted_by_the_deployment() -> None:
     with pytest.raises(OfferValidationError, match="currency"):
         a.add(offer("jpy", tenant="t1", currency="JPY"))
     with pytest.raises(OfferValidationError, match="currency"):
-        store().shared_writer().add_shared(offer("jpy", currency="JPY"))
+        store().shared_writer().add_shared(shared("jpy", currency="JPY"))
 
 
 def test_non_offers_are_rejected() -> None:
@@ -203,7 +207,7 @@ def test_non_offers_are_rejected() -> None:
 def test_remove_rules() -> None:
     s = store()
     a = s.for_tenant("t1")
-    s.shared_writer().add_shared(offer("pub"))
+    s.shared_writer().add_shared(shared("pub"))
     a.add(offer("mine", tenant="t1"))
     with pytest.raises(TenantScopeError):
         a.remove("pub")  # shared offers are managed by the platform
@@ -218,11 +222,11 @@ def test_remove_rules() -> None:
 def test_vendor_quotes_and_free_text_cannot_enter_the_shared_dataset() -> None:
     w = store().shared_writer()
     with pytest.raises(TenantScopeError):
-        w.add_shared(offer("mq", kind=SourceKind.MANUAL_QUOTE))  # a vendor price, not list data
-    clean = offer("ok", source_ref="prices.csv#row=3")
+        w.add_shared(shared("mq", kind=SourceKind.MANUAL_QUOTE))  # a vendor price, not list data
+    clean = shared("ok", source_ref="prices.csv#row=3")
     w.add_shared(clean)
     with pytest.raises(TenantScopeError):
-        w.add_shared(offer("txt", source_ref="called Dave, said ring back after lunch"))
+        w.add_shared(shared("txt", source_ref="called Dave, said ring back after lunch"))
     with pytest.raises(TenantScopeError):
         w.add_shared(offer("t", tenant="t1"))  # private offers are not shared data
 
@@ -267,7 +271,7 @@ def test_a_tenant_repository_cannot_even_reach_another_tenants_offers_in_memory(
     """Containment, not just filtering: the capability holds the shared namespace and its own
     tenant's namespace and nothing else, so a bug in a caller cannot leak what it cannot reach."""
     s = store()
-    s.shared_writer().add_shared(offer("pub"))
+    s.shared_writer().add_shared(shared("pub"))
     s.for_tenant("t1").add(offer("a-secret", tenant="t1"))
     s.for_tenant("t2").add(offer("b-secret", tenant="t2"))
     assert _reachable_offers(s.for_tenant("t1")) == {"pub", "a-secret"}

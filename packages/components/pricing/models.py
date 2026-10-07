@@ -24,7 +24,9 @@ from typing import Any
 from components.core.domain import UoM
 
 from .decimals import check_decimal, check_int
+from .eligibility import PriceType, quote_line_eligible
 from .errors import OfferValidationError
+from .models_enums import SourceKind
 from .text import check_id, check_token, clean_text
 from .units import Unit
 
@@ -35,19 +37,6 @@ MAX_LEAD_TIME_DAYS = 3650
 MAX_VAT_RATE = Decimal("0.5")
 _ZERO = Decimal(0)
 _ONE = Decimal(1)
-
-
-class SourceKind(StrEnum):
-    """What kind of source produced the data (matches `aiplat.profile.MATCHING_SOURCE_KINDS`).
-
-    It describes the data, not a live connection: a `trade_feed` is a trade price file a tenant or
-    the platform operator loaded, an `affiliate_feed` is an affiliate product file, and so on."""
-
-    TRADE_FEED = "trade_feed"
-    MERCHANT_API = "merchant_api"
-    AFFILIATE_FEED = "affiliate_feed"
-    SEARCH_SNAPSHOT = "search_snapshot"
-    MANUAL_QUOTE = "manual_quote"
 
 
 class VatBasis(StrEnum):
@@ -280,6 +269,11 @@ class Offer:
     visibility: Visibility = Visibility.SHARED
     tenant_id: str | None = None
     flags: tuple[str, ...] = ()
+    price_type: PriceType = PriceType.RETAIL
+    # Prices negotiated for one tenant's account: tenant-private, never shared.
+    account_specific: bool = False
+    # The tenant confirms the price is real and that it may use it (user-supplied files, quotes).
+    tenant_attested: bool = False
 
     def __post_init__(self) -> None:
         for name in ("offer_id", "sku_id", "merchant_id"):
@@ -306,6 +300,7 @@ class Offer:
                       maximum=MAX_LEAD_TIME_DAYS)
         self._check_visibility()
         self._check_flags()
+        self._check_eligibility_fields()
 
     def _check_parts(self) -> None:
         if not isinstance(self.price, Price):
@@ -326,6 +321,18 @@ class Offer:
                 raise OfferValidationError("a tenant-private offer must name its tenant")
             check_id(self.tenant_id, "tenant_id")
 
+    def _check_eligibility_fields(self) -> None:
+        _enum(self.price_type, PriceType, "price_type")
+        for name in ("account_specific", "tenant_attested"):
+            if not isinstance(getattr(self, name), bool):
+                raise OfferValidationError(f"{name} must be a bool")
+        if (self.account_specific or self.tenant_attested) and (
+            self.visibility is not Visibility.TENANT_PRIVATE
+        ):
+            raise OfferValidationError("account-specific or attested offers must be tenant-private")
+        if self.price_type is PriceType.ACCOUNT_SPECIFIC and not self.account_specific:
+            raise OfferValidationError("price_type account_specific needs account_specific=True")
+
     def _check_flags(self) -> None:
         if not isinstance(self.flags, tuple):
             raise OfferValidationError("flags must be a tuple of tokens")
@@ -335,5 +342,8 @@ class Offer:
 
     @property
     def is_indicative(self) -> bool:
-        """Search snapshots are indicative only: never selectable for a quote line."""
-        return self.source_kind is SourceKind.SEARCH_SNAPSHOT
+        """Not eligible for a quote line (see `eligibility.quote_line_eligible`): shown only as an
+        indicative price, never selected and never in a firm total."""
+        return not quote_line_eligible(
+            self.source_kind, self.price_type, self.account_specific,
+            self.valid_until is not None, self.tenant_attested)

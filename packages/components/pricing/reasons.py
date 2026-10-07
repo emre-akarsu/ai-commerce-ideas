@@ -1,4 +1,4 @@
-"""Explanations as fixed templates over typed values (CLAUDE.md rule 3: no claim without provenance).
+"""Explanations as fixed templates over typed values (CLAUDE.md rule 3: provenance, no free text).
 
 Every sentence the engine produces comes from `TEMPLATES`, filled with ids, enum values, Decimals
 and dates that the engine itself validated or computed. No vendor free text and no model output can
@@ -50,8 +50,8 @@ TEMPLATES: dict[str, str] = {
                        "band {low} to {high}.",
     "substitution_not_approved": "Offer {offer_id} is for SKU {sku_id} (tier {tier}), which has "
                                  "no recorded substitution approval.",
-    "indicative_only": "Offer {offer_id} is a search snapshot: indicative only, never selectable "
-                       "for a quote line.",
+    "indicative_only": "Offer {offer_id} is indicative only (its source, price type, validity or "
+                       "attestation do not allow a quote line) and is never selected.",
     "below_moq": "The required quantity is below the minimum order of offer {offer_id}; "
                  "{packs} pack(s) must be bought (minimum {moq}).",
     "order_multiple_applied": "Offer {offer_id} is sold in multiples of {multiple} pack(s); "

@@ -25,6 +25,7 @@ from components.pricing import (
     Price,
     PricedLine,
     PricePer,
+    PriceType,
     ResolvedLine,
     SourceKind,
     StockStatus,
@@ -307,24 +308,25 @@ def test_a_stated_rate_that_differs_from_the_configured_one_goes_to_a_person() -
 
 
 def test_stale_offers_never_win_by_default_and_are_listed_with_the_reason() -> None:
-    stale = offer("old", amount="5.00", age_hours=25, merchant="m1")  # merchant_api limit 24 h
+    stale = offer("old", amount="5.00", age_hours=169, merchant="m1")  # trade_feed limit 168 h
     fresh = offer("new", amount="9.00", merchant="m2")
     res = run(line(), [stale, fresh])
     assert best_id(res) == "new" and excluded(res) == {"old": ("stale",)}
     assert res.excluded[0].reasons[0].code == "stale"
-    assert "25" in res.excluded[0].reasons[0].text
+    assert "169" in res.excluded[0].reasons[0].text
 
 
 def test_per_source_kind_limits_apply() -> None:
     feed = offer("feed", kind=SourceKind.TRADE_FEED, age_hours=100, amount="5.00", merchant="m1")
-    api = offer("api", kind=SourceKind.MERCHANT_API, age_hours=100, amount="4.00", merchant="m2")
+    api = offer("api", kind=SourceKind.MERCHANT_API, account_specific=True, age_hours=100,
+                amount="4.00", merchant="m2", price_type=PriceType.ACCOUNT_SPECIFIC)
     res = run(line(), [feed, api])
     assert best_id(res) == "feed" and excluded(res) == {"api": ("stale",)}  # 168 h vs 24 h
 
 
 def test_flag_only_policy_keeps_stale_offers_selectable_but_flagged() -> None:
     cfg = config(pricing={"stale_offers": "flag_only"})
-    res = run(line(), [offer("old", amount="5.00", age_hours=25, merchant="m1"),
+    res = run(line(), [offer("old", amount="5.00", age_hours=169, merchant="m1"),
                        offer("new", amount="9.00", merchant="m2")], cfg)
     assert best_id(res) == "old" and res.best is not None and "stale" in res.best.flags
     assert res.excluded == ()
@@ -605,7 +607,7 @@ def test_all_reason_text_is_templated_and_never_carries_vendor_text() -> None:
 
 def test_flags_are_sorted_unique_codes_and_exclusions_are_always_flags() -> None:
     res = run(line(), [offer("x", stock=StockStatus.OUT_OF_STOCK, vat=VatBasis.UNKNOWN,
-                             age_hours=40)])
+                             age_hours=200)])
     e = res.excluded[0]
     assert e.flags == tuple(sorted(set(e.flags)))
     assert set(e.codes) <= set(e.flags)
@@ -655,25 +657,30 @@ def test_landed_unit_cost_has_the_same_meaning_as_the_rfq_comparison() -> None:
 
 
 def test_pricing_through_a_repository_never_sees_another_tenants_private_offers() -> None:
-    store = InMemoryOfferStore(CFG)
-    store.shared_writer().add_shared(offer("pub", amount="10.00", merchant="m1"))
+    store = InMemoryOfferStore(CFG, shareable_licences=frozenset({"synthetic-illustrative"}))
+    store.shared_writer().add_shared(offer("pub", amount="10.00", merchant="m1", tenant=None))
     store.for_tenant("t2").add(offer("b-neg", amount="1.00", merchant="m9", tenant="t2"))
     store.for_tenant("t1").add(offer("a-neg", amount="8.00", merchant="m8", tenant="t1"))
     clock = FakeClock(NOW)
     a = price_line(line(), store.for_tenant("t1"), CFG, clock)
     b = price_line(line(), store.for_tenant("t2"), CFG, clock)
     c = price_line(line(), store.for_tenant("t3"), CFG, clock)
-    assert (best_id(a), best_id(b), best_id(c)) == ("a-neg", "b-neg", "pub")
-    assert ranked_ids(a) == ["a-neg", "pub"] and ranked_ids(c) == ["pub"]
+    # shared list data is indicative only, so it never wins; each tenant's own offer can
+    assert (best_id(a), best_id(b), best_id(c)) == ("a-neg", "b-neg", None)
+    assert c.status is LineStatus.INDICATIVE_ONLY
+    seen = {name: {p.offer.offer_id for p in (*r.ranked, *(r.indicative.offers if r.indicative
+                                                          else ()))}
+            for name, r in (("a", a), ("b", b), ("c", c))}
+    assert seen == {"a": {"a-neg", "pub"}, "b": {"b-neg", "pub"}, "c": {"pub"}}
     for res, other in ((a, "b-neg"), (c, "a-neg"), (c, "b-neg")):
-        assert other not in ranked_ids(res) and other not in excluded(res)
+        assert other not in excluded(res)
 
 
 def test_price_line_reads_time_once_from_the_injected_clock() -> None:
     store = InMemoryOfferStore(CFG)
-    store.shared_writer().add_shared(offer("pub", age_hours=23))
+    store.for_tenant("t1").add(offer("mine", age_hours=167))  # trade_feed limit 168 h
     clock = FakeClock(NOW)
-    assert best_id(price_line(line(), store.for_tenant("t1"), CFG, clock)) == "pub"
-    clock.advance(hours=2)  # now 25 h old: past the merchant_api limit
+    assert best_id(price_line(line(), store.for_tenant("t1"), CFG, clock)) == "mine"
+    clock.advance(hours=2)  # now 169 h old
     res = price_line(line(), store.for_tenant("t1"), CFG, clock)
     assert res.status is LineStatus.NO_ELIGIBLE_OFFER and res.as_of == NOW + timedelta(hours=2)

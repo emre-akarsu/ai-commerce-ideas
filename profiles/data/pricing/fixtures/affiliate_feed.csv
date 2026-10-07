@@ -1,0 +1,5 @@
+sku,seller,price_inc_vat,price_ex_vat,ccy,pack,availability,updated
+sku-pb-125-2400x1200,merchant-delta,11.99,9.99,GBP,1,in stock,2026-10-05T07:00:00+00:00
+sku-pb-125-2400x1200,merchant-echo,10.80,9.00,GBP,1,in stock,2026-10-05T07:00:00+00:00
+sku-cement-25kg,merchant-delta,7.99,,GBP,1,sold out,2026-10-05T07:00:00+00:00
+sku-cement-25kg,merchant-echo,7.20,5.00,GBP,1,in stock,2026-10-05T07:00:00+00:00

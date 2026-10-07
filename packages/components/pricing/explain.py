@@ -121,8 +121,9 @@ def _multiple(c: Ctx) -> Reason:
 def _converted(c: Ctx) -> Reason:
     n = c.a.numbers
     assert n is not None
-    return make_reason("unit_converted", offer_id=_oid(c), pack_content=frac_to_decimal(n.content, 6),
-                       unit=c.line.unit, sku_id=c.a.sku.sku_id)
+    return make_reason("unit_converted", offer_id=_oid(c),
+                       pack_content=frac_to_decimal(n.content, 6), unit=c.line.unit,
+                       sku_id=c.a.sku.sku_id)
 
 
 _BUILDERS: dict[str, Callable[[Ctx], Reason]] = {

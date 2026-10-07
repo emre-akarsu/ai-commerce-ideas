@@ -41,7 +41,7 @@ def test_each_source_kind_has_its_own_age_limit_and_the_limit_itself_is_still_fr
 
 
 def test_limits_come_from_the_configuration() -> None:
-    cfg = config(pricing={"max_offer_age_hours": {"merchant_api": 2}})
+    cfg = config(pricing={"max_offer_age_hours": {"trade_feed": 2}})
     assert assess_freshness(offer(age_hours=3), cfg, NOW).stale
     assert not assess_freshness(offer(age_hours=2), cfg, NOW).stale
 

@@ -12,6 +12,7 @@ from components.pricing import (
     Offer,
     PackSize,
     Price,
+    PriceType,
     Provenance,
     ResolvedLine,
     SourceKind,
@@ -24,6 +25,7 @@ from components.pricing import (
 from .cfg import NOW
 
 D = Decimal
+_DEFAULT: Any = object()
 
 
 def offer(
@@ -32,7 +34,7 @@ def offer(
     sku: str = "sku-a",
     merchant: str = "m1",
     amount: str | Decimal = "10.00",
-    kind: SourceKind = SourceKind.MERCHANT_API,
+    kind: SourceKind = SourceKind.TRADE_FEED,
     vat: VatBasis = VatBasis.EX_TAX,
     vat_rate: Decimal | None = None,
     currency: str = "GBP",
@@ -40,19 +42,25 @@ def offer(
     stock: StockStatus = StockStatus.IN_STOCK,
     observed_at: datetime | None = None,
     age_hours: int = 1,
-    valid_until: datetime | None = None,
+    valid_until: Any = _DEFAULT,
     delivery: DeliveryTerms | None = None,
     moq: int = 1,
     multiple: int = 1,
     lead_time_days: int | None = 2,
     confidence: str = "0.9",
-    tenant: str | None = None,
+    tenant: Any = _DEFAULT,
+    price_type: PriceType = PriceType.TRADE_LIST,
+    account_specific: bool = False,
+    attested: bool | None = None,
     flags: Iterable[str] = (),
     source_ref: str = "",
     price: Price | None = None,
     licence: str = "synthetic-illustrative",
 ) -> Offer:
-    """Synthetic offer. `tenant` makes it tenant-private; otherwise it is shared."""
+    """Synthetic offer. By default a firm one: tenant-private ("t1"), attested, with validity, so
+    it may feed a quote line. `tenant=None` makes it shared (and so always indicative)."""
+    owner = "t1" if tenant is _DEFAULT else tenant
+    until = NOW + timedelta(days=30) if valid_until is _DEFAULT else valid_until
     return Offer(
         offer_id=offer_id,
         sku_id=sku,
@@ -76,10 +84,13 @@ def offer(
         stock_status=stock,
         lead_time_days=lead_time_days,
         delivery=delivery,
-        valid_until=valid_until,
-        visibility=Visibility.TENANT_PRIVATE if tenant else Visibility.SHARED,
-        tenant_id=tenant,
+        valid_until=until,
+        visibility=Visibility.TENANT_PRIVATE if owner else Visibility.SHARED,
+        tenant_id=owner,
         flags=tuple(flags),
+        price_type=price_type,
+        account_specific=account_specific,
+        tenant_attested=bool(owner) if attested is None else attested,
     )
 
 

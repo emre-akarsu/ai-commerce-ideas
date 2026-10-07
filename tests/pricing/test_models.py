@@ -180,8 +180,9 @@ def test_provenance_fields_are_plain_tokens() -> None:
 
 def test_a_valid_offer_round_trips_and_is_immutable() -> None:
     o = offer()
-    assert o.source_kind is SourceKind.MERCHANT_API
-    assert o.visibility is Visibility.SHARED and o.tenant_id is None
+    assert o.source_kind is SourceKind.TRADE_FEED
+    assert o.visibility is Visibility.TENANT_PRIVATE and o.tenant_id == "t1"
+    assert offer(tenant=None).visibility is Visibility.SHARED
     assert o.observed_at.tzinfo is UTC
     with pytest.raises(dataclasses.FrozenInstanceError):
         o.sku_id = "x"  # type: ignore[misc]
