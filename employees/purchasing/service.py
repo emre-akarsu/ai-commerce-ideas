@@ -1733,3 +1733,28 @@ def build_in_memory_service(
         extractor=extractor, settings=cfg, notifier=notifier, ids=ids, llm=llm,
         reply_token_key=hmac.new(secret, b"reply-token-key", hashlib.sha256).digest(),
         profile=prof, suppliers=suppliers, spend_book=sh.get("spend_book"), **kwargs)
+
+
+def build_pg_service(
+    profile: ResolvedProfile,
+    engine: Any,
+    shared_state: Any,
+    event_store: EventLog,
+    **kwargs: Any,
+) -> PurchasingService:
+    """The service over Postgres (known-gaps H2): its own stores (requests, vendors, RFQs, quotes,
+    approvals, PO drafts, supplier profiles, assumptions) are ``PgServiceStore`` rows under RLS, and
+    its security state is ``shared_state`` (``aidb.state.PgSharedState``), the audit log
+    ``event_store`` (``aidb.repositories.PgEventStore``). ``engine`` must connect as ``app_user``.
+    ``kwargs`` go to ``build_in_memory_service`` (keys, clock, transport, notifier, ...); ``store``,
+    ``suppliers``, ``event_log`` and ``shared`` are fixed here and refused if passed. Still per
+    process: the prepared-message cache, the approval notifier and in-process prepare locks."""
+    clash = {"store", "suppliers", "event_log", "shared"} & kwargs.keys()
+    if clash:
+        raise TypeError(f"build_pg_service fixes {sorted(clash)}")
+    from .pg_wiring import PgServiceStore
+
+    pg = PgServiceStore(engine)
+    return build_in_memory_service(
+        profile=profile, store=pg, suppliers=pg,  # type: ignore[arg-type]
+        event_log=event_store, shared=shared_state.as_kwargs(), **kwargs)

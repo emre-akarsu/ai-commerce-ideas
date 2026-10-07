@@ -3,8 +3,10 @@
 Without `DATABASE_URL` everything is the in-memory build (per-process state). With it, the quote
 stores, the event log and the purchasing service's shared security state are Postgres-backed
 (`apps.api.quote_pg`, `aidb.state.PgSharedState`); the URL must be the restricted `app_user` role
-(row level security never applies to an owner). The purchasing service's own request store is still
-in-memory, so ENV=production stays refused (docs/architecture/known-gaps.md, H2).
+(row level security never applies to an owner). The purchasing service's own stores (requests,
+vendors, RFQs, quotes, approvals, PO drafts, supplier profiles, assumptions) are Postgres rows too
+(`build_pg_service`). ENV=production stays refused: see `REMAINING_H2` below and
+docs/architecture/known-gaps.md (H2).
 """
 
 from __future__ import annotations
@@ -21,6 +23,16 @@ from .auth import build_authenticator
 from .main import create_app
 
 PROD_ENVS = frozenset({"production", "prod"})
+# Exactly what still blocks production after the Postgres wiring (keep in step with known-gaps.md H2
+# and scripts/check_production_readiness.py, which reports each item).
+REMAINING_H2 = (
+    "global (all-tenant) kill switch is process-local",
+    "approval-threshold aggregate (committed_today then set_committed) is not atomic",
+    "idempotency replay is get-then-put, not atomic",
+    "prepared-message cache and approval-link notifier are per process",
+    "multi-step operations are separate transactions; prepare_rfqs lock is in-process",
+    "no real mail transport or inbound provider is built (recording transport only)",
+)
 MIN_KEY = 16
 
 
@@ -50,9 +62,10 @@ def build_app(env: Mapping[str, str] | None = None, *, clock: Clock | None = Non
     e = os.environ if env is None else env
     if e.get("ENV", "").strip().lower() in PROD_ENVS:
         raise RuntimeError(
-            "refusing to start: the shipped entrypoint uses the in-memory purchasing service, "
-            "whose security state (approvals, kill switch, event chain) is process-local. "
-            "See docs/architecture/known-gaps.md (H2) before deploying to production."
+            "refusing to start (known-gaps H2): with DATABASE_URL the purchasing stores and "
+            "security state are in Postgres, but production is still blocked by: "
+            + "; ".join(REMAINING_H2)
+            + ". Run scripts/check_production_readiness.py and see docs/architecture/known-gaps.md."
         )
     try:
         from employees.purchasing.service import build_in_memory_service
@@ -87,7 +100,7 @@ def _build_pg_app(url: str, e: Mapping[str, str], profile: Any, clk: Clock,
     import hashlib
     import hmac
 
-    from employees.purchasing.service import build_in_memory_service
+    from employees.purchasing.service import build_pg_service
 
     from aidb.repositories import PgEventStore
     from aidb.session import make_engine
@@ -104,9 +117,8 @@ def _build_pg_app(url: str, e: Mapping[str, str], profile: Any, clk: Clock,
     engine = make_engine(url)  # app_user: every session verifies the role does not bypass RLS
     events = PgEventStore(engine, clk, pii_key=pii, chain_key=chain)
     shared = PgSharedState(engine, clock=clk)
-    service = build_in_memory_service(
-        profile=profile, clock=clk, event_log=events, approval_secret=approval,
-        audit_key=chain, shared=shared.as_kwargs())
+    service = build_pg_service(
+        profile, engine, shared, events, clock=clk, approval_secret=approval, audit_key=chain)
     opts = _quote_service_kwargs(e)
     from components.pricing import PricingConfig
 
