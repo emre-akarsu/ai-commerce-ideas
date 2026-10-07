@@ -12,10 +12,11 @@ Key names follow the web client's reader: `offers`, `quarantined`, `vat_basis`, 
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+import json
+from collections.abc import Mapping, Sequence
+from datetime import datetime
+from decimal import Decimal
 from typing import Any
-
-from components.quoting.export import dec, dumps, when
 
 from .ladder import BUILT_LEVELS, LEVEL_LABELS
 from .models import FreshnessSummary, GapLine, MerchantBook, PriceBook
@@ -33,6 +34,21 @@ SCHEMA_CHANGES = (
 )
 
 __all__ = ["FORMAT", "SCHEMA_CHANGES", "dumps", "price_books_ui"]
+
+
+def dec(value: Decimal | None) -> str | None:
+    """A Decimal as a plain string (a dot, no exponent); never a float."""
+    return None if value is None else format(value, "f")
+
+
+def when(value: datetime | None) -> str | None:
+    return None if value is None else value.isoformat()
+
+
+def dumps(doc: Mapping[str, Any]) -> str:
+    """Stable text: the dictionary's own key order, two-space indent, UTF-8, trailing newline
+    (the same convention as the quote export)."""
+    return json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
 
 
 def _merchant(m: MerchantBook) -> dict[str, Any]:

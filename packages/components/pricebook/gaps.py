@@ -19,11 +19,11 @@ from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal
 
 from components.pricing import PricingConfig
-from components.quoting import Bucket, LineResult, QuoteResult
 
 from .models import GapLine, SpendBasis, check_merchant_id
+from .protocols import LineResultLike, QuoteLike
 
-GAP_BUCKETS = (Bucket.REVIEW, Bucket.UNMATCHED, Bucket.INDICATIVE, Bucket.NO_OFFER)
+GAP_BUCKETS = frozenset({"review", "unmatched", "indicative_only", "no_offer"})
 SERVICE_FLAG = "service"
 
 
@@ -45,14 +45,14 @@ class RfqGapGroup:
     items: tuple[RfqGapItem, ...]
 
 
-def _reason_code(r: LineResult) -> str:
-    if r.bucket is Bucket.NO_OFFER:
+def _reason_code(r: LineResultLike) -> str:
+    if r.bucket.value == "no_offer":
         if r.excluded_codes:
             return r.excluded_codes[0]
         return r.priced.status.value if r.priced is not None else "no_offer"
-    if r.bucket is Bucket.REVIEW:
+    if r.bucket.value == "review":
         return "needs_review"
-    if r.bucket is Bucket.INDICATIVE:
+    if r.bucket.value == "indicative_only":
         return "indicative_only"
     for reason in r.reasons:
         if reason.code:
@@ -60,24 +60,24 @@ def _reason_code(r: LineResult) -> str:
     return r.bucket.value
 
 
-def _spend(r: LineResult, cfg: PricingConfig) -> tuple[Decimal | None, SpendBasis]:
+def _spend(r: LineResultLike, cfg: PricingConfig) -> tuple[Decimal | None, SpendBasis]:
     rng = r.indicative
-    if rng is None or rng.unit is not r.request.unit:
+    if rng is None or rng.unit != r.request.unit:
         return None, SpendBasis.NONE
     places = Decimal(1).scaleb(-cfg.minor_unit_places)
     spend = (r.request.quantity * rng.low).quantize(places, rounding=ROUND_HALF_UP)
     return spend, SpendBasis.INDICATIVE_LOW
 
 
-def _is_gap(r: LineResult) -> bool:
-    return r.bucket in GAP_BUCKETS and SERVICE_FLAG not in r.flags
+def _is_gap(r: LineResultLike) -> bool:
+    return r.bucket.value in GAP_BUCKETS and SERVICE_FLAG not in r.flags
 
 
-def compute_gaps(quote: QuoteResult, merchant_ids: Iterable[str], cfg: PricingConfig
+def compute_gaps(quote: QuoteLike, merchant_ids: Iterable[str], cfg: PricingConfig
                  ) -> tuple[GapLine, ...]:
     """The gap lines of `quote`, ranked by spend. `merchant_ids` are the merchants of the book."""
     merchants = tuple(sorted({check_merchant_id(m) for m in merchant_ids}))
-    rows: list[tuple[LineResult, Decimal | None, SpendBasis]] = []
+    rows: list[tuple[LineResultLike, Decimal | None, SpendBasis]] = []
     for r in quote.results:
         if _is_gap(r):
             spend, basis = _spend(r, cfg)

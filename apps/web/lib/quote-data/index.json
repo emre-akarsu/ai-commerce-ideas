@@ -1,0 +1,312 @@
+{
+  "format": "quote-data-index/1",
+  "label": "SYNTHETIC/ILLUSTRATIVE DEMO DATA: fictional merchants, invented prices and invented reviewer decisions; not real prices, not a supplier quote; nothing is sent or ordered",
+  "synthetic": true,
+  "as_of": "2026-10-07T09:00:00+00:00",
+  "combinations": [
+    {
+      "tenant_id": "demo-tenant-a",
+      "scope_id": "bathroom_full",
+      "scope_label": "Full bathroom refit (bath, basin, WC, shower)",
+      "path": "demo-tenant-a/full.json",
+      "reviewer_decisions": 29,
+      "first": {
+        "lines_total": 77,
+        "priced": 2,
+        "review": 41,
+        "unmatched": 34,
+        "indicative": 0,
+        "no_offer": 0,
+        "skipped": 0,
+        "firm_total_ex_vat": "190.90",
+        "firm_total_inc_vat": "229.08",
+        "currency": "GBP"
+      },
+      "after_review": {
+        "lines_total": 77,
+        "priced": 34,
+        "review": 9,
+        "unmatched": 34,
+        "indicative": 0,
+        "no_offer": 0,
+        "skipped": 0,
+        "firm_total_ex_vat": "1315.39",
+        "firm_total_inc_vat": "1578.47",
+        "currency": "GBP"
+      },
+      "price_book": {
+        "current": 5,
+        "stale": 0,
+        "missing": 0,
+        "indicative_only": 0,
+        "gaps": 40
+      }
+    },
+    {
+      "tenant_id": "demo-tenant-a",
+      "scope_id": "bathroom_wc_only",
+      "scope_label": "WC replacement",
+      "path": "demo-tenant-a/wc_only.json",
+      "reviewer_decisions": 6,
+      "first": {
+        "lines_total": 24,
+        "priced": 1,
+        "review": 11,
+        "unmatched": 12,
+        "indicative": 0,
+        "no_offer": 0,
+        "skipped": 0,
+        "firm_total_ex_vat": "22.44",
+        "firm_total_inc_vat": "26.93",
+        "currency": "GBP"
+      },
+      "after_review": {
+        "lines_total": 24,
+        "priced": 7,
+        "review": 5,
+        "unmatched": 12,
+        "indicative": 0,
+        "no_offer": 0,
+        "skipped": 0,
+        "firm_total_ex_vat": "175.59",
+        "firm_total_inc_vat": "210.71",
+        "currency": "GBP"
+      },
+      "price_book": {
+        "current": 5,
+        "stale": 0,
+        "missing": 0,
+        "indicative_only": 0,
+        "gaps": 15
+      }
+    },
+    {
+      "tenant_id": "demo-tenant-a",
+      "scope_id": "bathroom_cloakroom",
+      "scope_label": "Cloakroom refit (WC and basin)",
+      "path": "demo-tenant-a/cloakroom.json",
+      "reviewer_decisions": 24,
+      "first": {
+        "lines_total": 52,
+        "priced": 1,
+        "review": 31,
+        "unmatched": 20,
+        "indicative": 0,
+        "no_offer": 0,
+        "skipped": 0,
+        "firm_total_ex_vat": "22.44",
+        "firm_total_inc_vat": "26.93",
+        "currency": "GBP"
+      },
+      "after_review": {
+        "lines_total": 52,
+        "priced": 25,
+        "review": 7,
+        "unmatched": 20,
+        "indicative": 0,
+        "no_offer": 0,
+        "skipped": 0,
+        "firm_total_ex_vat": "483.40",
+        "firm_total_inc_vat": "580.08",
+        "currency": "GBP"
+      },
+      "price_book": {
+        "current": 5,
+        "stale": 0,
+        "missing": 0,
+        "indicative_only": 0,
+        "gaps": 24
+      }
+    },
+    {
+      "tenant_id": "demo-tenant-a",
+      "scope_id": "bathroom_wet_room",
+      "scope_label": "Wet room / level-access shower conversion",
+      "path": "demo-tenant-a/wet_room.json",
+      "reviewer_decisions": 21,
+      "first": {
+        "lines_total": 70,
+        "priced": 1,
+        "review": 30,
+        "unmatched": 39,
+        "indicative": 0,
+        "no_offer": 0,
+        "skipped": 0,
+        "firm_total_ex_vat": "26.88",
+        "firm_total_inc_vat": "32.26",
+        "currency": "GBP"
+      },
+      "after_review": {
+        "lines_total": 70,
+        "priced": 23,
+        "review": 8,
+        "unmatched": 39,
+        "indicative": 0,
+        "no_offer": 0,
+        "skipped": 0,
+        "firm_total_ex_vat": "676.60",
+        "firm_total_inc_vat": "811.92",
+        "currency": "GBP"
+      },
+      "price_book": {
+        "current": 5,
+        "stale": 0,
+        "missing": 0,
+        "indicative_only": 0,
+        "gaps": 44
+      }
+    },
+    {
+      "tenant_id": "demo-tenant-b",
+      "scope_id": "bathroom_full",
+      "scope_label": "Full bathroom refit (bath, basin, WC, shower)",
+      "path": "demo-tenant-b/full.json",
+      "reviewer_decisions": 29,
+      "first": {
+        "lines_total": 77,
+        "priced": 2,
+        "review": 41,
+        "unmatched": 34,
+        "indicative": 0,
+        "no_offer": 0,
+        "skipped": 0,
+        "firm_total_ex_vat": "151.28",
+        "firm_total_inc_vat": "181.54",
+        "currency": "GBP"
+      },
+      "after_review": {
+        "lines_total": 77,
+        "priced": 16,
+        "review": 9,
+        "unmatched": 34,
+        "indicative": 6,
+        "no_offer": 12,
+        "skipped": 0,
+        "firm_total_ex_vat": "873.63",
+        "firm_total_inc_vat": "1048.36",
+        "currency": "GBP"
+      },
+      "price_book": {
+        "current": 1,
+        "stale": 0,
+        "missing": 2,
+        "indicative_only": 2,
+        "gaps": 58
+      }
+    },
+    {
+      "tenant_id": "demo-tenant-b",
+      "scope_id": "bathroom_wc_only",
+      "scope_label": "WC replacement",
+      "path": "demo-tenant-b/wc_only.json",
+      "reviewer_decisions": 6,
+      "first": {
+        "lines_total": 24,
+        "priced": 1,
+        "review": 11,
+        "unmatched": 12,
+        "indicative": 0,
+        "no_offer": 0,
+        "skipped": 0,
+        "firm_total_ex_vat": "18.91",
+        "firm_total_inc_vat": "22.69",
+        "currency": "GBP"
+      },
+      "after_review": {
+        "lines_total": 24,
+        "priced": 4,
+        "review": 5,
+        "unmatched": 12,
+        "indicative": 0,
+        "no_offer": 3,
+        "skipped": 0,
+        "firm_total_ex_vat": "121.22",
+        "firm_total_inc_vat": "145.46",
+        "currency": "GBP"
+      },
+      "price_book": {
+        "current": 1,
+        "stale": 0,
+        "missing": 2,
+        "indicative_only": 2,
+        "gaps": 18
+      }
+    },
+    {
+      "tenant_id": "demo-tenant-b",
+      "scope_id": "bathroom_cloakroom",
+      "scope_label": "Cloakroom refit (WC and basin)",
+      "path": "demo-tenant-b/cloakroom.json",
+      "reviewer_decisions": 24,
+      "first": {
+        "lines_total": 52,
+        "priced": 1,
+        "review": 31,
+        "unmatched": 20,
+        "indicative": 0,
+        "no_offer": 0,
+        "skipped": 0,
+        "firm_total_ex_vat": "18.91",
+        "firm_total_inc_vat": "22.69",
+        "currency": "GBP"
+      },
+      "after_review": {
+        "lines_total": 52,
+        "priced": 11,
+        "review": 7,
+        "unmatched": 20,
+        "indicative": 3,
+        "no_offer": 11,
+        "skipped": 0,
+        "firm_total_ex_vat": "232.47",
+        "firm_total_inc_vat": "278.96",
+        "currency": "GBP"
+      },
+      "price_book": {
+        "current": 1,
+        "stale": 0,
+        "missing": 2,
+        "indicative_only": 2,
+        "gaps": 38
+      }
+    },
+    {
+      "tenant_id": "demo-tenant-b",
+      "scope_id": "bathroom_wet_room",
+      "scope_label": "Wet room / level-access shower conversion",
+      "path": "demo-tenant-b/wet_room.json",
+      "reviewer_decisions": 21,
+      "first": {
+        "lines_total": 70,
+        "priced": 1,
+        "review": 30,
+        "unmatched": 39,
+        "indicative": 0,
+        "no_offer": 0,
+        "skipped": 0,
+        "firm_total_ex_vat": "22.82",
+        "firm_total_inc_vat": "27.38",
+        "currency": "GBP"
+      },
+      "after_review": {
+        "lines_total": 70,
+        "priced": 10,
+        "review": 8,
+        "unmatched": 39,
+        "indicative": 4,
+        "no_offer": 9,
+        "skipped": 0,
+        "firm_total_ex_vat": "444.89",
+        "firm_total_inc_vat": "533.87",
+        "currency": "GBP"
+      },
+      "price_book": {
+        "current": 1,
+        "stale": 0,
+        "missing": 2,
+        "indicative_only": 2,
+        "gaps": 57
+      }
+    }
+  ]
+}

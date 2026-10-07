@@ -13,12 +13,12 @@ from components.pricing import (
     PricePer,
     Provenance,
     SourceKind,
+    Unit,
     VatBasis,
     Visibility,
 )
 from components.pricing.eligibility import PriceType
 from components.quoting import LineRequest, QuoteResult, QuotingContext, build_quote
-from components.pricing import Unit
 
 from .conftest import T0, TENANT_A
 

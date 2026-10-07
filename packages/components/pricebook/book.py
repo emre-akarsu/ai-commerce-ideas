@@ -11,7 +11,7 @@ Inputs are handed in (no files, no network, no global clock):
 * `pricing`: `PricingConfig` (max ages per source kind, currency, comparison basis), built by the
   caller from the resolved profile.
 * `clock`: injected; one reading is used for the whole book.
-* `quote`: optional `QuoteResult` for the same tenant. Coverage and gaps are read from the quote's
+* `quote`: optional `QuoteLike` for the same tenant. Coverage and gaps are read from the quote's
   per-line results (which firm offers each line has); nothing is re-priced here.
 * `imports`: optional import reports, for the quarantined count.
 
@@ -37,7 +37,6 @@ from components.pricing import (
     Visibility,
 )
 from components.pricing.repository import MAX_LIMIT, OfferFilter
-from components.quoting import QuoteResult
 
 from .errors import PriceBookError
 from .gaps import compute_gaps
@@ -54,6 +53,7 @@ from .models import (
     PriceBook,
     VatSummary,
 )
+from .protocols import QuoteLike
 from .status import (
     current_reason,
     expired_reason,
@@ -70,7 +70,7 @@ class TenantOffers(Protocol):
 
 
 class LoadReportLike(Protocol):
-    """What `components.quoting.loading.LoadReport` offers; a price file import's outcome."""
+    """What the quoting package's `LoadReport` offers: a price file import's outcome."""
 
     source_id: str
     visibility: str
@@ -112,7 +112,7 @@ def dominant_kind(offers: Sequence[Offer]) -> SourceKind | None:
     return sorted(counts, key=lambda k: (-counts[k], k.value))[0]
 
 
-def _coverage_counts(quote: QuoteResult | None) -> tuple[Mapping[str, int], int]:
+def _coverage_counts(quote: QuoteLike | None) -> tuple[Mapping[str, int], int]:
     """Lines with a firm offer per merchant, and the number of quoted lines."""
     if quote is None:
         return {}, 0
@@ -208,7 +208,7 @@ def _freshness(merchants: Sequence[MerchantBook], now: datetime) -> FreshnessSum
 
 def build_price_book(
     offers: TenantOffers, tenant_id: str, merchants: Sequence[MerchantInfo],
-    pricing: PricingConfig, clock: Clock, *, quote: QuoteResult | None = None,
+    pricing: PricingConfig, clock: Clock, *, quote: QuoteLike | None = None,
     imports: Iterable[ImportSummary] = (),
 ) -> PriceBook:
     """The tenant's price book at the clock's current time (see the module docstring)."""

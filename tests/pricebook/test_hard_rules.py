@@ -15,10 +15,10 @@ BANNED_IMPORTS = {
     "urllib", "urllib3", "http", "requests", "httpx", "aiohttp", "socket", "ssl", "ftplib",
     "smtplib", "telnetlib", "xmlrpc", "webbrowser", "subprocess", "shutil", "tempfile", "os",
     "pathlib", "asyncio", "aiplat", "aidb", "employees", "apps", "anthropic", "openai", "yaml",
-    "glob", "io", "pickle", "importlib", "json",
+    "glob", "io", "pickle", "importlib",
 }
 NOT_ALLOWED_COMPONENTS = {"send_service", "purchase_orders", "rfq", "imports", "suppliers",
-                          "evidence", "doc_parse", "parts", "job_kits", "matching"}
+                          "evidence", "doc_parse", "parts", "job_kits", "matching", "quoting"}
 
 
 def trees() -> list[tuple[Path, ast.Module]]:

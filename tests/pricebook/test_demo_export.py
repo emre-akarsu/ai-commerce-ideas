@@ -64,13 +64,22 @@ def test_every_document_validates_against_its_schema(files: dict[str, str]) -> N
             "quote-draft-ui/1")
 
 
-def test_output_is_byte_identical_on_a_second_run_and_when_written(
-        demo, files: dict[str, str], tmp_path, capsys) -> None:  # type: ignore[no-untyped-def]
+def test_a_second_full_run_gives_the_same_bytes(demo, files: dict[str, str]) -> None:  # type: ignore[no-untyped-def]
+    again = demo.generate()
+    assert list(again) == list(files)
+    for name, text in files.items():
+        assert again[name].encode("utf-8") == text.encode("utf-8"), name
+    assert "\r" not in files["index.json"]
+
+
+def test_main_writes_exactly_those_bytes_and_check_detects_a_stale_file(
+        demo, files: dict[str, str], tmp_path, capsys, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr(demo, "generate", lambda: files)
     assert demo.main(["--out", str(tmp_path)]) == 0
-    assert "SYNTHETIC" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "SYNTHETIC" in out and "demo-tenant-b" in out and "wet_room" in out
     for name, text in files.items():
         assert (tmp_path / name).read_bytes() == text.encode("utf-8"), name
-    assert not any(c in files["index.json"] for c in "\r")
     assert demo.main(["--out", str(tmp_path), "--check"]) == 0
     (tmp_path / "index.json").write_text("{}\n", encoding="utf-8")
     assert demo.main(["--out", str(tmp_path), "--check"]) == 1
@@ -150,14 +159,14 @@ def test_request_drafts_exist_exactly_for_merchants_that_are_not_current(
 def test_tenants_never_see_each_others_private_data(files: dict[str, str]) -> None:
     a_sources = ("synth-brindlecote-trade", "synth-northgate-trade", "synth-halden-trade",
                  "synth-pennywell-trade", "synth-corvane-trade")
-    for (tenant, _), doc in bundles(files).items():
-        text = files[f"{tenant}/{_}.json"]
+    for (tenant, scope), doc in bundles(files).items():
+        text = files[f"{tenant}/{scope}.json"]
         if tenant == TENANT_A:
             assert TENANT_B not in text and "synth-halden-account-b" not in text
             assert "halden_account" not in text
             assert "Sam Sample" not in text and "ACC-B-" not in text
         else:
-            assert TENANT_A not in text.replace(f'"{TENANT_A}"', "") or False
+            assert TENANT_A not in text
             assert not any(s in text for s in a_sources)
             assert "Alex Example" not in text and "ACC-A-" not in text
         for quote in ("quote_first", "quote_after_review"):
