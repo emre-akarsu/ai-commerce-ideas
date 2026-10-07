@@ -1,7 +1,7 @@
 # 05. Test dependencies: selectors and visible text
 
 **Status:** inventory for the UX redesign. Docs only. No code, test or config was changed, and no suite was run.
-**As of:** 2026-10-07. Repo HEAD `50a3867`, branch `claude/agentic-commerce-research-gjjwnk`.
+**As of:** 2026-10-07. Scan base HEAD `50a3867`, branch `claude/agentic-commerce-research-gjjwnk`. No commit through HEAD `0668a04` changed the inventoried paths (`apps/web/e2e`, `apps/web/tests`, `apps/web/components`, `apps/web/app`, `apps/web/lib`). Every cited line was rechecked against the working tree.
 **Scope:** `apps/web/e2e/*.mjs` (CDP browser suites; they need a running mock-mode app) and `apps/web/tests/*.test.ts` and `*.test.tsx` (vitest).
 **Synthetic data:** merchant and supplier names in these suites (Acme Supply, Northern, Calder, Pennywell, Brindlecote) are synthetic and illustrative. They are not real businesses.
 
@@ -20,7 +20,7 @@
 
 ## Method
 
-- `data-*` tokens and counts: `grep -rhoE '\[data-[^]]*\]|data-[a-zA-Z-]+(="[^"]*")?' apps/web/e2e apps/web/tests | sort | uniq -c`. Dataset reads: `grep -rhoE '\.dataset\.[a-zA-Z]+' apps/web/e2e`.
+- `data-*` tokens and counts: `grep -rhoE '\[data-[^]]*\]|data-[a-zA-Z-]+(="[^"]*")?' apps/web/e2e | sort | uniq -c`, and the same pattern on `apps/web/tests --include='*.ts' --include='*.tsx'`. Dataset reads: `grep -rhoE '\.dataset\.[a-zA-Z]+' apps/web/e2e`.
 - Click and text: `grep -n` for `click(`, `has(`, `includes(`, `innerText`, `startsWith`, `toContain`, `toBe`, `toEqual`, `toMatch`, `toThrow`, and `label:`/`text:` keys.
 - Read in full: `e2e/flow.mjs`, `e2e/quote.mjs`, `e2e/kits.mjs`, `e2e/cdp.mjs`, `e2e/demo-*.mjs`, `e2e/overflow.mjs`, `e2e/shots.mjs`, `tests/price-books-ui.test.tsx`, `tests/journey.test.ts`, `tests/current-quote.test.ts`, `tests/quote-generated.test.ts`.
 - Other vitest files (`kits-*`, `quote-*`, `price-file-*`, `mock`, `flow`, `profile`, `contract`, `api`, `template-store`, `rfq-drafts-client`): assertion lines were extracted with `grep -n` (literal first arguments, regex matchers, `label:`/`text:` keys, and multi-line string arrays). They were not read line by line.
@@ -29,6 +29,17 @@
 - Screen names come from the suite section and the route the suite drives. They were not checked by rendering the app.
 
 Files with no visible-text assertion: `e2e/cdp.mjs` (helper), `e2e/overflow.mjs`, `e2e/shots.mjs`, `e2e/demo-check.mjs`, `e2e/demo-final-check.mjs`, `e2e/demo-kits-check.mjs` (logs only). Vitest: `current-quote.test.ts`, `quote-generated.test.ts`, `kits-api.test.ts`, `kits-parity.test.ts`, `quote-api-integration.test.ts`. `journey.test.ts` asserts stage ids and routes only. `api.test.ts` and `contract.test.ts` contain rules (section 4).
+
+### Limits
+
+- Static, read-only analysis. No e2e or vitest suite was run, so none of this is verified by execution.
+- "Visible text" means what a test asserts or clicks. Rendering was not checked. The aria-label and heading notes come from a grep of the source.
+- Dynamic copy (money, counts, merchant names, step numbers) is shown as a pattern. Its exact value depends on the data.
+- Borderline items are marked in the Note column: "P", "limit", "File", "admin", "Unknown".
+- Vitest files other than `price-books-ui.test.tsx`, `journey.test.ts`, `current-quote.test.ts` and `quote-generated.test.ts` were checked by grep of assertion lines, not by reading each file. A literal missed by that grep would be missing here.
+- Fixture JSON under `apps/web/tests/fixtures` was not scanned for rows, except where an assertion reads it.
+- Commit `2b4ad1f` tracks an earlier draft of this file (654 lines, with placeholder counts). The working-tree version is the corrected one and was not committed by this task.
+- Files under `packages/components/verify/` and `tests/verify/` were added by commit `2b4ad1f` during this task. They are not part of this inventory and were not read or changed by it.
 
 ---
 
@@ -220,7 +231,7 @@ Files with no visible-text assertion: `e2e/cdp.mjs` (helper), `e2e/overflow.mjs`
 | `select[aria-label^="Load a bundled kit"]` | kits.mjs:170 | 1 | copy-bound (aria-label prefix, `components/kits/config-tab.tsx:46`) |
 | `[aria-current=step]` | kits.mjs:23 | 1 | structural hook (keep) |
 | `input[type=radio]` | kits.mjs:95, 118, 120, 123 | 4 | structural hook (keep) |
-| `input[type=checkbox]`, `input:checked`, `select` | kits.mjs:132 | 3 | structural hook (keep) |
+| `input[type=checkbox]`, `input:checked`, `select` | kits.mjs:132 (x3) | 3 | structural hook (keep) |
 | `input[name^="tri-"]` | kits.mjs:196 | 1 | structural hook (keep); name prefix |
 | `#kit-json` (config textarea) | kits.mjs:166, 172, 179 | 3 | structural hook (keep); id |
 | `label` (question and line choices) | kits.mjs:95, 106, 197 | 3 | structural hook (keep) |
@@ -242,8 +253,10 @@ Files with no visible-text assertion: `e2e/cdp.mjs` (helper), `e2e/overflow.mjs`
 
 | Selector | Used in | Count | Kind |
 |---|---|---|---|
-| `aria-pressed` (read or matched: `[aria-pressed=true]`, `getAttribute`) | quote.mjs:76, 175, 178; kits.mjs:136, 138 (x2) | 5 | structural hook (keep); used on stage toggles, option cards and presets |
+| `aria-pressed` (read or matched: `[aria-pressed=true]`, `getAttribute`) | quote.mjs:76, 175, 178; kits.mjs:136, 138 (x2) | 6 | structural hook (keep); used on stage toggles, option cards and presets |
 | source scan for `dangerouslySetInnerHTML`, `.innerHTML`, `<img` | api.test.ts:62 | 1 | rule (see section 4) |
+
+Suppliers/Setup/Audit/Approve: no `data-*` or aria hook appears in any suite. The approval page check uses the absence of `nav` (flow.mjs:52, listed above). `/vendors`, `/setup` and `/audit` are reached by route only (section 3).
 
 ---
 
@@ -262,7 +275,7 @@ Rows are sorted by screen. "Note" records an aria-label or heading with the same
 | Kits wizard | `Continue` | kits.mjs:57, 63, 92, 97, 108, 121 (x2), 133, 191 (x2) | click | Substring. Clicks the first visible match |
 | Kits wizard | `Accept all defaults` | kits.mjs:70, 98, 109, 140 | click | Review step |
 | Kits wizard | `Create RFQ draft` | kits.mjs:78 | click | Desktop only |
-| Kits wizard | `Not wired` | kits.mjs:79 | has | Shown after Create RFQ draft. Draft container is aria-labelled "RFQ draft JSON" (`kits-app.tsx:618`) |
+| Kits wizard | `Not wired` | kits.mjs:79 | has | Shown after Create RFQ draft. An RFQ draft panel is aria-labelled "RFQ draft JSON" (`kits-app.tsx:618`); the grep does not show that this text sits inside it |
 | Kits wizard | `nothing was sent` | kits.mjs:79 | has | Same panel as above |
 | Kits wizard | `Finish level` | kits.mjs:93 | startsWith | Ledger chip (`[aria-label="Defaults we assumed"] button`) |
 | Kits wizard | `Budget` / `Premium` (case-insensitive) | kits.mjs:95 | startsWith | Tier card label; the variable `level` is `budget` or `premium` |
@@ -319,7 +332,7 @@ Rows are sorted by screen. "Note" records an aria-label or heading with the same
 | Kits wizard | `Main b bathroom /b` | kits-templates.test.ts:46 | equals | Sanitised name; input was `  Main <b>bathroom</b>  ` |
 | Kits wizard | `a b` | kits-templates.test.ts:78 | equals | cleanName output; control character becomes a space |
 | Kits wizard | `Test template` | template-store.test.ts:58 | equals | Saved template name |
-| Price books | `Upload price file` | quote.mjs:138 | click | Button. Also h2 (`price-books-app.tsx:216, 226`) and dialog label (`:214, 224`) |
+| Price books | `Upload price file` | quote.mjs:138 | click | Button. Also h2 (`price-books-app.tsx:216, 226`) and a `label=` prop (`:214, 224`) |
 | Price books | `Send RFQ for these gaps` | quote.mjs:142 | click | Button; opens the RFQ dialog |
 | Price books | `2 missing` | quote.mjs:113 | has | Customer B status count |
 | Price books | `5 current` | quote.mjs:121 | has | Customer A status count |
@@ -364,7 +377,7 @@ Rows are sorted by screen. "Note" records an aria-label or heading with the same
 | Quote | `Network` | quote-decisions.test.ts:95 | toContain | Substring of a thrown message (input at line 90) |
 | Compare/options | `Compare` | flow.mjs:45 | click | Request step nav (scope `nav[aria-label='Steps']`) |
 | Compare/options | `Compared like for like` | flow.mjs:46 | has | Compare step |
-| Compare/options | `Select` | flow.mjs:48 | click | Scope `table`. The button's aria-label "Select … quote and ask for approval" (`step-compare.tsx:72`) is not used because innerText is non-empty |
+| Compare/options | `Select` | flow.mjs:48 | click | Scope `table`. The button has aria-label "Select … quote and ask for approval" (`step-compare.tsx:72`); the innerText and that label both contain "Select", so either can match |
 | Compare/options | `/GBP [0-9,]+\.[0-9]{2} ex VAT/` | quote.mjs:58 | regex | Every option card has an ex VAT total |
 | Compare/options | `/GBP [0-9,]+\.[0-9]{2} inc VAT/` | quote.mjs:58 | regex | Every option card has an inc VAT total |
 | Compare/options | `Same total` | quote.mjs:59 | startsWith | Difference text when totals match |
@@ -612,7 +625,7 @@ Each label below was checked against every literal in section 2 and section 1. N
 - "Nothing is sent" (quote.mjs:131) is a substring of the Quote subtitle "Nothing is sent or ordered." (`quote-app.tsx:49`), so the check can pass on the wrong screen.
 - The track labels "Questions", "Measure", "Review", "Summary" (kits.mjs:52, 59, 65, 71, 147) are read from `[data-wizard-track] [aria-current=step]`. Renaming them breaks the wizard test. Renaming the headings does not.
 - Click labels are substrings: "Continue", "Confirm", "Select", "Compare", "Config", "Check config". A new button whose text contains one of these can be clicked first, because the helper takes the first visible match in DOM order. Watch labels such as "Continue to review".
-- "Upload price file" appears as a button (quote.mjs:138), two h2 headings (`price-books-app.tsx:216, 226`), two dialog labels (`:214, 224`) and in price-books-ui.test.tsx:145.
+- "Upload price file" appears as a button (quote.mjs:138), two h2 headings (`price-books-app.tsx:216, 226`), two `label=` props (`:214, 224`) and in price-books-ui.test.tsx:145.
 - The nav check (quote.mjs:211) reads the link text of `nav[aria-label=Main] a`. "Price books" and "Quote" must stay in that nav, and the nav aria-label "Main" must stay exact.
 - Dialog labels "Search or jump" (`shell.tsx:160`) and "Keyboard shortcuts" (`shell.tsx:184`) are matched as attributes (flow.mjs:60, 64).
 - Test titles mention labels such as "Tier D", "lead times" and "show all". They are not assertions, so renaming the labels does not break anything, but the titles will read oddly.
@@ -625,30 +638,22 @@ Counted from the tables above. Per-suite counts treat a row as touching a suite 
 
 | Measure | Count |
 |---|---|
-| Distinct `data-*` selectors (quote variants merged) | DATA_SELECTORS |
-| Distinct non-data selectors (aria, role, tag, id, name, state, class) | NONDATA_SELECTORS |
-| Distinct UI routes | ROUTES |
-| Distinct visible text strings (exact text, across all rows) | TEXT_DISTINCT |
-| Text rows in e2e: flow.mjs | FLOW_TEXT |
-| Text rows in e2e: quote.mjs | QUOTE_TEXT |
-| Text rows in e2e: kits.mjs | KITS_TEXT |
-| Text rows in e2e: demo-options-check.mjs (log only) | DEMO_TEXT |
-| Text rows in vitest: price-books-ui.test.tsx | PBUI_TEXT |
-| Text rows in vitest: all other test files | OTHER_TEXT |
-| Selector rows touching e2e (any suite) | E2E_SEL |
-| Selector rows touching vitest only | VITEST_SEL |
-| Rule checks | RULES |
+| Distinct `data-*` selectors (quote variants merged; section 1.1) | 100 |
+| Distinct non-data selectors (aria, role, tag, id, name, state, class; section 1.2) | 37 |
+| Selector rows touching e2e, and rows touching vitest only | 128 and 9 |
+| Selector rows per suite (a row can touch two suites) | quote.mjs 68, kits.mjs 49, flow.mjs 12, cdp.mjs 2, price-books-ui.test.tsx 9, api.test.ts 1 |
+| Distinct UI routes (section 3) | 18 |
+| Text rows in section 2 | 267: 264 literal or regex, 3 dynamic patterns |
+| Distinct text strings (literal or regex, case-insensitive) | 246 |
+| Text rows in e2e: flow.mjs | 31 |
+| Text rows in e2e: quote.mjs (literal or regex; plus 3 dynamic rows) | 46 |
+| Text rows in e2e: kits.mjs | 41 |
+| Text rows in e2e: demo-options-check.mjs (log only) | 3 |
+| Text rows in e2e: cdp.mjs, overflow.mjs, shots.mjs, other demo scripts | 0 |
+| Text rows in vitest: price-books-ui.test.tsx | 22 |
+| Text rows in vitest: all other test files | 121 |
+| Rule checks (section 4) | 9 |
+| Safe-to-change rows (section 5) | 34 |
 
 Not counted (listed in Method): test titles, code tokens, request-body inputs, unread mock messages, fixture data.
 
----
-
-## 7. Limits
-
-- Static, read-only analysis. No e2e or vitest suite was run, so none of this is verified by execution.
-- "Visible text" means what a test asserts or clicks. Rendering was not checked, except that the aria-label and heading notes come from a grep of the source.
-- Dynamic copy (money, counts, merchant names, step numbers) is shown as a pattern. Its exact value depends on the data.
-- Borderline items are marked in the Note column: "P", "limit", "File", "admin", "Unknown".
-- Vitest files other than `price-books-ui.test.tsx`, `journey.test.ts`, `current-quote.test.ts` and `quote-generated.test.ts` were checked by grep of assertion lines, not by reading each file. A literal missed by that grep would be missing here.
-- Fixture JSON under `apps/web/tests/fixtures` was not scanned for rows, except where an assertion reads it.
-- The untracked files under `packages/components/verify/` and `tests/verify/` were present in the working tree during this task. They are not part of this inventory and were not read or changed.

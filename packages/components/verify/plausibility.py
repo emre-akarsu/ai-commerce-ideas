@@ -27,7 +27,8 @@ class InMemoryPriceHistory:
     """Price history held in memory, for tests and offline use.
 
     ONE instance is ONE tenant's history. The caller builds one per tenant and never shares it
-    (hard rule 7). There is no tenant argument, so one store cannot mix tenants by accident.
+    (hard rule 7). Rows carry no tenant field, so this separation is the caller's to keep: the
+    store does not check it.
 
     Rows keep insertion order. `observations` returns the newest first: by `observed_at`, and on a
     tie the later insertion comes first. It filters by item key and, when given, by merchant.
