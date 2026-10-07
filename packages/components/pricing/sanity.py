@@ -1,6 +1,8 @@
 """Price sanity: outliers against the median of comparable offers, and an optional external band.
 
 Both checks work on unit prices on the comparison basis, so different pack sizes compare fairly.
+Both are RELATIVE: the median of comparable offers, and an optional band built from a reference
+price moved by a published index ratio (an index level is never used as a price).
 A price is a high outlier when it is above `median * ratio`, a low outlier when `price * ratio` is
 below the median (both strict, exact Decimal arithmetic); the ratio comes from the configuration
 (`pricing.price_outlier_ratio`). With fewer than `outlier_min_peers` comparable offers there is no
@@ -48,15 +50,18 @@ def index_band_flag(
     unit_price: Decimal, unit: Unit, band: IndexBand | None, cfg: PricingConfig
 ) -> str | None:
     """`index_band_low` / `index_band_high` when `unit_price` (comparison basis, per `unit`) is
-    outside the band; None when inside, or when the band does not apply (other unit or currency)."""
+    more than the band's tolerance factor below / above the reference price moved by the index;
+    None when inside, or when the band does not apply (other unit or currency). Exact arithmetic,
+    edges inclusive."""
     if band is None or band.unit is not unit or band.currency != cfg.base_currency:
         return None
     price = Fraction(unit_price)
-    target = VatBasis(cfg.compare_basis)
     if cfg.tax_active:
-        price = convert(price, target, band.vat_basis, cfg.vat_rate)
-    if price < Fraction(band.low):
+        price = convert(price, VatBasis(cfg.compare_basis), band.vat_basis, cfg.vat_rate)
+    expected = Fraction(band.expected)
+    tolerance = Fraction(band.tolerance)
+    if price * tolerance < expected:
         return BAND_LOW
-    if price > Fraction(band.high):
+    if price > expected * tolerance:
         return BAND_HIGH
     return None

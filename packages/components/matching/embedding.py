@@ -1,8 +1,9 @@
 """Embeddings behind a Protocol, with a deterministic offline implementation.
 
 `HashingEmbedder` is feature hashing (word unigrams, word bigrams and in-word character
-trigrams into a fixed number of signed buckets, then L2-normalised). It uses `blake2b`, not
-Python's salted `hash()`, so vectors are identical across processes and machines. It captures
+trigrams into a fixed number of signed buckets, then L2-normalised). It uses `zlib.crc32`, never
+Python's built-in `hash()` (which is salted per process), so vectors are identical across
+processes, runs and machines. It captures
 lexical overlap only; it is NOT a semantic model. The production upgrade path is a hosted
 embedding model (or pgvector over one) behind the same two-member `Embedder` Protocol
 (docs/architecture/matching-engine.md, "Upgrade path").
@@ -10,8 +11,8 @@ embedding model (or pgvector over one) behind the same two-member `Embedder` Pro
 
 from __future__ import annotations
 
-import hashlib
 import math
+import zlib
 from collections.abc import Iterator, Sequence
 from typing import Protocol, runtime_checkable
 
@@ -61,9 +62,8 @@ class HashingEmbedder:
             yield f"b:{left} {right}", self._bigram_weight
 
     def _bucket(self, feature: str) -> tuple[int, float]:
-        digest = hashlib.blake2b(feature.encode("utf-8"), digest_size=8).digest()
-        index = int.from_bytes(digest[:4], "big") % self._dim
-        return index, 1.0 if digest[4] & 1 else -1.0
+        crc = zlib.crc32(feature.encode("utf-8"))
+        return crc % self._dim, 1.0 if (crc >> 31) & 1 else -1.0
 
     def embed(self, text: str) -> Vector:
         vec = [0.0] * self._dim

@@ -11,12 +11,12 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 
 from components.core.domain import Basis, Tier
 
-from .decimals import check_decimal
+from .decimals import CTX, check_decimal
 from .errors import OfferValidationError
 from .models import VatBasis, _enum, _set
 from .text import check_id, check_token, clean_text
@@ -53,21 +53,33 @@ class MatchedSku:
 
 @dataclass(frozen=True, slots=True)
 class IndexBand:
-    """Optional external price band for one unit price (e.g. from a published price index)."""
+    """Optional external sanity band for one unit price, used RELATIVELY only.
 
-    low: Decimal
-    high: Decimal
+    `reference_unit_price` is a price for this line seen earlier (for example the tenant's last
+    paid unit price) on a stated VAT basis. `index_ratio` is how far a published price index says
+    prices moved since then (1 = no movement known). The expected price is their product and an
+    offer is flagged when it is more than `tolerance` times above or below it. An index LEVEL is
+    never an acceptable price here: the construction-material indices are factory-gate indices that
+    exclude merchant discounts, so they can only say how prices MOVED."""
+
+    reference_unit_price: Decimal
     unit: Unit
     currency: str
     vat_basis: VatBasis
     source: str
+    tolerance: Decimal
     as_of: date | None = None
+    index_ratio: Decimal = Decimal(1)
 
     def __post_init__(self) -> None:
-        low = check_decimal(self.low, "index_band.low", minimum=Decimal(0))
-        high = check_decimal(self.high, "index_band.high", minimum=low)
-        _set(self, "low", low)
-        _set(self, "high", high)
+        _set(self, "reference_unit_price", check_decimal(
+            self.reference_unit_price, "index_band.reference_unit_price", minimum=Decimal(0),
+            min_exclusive=True))
+        _set(self, "tolerance", check_decimal(
+            self.tolerance, "index_band.tolerance", minimum=Decimal(1), maximum=Decimal(10)))
+        _set(self, "index_ratio", check_decimal(
+            self.index_ratio, "index_band.index_ratio", minimum=Decimal("0.2"),
+            maximum=Decimal(5)))
         _enum(self.unit, Unit, "index_band.unit")
         _enum(self.vat_basis, VatBasis, "index_band.vat_basis")
         if self.vat_basis is VatBasis.UNKNOWN:
@@ -76,8 +88,23 @@ class IndexBand:
                 and self.currency.isascii() and self.currency.isupper()):
             raise OfferValidationError("index_band.currency must be a 3-letter upper-case code")
         check_token(self.source, "index_band.source")
-        if self.as_of is not None and not isinstance(self.as_of, date):
+        if self.as_of is not None and (
+            not isinstance(self.as_of, date) or isinstance(self.as_of, datetime)
+        ):
             raise OfferValidationError("index_band.as_of must be a date")
+
+    @property
+    def expected(self) -> Decimal:
+        """The reference price moved by the index (exact)."""
+        return self.reference_unit_price * self.index_ratio
+
+    @property
+    def low(self) -> Decimal:
+        return CTX.divide(self.expected, self.tolerance)
+
+    @property
+    def high(self) -> Decimal:
+        return self.expected * self.tolerance
 
 
 @dataclass(frozen=True, slots=True)

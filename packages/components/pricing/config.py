@@ -51,8 +51,7 @@ _PRICING_KEYS = frozenset(
 )
 ENGINE_KEYS = frozenset(
     {"outlier_offers", "outlier_min_peers", "runner_up_count", "minor_unit_places",
-     "basket_exact_max_lines", "basket_exact_max_merchants", "basket_node_budget",
-     "future_skew_minutes"}
+     "basket_exact_max_lines", "basket_work_budget", "future_skew_minutes"}
 )
 
 _T = TypeVar("_T")
@@ -175,9 +174,8 @@ class PricingConfig:
     outlier_min_peers: int = 3
     runner_up_count: int = 3
     minor_unit_places: int = 2
-    basket_exact_max_lines: int = 15
-    basket_exact_max_merchants: int = 6
-    basket_node_budget: int = 500_000
+    basket_exact_max_lines: int = 12  # lines with a real choice, per connected component
+    basket_work_budget: int = 6_000_000  # exact-search steps allowed before falling back
     future_skew_minutes: int = 5
 
     @property
@@ -273,8 +271,8 @@ def _pricing_kwargs(pricing: Mapping[str, Any]) -> dict[str, Any]:
 def _engine_kwargs(engine: Mapping[str, Any]) -> dict[str, Any]:
     bounds = {
         "outlier_min_peers": (2, 50), "runner_up_count": (0, 20), "minor_unit_places": (0, 6),
-        "basket_exact_max_lines": (1, 40), "basket_exact_max_merchants": (1, 12),
-        "basket_node_budget": (1_000, 50_000_000), "future_skew_minutes": (0, 1440),
+        "basket_exact_max_lines": (1, 20), "basket_work_budget": (1_000, 100_000_000),
+        "future_skew_minutes": (0, 1440),
     }
     out: dict[str, Any] = {}
     for key, (lo, hi) in bounds.items():

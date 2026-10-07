@@ -122,34 +122,43 @@ def test_outlier_detection_is_scale_free_and_order_free(cents: list[int], k: int
     assert find_outliers(base, cfg) == find_outliers(scaled, cfg) == find_outliers(shuffled, cfg)
 
 
-# ---------------------------------------------------------------- index band
+# ---------------------------------------------------------------- index band (relative only)
 
 
-def band(low: str = "3", high: str = "6", basis: VatBasis = VatBasis.EX_TAX,
+def band(ref: str = "4", ratio: str = "1", tol: str = "1.5", basis: VatBasis = VatBasis.EX_TAX,
          unit: Unit = Unit.M2, currency: str = "GBP") -> IndexBand:
-    return IndexBand(low=D(low), high=D(high), unit=unit, currency=currency, vat_basis=basis,
-                     source="synthetic-index")
+    return IndexBand(reference_unit_price=D(ref), unit=unit, currency=currency, vat_basis=basis,
+                     source="synthetic-last-paid", tolerance=D(tol), index_ratio=D(ratio))
 
 
-def test_a_price_inside_the_band_passes_and_the_edges_are_inclusive() -> None:
-    cfg = config()
-    for p in ("3", "4.5", "6"):
-        assert index_band_flag(D(p), Unit.M2, band(), cfg) is None
+def test_a_price_inside_the_scaled_reference_band_passes_and_the_edges_are_inclusive() -> None:
+    cfg = config()  # expected 4 x 1.05 = 4.20; factor 1.5 -> 2.80 .. 6.30
+    b = band(ratio="1.05")
+    for p in ("2.80", "4.2", "6.30"):
+        assert index_band_flag(D(p), Unit.M2, b, cfg) is None
 
 
 def test_outside_the_band_is_flagged_low_or_high() -> None:
     cfg = config()
-    assert index_band_flag(D("2.99"), Unit.M2, band(), cfg) == "index_band_low"
-    assert index_band_flag(D("6.01"), Unit.M2, band(), cfg) == "index_band_high"
+    b = band(ratio="1.05")
+    assert index_band_flag(D("2.79"), Unit.M2, b, cfg) == "index_band_low"
+    assert index_band_flag(D("6.31"), Unit.M2, b, cfg) == "index_band_high"
 
 
-def test_a_band_on_another_basis_is_compared_exactly_on_that_basis() -> None:
-    cfg = config()  # compares ex VAT; the band is quoted inc VAT: 3.60..7.20
-    inc = band("3.60", "7.20", VatBasis.INC_TAX)
-    assert index_band_flag(D("3"), Unit.M2, inc, cfg) is None  # 3.00 ex = 3.60 inc
-    assert index_band_flag(D("6"), Unit.M2, inc, cfg) is None  # 6.00 ex = 7.20 inc
+def test_the_index_only_moves_the_reference_it_never_sets_a_level() -> None:
+    cfg = config()
+    flat = band(ratio="1")  # 4.00 +/- 1.5x: 2.6667 .. 6.00
+    assert index_band_flag(D("6.01"), Unit.M2, flat, cfg) == "index_band_high"
+    assert index_band_flag(D("6.01"), Unit.M2, band(ratio="1.1"), cfg) is None  # prices rose 10%
+
+
+def test_a_reference_on_another_vat_basis_is_compared_exactly_on_that_basis() -> None:
+    cfg = config()  # offers compare ex VAT; the reference was paid inc VAT: 4.80, factor 1.5
+    inc = band("4.80", "1", "1.5", VatBasis.INC_TAX)  # inc band 3.20 .. 7.20 = ex 2.6667 .. 6.00
+    assert index_band_flag(D("6"), Unit.M2, inc, cfg) is None
     assert index_band_flag(D("6.0001"), Unit.M2, inc, cfg) == "index_band_high"
-    assert index_band_flag(D("2.9999"), Unit.M2, inc, cfg) == "index_band_low"
+    assert index_band_flag(D("2.6667"), Unit.M2, inc, cfg) is None
+    assert index_band_flag(D("2.6666"), Unit.M2, inc, cfg) == "index_band_low"
 
 
 def test_a_band_for_another_unit_or_currency_does_not_apply() -> None:
@@ -157,3 +166,10 @@ def test_a_band_for_another_unit_or_currency_does_not_apply() -> None:
     assert index_band_flag(D("100"), Unit.M2, band(unit=Unit.KG), cfg) is None
     assert index_band_flag(D("100"), Unit.M2, band(currency="EUR"), cfg) is None
     assert index_band_flag(D("100"), Unit.M2, None, cfg) is None
+
+
+def test_with_no_tax_configured_the_bases_are_not_converted() -> None:
+    cfg = config(tax={"standard_rate": "0"})
+    inc = band("4.80", "1", "1.5", VatBasis.INC_TAX)
+    assert index_band_flag(D("7.2"), Unit.M2, inc, cfg) is None
+    assert index_band_flag(D("7.21"), Unit.M2, inc, cfg) == "index_band_high"

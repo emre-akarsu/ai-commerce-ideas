@@ -89,14 +89,24 @@ def test_matched_sku_validation() -> None:
             MatchedSku(**{**base, **kw})
 
 
-def test_index_band_validation() -> None:
-    band = IndexBand(low=D("3"), high=D("6"), unit=Unit.M2, currency="GBP",
-                     vat_basis=VatBasis.EX_TAX, source="synthetic-index", as_of=date(2026, 9, 30))
-    assert band.high == D("6")
-    base = dict(low=D("3"), high=D("6"), unit=Unit.M2, currency="GBP", vat_basis=VatBasis.EX_TAX,
-                source="synthetic-index", as_of=None)
-    for kw in ({"low": D("-1")}, {"high": D("2")}, {"low": 3}, {"vat_basis": VatBasis.UNKNOWN},
-               {"currency": "gbp"}, {"unit": "m2"}, {"source": "has space"}):
+def test_index_band_is_a_relative_reference_never_an_absolute_index_level() -> None:
+    """A reference unit price seen earlier, scaled by how much a published index says prices
+    moved since. (Construction-material indices are factory-gate indices that exclude merchant
+    discounts, so an index LEVEL is never an acceptable price.)"""
+    band = IndexBand(reference_unit_price=D("4.00"), unit=Unit.M2, currency="GBP",
+                     vat_basis=VatBasis.EX_TAX, source="synthetic-last-paid",
+                     tolerance=D("1.5"), as_of=date(2026, 9, 30), index_ratio=D("1.05"))
+    assert band.expected == D("4.2000")
+    assert (band.low, band.high) == (D("2.8"), D("6.3"))
+    assert IndexBand(reference_unit_price=D("4"), unit=Unit.M, currency="GBP",
+                     vat_basis=VatBasis.INC_TAX, source="s", tolerance=D("2")).index_ratio == D(1)
+    base = dict(reference_unit_price=D("4"), unit=Unit.M2, currency="GBP",
+                vat_basis=VatBasis.EX_TAX, source="synthetic-last-paid", tolerance=D("2"))
+    for kw in ({"reference_unit_price": D("0")}, {"reference_unit_price": 4},
+               {"vat_basis": VatBasis.UNKNOWN}, {"currency": "gbp"}, {"unit": "m2"},
+               {"source": "has space"}, {"tolerance": D("0.9")}, {"tolerance": D("11")},
+               {"tolerance": 2}, {"index_ratio": D("0")}, {"index_ratio": D("5.1")},
+               {"index_ratio": 1.0}, {"as_of": "2026-09-30"}):
         with pytest.raises(OfferValidationError):
             IndexBand(**{**base, **kw})  # type: ignore[arg-type]
 

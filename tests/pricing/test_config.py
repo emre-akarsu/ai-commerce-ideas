@@ -80,7 +80,9 @@ def test_vat_rate_accepts_decimal_string_and_decimal() -> None:
      {"pricing": {"include_delivery_in_comparison": 1}},
      {"tax": {"unknown_basis": "guess"}}, {"tax": {"quote_basis_default": "gross"}},
      {"engine": {"outlier_min_peers": 1}}, {"engine": {"minor_unit_places": 7}},
-     {"engine": {"basket_exact_max_lines": 0}}, {"engine": {"nonsense": 1}},
+     {"engine": {"basket_exact_max_lines": 0}}, {"engine": {"basket_exact_max_lines": 21}},
+     {"engine": {"basket_work_budget": 10}}, {"engine": {"basket_exact_max_merchants": 6}},
+     {"engine": {"nonsense": 1}},
      {"engine": {"outlier_offers": "drop"}}],
 )
 def test_invalid_values_and_unknown_keys_are_rejected(section: dict[str, Any]) -> None:
