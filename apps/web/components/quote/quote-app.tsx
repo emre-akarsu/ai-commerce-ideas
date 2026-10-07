@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Card, EmptyState, PageHeader } from "@/components/ui/ui";
 import { cn } from "@/lib/utils";
-import { FIXTURE_NOTE, loadBundle } from "@/lib/quote/catalog";
+import { loadBundle } from "@/lib/quote/catalog";
 import { appliedDecisions, barShares, checkQuote, groupByMerchant, partitionRows, partitionTotal, quoteForStage, type PartitionRow, type Stage } from "@/lib/quote/calc";
 import type { Quote } from "@/lib/quote/types";
 import { DataNotes, ReadError, ScopePicker, SyntheticBanner, TenantPicker, useSelection } from "./common";
@@ -74,8 +74,7 @@ function QuoteBody({ quote, bundle, stage, chosen, choose }: { quote: Quote; bun
   const decisions = useMemo(() => (bundle.quoteFirst.ok && bundle.quoteAfter.ok ? appliedDecisions(bundle.quoteFirst.quote, bundle.quoteAfter.quote, bundle.decisions) : []), [bundle]);
   return (
     <div className="space-y-6" data-stage-shown={stage}>
-      {bundle.source === "fixture" && <p className="text-xs text-mute" data-fixture-note>{FIXTURE_NOTE}</p>}
-      <p className="text-xs text-mute" data-quote-id>Draft {quote.quoteId || "(no id)"}, generated {quote.generatedAt ? quote.generatedAt.replace("T", " ").slice(0, 16) : "unknown"} UTC, {quote.currency}. {stage === "first" ? "First quote, before any review." : "After the reviews below."}</p>
+      <p className="text-xs text-mute" data-quote-id>{bundle.meta.scopeLabel ? `${bundle.meta.scopeLabel}. ` : ""}Draft {quote.quoteId || "(no id)"}, generated {quote.generatedAt ? quote.generatedAt.replace("T", " ").slice(0, 16) : "unknown"} UTC, {quote.currency}. {stage === "first" ? "First quote, before any review." : "After the reviews below."}</p>
       <TotalsCard q={quote} names={names} groups={groups} checks={checks} />
       <PartitionBar q={quote} />
       {stage === "after" && <DecisionsPanel rows={decisions} />}

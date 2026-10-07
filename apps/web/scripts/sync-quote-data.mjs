@@ -38,7 +38,7 @@ if (fs.existsSync(src)) {
 
 const lines = [
   "// Written by scripts/sync-quote-data.mjs from lib/quote-data/<tenant>/<scope>.json. Do not edit.",
-  files.length ? `// ${files.length} generated file(s) bundled.` : "// No generated data has been synced yet: the screens fall back to the labelled fixture.",
+  files.length ? `// ${files.length} generated file(s) bundled.` : "// No generated data has been synced yet.",
   ...files.map((f, i) => `import d${i} from "../quote-data/${f.rel}";`),
   "export const GENERATED: Record<string, unknown> = {",
   ...files.map((f, i) => `  ${JSON.stringify(f.key)}: d${i},`),
@@ -55,5 +55,5 @@ if (check) {
 } else {
   fs.writeFileSync(target, next);
   console.log(`wrote lib/quote/generated.ts (${files.length} file(s))${problems.length ? `, ${problems.length} problem(s)` : ""}`);
-  if (files.length === 0) console.log("lib/quote-data/ has no generated files yet; the screens use the labelled fixture.");
+  if (files.length === 0) console.log("lib/quote-data/ has no generated files yet; the screens say there is no data yet.");
 }

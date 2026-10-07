@@ -92,3 +92,19 @@ export function ReadError({ title, errors }: { title: string; errors: string[] }
     </div>
   );
 }
+
+/** Shows the first `limit` items and a button for the rest, so long lists (dozens of gap or review lines) stay scannable. */
+export function Limited<T>({ items, limit = 5, noun, render, listClass = "space-y-3" }: { items: T[]; limit?: number; noun: string; render: (x: T) => React.ReactNode; listClass?: string }) {
+  const [all, setAll] = useState(false);
+  const shown = all ? items : items.slice(0, limit);
+  return (
+    <>
+      <ul className={listClass}>{shown.map(render)}</ul>
+      {items.length > limit && (
+        <button type="button" aria-expanded={all} onClick={() => setAll((v) => !v)} data-limited-toggle className="mt-2 min-h-target rounded-md border border-strong px-4 text-sm font-semibold hover:bg-sunken">
+          {all ? `Show first ${limit} ${noun}` : `Show all ${items.length} ${noun}`}
+        </button>
+      )}
+    </>
+  );
+}

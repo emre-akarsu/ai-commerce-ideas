@@ -1,5 +1,5 @@
 // Tolerant reader for the price book export (price-books-ui/1). Same rules as schema.ts.
-import { bool, formatMajor, int, intOrNull, isObj, Notes, objs, str, strOrNull, strs, isDecimalString } from "./read-util";
+import { bool, formatMajor, int, intOrNull, isObj, Notes, objs, str, strOrNull, strs, isDecimalString, decOrNull } from "./read-util";
 import type { Gap, Merchant, MerchantStatus, PriceBook, RequestDraft } from "./types";
 
 export const PRICEBOOK_FAMILY = "price-books-ui";
@@ -27,7 +27,9 @@ export function readPriceBook(raw: unknown): PriceBookRead {
   const book: PriceBook = {
     format: String(raw.format), label: str(raw.label), asOf: str(raw.as_of), tenantId: str(raw.tenant_id), currency: str(raw.currency), comparisonBasis: str(raw.comparison_basis, "ex_tax"),
     merchants: objs(raw.merchants).map((o) => readMerchant(n, o)),
-    gaps: objs(raw.gaps).map((o): Gap => { n.known(o, "gap", ["kit_line_id", "text", "spend_rank", "merchants_without_price"]); return { kitLineId: str(o.kit_line_id), text: str(o.text), spendRank: int(o.spend_rank, 9999), merchantsWithoutPrice: strs(o.merchants_without_price) }; }),
+    gaps: objs(raw.gaps).map((o): Gap => { n.known(o, "gap", ["kit_line_id", "line_id", "text", "spend_rank", "merchants_without_price", "quantity", "unit", "bucket", "reason_code", "estimated_spend", "spend_basis", "merchants_with_indicative"]);
+      return { kitLineId: str(o.kit_line_id, str(o.line_id)), text: str(o.text), spendRank: int(o.spend_rank, 9999), merchantsWithoutPrice: strs(o.merchants_without_price), quantity: isDecimalString(o.quantity) ? o.quantity : null, unit: strOrNull(o.unit),
+        bucket: strOrNull(o.bucket), estimatedSpend: decOrNull(n, "gap", "estimated_spend", o.estimated_spend), spendBasis: strOrNull(o.spend_basis), merchantsWithIndicative: strs(o.merchants_with_indicative) }; }),
     requestDrafts: objs(raw.request_drafts).map((o): RequestDraft => { n.known(o, "request draft", ["merchant_id", "subject", "body"]); return { merchantId: str(o.merchant_id), subject: str(o.subject), body: str(o.body) }; }),
     freshnessSummary: summary(raw.freshness_summary), notes: n.list,
   };
@@ -42,7 +44,7 @@ function summary(v: unknown): Array<{ key: string; value: string }> {
 }
 
 function readMerchant(n: Notes, o: Record<string, unknown>): Merchant {
-  n.known(o, "merchant", ["merchant_id", "name", "source_kinds", "visibility", "attested", "ladder_level", "status", "status_reason", "as_of", "valid_until", "vat_basis", "offers", "quarantined", "coverage", "next_refresh_due"]);
+  n.known(o, "merchant", ["merchant_id", "name", "source_kinds", "visibility", "attested", "ladder_level", "status", "status_reason", "as_of", "valid_until", "valid_until_latest", "vat_basis", "vat_basis_counts", "offers", "firm_offers", "indicative_offers", "quarantined", "coverage", "next_refresh_due", "status_reason_code", "ladder_label", "freshness", "dominant_source_kind", "max_age_hours"]);
   const lvl = int(o.ladder_level, 0);
   if (lvl < 0 || lvl > 4) n.add("e:ladder", `merchant: ladder_level ${lvl} is outside 0-4; shown as level 0`);
   const status = STATUSES.find((s) => s === o.status);
@@ -52,7 +54,9 @@ function readMerchant(n: Notes, o: Record<string, unknown>): Merchant {
   return {
     merchantId: str(o.merchant_id), name: str(o.name, str(o.merchant_id)), sourceKinds: strs(o.source_kinds), visibility: str(o.visibility, "tenant_private"), attested: bool(o.attested),
     ladderLevel: (lvl >= 0 && lvl <= 4 ? lvl : 0) as Merchant["ladderLevel"], status: status ?? "missing", statusRaw: str(o.status), statusReason: str(o.status_reason),
-    asOf: strOrNull(o.as_of), validUntil: strOrNull(o.valid_until), vatBasis: str(o.vat_basis, "unknown"), offers: Math.max(0, int(o.offers)), quarantined: Math.max(0, intOrNull(o.quarantined) ?? 0),
+    asOf: strOrNull(o.as_of), validUntil: strOrNull(o.valid_until), validUntilLatest: strOrNull(o.valid_until_latest), vatBasis: str(o.vat_basis, "unknown"),
+    vatCounts: isObj(o.vat_basis_counts) ? Object.entries(o.vat_basis_counts).filter(([, v]) => typeof v === "number" && Number.isInteger(v)).map(([basis, v]) => ({ basis, count: v as number })) : [],
+    offers: Math.max(0, int(o.offers)), firmOffers: intOrNull(o.firm_offers), indicativeOffers: intOrNull(o.indicative_offers), quarantined: Math.max(0, intOrNull(o.quarantined) ?? 0),
     coverage: { linesPriced: priced, linesTotal: total, pct: isDecimalString(cov.pct) ? cov.pct : total ? String(Math.floor((priced * 1000) / total) / 10) : "0" },
     nextRefreshDue: strOrNull(o.next_refresh_due),
   };

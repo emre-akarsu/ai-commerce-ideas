@@ -49,10 +49,14 @@ export type MerchantStatus = "current" | "stale" | "missing" | "indicative_only"
 export type Visibility = "tenant_private" | "shared" | string;
 export interface Merchant {
   merchantId: string; name: string; sourceKinds: string[]; visibility: string; attested: boolean; ladderLevel: 0 | 1 | 2 | 3 | 4; status: MerchantStatus;
-  statusRaw: string; statusReason: string; asOf: string | null; validUntil: string | null; vatBasis: string; offers: number; quarantined: number;
+  statusRaw: string; statusReason: string; asOf: string | null; validUntil: string | null; validUntilLatest: string | null; vatBasis: string; vatCounts: Array<{ basis: string; count: number }>;
+  offers: number; firmOffers: number | null; indicativeOffers: number | null; quarantined: number;
   coverage: { linesPriced: number; linesTotal: number; pct: string }; nextRefreshDue: string | null;
 }
-export interface Gap { kitLineId: string; text: string; spendRank: number; merchantsWithoutPrice: string[] }
+export interface Gap {
+  kitLineId: string; text: string; spendRank: number; merchantsWithoutPrice: string[]; quantity: string | null; unit: string | null; bucket: string | null;
+  estimatedSpend: string | null; spendBasis: string | null; merchantsWithIndicative: string[];
+}
 export interface RequestDraft { merchantId: string; subject: string; body: string }
 export interface PriceBook {
   format: string; label: string; asOf: string; tenantId: string; currency: string; comparisonBasis: string; merchants: Merchant[]; gaps: Gap[];

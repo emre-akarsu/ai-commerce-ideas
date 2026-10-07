@@ -6,11 +6,11 @@ import Link from "next/link";
 import { Badge, Button, Card, EmptyState, H2, PageHeader } from "@/components/ui/ui";
 import { Modal } from "@/components/modal";
 import { cn } from "@/lib/utils";
-import { FIXTURE_NOTE, loadBundle } from "@/lib/quote/catalog";
+import { loadBundle } from "@/lib/quote/catalog";
 import { IMPORT_EXAMPLE } from "@/lib/quote/example";
-import { filterMerchants, fmtDate, gapsByMerchant, rankGaps, sortMerchants, STATUS_LABEL, STATUS_ORDER, statusCounts, type StatusFilter } from "@/lib/quote/calc";
+import { filterMerchants, fmtDate, fixed, humanCode, gapsByMerchant, rankGaps, sortMerchants, STATUS_LABEL, STATUS_ORDER, statusCounts, type StatusFilter } from "@/lib/quote/calc";
 import type { Merchant, PriceBook, RequestDraft } from "@/lib/quote/types";
-import { CoverageBar, DataNotes, Dl, LadderPill, ReadError, ScopePicker, StatusChip, SyntheticBanner, TenantPicker, useSelection } from "./common";
+import { CoverageBar, DataNotes, Dl, LadderPill, Limited, ReadError, ScopePicker, StatusChip, SyntheticBanner, TenantPicker, useSelection } from "./common";
 
 type Dialog = { kind: "request"; merchant: Merchant; draft: RequestDraft | null } | { kind: "upload" } | { kind: "rfq" } | null;
 
@@ -35,7 +35,6 @@ export function PriceBooksApp() {
       {res.kind === "ok" && !res.bundle.priceBook.ok && <ReadError title={res.bundle.priceBook.reason === "format" ? "Unsupported price book format" : "The price book could not be read"} errors={res.bundle.priceBook.errors} />}
       {res.kind === "ok" && res.bundle.priceBook.ok && (
         <>
-          {res.bundle.source === "fixture" && <p className="mb-4 text-xs text-mute" data-fixture-note>{FIXTURE_NOTE}</p>}
           <Book book={res.bundle.priceBook.book} filter={filter} setFilter={setFilter} open={setDialog} />
         </>
       )}
@@ -79,21 +78,20 @@ function Book({ book, filter, setFilter, open }: { book: PriceBook; filter: Stat
       <section className="mt-6" aria-labelledby="gaps-h" data-gaps>
         <H2 aside={<span className="text-xs text-mute">{gaps.length} line{gaps.length === 1 ? "" : "s"}</span>}><span id="gaps-h">Gaps, biggest spend first</span></H2>
         {gaps.length === 0 ? <p className="text-sm text-mute">No gaps: every line has a current price from at least one merchant.</p> : (
-          <ol className="space-y-2">
-            {gaps.map((g) => (
-              <li key={g.kitLineId} className="rounded-lg border border-line bg-surface p-3" data-gap={g.kitLineId}>
-                <p className="text-sm"><span className="num mr-2 font-semibold text-accent">#{g.spendRank}</span><span className="break-words">{g.text || g.kitLineId}</span></p>
-                <p className="mt-1 text-xs text-mute break-words">No price from: {g.merchantsWithoutPrice.map((id) => names.get(id) ?? id).join(", ") || "none listed"}</p>
-              </li>
-            ))}
-          </ol>
+          <Limited items={gaps} limit={8} noun="gap lines" listClass="space-y-2" render={(g) => (
+            <li key={g.kitLineId} className="rounded-lg border border-line bg-surface p-3" data-gap={g.kitLineId}>
+              <p className="text-sm"><span className="num mr-2 font-semibold text-accent">#{g.spendRank}</span><span className="break-words">{g.text || g.kitLineId}</span></p>
+              <p className="num mt-1 text-xs text-mute break-words">{g.quantity ? `${g.quantity} ${g.unit ?? ""}. ` : ""}{g.bucket ? `${humanCode(g.bucket)}. ` : ""}{g.estimatedSpend ? `Estimated spend ${book.currency} ${fixed(g.estimatedSpend)} (${humanCode(g.spendBasis ?? "unknown basis")}, not a quote). ` : "No spend estimate. "}</p>
+              <p className="mt-1 text-xs text-mute break-words">No firm price from: {g.merchantsWithoutPrice.map((id) => names.get(id) ?? id).join(", ") || "none listed"}{g.merchantsWithIndicative.length ? `. Indicative only from: ${g.merchantsWithIndicative.map((id) => names.get(id) ?? id).join(", ")}` : ""}</p>
+            </li>
+          )} />
         )}
       </section>
 
       {book.freshnessSummary.length > 0 && (
         <section className="mt-6" data-freshness>
           <H2>Freshness</H2>
-          <Card><Dl rows={book.freshnessSummary.map((r, i): [string, React.ReactNode] => [r.key ? r.key.replace(/_/g, " ") : `Summary ${i + 1}`, r.value])} /></Card>
+          <Card><Dl rows={book.freshnessSummary.map((r, i): [string, React.ReactNode] => [r.key ? r.key.replace(/_/g, " ") : `Summary ${i + 1}`, fmtDate(r.value)])} /></Card>
         </section>
       )}
       <DataNotes notes={book.notes} label="Price book" />
@@ -111,23 +109,33 @@ function MerchantCard({ m, draft, open }: { m: Merchant; draft: RequestDraft | n
       <p className="mt-1 text-sm break-words" data-status-reason>{m.statusReason || "No reason given."}</p>
       <div className="mt-3 grid gap-4 md:grid-cols-2">
         <Dl rows={[
-          ["As of", fmtDate(m.asOf)], ["Valid until", fmtDate(m.validUntil)], ["VAT basis", vatText(m.vatBasis)],
+          ["As of", fmtDate(m.asOf)], ["Valid until", validText(m)], ["VAT basis", vatText(m)],
           ["Visible to", m.visibility === "shared" ? "Shared with other customers" : "Private to you"], ["Next refresh due", m.nextRefreshDue ? fmtDate(m.nextRefreshDue) : "not scheduled"],
         ]} />
         <div className="space-y-2">
           <CoverageBar coverage={m.coverage} />
-          <p className="text-xs text-mute">{m.offers} offer{m.offers === 1 ? "" : "s"} loaded{m.quarantined ? `, ${m.quarantined} quarantined` : ""}. {m.attested ? "You attested validity and VAT basis." : "Not attested, so never a firm line."}{m.sourceKinds.length ? ` Source: ${m.sourceKinds.map((s) => s.replace(/_/g, " ")).join(", ")}.` : ""}</p>
+          <p className="text-xs text-mute">{m.offers} offer{m.offers === 1 ? "" : "s"} loaded{m.indicativeOffers ? ` (${m.indicativeOffers} indicative only)` : ""}{m.quarantined ? `, ${m.quarantined} quarantined` : ""}. {m.attested ? "You attested validity and VAT basis." : "Not attested, so never a firm line."}{m.sourceKinds.length ? ` Source: ${m.sourceKinds.map((s) => s.replace(/_/g, " ")).join(", ")}.` : ""}</p>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <Button variant="secondary" type="button" onClick={() => open({ kind: "request", merchant: m, draft })} disabled={!draft} data-act="request">Request price file</Button>
-        {!draft && <span className="text-xs text-mute">No email drafted for this merchant.</span>}
+        {!draft && <span className="text-xs text-mute">{m.status === "current" ? "Nothing to request: prices are current." : "No email drafted for this merchant."}</span>}
         <Button variant="ghost" type="button" onClick={() => open({ kind: "upload" })}>Upload price file</Button>
       </div>
     </li>
   );
 }
-const vatText = (v: string): string => ({ ex_tax: "Ex VAT", inc_tax: "Inc VAT", mixed: "Mixed (some rows ex, some inc)", unknown: "Unknown, so not comparable" })[v] ?? v;
+const BASIS: Record<string, string> = { ex_tax: "ex VAT", inc_tax: "inc VAT", unknown: "unknown" };
+function vatText(m: Merchant): string {
+  const counts = m.vatCounts.filter((c) => c.count > 0).map((c) => `${c.count} ${BASIS[c.basis] ?? c.basis}`).join(", ");
+  if (m.vatBasis === "mixed") return `Mixed: ${counts || "rows differ"}. Unknown rows are not used.`;
+  return ({ ex_tax: "Ex VAT", inc_tax: "Inc VAT", unknown: "Unknown, so not comparable" })[m.vatBasis] ?? m.vatBasis;
+}
+/** The earliest end among prices still valid, and the latest when it differs. */
+function validText(m: Merchant): string {
+  if (!m.validUntil) return "none";
+  return m.validUntilLatest && m.validUntilLatest !== m.validUntil ? `${fmtDate(m.validUntil)} (earliest; latest ${fmtDate(m.validUntilLatest)})` : fmtDate(m.validUntil);
+}
 
 const DEMO_NOTE = "Demo only. Nothing is sent. In the real flow you approve this exact message and the send-service sends it; the draft cannot go out without your approval.";
 
@@ -189,10 +197,10 @@ function RfqDialog({ book, onClose }: { book: PriceBook; onClose: () => void }) 
         <p className="mt-1 text-sm text-mute">One request per merchant, listing the lines it has no current price for, biggest spend first.</p>
         <div className="mt-3 space-y-3">
           {groups.map((g) => (
-            <section key={g.merchantId} data-rfq-merchant={g.merchantId} className="rounded-md border border-line p-3">
-              <h3 className="break-words text-sm font-semibold">{g.name} <span className="font-normal text-mute">({g.gaps.length} line{g.gaps.length === 1 ? "" : "s"})</span></h3>
-              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">{g.gaps.map((x) => <li key={x.kitLineId} className="break-words">{x.text || x.kitLineId} <span className="text-xs text-mute">(spend rank {x.spendRank})</span></li>)}</ul>
-            </section>
+            <details key={g.merchantId} data-rfq-merchant={g.merchantId} className="rounded-md border border-line px-3">
+              <summary className="min-h-target cursor-pointer py-2 text-sm font-semibold break-words">{g.name} <span className="font-normal text-mute">({g.gaps.length} line{g.gaps.length === 1 ? "" : "s"})</span></summary>
+              <ul className="list-disc space-y-0.5 pb-3 pl-5 text-sm">{g.gaps.map((x) => <li key={x.kitLineId} className="break-words">{x.text || x.kitLineId} <span className="text-xs text-mute">(spend rank {x.spendRank})</span></li>)}</ul>
+            </details>
           ))}
         </div>
         <p className="mt-3 rounded-md border border-warn bg-warn-soft p-2 text-xs text-warn">{DEMO_NOTE}</p>

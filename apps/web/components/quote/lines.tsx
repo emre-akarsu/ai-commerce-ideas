@@ -4,7 +4,7 @@ import { Badge, Card, H2 } from "@/components/ui/ui";
 import { cn } from "@/lib/utils";
 import { fixed, fmtDate, humanCode, money, ratePct, type Check, type MerchantGroup } from "@/lib/quote/calc";
 import type { Candidate, FirmLine, Freshness, IndicativeItem, NoOfferItem, Quote, ReviewItem, ReviewerDecision, SkippedItem, UnmatchedItem } from "@/lib/quote/types";
-import { Dl } from "./common";
+import { Dl, Limited } from "./common";
 
 export const INDICATIVE_LABEL = "indicative, not a quote";
 type Names = (id: string) => string;
@@ -113,8 +113,7 @@ export function ReviewSection({ items, chosen, onChoose }: { items: ReviewItem[]
       <H2 aside={<Badge tone="blue">needs you, not in totals</Badge>}><span id="review-h">Review queue</span></H2>
       <p className="mb-2 text-xs text-mute">Choosing here only changes this demo page. Nothing is saved, priced, sent or ordered, and a line stays out of the totals until a real review is recorded.</p>
       {items.length === 0 && <p className="text-sm text-mute">Nothing waiting for review.</p>}
-      <ul className="space-y-3">
-        {items.map((r) => {
+      <Limited items={items} limit={5} noun="review lines" render={(r) => {
           const pick = chosen[r.lineId];
           return (
             <li key={r.lineId} className="rounded-lg border border-line bg-surface p-4" data-review-line={r.lineId}>
@@ -129,8 +128,7 @@ export function ReviewSection({ items, chosen, onChoose }: { items: ReviewItem[]
               {pick && <p role="status" className="mt-2 text-xs font-medium" data-chosen>Chosen in this demo only: {r.candidates.find((c) => c.skuId === pick)?.title}. It is not priced and nothing was saved.</p>}
             </li>
           );
-        })}
-      </ul>
+        }} />
     </section>
   );
 }
@@ -180,8 +178,7 @@ export function UnmatchedSection({ items }: { items: UnmatchedItem[] }) {
       <H2 aside={<Badge tone="red">not priced</Badge>}><span id="um-h">Unmatched lines</span></H2>
       <p className="mb-2 text-xs text-mute">Services and items with no product in the catalogue. Nothing is priced and nothing is guessed.</p>
       {items.length === 0 && <p className="text-sm text-mute">No unmatched lines.</p>}
-      <ul className="space-y-3">
-        {items.map((l) => (
+      <Limited items={items} limit={5} noun="unmatched lines" render={(l) => (
           <li key={l.lineId} className="rounded-lg border border-line bg-surface p-4" data-unmatched-line={l.lineId}>
             <p className="break-words text-sm font-medium">{l.text || l.description}</p><p className="num text-xs text-mute">{qty(l)}</p>
             <div className="mt-2"><Reasons reasons={l.reasons} /></div>
@@ -190,8 +187,7 @@ export function UnmatchedSection({ items }: { items: UnmatchedItem[] }) {
                 <ul className="space-y-1">{l.closest.slice(0, 3).map((c) => <li key={c.skuId} className="text-xs text-mute break-words">{c.title} ({c.brand}), score {c.score}</li>)}</ul></details>
             )}
           </li>
-        ))}
-      </ul>
+        )} />
     </section>
   );
 }
@@ -203,16 +199,14 @@ export function NoOfferSection({ items }: { items: NoOfferItem[] }) {
       <H2 aside={<Badge tone="gray">not priced</Badge>}><span id="no-h">No-offer lines</span></H2>
       <p className="mb-2 text-xs text-mute">The product is matched but no offer may be used: stale, VAT basis unknown, expired and so on.</p>
       {items.length === 0 && <p className="text-sm text-mute">No lines without an offer.</p>}
-      <ul className="space-y-3">
-        {items.map((l) => (
+      <Limited items={items} limit={5} noun="no-offer lines" render={(l) => (
           <li key={l.lineId} className="rounded-lg border border-line bg-surface p-4" data-no-offer-line={l.lineId}>
             <div className="flex flex-wrap items-center justify-between gap-2"><p className="min-w-0 break-words text-sm font-medium">{l.text || l.description}</p><Badge tone="gray">{NO_OFFER_TEXT[l.status] ?? humanCode(l.status)}</Badge></div>
             <p className="num text-xs text-mute">{qty(l)}</p>
             {l.excludedCodes.length > 0 && <p className="mt-1 flex flex-wrap gap-1">{l.excludedCodes.map((c) => <Badge key={c} tone="amber">{humanCode(c)}</Badge>)}</p>}
             <div className="mt-2"><Reasons reasons={l.reasons} /></div>
           </li>
-        ))}
-      </ul>
+        )} />
     </section>
   );
 }
@@ -248,13 +242,11 @@ export function DecisionsPanel({ rows }: { rows: Array<{ line: ReviewItem; decis
       <H2 aside={<Badge tone="amber">invented</Badge>}>Reviewer decisions applied</H2>
       <p className="mb-2 text-sm text-mute">These decisions are invented for this demo so you can see the review loop. A real reviewer reads every candidate; nothing here is a recommendation.</p>
       {rows.length === 0 && <p className="text-sm text-mute">No review line was decided in this data.</p>}
-      <ul className="space-y-2">
-        {rows.map(({ line, decision, nowPriced }) => (
+      <Limited items={rows} limit={5} noun="decisions" listClass="space-y-2" render={({ line, decision, nowPriced }) => (
           <li key={line.lineId} className="text-sm break-words" data-decision={line.lineId}>
             <span className="font-medium">{line.text || line.description}</span>: {decision ? `chose ${decision.skuId}${decision.note ? ` (${decision.note})` : ""}` : "decided"}; {nowPriced ? "now priced and in the totals" : "no longer in the review queue"}.
           </li>
-        ))}
-      </ul>
+        )} />
     </Card>
   );
 }

@@ -142,7 +142,7 @@ describe("price book sorting and filtering", () => {
     expect(by.map((g) => g.merchantId)).toEqual(["m-pennywell", "m-brindlecote", "m-northgate"]);
     expect(by.find((g) => g.merchantId === "m-brindlecote")?.gaps.map((g) => g.spendRank)).toEqual([1, 2, 3]);
     expect(by[0].name).toContain("Pennywell");
-    expect(gapsByMerchant([{ kitLineId: "x", text: "t", spendRank: 1, merchantsWithoutPrice: ["m-unknown"] }], [])[0].name).toBe("m-unknown");
+    expect(gapsByMerchant([{ kitLineId: "x", text: "t", spendRank: 1, merchantsWithoutPrice: ["m-unknown"], quantity: null, unit: null, bucket: null, estimatedSpend: null, spendBasis: null, merchantsWithIndicative: [] }], [])[0].name).toBe("m-unknown");
   });
   it("coverage width comes from the counts, clamped", () => {
     expect(coveragePct({ linesPriced: 34, linesTotal: 41 })).toBe(82);
