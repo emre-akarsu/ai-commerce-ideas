@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
 from datetime import UTC, datetime, timedelta
-from decimal import Decimal
+from decimal import Decimal, localcontext
 
 import pytest
 
@@ -209,11 +209,35 @@ def test_usual_unit_ties_go_to_the_alphabetically_first_unit() -> None:
     assert (f.code, f.value("usual_unit")) == ("unit_basis_shift", "box")
 
 
-def test_very_large_ratios_are_shown_without_overflow() -> None:
+def test_very_large_ratios_are_shown_in_scientific_notation() -> None:
     rows = [row("0.00000001"), row("0.00000001", day=1)]
     f = only(run(rows, "1E+30"))  # ratio 1E+38
-    assert f.code == "price_jump_vs_last_paid"
-    assert f.value("ratio") == "1" + "0" * 38 + ".00"
+    assert (f.code, f.value("ratio")) == ("price_jump_vs_last_paid", "1.00e+38")
+
+
+@pytest.mark.parametrize(
+    ("price", "ratio"),
+    [("1E+15", "1000000000000000.00"), ("1E+16", "1.00e+16")],
+)
+def test_ratios_of_up_to_fifteen_digits_are_plain_and_larger_ones_scientific(
+    price: str, ratio: str
+) -> None:
+    f = only(run([row("1.00"), row("1.00", day=1)], price))
+    assert (f.code, f.value("ratio")) == ("price_jump_vs_last_paid", ratio)
+
+
+def test_extreme_exponents_neither_overflow_nor_flood_the_text() -> None:
+    f = only(run([row("10.00"), row("10.00", day=1)], "1E+999999"))
+    assert (f.value("price"), f.value("ratio")) == ("1E+999999", "1.00e+999998")
+    assert run([row("1E+999999"), row("1E+999999", day=1)], "1E+999999") == ()
+    assert run([row("1E-999999"), row("1E-999999", day=1)], "1E-999999") == ()
+    quantities = [row("10.00", qty="10"), row("10.00", day=1, qty="10")]
+    f = only(run(quantities, "10.00", qty="1E+999999"))
+    assert (f.code, f.value("ratio"), f.value("usual")) == (
+        "quantity_unusual",
+        "1.00e+999998",
+        "10",
+    )
 
 
 # --- last paid: merchant preference and currency -----------------------------------------------
@@ -330,6 +354,16 @@ def test_non_finite_inputs_are_refused(bad: Decimal) -> None:
         check_plausibility("ITEM-1", "M1", bad, "each", "EUR", None, None, CFG)
     with pytest.raises(ValueError):
         check_plausibility("ITEM-1", "M1", Decimal("10"), "each", "EUR", bad, None, CFG)
+
+
+def test_the_result_does_not_depend_on_the_callers_decimal_context() -> None:
+    # 105.1234 / 10.0123 is just under 10.5: inside the x10 band under exact arithmetic only
+    rows = [row("10.0123"), row("10.0123", day=1)]
+    expected = run(rows, "105.1234")
+    assert codes(expected) == ["unit_basis_shift"]
+    with localcontext() as ctx:
+        ctx.prec = 4
+        assert run(rows, "105.1234") == expected
 
 
 # --- ordering and determinism ------------------------------------------------------------------

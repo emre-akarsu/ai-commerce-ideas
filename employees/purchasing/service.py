@@ -95,6 +95,13 @@ from components.rfq.comparison import compare
 from components.rfq.quotes.extractors import LLMQuoteExtractor, RegexQuoteExtractor
 from components.rfq.quotes.grounding import INJECTION_FLAG, ground
 from components.rfq.quotes.normalise import is_quarantined, normalise_quote
+from components.rfq.quotes.verify_quote import (
+    ATTENTION_FLAG,
+    REVIEW_FLAG,
+    finding_payload,
+    flags_for,
+    verify_quote,
+)
 from components.rfq.workflow import Workflow, WorkflowError
 from components.send_service import SendError, SendService
 from components.send_service.message import (
@@ -107,6 +114,9 @@ from components.send_service.message import (
 )
 from components.send_service.service import TenantIdentities
 from components.suppliers import SupplierStore, is_stop_request
+from components.verify.config import VerifyConfig
+from components.verify.findings import Finding
+from components.verify.history import PriceHistory
 
 from .mvp import MvpOps
 from .service_port import Conflict, NotFound, TextRfqDraft
@@ -135,6 +145,7 @@ EVT_REQUEST_CREATED = "request.created"
 EVT_CANDIDATES = "candidates.found"
 EVT_RFQ_PREPARED = "rfq.prepared"
 EVT_QUOTE_INGESTED = "quote.ingested"
+EVT_QUOTE_VERIFIED = "quote.verified"  # verification findings for an ingested quote (flags only)
 EVT_VENDOR_UPSERTED = "vendor.upserted"
 EVT_CSV_IMPORT = "import.csv"
 EVT_VENDOR_CONTACT_CHANGED = "vendor.contact_changed"
@@ -145,9 +156,11 @@ EVT_QUOTE_RFQ_LINKED = "quote_rfq.linked"
 FORCE_APPROVAL_FLAGS = frozenset({
     "condition_not_new", "condition_unrecognised", "currency_assumed_usd", "freight_unknown",
     "buyer_entered", "tax_basis_unknown", "currency_ambiguous",
+    REVIEW_FLAG,  # a verification finding (readings disagree, number check failed) needs a person
 })
 # Shown on the approval link but do not, by themselves, force an approval.
-INFORMATIONAL_FLAGS = frozenset({"tax_basis_assumed", "lead_time_working_days_assumed"})
+INFORMATIONAL_FLAGS = frozenset({"tax_basis_assumed", "lead_time_working_days_assumed",
+                                ATTENTION_FLAG})
 REFUSE_FLAGS = frozenset({"validity_expired"})  # cannot be selected at all
 QUARANTINE_EXTRA = frozenset({"vendor_pending_callback"})  # R12 callback not yet confirmed
 MAX_SOURCE_CHARS = 200_000
@@ -548,6 +561,8 @@ class PurchasingService(MvpOps):
         profile: ResolvedProfile | None = None,
         suppliers: SupplierStore | None = None,
         spend_book: SpendBook | None = None,
+        shadow_extractor: Extractor | None = None,
+        price_history: PriceHistory | None = None,
     ) -> None:
         self._suppliers = suppliers if suppliers is not None else SupplierStore()
         self._reply_key = reply_token_key if reply_token_key is not None else secrets.token_bytes(32)
@@ -564,6 +579,12 @@ class PurchasingService(MvpOps):
         self._extractor = extractor
         self._settings = settings or Settings()
         self._profile = profile
+        # Verification layer: a second, independent reader of every quote (findings only) and the
+        # tenant's price history, when one is supplied. Thresholds come from the profile.
+        self._shadow_extractor = shadow_extractor
+        self._price_history = price_history
+        self._verify_cfg = (VerifyConfig.from_mapping(profile.profile.verification.model_dump(mode="json"))
+                            if profile is not None else VerifyConfig())
         self._check_wiring()
         self._identities = self._settings.tenant_identities()  # frozen, tenant-scoped copy
         if self._settings.profile_tag and not isinstance(event_log, ProfileStampedLog):
@@ -1319,7 +1340,7 @@ class PurchasingService(MvpOps):
         extra = ["buyer_entered"] if buyer_entered else []
         if self._callback_pending(request.tenant_id, vendor.id):
             extra.append("vendor_pending_callback")
-        quote = self._build_quote(request, rfq, vendor, source_text, dmarc_ok, extra)
+        quote, findings = self._build_quote(request, rfq, vendor, source_text, dmarc_ok, extra)
         existing = ts.quotes.find(quote.id)
         if existing is None:
             ts.quotes.add(quote)
@@ -1329,11 +1350,16 @@ class PurchasingService(MvpOps):
             "quote_id": quote.id, "version": quote.version, "vendor_id": vendor.id,
             "flags": list(quote.flags), "offered_tier": quote.offered_tier.value,
             "buyer_entered": buyer_entered})
+        if findings:
+            self._emit(request.tenant_id, request.id, "agent", EVT_QUOTE_VERIFIED, {
+                "quote_id": quote.id, "version": quote.version,
+                "findings": finding_payload(findings)})
         self._advance_after_quote(request)
         return QuoteView(quote=quote, vendor=self._ref(vendor))
 
     def _build_quote(self, request: Request, rfq: RFQ, vendor: Vendor, text: str,
-                     dmarc_aligned: bool, extra_flags: Iterable[str] = ()) -> Quote:
+                     dmarc_aligned: bool, extra_flags: Iterable[str] = ()
+                     ) -> tuple[Quote, tuple[Finding, ...]]:
         extra: list[str] = list(extra_flags)
         try:
             extracted = self._extractor.extract(text)
@@ -1357,7 +1383,25 @@ class PurchasingService(MvpOps):
         if quote.unit_price_each is not None and quote.freight is None \
                 and "freight_unknown" not in quote.flags:
             quote = quote.model_copy(update={"flags": (*quote.flags, "freight_unknown")})
-        return quote
+        findings = self._verify(quote, g.extracted, text, vendor, request)
+        added = tuple(f for f in flags_for(findings) if f not in quote.flags)
+        if added:
+            quote = quote.model_copy(update={"flags": (*quote.flags, *added)})
+        return quote, findings
+
+    def _verify(self, quote: Quote, primary: ExtractedQuote, text: str, vendor: Vendor,
+                request: Request) -> tuple[Finding, ...]:
+        """Verification findings for a freshly built quote. They only add flags and an audit event:
+        nothing here approves a quote, picks between two readings or fills a blank (R1, R3, R6)."""
+        shadow: ExtractedQuote | None = None
+        if self._shadow_extractor is not None:
+            try:
+                shadow = ground(self._shadow_extractor.extract(text), text).extracted
+            except Exception:  # noqa: BLE001 - a failing second reader adds nothing
+                shadow = None
+        qty = Decimal(request.quantity) if request.quantity else None
+        return verify_quote(quote, primary, shadow, cfg=self._verify_cfg,
+                            history=self._price_history, merchant_id=vendor.id, quantity=qty)
 
     def _quote_id_for(self, request: Request, rfq: RFQ) -> str:
         ts = self._ts(request.tenant_id)
@@ -1790,6 +1834,7 @@ def build_in_memory_service(
     profile: ResolvedProfile | None = None,
     suppliers: SupplierStore | None = None,
     shared: dict[str, Any] | None = None,
+    price_history: PriceHistory | None = None,
 ) -> PurchasingService:
     """Fully wired service on in-memory stores. The transport is handed to the send-service ONLY.
     Defaults are dev-safe: a recording transport (nothing leaves the process), caps from the manifest
@@ -1828,11 +1873,14 @@ def build_in_memory_service(
         extractor = (LLMQuoteExtractor(llm) if use_llm_extractor and llm is not None
                      else RegexQuoteExtractor())
     kwargs: dict[str, Any] = {} if token_gen is None else {"token_gen": token_gen}
+    if use_llm_extractor and llm is not None:
+        kwargs["shadow_extractor"] = RegexQuoteExtractor()  # the cheap second reader for the diff
     return PurchasingService(
         store=st, event_log=log, clock=clk, send_service=send, approval_service=approvals,
         extractor=extractor, settings=cfg, notifier=notifier, ids=ids, llm=llm,
         reply_token_key=hmac.new(secret, b"reply-token-key", hashlib.sha256).digest(),
-        profile=prof, suppliers=suppliers, spend_book=sh.get("spend_book"), **kwargs)
+        profile=prof, suppliers=suppliers, spend_book=sh.get("spend_book"),
+        price_history=price_history, **kwargs)
 
 
 def build_pg_service(

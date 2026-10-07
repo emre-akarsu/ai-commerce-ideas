@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Iterable, Sequence
-from decimal import ROUND_HALF_UP, Decimal, localcontext
+from decimal import MAX_EMAX, MIN_EMIN, ROUND_HALF_UP, Context, Decimal, localcontext
 
 from components.verify.config import VerifyConfig
 from components.verify.findings import Finding
@@ -21,6 +21,10 @@ from components.verify.history import PriceHistory, PriceObservation
 
 UNIT_FACTORS: tuple[Decimal, ...] = (Decimal(10), Decimal(12), Decimal(100), Decimal(1000))
 _TWO_DP = Decimal("0.01")
+_MAX_PLAIN_EXPONENT = 15  # display only: a ratio of 10**16 or more is shown in scientific notation
+# Fixed arithmetic for every check, whatever the caller's decimal context. The exponent range is
+# widened: at the default one, multiplying a price near 10**999999 raises Overflow.
+_CONTEXT = Context(prec=28, Emax=MAX_EMAX, Emin=MIN_EMIN)
 
 
 class InMemoryPriceHistory:
@@ -97,11 +101,11 @@ def _near_unit_factor(hi: Decimal, lo: Decimal, tolerance: Decimal) -> bool:
 
 
 def _two_dp(ratio: Decimal) -> str:
-    """A ratio (at least 1) to two decimals, half up, as text. The precision grows with very large
-    ratios so that `quantize` cannot overflow."""
-    with localcontext() as ctx:
-        ctx.prec = max(ctx.prec, ratio.adjusted() + 10)
-        return str(ratio.quantize(_TWO_DP, rounding=ROUND_HALF_UP))
+    """A ratio (at least 1) to two decimals, half up, as text. Ratios of 10**16 or more are shown in
+    scientific notation, so the text stays short whatever the size."""
+    if ratio.adjusted() > _MAX_PLAIN_EXPONENT:
+        return format(ratio, ".2e")
+    return str(ratio.quantize(_TWO_DP, rounding=ROUND_HALF_UP))
 
 
 def _median(values: Sequence[Decimal]) -> Decimal:
@@ -196,24 +200,22 @@ def check_plausibility(
       rows carry a positive quantity, and the larger of quantity / usual and usual / quantity is
       above `cfg.quantity_ratio`. `usual` is the exact median of those quantities.
 
-    Units compare case-insensitively. Ratios in the findings have two decimals, half up.
-    Findings are sorted by (field, code).
+    Units compare case-insensitively. Ratios in the findings have two decimals, half up, or
+    scientific notation from 10**16. Findings are sorted by (field, code).
     """
-    price = _finite("unit_price", unit_price)
-    qty = None if quantity is None else _finite("quantity", quantity)
-    if history is None:
-        return ()
-    same = _comparable(history.observations(item_key), currency)
-    if len(same) < cfg.min_history_points:
-        return ()
-    found: list[Finding] = []
-    last = _last_paid(history, item_key, merchant_id, currency, same)
-    if last is not None and price > 0:
-        price_finding = _price_finding(price, unit, last, _usual_unit(same), cfg)
-        if price_finding is not None:
-            found.append(price_finding)
-    if qty is not None and qty > 0:
-        quantity_finding = _quantity_finding(qty, same, cfg)
-        if quantity_finding is not None:
-            found.append(quantity_finding)
-    return tuple(sorted(found, key=lambda f: (f.field, f.code)))
+    with localcontext(_CONTEXT):
+        price = _finite("unit_price", unit_price)
+        qty = None if quantity is None else _finite("quantity", quantity)
+        if history is None:
+            return ()
+        same = _comparable(history.observations(item_key), currency)
+        if len(same) < cfg.min_history_points:
+            return ()
+        last = _last_paid(history, item_key, merchant_id, currency, same)
+        found: list[Finding | None] = []
+        if last is not None and price > 0:
+            found.append(_price_finding(price, unit, last, _usual_unit(same), cfg))
+        if qty is not None and qty > 0:
+            found.append(_quantity_finding(qty, same, cfg))
+        kept = [finding for finding in found if finding is not None]
+        return tuple(sorted(kept, key=lambda f: (f.field, f.code)))

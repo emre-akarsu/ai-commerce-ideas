@@ -2,7 +2,7 @@
 
 The checks read a `QuoteLineFacts` (what the quote says about one line) and return `Finding`s. A
 finding only sends a line to review or raises a flag: nothing here approves a line, picks between
-two readings, fills a blank or changes an amount (hard rules R5 and R6).
+two readings, fills a blank or changes an amount (spec R6 and R9: money, rule 5 in CLAUDE.md).
 
 Money is Decimal only. A float, int, bool or non-finite value is refused when the facts are built.
 Arithmetic is exact to 400 significant digits, so the only rounding that matters is the tolerance
