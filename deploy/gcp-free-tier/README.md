@@ -10,7 +10,7 @@ Source: [Google Cloud Free Tier, compute](https://cloud.google.com/free/docs/fre
 - 1 GB RAM and a shared 0.25 vCPU: no Docker, no Next.js server, no builds on the VM. Build the demo elsewhere and copy the single file. The scripts add 2 GB of swap.
 
 ## Memory budget (approximate, measure it)
-Caddy about 30 MB; optional demo API about 150 to 250 MB (capped at 300 MB by the unit); Postgres, when Stage 1 lands, tuned to `shared_buffers=64MB`, `max_connections=20` about 150 MB. That fits in 1 GB with swap for a single user. It will not serve many users; it is a staging box.
+Caddy about 30 MB; optional demo API about 150 to 250 MB (capped at 300 MB by the unit); Postgres (installed by `postgres-setup.sh`, tuned to `shared_buffers=64MB`, `max_connections=20`) about 150 MB. That fits in 1 GB with swap for a single user. Decision (owner, 2026-10-07): one VPS runs everything; no serverless or managed database. It will not serve many users; it is a staging box.
 
 ## Steps
 1. Build the demo locally: `cd apps/web && npx vite build -c demo/vite.config.mjs && node demo/inline.mjs` (writes `demo-dist/page.html`).
@@ -25,5 +25,11 @@ Caddy about 30 MB; optional demo API about 150 to 250 MB (capped at 300 MB by th
 - No secret is in the repo; the password is generated on the VM. No customer or merchant data goes on this box.
 - Optional API: copy the repo to `/srv/rfq/app`, create `/srv/rfq/venv`, `pip install -e .`, install `rfq-api.service`. It is the in-memory demo and loses state on restart.
 
-## Next, when Stage 1 is built
-Postgres on the same VM (RLS needs Postgres, not SQLite), the database-backed service in place of the in-memory one, `ENV=production` allowed only after known-gaps H2 is closed, off-VM backups (mind the 1 GB egress), and a move to a paid VM when a second user needs it.
+## Database on the same VM
+1. As root on the VM: `./postgres-setup.sh` (installs PostgreSQL, tuned for 1 GB, localhost only, creates the owner role and the `rfq` database, saves credentials to `/etc/rfq/db.env`).
+2. Run the migrations as the owner: `set -a; . /etc/rfq/db.env; set +a; cd /srv/rfq/app && /srv/rfq/venv/bin/python -c "from aidb.migrate import upgrade; import os; upgrade(os.environ['OWNER_DATABASE_URL'])"`. This also creates the restricted `app_user` role.
+3. `./postgres-setup.sh app-password` gives `app_user` a password and writes `DATABASE_URL` for the app. The app must use `DATABASE_URL` (app_user), never the owner URL: row-level security does not protect against the owner.
+4. Port 5432 stays closed to the internet (it listens on localhost only). The nightly backup now includes a `pg_dump` of `rfq`.
+5. Before any real data: run the repo's cross-tenant tests against this database, test a restore from the dump, and keep an off-VM copy (mind the 1 GB monthly egress).
+
+Still true: the shipped API entrypoint is the in-memory demo and refuses `ENV=production` until Stage 1 of the roadmap (database-backed service, known-gaps H2) is done. Move to a paid VM when a second user needs it or memory pressure shows in `free -m`.

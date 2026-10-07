@@ -1,4 +1,4 @@
-# OPTIONAL demo API (in-memory, synthetic data, nothing is sent). It is NOT a production service:
+# OPTIONAL API. The shipped demo entrypoint is in-memory with synthetic data and nothing is sent. It is NOT a production service:
 # the in-memory state is process-local (docs/architecture/known-gaps.md H2) and the entrypoint
 # refuses ENV=production. Swap to the database-backed build once Stage 1 of the roadmap is done.
 [Unit]
@@ -8,6 +8,7 @@ After=network.target
 [Service]
 User=rfq
 WorkingDirectory=/srv/rfq/app
+EnvironmentFile=-/etc/rfq/db.env
 Environment=PYTHONPATH=/srv/rfq/app/packages:/srv/rfq/app
 ExecStart=/srv/rfq/venv/bin/python scripts/demo_api.py --host 127.0.0.1 --port 8000
 Restart=on-failure
