@@ -7,6 +7,7 @@ existence). Role checks are done inside the service via `aiplat.ctx.require`.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import date
 from typing import Protocol
 
@@ -42,6 +43,17 @@ class Conflict(Exception):
     """Operation not allowed in the current state."""
 
 
+@dataclass(frozen=True)
+class TextRfqDraft:
+    """A prepared, unsent templated quote request linked to a saved quote (read-only view)."""
+
+    request_id: str
+    quote_ref: str
+    mode: str  # "per_supplier" | "per_item"
+    line_refs: list[str]
+    prepared: PreparedRFQ
+
+
 class PurchasingServicePort(Protocol):
     def create_request(
         self, ctx: Ctx, *, text: str, quantity: int | None = None, need_by: date | None = None,
@@ -55,6 +67,20 @@ class PurchasingServicePort(Protocol):
         self, ctx: Ctx, request_id: str, *, vendor_ids: list[str], candidate_mpns: list[str] | None = None
     ) -> list[PreparedRFQ]: ...
     def list_prepared_rfqs(self, ctx: Ctx, request_id: str) -> list[PreparedRFQ]: ...
+    def check_text_rfq(
+        self, ctx: Ctx, *, vendor_id: str, subject: str, body: str, line_refs: list[str],
+        quote_ref: str, mode: str = "per_supplier",
+    ) -> None:
+        """Dry run of ``prepare_text_rfq``: every gate, nothing stored or sent."""
+        ...
+    def prepare_text_rfq(
+        self, ctx: Ctx, *, vendor_id: str, subject: str, body: str, line_refs: list[str],
+        quote_ref: str, mode: str = "per_supplier",
+    ) -> PreparedRFQ:
+        """A templated (possibly multi-line) quote request to one verified supplier, held for the
+        hash-bound approval of ``approve_send``. Carries no candidate part and no PO path."""
+        ...
+    def list_text_rfqs(self, ctx: Ctx, quote_ref: str) -> list[TextRfqDraft]: ...
     def approve_send(self, ctx: Ctx, rfq_id: str, *, mime_hash: str) -> SendResult: ...
     def ingest_quote(
         self, ctx: Ctx, request_id: str, *, vendor_id: str, source_text: str

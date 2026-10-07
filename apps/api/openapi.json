@@ -496,6 +496,79 @@
         "title": "Body_import_csv_v1_imports_csv_post",
         "type": "object"
       },
+      "Body_upload_price_file_v1_price_files_post": {
+        "properties": {
+          "attested": {
+            "default": false,
+            "title": "Attested",
+            "type": "boolean"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "maxLength": 3,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          },
+          "merchant_id": {
+            "maxLength": 100,
+            "title": "Merchant Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "default": "customer_price_file",
+            "maxLength": 40,
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "valid_from": {
+            "anyOf": [
+              {
+                "maxLength": 10,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid From"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "maxLength": 10,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
+          },
+          "vat_basis": {
+            "maxLength": 20,
+            "title": "Vat Basis",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file",
+          "merchant_id",
+          "vat_basis"
+        ],
+        "title": "Body_upload_price_file_v1_price_files_post",
+        "type": "object"
+      },
       "Body_vendors_import_v1_vendors_import_post": {
         "properties": {
           "file": {
@@ -2344,6 +2417,117 @@
         "title": "ResolveIn",
         "type": "object"
       },
+      "RfqDraftOut": {
+        "additionalProperties": false,
+        "properties": {
+          "body_preview": {
+            "title": "Body Preview",
+            "type": "string"
+          },
+          "footer": {
+            "title": "Footer",
+            "type": "string"
+          },
+          "line_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Line Ids",
+            "type": "array"
+          },
+          "merchant_id": {
+            "title": "Merchant Id",
+            "type": "string"
+          },
+          "mime_hash": {
+            "title": "Mime Hash",
+            "type": "string"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "quote_id": {
+            "title": "Quote Id",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rfq_id": {
+            "title": "Rfq Id",
+            "type": "string"
+          },
+          "status": {
+            "const": "awaiting_approval",
+            "default": "awaiting_approval",
+            "title": "Status",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "to": {
+            "title": "To",
+            "type": "string"
+          },
+          "vendor_name": {
+            "title": "Vendor Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "rfq_id",
+          "quote_id",
+          "mode",
+          "merchant_id",
+          "vendor_name",
+          "to",
+          "subject",
+          "body_preview",
+          "footer",
+          "mime_hash",
+          "line_ids"
+        ],
+        "title": "RfqDraftOut",
+        "type": "object"
+      },
+      "RfqDraftsIn": {
+        "additionalProperties": false,
+        "properties": {
+          "merchant_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,95}$",
+                  "type": "string"
+                },
+                "maxItems": 50,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Ids"
+          },
+          "mode": {
+            "default": "per_supplier",
+            "enum": [
+              "per_supplier",
+              "per_item"
+            ],
+            "title": "Mode",
+            "type": "string"
+          }
+        },
+        "title": "RfqDraftsIn",
+        "type": "object"
+      },
       "SelectQuoteIn": {
         "additionalProperties": false,
         "properties": {
@@ -3398,6 +3582,65 @@
         "summary": "Price Books"
       }
     },
+    "/v1/price-files": {
+      "get": {
+        "operationId": "get_price_files_v1_price_files_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Get Price Files V1 Price Files Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Price Files"
+      },
+      "post": {
+        "operationId": "upload_price_file_v1_price_files_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_price_file_v1_price_files_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Upload Price File V1 Price Files Post"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Upload Price File"
+      }
+    },
     "/v1/profile": {
       "get": {
         "operationId": "get_profile_v1_profile_get",
@@ -3656,6 +3899,102 @@
           }
         },
         "summary": "Quote Options"
+      }
+    },
+    "/v1/quotes/{quote_id}/rfq-drafts": {
+      "get": {
+        "operationId": "read_v1_quotes__quote_id__rfq_drafts_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "quote_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,95}$",
+              "title": "Quote Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RfqDraftOut"
+                  },
+                  "title": "Response Read V1 Quotes  Quote Id  Rfq Drafts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read"
+      },
+      "post": {
+        "operationId": "create_v1_quotes__quote_id__rfq_drafts_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "quote_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,95}$",
+              "title": "Quote Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RfqDraftsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RfqDraftOut"
+                  },
+                  "title": "Response Create V1 Quotes  Quote Id  Rfq Drafts Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create"
       }
     },
     "/v1/requests": {

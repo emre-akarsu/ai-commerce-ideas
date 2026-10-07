@@ -109,7 +109,7 @@ from components.send_service.service import TenantIdentities
 from components.suppliers import SupplierStore, is_stop_request
 
 from .mvp import MvpOps
-from .service_port import Conflict, NotFound
+from .service_port import Conflict, NotFound, TextRfqDraft
 from .views import (
     ApprovalLinkView,
     AuditView,
@@ -140,6 +140,7 @@ EVT_CSV_IMPORT = "import.csv"
 EVT_VENDOR_CONTACT_CHANGED = "vendor.contact_changed"
 EVT_VENDOR_CONTACT_CONFIRMED = "vendor.contact_confirmed"
 EVT_KILL_SWITCH = "send.kill_switch"
+EVT_QUOTE_RFQ_LINKED = "quote_rfq.linked"
 # M4: a quote carrying any of these can only proceed with a human approval (approver != requester).
 FORCE_APPROVAL_FLAGS = frozenset({
     "condition_not_new", "condition_unrecognised", "currency_assumed_usd", "freight_unknown",
@@ -1027,6 +1028,105 @@ class PurchasingService(MvpOps):
             body_preview=preview.text, mime_hash=prepared.mime_hash,
             footer=footer,
         )
+
+    # ------------------------------------------------------------ templated text RFQs (quote to RFQ)
+
+    _TEXT_LINK = re.compile(r"://|\bwww\.|<[^>]*>|\bhttps?\b|&#?\w+;", re.IGNORECASE)
+    _TEXT_CONTROL = re.compile(r"[\x00-\x08\x0b-\x1f\x7f]")
+    _TEXT_REF = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,95}$")
+    _TEXT_MODES = ("per_supplier", "per_item")
+    TEXT_SUBJECT_MAX = 200
+    TEXT_BODY_MAX = 20000
+    TEXT_LINES_MAX = 200
+
+    def _check_text_rfq(
+        self, ctx: Ctx, vendor_id: str, subject: str, body: str, line_refs: list[str],
+        quote_ref: str, mode: str,
+    ) -> tuple[Vendor, list[tuple[str, str]]]:
+        """Every gate of a text RFQ, before anything is stored. The text is re-checked here and not
+        trusted from the caller: no link, markup, entity or control character (a line break is
+        allowed in the body only), bounded length."""
+        require(ctx, Role.BUYER)
+        if mode not in self._TEXT_MODES:
+            raise Conflict("unknown mode")
+        if not self._TEXT_REF.match(str(quote_ref)):
+            raise Conflict("bad quote reference")
+        if not 1 <= len(line_refs) <= self.TEXT_LINES_MAX or not all(
+                isinstance(x, str) and self._TEXT_REF.match(x) for x in line_refs):
+            raise Conflict("bad line references")
+        for where, text, limit, multiline in (("subject", subject, self.TEXT_SUBJECT_MAX, False),
+                                              ("body", body, self.TEXT_BODY_MAX, True)):
+            if not isinstance(text, str) or not text.strip() or len(text) > limit:
+                raise Conflict(f"{where}: empty or too long")
+            if self._TEXT_CONTROL.search(text) or (not multiline and ("\n" in text or "\r" in text)):
+                raise Conflict(f"{where}: control characters are not allowed")
+            if self._TEXT_LINK.search(text):
+                raise Conflict(f"{where}: links and markup are not allowed")
+        ts = self._ts(ctx.tenant_id)
+        try:
+            vendor: Vendor = ts.vendors.get(vendor_id)
+        except (NotFoundError, TenantIsolationError):
+            raise Conflict(f"no verified supplier for {vendor_id!r}") from None
+        if self._callback_pending(ctx.tenant_id, vendor.id):
+            raise Conflict(f"vendor {vendor.id} has an unconfirmed contact change (callback pending)")
+        if not vendor.preferred:
+            raise Conflict(f"vendor {vendor.id} is not a preferred vendor")
+        self.check_supplier_guards(ctx.tenant_id, [vendor])  # verified, not suppressed, not individual
+        return vendor, self._business_identity(ctx)
+
+    def check_text_rfq(
+        self, ctx: Ctx, *, vendor_id: str, subject: str, body: str, line_refs: list[str],
+        quote_ref: str, mode: str = "per_supplier",
+    ) -> None:
+        vendor, identity = self._check_text_rfq(ctx, vendor_id, subject, body, line_refs, quote_ref, mode)
+        probe = RFQ(id="probe", tenant_id=ctx.tenant_id, request_id="probe", vendor_id=vendor.id,
+                    subject=subject, body=body)
+        self._check_messages(ctx, [_Draft(vendor, probe, True)], identity)
+
+    def prepare_text_rfq(
+        self, ctx: Ctx, *, vendor_id: str, subject: str, body: str, line_refs: list[str],
+        quote_ref: str, mode: str = "per_supplier",
+    ) -> PreparedRFQ:
+        """One templated message (all of a supplier's lines, or one line) to one verified supplier.
+        A new ``Request`` is the container (no part, no candidates, so it can never become a PO);
+        the RFQ holds the exact text; the business identity, footer and ``mime_hash`` come from the
+        send-service; the request moves SPEC_DRAFT, SPEC_CONFIRMED, RFQ_DRAFTED only through the
+        workflow. Approval and sending stay ``approve_send`` (R1)."""
+        vendor, identity = self._check_text_rfq(ctx, vendor_id, subject, body, line_refs, quote_ref, mode)
+        now = self._clock.now()
+        request = Request(
+            id=self._ids("req"), tenant_id=ctx.tenant_id, requester=ctx.actor,
+            raw_text=f"Quote request {quote_ref} to {vendor.id}", created_at=now)
+        rfq = RFQ(id=self._ids("rfq"), tenant_id=ctx.tenant_id, request_id=request.id,
+                  vendor_id=vendor.id, subject=subject, body=body)
+        rfq = rfq.model_copy(update={"reply_token": self._issue_reply_token(rfq)})
+        draft = _Draft(vendor, rfq, True)
+        self._check_messages(ctx, [draft], identity)  # nothing is stored if the message cannot be built
+        self._ts(ctx.tenant_id).requests.add(request)
+        self._emit(ctx.tenant_id, request.id, ctx.actor, EVT_REQUEST_CREATED, {
+            "instruction_flags": [], "criticality": False, "down_now": False})
+        self._move(request, S.SPEC_DRAFT, "agent", {"step": "quote_rfq"})
+        self._move(request, S.SPEC_CONFIRMED, "agent", {"step": "quote_rfq"})
+        out = self._prepare_one(ctx, request, draft, identity)
+        self._move(request, S.RFQ_DRAFTED, ctx.actor, {"rfq_ids": [rfq.id], "candidate_mpns": []})
+        self._emit(ctx.tenant_id, request.id, ctx.actor, EVT_QUOTE_RFQ_LINKED, {
+            "quote_ref": quote_ref, "mode": mode, "line_refs": list(line_refs),
+            "rfq_id": rfq.id, "vendor_id": vendor.id, "mime_hash": out.mime_hash})
+        return out
+
+    def list_text_rfqs(self, ctx: Ctx, quote_ref: str) -> list[TextRfqDraft]:
+        """Read-only: this tenant's prepared, unsent text RFQs linked to ``quote_ref``."""
+        require(ctx, Role.BUYER)
+        out: list[TextRfqDraft] = []
+        for request in self._ts(ctx.tenant_id).requests.list():
+            link = self._last_event(ctx.tenant_id, request.id, EVT_QUOTE_RFQ_LINKED)
+            if link is None or link.payload.get("quote_ref") != quote_ref:
+                continue
+            for p in self.list_prepared_rfqs(ctx, request.id):
+                if p.rfq_id == link.payload.get("rfq_id"):
+                    out.append(TextRfqDraft(request.id, quote_ref, str(link.payload.get("mode")),
+                                            list(link.payload.get("line_refs", [])), p))
+        return out
 
     def list_prepared_rfqs(self, ctx: Ctx, request_id: str) -> list[PreparedRFQ]:
         """Read-only: the request's prepared, unsent RFQs, re-rendered from the very message objects
