@@ -25,10 +25,10 @@ cannot be forgotten.
 
 from __future__ import annotations
 
+import secrets
 import threading
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
-from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -96,6 +96,13 @@ from .message import (
     unsafe_text_fields,
     validate_identity_labels,
     validate_identity_pairs,
+)
+from .state import (
+    FollowUpPlan,
+    FollowUpPlans,
+    InMemoryFollowUpPlans,
+    InMemorySpentApprovals,
+    SpentApprovals,
 )
 
 if TYPE_CHECKING:  # type-only: the send-service has no run-time dependency on the profile package
@@ -205,23 +212,6 @@ class KillSwitch:
 
 
 @dataclass
-class _FollowUpPlan:
-    tenant_id: str
-    request_id: str
-    rfq_id: str
-    vendor_id: str
-    approval_id: str
-    schedule: FollowUpSchedule
-    sent_at: datetime
-    original: ParsedMessage
-    done: int = 0
-    active: bool = True
-
-    def due_at(self) -> datetime:
-        return self.sent_at + self.schedule.interval * (self.done + 1)
-
-
-@dataclass
 class _Context:
     """Facts re-derived from the bytes and the tenant's own records during ``send``."""
 
@@ -249,6 +239,8 @@ class SendService:
         footer_text: str = FOOTER_TEMPLATE,
         required_identity_labels: tuple[str, ...] = (),
         identity_provider: IdentityProvider | None = None,
+        spent_approvals: SpentApprovals | None = None,
+        follow_up_plans: FollowUpPlans | None = None,
     ) -> None:
         if not isinstance(footer_text, str) or any(
             clause.lower() not in footer_text.lower() for clause in REQUIRED_FOOTER_CLAUSES
@@ -273,8 +265,10 @@ class SendService:
         self._identity_labels = validate_identity_labels(required_identity_labels)
         self._identity_provider = identity_provider
         self._lock = threading.RLock()
-        self._spent: set[str] = set()  # approval ids / nonces handed to the transport
-        self._plans: list[_FollowUpPlan] = []
+        # Approval ids / nonces handed to the transport, and follow-up plans. In memory by default;
+        # a multi-process deployment injects the shared (Postgres) ones (known-gaps H2).
+        self._spent: SpentApprovals = spent_approvals or InMemorySpentApprovals()
+        self._plans: FollowUpPlans = follow_up_plans or InMemoryFollowUpPlans()
 
     @classmethod
     def from_profile(
@@ -290,6 +284,8 @@ class SendService:
         max_recipients: int | None = None,
         required_identity_labels: Sequence[str] = (),
         identity_provider: IdentityProvider | None = None,
+        spent_approvals: SpentApprovals | None = None,
+        follow_up_plans: FollowUpPlans | None = None,
     ) -> SendService:
         """The send-service a deployment profile calls for: its R8 footer wording, its recipient
         limit (``comms.max_vendors`` unless ``max_recipients`` is given) and, when the profile
@@ -310,7 +306,8 @@ class SendService:
                 profile.profile.comms.max_vendors if max_recipients is None else max_recipients
             ),
             footer_text=legal.disclosure_footer, required_identity_labels=labels,
-            identity_provider=identity_provider,
+            identity_provider=identity_provider, spent_approvals=spent_approvals,
+            follow_up_plans=follow_up_plans,
         )
 
     @property
@@ -628,7 +625,7 @@ class SendService:
             raise StandingRuleViolation("standing rule use count exceeded")
 
     def _already_used(self, tenant: str, approval: Approval) -> bool:
-        if approval.id in self._spent or approval.nonce in self._spent:
+        if self._spent.is_spent(tenant, (approval.id, approval.nonce)):
             return True
         for event in self._log.events(tenant):
             if event.type in (EVT_SEND_DELIVERED, EVT_SEND_FAILED) and (
@@ -671,8 +668,7 @@ class SendService:
                 self._caps.reserve(tenant, ctx.parsed.amount, currency=ctx.parsed.currency)
             except CapError as exc:
                 raise CapRefused(str(exc)) from exc
-        # Point of no return: the approval is spent whatever the transport does.
-        self._spent.update({approval.id, approval.nonce})
+        self._spend(tenant, approval, ctx)
         base = self._base_payload(ctx, mime_hash, approval)
         try:
             message_id = self._transport.deliver(
@@ -691,11 +687,30 @@ class SendService:
                                       "_pii": {"to": ctx.parsed.to}}
         self._log.append(tenant, ctx.request_id, "system", EVT_SEND_DELIVERED, payload)
         if ctx.parsed.purpose is MessagePurpose.RFQ and ctx.parsed.follow_up.count:
-            self._plans.append(_FollowUpPlan(
-                tenant, ctx.request_id, ctx.rfq.id, ctx.vendor.id, approval.id,
-                ctx.parsed.follow_up, self._clock.now(), ctx.parsed,
+            self._plans.add(FollowUpPlan(
+                secrets.token_hex(8), tenant, ctx.request_id, ctx.rfq.id, ctx.vendor.id,
+                approval.id, ctx.parsed.follow_up, self._clock.now(), ctx.parsed, raw=raw,
             ))
         return message_id
+
+    def _spend(self, tenant: str, approval: Approval, ctx: _Context) -> None:
+        """Point of no return: the approval is spent whatever the transport does. The claim is one
+        atomic call on the (possibly shared) store, so of two processes holding the same approval
+        exactly one gets here. The loser gives back any cap it reserved and sends nothing. If the
+        store cannot answer, nothing is sent (the error propagates before the transport call)."""
+        try:
+            won = self._spent.claim(tenant, approval.id, (approval.id, approval.nonce))
+        except BaseException:
+            self._give_back_cap(tenant, ctx)
+            raise
+        if not won:
+            self._give_back_cap(tenant, ctx)
+            raise NonceReplayed("approval was already used")
+
+    def _give_back_cap(self, tenant: str, ctx: _Context) -> None:
+        if ctx.parsed.purpose is MessagePurpose.PO and self._caps is not None:
+            if ctx.parsed.amount is not None and ctx.parsed.currency is not None:
+                self._caps.release(tenant, ctx.parsed.amount, currency=ctx.parsed.currency)
 
     @staticmethod
     def _base_payload(ctx: _Context, mime_hash: str, approval: Approval) -> dict[str, object]:
@@ -729,7 +744,7 @@ class SendService:
         )
 
     def _cancel_plan(
-        self, plan: _FollowUpPlan, seq: int, exc: SendRefused, mime_hash: str = ""
+        self, plan: FollowUpPlan, seq: int, exc: SendRefused, mime_hash: str = ""
     ) -> None:
         """End a follow-up plan for good and say so in the audit trail. Every way a plan can end
         goes through here (opt-out, contact change, missing vendor, a follow-up that cannot be
@@ -737,11 +752,11 @@ class SendService:
         reduce sending: the plan is switched off before anything else, and nothing here calls
         the transport. ``seq`` is the slot that will not be sent; ``mime_hash`` is the follow-up
         that was built and not sent, if any."""
-        plan.active = False
-        self._audit_plan_cancelled(plan, seq, mime_hash, exc)
+        if self._plans.deactivate(plan):  # only the caller that ended it audits it
+            self._audit_plan_cancelled(plan, seq, mime_hash, exc)
 
     def _audit_plan_cancelled(
-        self, plan: _FollowUpPlan, seq: int, mime_hash: str, exc: SendRefused
+        self, plan: FollowUpPlan, seq: int, mime_hash: str, exc: SendRefused
     ) -> None:
         """A follow-up plan was cancelled for good. Ids and codes only (never content), enough
         for an auditor to tell WHICH plan and slot: request, RFQ, vendor, approval, sequence."""
@@ -770,10 +785,8 @@ class SendService:
         sent: list[str] = []
         with self._lock:
             now = self._clock.now()
-            for plan in self._plans:
-                if plan.tenant_id != tenant_id:
-                    continue
-                if not plan.active or plan.done >= plan.schedule.count or now < plan.due_at():
+            for plan in self._plans.active_for_tenant(tenant_id):
+                if plan.done >= plan.schedule.count or now < plan.due_at():
                     continue
                 if self._kill.is_engaged(plan.tenant_id):
                     continue  # paused, not lost
@@ -782,7 +795,7 @@ class SendService:
                     sent.append(message_id)
         return sent
 
-    def _send_follow_up(self, plan: _FollowUpPlan) -> str | None:
+    def _send_follow_up(self, plan: FollowUpPlan) -> str | None:
         seq = plan.done + 1
         try:
             vendor = self._store.for_tenant(plan.tenant_id).vendors.get(plan.vendor_id)
@@ -827,9 +840,8 @@ class SendService:
         if missing:  # fail closed: never send a follow-up lacking the block that is required
             self._cancel_plan(plan, seq, self._identity_refusal(missing), sha256_hex(raw))
             return None
-        plan.done = seq  # at-most-once per slot
-        if plan.done >= plan.schedule.count:
-            plan.active = False
+        if not self._plans.claim_slot(plan, seq):  # at-most-once per slot, across processes
+            return None
         base = {"mime_hash": sha256_hex(raw), "approval_id": plan.approval_id,
                 "vendor_id": plan.vendor_id, "rfq_id": plan.rfq_id, "seq": seq}
         try:
@@ -838,7 +850,7 @@ class SendService:
             if not isinstance(message_id, str) or not message_id.strip():
                 raise ValueError("no message id")
         except Exception as exc:  # noqa: BLE001 - any transport problem stops this plan
-            plan.active = False
+            self._plans.deactivate(plan)
             self._log.append(plan.tenant_id, plan.request_id, "system", EVT_SEND_FAILED,
                              {**base, "reason": "follow_up_transport_error",
                               "error_type": type(exc).__name__})
@@ -853,9 +865,11 @@ class SendService:
         nothing."""
         with self._lock:
             count = 0
-            for plan in self._plans:
-                if plan.active and plan.tenant_id == tenant_id and plan.rfq_id == rfq_id:
-                    self._cancel_plan(plan, plan.done + 1, FollowUpCancelled("stopped on request"))
+            for plan in self._plans.active_for_tenant(tenant_id):
+                if plan.rfq_id == rfq_id and self._plans.deactivate(plan):
+                    self._audit_plan_cancelled(
+                        plan, plan.done + 1, "", FollowUpCancelled("stopped on request")
+                    )
                     count += 1
             return count
 

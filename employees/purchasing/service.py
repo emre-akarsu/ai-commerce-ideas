@@ -479,6 +479,55 @@ def _open_question_details(r: Request) -> list[OpenQuestion]:
     return out
 
 
+class SpendBook(Protocol):
+    """Approved-but-undrafted spend ("committed", for the daily approval-threshold aggregate) and the
+    cap reservation of a PO draft ("reserved"), per (tenant, request). Known-gaps H2: in memory by
+    default; a multi-process deployment injects the shared (Postgres) one. ``pop_*`` take the entry
+    exactly once, so a release cannot be applied twice by two processes."""
+
+    def set_committed(self, tenant_id: str, request_id: str, day: date, amount: Decimal) -> None: ...
+
+    def pop_committed(self, tenant_id: str, request_id: str) -> None: ...
+
+    def committed_today(self, tenant_id: str, day: date, *, exclude_request: str | None) -> Decimal: ...
+
+    def set_reserved(
+        self, tenant_id: str, request_id: str, day: date, amount: Decimal, currency: str
+    ) -> None: ...
+
+    def pop_reserved(self, tenant_id: str, request_id: str) -> tuple[date, Decimal, str] | None: ...
+
+
+class InMemorySpendBook:
+    def __init__(self) -> None:
+        self._committed: dict[tuple[str, str], tuple[date, Decimal]] = {}
+        self._reserved: dict[tuple[str, str], tuple[date, Decimal, str]] = {}
+        self._lock = threading.Lock()
+
+    def set_committed(self, tenant_id: str, request_id: str, day: date, amount: Decimal) -> None:
+        with self._lock:
+            self._committed[(tenant_id, request_id)] = (day, amount)
+
+    def pop_committed(self, tenant_id: str, request_id: str) -> None:
+        with self._lock:
+            self._committed.pop((tenant_id, request_id), None)
+
+    def committed_today(self, tenant_id: str, day: date, *, exclude_request: str | None) -> Decimal:
+        with self._lock:
+            return sum((amt for (tid, rid), (d, amt) in self._committed.items()
+                        if tid == tenant_id and d == day and rid != exclude_request), Decimal(0))
+
+    def set_reserved(
+        self, tenant_id: str, request_id: str, day: date, amount: Decimal, currency: str
+    ) -> None:
+        with self._lock:
+            self._reserved[(tenant_id, request_id)] = (day, amount, currency)
+
+    def pop_reserved(self, tenant_id: str, request_id: str) -> tuple[date, Decimal, str] | None:
+        with self._lock:
+            return self._reserved.pop((tenant_id, request_id), None)
+
+
 class PurchasingService(MvpOps):
     def __init__(
         self,
@@ -497,15 +546,15 @@ class PurchasingService(MvpOps):
         reply_token_key: bytes | None = None,
         profile: ResolvedProfile | None = None,
         suppliers: SupplierStore | None = None,
+        spend_book: SpendBook | None = None,
     ) -> None:
         self._suppliers = suppliers if suppliers is not None else SupplierStore()
         self._reply_key = reply_token_key if reply_token_key is not None else secrets.token_bytes(32)
         if len(self._reply_key) < 16:
             raise ValueError("reply_token_key must be at least 16 bytes")
-        # Per-process (documented in docs/architecture/known-gaps.md): approved-but-undrafted spend per
-        # (tenant, request) and caps reservations per (tenant, request) -> (day, amount, currency).
-        self._committed: dict[tuple[str, str], tuple[date, Decimal]] = {}
-        self._reserved: dict[tuple[str, str], tuple[date, Decimal, str]] = {}
+        # Approved-but-undrafted spend and cap reservations per (tenant, request). In memory unless a
+        # shared ``spend_book`` is injected (known-gaps H2).
+        self._spend: SpendBook = spend_book if spend_book is not None else InMemorySpendBook()
         self._store = store
         self._log = event_log
         self._clock = clock
@@ -1275,16 +1324,15 @@ class PurchasingService(MvpOps):
             "approval_required": needs_approval, "substitution": substitution,
             "approval_reasons": forced + (["daily_aggregate"] if over_daily else []),
             "total": total})
-        self._committed[(request.tenant_id, request.id)] = (self._clock.now().date(), total)
+        self._spend.set_committed(request.tenant_id, request.id, self._clock.now().date(), total)
         if needs_approval:
             self._request_approval(request, quote, fp, total, force_separation=bool(forced) or over_daily)
         return self._detail(request)
 
     def _committed_today(self, request: Request, *, exclude: bool) -> Decimal:
-        today = self._clock.now().date()
-        return sum((amt for (tid, rid), (day, amt) in self._committed.items()
-                    if tid == request.tenant_id and day == today and not (exclude and rid == request.id)),
-                   Decimal(0))
+        return self._spend.committed_today(
+            request.tenant_id, self._clock.now().date(),
+            exclude_request=request.id if exclude else None)
 
     def _check_selectable(self, request: Request, quote: Quote, ts: TenantStore) -> None:
         cmp = self._comparison(request, self._quotes(ts, request.id))
@@ -1480,13 +1528,12 @@ class PurchasingService(MvpOps):
             caps.reserve(request.tenant_id, total, currency=currency)
         except CapError as exc:
             raise Conflict(f"cap: {exc}") from exc
-        self._reserved[(request.tenant_id, request.id)] = (caps.today(), total, currency)
+        self._spend.set_reserved(request.tenant_id, request.id, caps.today(), total, currency)
 
     def _release(self, request: Request) -> None:
         """Give back committed and reserved spend (declined / cancelled)."""
-        key = (request.tenant_id, request.id)
-        self._committed.pop(key, None)
-        held = self._reserved.pop(key, None)
+        self._spend.pop_committed(request.tenant_id, request.id)
+        held = self._spend.pop_reserved(request.tenant_id, request.id)
         caps = self._approvals.caps
         if held is not None and caps is not None:
             day, amount, currency = held
@@ -1616,12 +1663,12 @@ def _required_identity_labels(cfg: Settings) -> tuple[str, ...]:
     return tuple(cfg.identity_label(name) for name in cfg.identity_fields)
 
 
-def _caps_from_profile(prof: ResolvedProfile, clock: Clock) -> CapPolicy:
+def _caps_from_profile(prof: ResolvedProfile, clock: Clock, *, ledger: Any = None) -> CapPolicy:
     """Spend caps in the profile's base currency; unset profile caps keep the shipped defaults."""
     c = prof.profile.caps
     per_order = c.per_order_max or Decimal("5000")
     daily = c.daily_aggregate_max or max(Decimal("15000"), per_order)
-    return CapPolicy(per_order, daily, clock, currency=prof.profile.money.base_currency)
+    return CapPolicy(per_order, daily, clock, currency=prof.profile.money.base_currency, ledger=ledger)
 
 
 def build_in_memory_service(
@@ -1642,13 +1689,17 @@ def build_in_memory_service(
     audit_key: bytes | None = None,
     profile: ResolvedProfile | None = None,
     suppliers: SupplierStore | None = None,
+    shared: dict[str, Any] | None = None,
 ) -> PurchasingService:
     """Fully wired service on in-memory stores. The transport is handed to the send-service ONLY.
     Defaults are dev-safe: a recording transport (nothing leaves the process), caps from the manifest
     defaults. Keys: the audit chain/PII key comes from ``audit_key`` or env ``AUDIT_CHAIN_KEY`` and the
     approval secret from ``approval_secret`` or env ``APPROVAL_SECRET``; when ENV=production a missing
     key RAISES (never a per-process random one, which would make the audit chain fail to verify
-    across processes and restarts). Outside production a missing key falls back to an ephemeral one."""
+    across processes and restarts). Outside production a missing key falls back to an ephemeral one.
+    ``shared`` (known-gaps H2) optionally swaps the process-local security state for shared stores, keys:
+    ``cap_ledger``, ``token_store``, ``spent_approvals``, ``follow_up_plans``, ``kill_switch``,
+    ``spend_book`` (see ``aidb.state.PgSharedState.as_kwargs``). Absent keys keep the in-memory default."""
     from datetime import UTC
 
     class _SystemClock:
@@ -1662,15 +1713,17 @@ def build_in_memory_service(
     st = store or Store()
     log = ProfileStampedLog(event_log or _audit_log(clk, audit_key), cfg.profile_tag)
     secret = approval_secret or _secret_from_env("APPROVAL_SECRET")
-    policy = caps or _caps_from_profile(prof, clk)
+    sh = dict(shared or {})
+    policy = caps or _caps_from_profile(prof, clk, ledger=sh.get("cap_ledger"))
     approvals = ApprovalService(
         clk, secret, store=st, event_log=log, caps=policy,
-        requester_threshold=cfg.approval_threshold)
+        requester_threshold=cfg.approval_threshold, token_store=sh.get("token_store"))
     send = SendService.from_profile(
         prof, transport or RecordingTransport(), clk, st, log, caps=policy,
         max_recipients=cfg.max_vendors,
         required_identity_labels=_required_identity_labels(cfg),
-        identity_provider=cfg.tenant_identities())
+        identity_provider=cfg.tenant_identities(), kill_switch=sh.get("kill_switch"),
+        spent_approvals=sh.get("spent_approvals"), follow_up_plans=sh.get("follow_up_plans"))
     if extractor is None:
         extractor = (LLMQuoteExtractor(llm) if use_llm_extractor and llm is not None
                      else RegexQuoteExtractor())
@@ -1679,4 +1732,4 @@ def build_in_memory_service(
         store=st, event_log=log, clock=clk, send_service=send, approval_service=approvals,
         extractor=extractor, settings=cfg, notifier=notifier, ids=ids, llm=llm,
         reply_token_key=hmac.new(secret, b"reply-token-key", hashlib.sha256).digest(),
-        profile=prof, suppliers=suppliers, **kwargs)
+        profile=prof, suppliers=suppliers, spend_book=sh.get("spend_book"), **kwargs)

@@ -27,7 +27,7 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from enum import StrEnum
-from typing import Any
+from typing import Any, Protocol
 
 from itsdangerous import BadData, URLSafeSerializer
 
@@ -205,6 +205,42 @@ class _SystemClock:
         return datetime.now(UTC)
 
 
+class CapLedger(Protocol):
+    """Where the daily aggregate spend lives (known-gaps H2). ``reserve`` is one atomic
+    check-and-add: of two callers racing for the last of the cap, exactly one gets it."""
+
+    def reserve(self, tenant_id: str, day: date, amount: Decimal, limit: Decimal) -> bool: ...
+
+    def release(self, tenant_id: str, day: date, amount: Decimal) -> None:
+        """Give back spend; never goes below zero."""
+        ...
+
+    def spent(self, tenant_id: str, day: date) -> Decimal: ...
+
+
+class InMemoryCapLedger:
+    def __init__(self) -> None:
+        self._spent: dict[tuple[str, date], Decimal] = {}
+        self._lock = threading.Lock()
+
+    def reserve(self, tenant_id: str, day: date, amount: Decimal, limit: Decimal) -> bool:
+        with self._lock:
+            now = self._spent.get((tenant_id, day), Decimal(0))
+            if now + amount > limit:
+                return False
+            self._spent[(tenant_id, day)] = now + amount
+            return True
+
+    def release(self, tenant_id: str, day: date, amount: Decimal) -> None:
+        with self._lock:
+            key = (tenant_id, day)
+            self._spent[key] = max(Decimal(0), self._spent.get(key, Decimal(0)) - amount)
+
+    def spent(self, tenant_id: str, day: date) -> Decimal:
+        with self._lock:
+            return self._spent.get((tenant_id, day), Decimal(0))
+
+
 class CapPolicy:
     """Per-order and daily-aggregate spend caps, per tenant, in one currency, in Decimal.
 
@@ -218,6 +254,7 @@ class CapPolicy:
         clock: Clock | None = None,
         *,
         currency: str = "USD",
+        ledger: CapLedger | None = None,
     ) -> None:
         per_order = _money(per_order, "per_order")
         daily_aggregate = _money(daily_aggregate, "daily_aggregate")
@@ -229,8 +266,8 @@ class CapPolicy:
         self.daily_aggregate = daily_aggregate
         self.currency = currency.upper()
         self._clock: Clock = clock or _SystemClock()
-        self._spent: dict[tuple[str, date], Decimal] = {}
-        self._lock = threading.Lock()
+        # In memory by default; processes that must share one daily total inject a shared ledger.
+        self._ledger: CapLedger = ledger if ledger is not None else InMemoryCapLedger()
 
     def _day(self) -> date:
         return _utc(self._clock.now()).date()
@@ -241,28 +278,28 @@ class CapPolicy:
             raise CapCurrencyMismatch(f"caps are in {self.currency}, got {currency}")
         return value
 
-    def _check_locked(self, tenant_id: str, amount: Decimal) -> None:
+    def _check_order(self, amount: Decimal) -> None:
         if amount > self.per_order:
             raise PerOrderCapExceeded(f"order exceeds the per-order cap of {self.per_order}")
-        spent = self._spent.get((tenant_id, self._day()), Decimal(0))
-        if spent + amount > self.daily_aggregate:
-            raise DailyCapExceeded(
-                f"order would exceed the daily aggregate cap of {self.daily_aggregate}"
-            )
+
+    def _daily_error(self) -> DailyCapExceeded:
+        return DailyCapExceeded(
+            f"order would exceed the daily aggregate cap of {self.daily_aggregate}"
+        )
 
     def check(self, tenant_id: str, amount: Decimal, *, currency: str | None = None) -> None:
         """Raise a CapError if ``amount`` is not allowed now. Records nothing."""
         value = self._validate(amount, currency)
-        with self._lock:
-            self._check_locked(tenant_id, value)
+        self._check_order(value)
+        if self._ledger.spent(tenant_id, self._day()) + value > self.daily_aggregate:
+            raise self._daily_error()
 
     def reserve(self, tenant_id: str, amount: Decimal, *, currency: str | None = None) -> None:
         """Atomically check and record the spend (use right before the order is committed)."""
         value = self._validate(amount, currency)
-        with self._lock:
-            self._check_locked(tenant_id, value)
-            key = (tenant_id, self._day())
-            self._spent[key] = self._spent.get(key, Decimal(0)) + value
+        self._check_order(value)
+        if not self._ledger.reserve(tenant_id, self._day(), value, self.daily_aggregate):
+            raise self._daily_error()
 
     def today(self) -> date:
         """The UTC day a reservation made now is booked against."""
@@ -274,13 +311,10 @@ class CapPolicy:
     ) -> None:
         """Give back a reservation (cancelled/declined order). Never goes below zero."""
         value = self._validate(amount, currency)
-        with self._lock:
-            key = (tenant_id, day or self._day())
-            self._spent[key] = max(Decimal(0), self._spent.get(key, Decimal(0)) - value)
+        self._ledger.release(tenant_id, day or self._day(), value)
 
     def spent_today(self, tenant_id: str) -> Decimal:
-        with self._lock:
-            return self._spent.get((tenant_id, self._day()), Decimal(0))
+        return self._ledger.spent(tenant_id, self._day())
 
     def remaining_today(self, tenant_id: str) -> Decimal:
         return self.daily_aggregate - self.spent_today(tenant_id)
@@ -444,10 +478,54 @@ class TokenClaims:
 
 
 @dataclass
-class _TokenRecord:
+class TokenRecord:
     claims: TokenClaims
     consumed: bool = False
     po_issued: bool = False
+
+
+class TokenStore(Protocol):
+    """Issued approval links and what became of them (known-gaps H2). ``mark_consumed`` and
+    ``mark_po_issued`` are atomic: for one link exactly one caller ever gets True."""
+
+    def add(self, claims: TokenClaims) -> None: ...
+
+    def get(self, tenant_id: str, jti: str) -> TokenRecord | None: ...
+
+    def mark_consumed(self, tenant_id: str, jti: str) -> bool: ...
+
+    def mark_po_issued(self, tenant_id: str, jti: str) -> bool: ...
+
+
+class InMemoryTokenStore:
+    def __init__(self) -> None:
+        self._records: dict[tuple[str, str], TokenRecord] = {}
+        self._lock = threading.Lock()
+
+    def add(self, claims: TokenClaims) -> None:
+        with self._lock:
+            self._records[(claims.tenant_id, claims.jti)] = TokenRecord(claims)
+
+    def get(self, tenant_id: str, jti: str) -> TokenRecord | None:
+        with self._lock:
+            rec = self._records.get((tenant_id, jti))
+            return None if rec is None else TokenRecord(rec.claims, rec.consumed, rec.po_issued)
+
+    def mark_consumed(self, tenant_id: str, jti: str) -> bool:
+        with self._lock:
+            rec = self._records.get((tenant_id, jti))
+            if rec is None or rec.consumed:
+                return False
+            rec.consumed = True
+            return True
+
+    def mark_po_issued(self, tenant_id: str, jti: str) -> bool:
+        with self._lock:
+            rec = self._records.get((tenant_id, jti))
+            if rec is None or not rec.consumed or rec.po_issued:
+                return False
+            rec.po_issued = True
+            return True
 
 
 _TOKEN_SALT = "purchasing-agent/approval-link/v1"  # noqa: S105 - salt, not a credential
@@ -467,6 +545,7 @@ class ApprovalService:
         requester_threshold: Decimal = Decimal("500"),
         token_ttl: timedelta = timedelta(minutes=30),
         max_approval_ttl: timedelta = timedelta(hours=24),
+        token_store: TokenStore | None = None,
     ) -> None:
         raw = secret.encode() if isinstance(secret, str) else secret
         if len(raw) < 16:
@@ -481,7 +560,7 @@ class ApprovalService:
         self._serializer = URLSafeSerializer(
             raw, salt=_TOKEN_SALT, signer_kwargs={"digest_method": hashlib.sha256}
         )
-        self._tokens: dict[str, _TokenRecord] = {}
+        self._tokens: TokenStore = token_store if token_store is not None else InMemoryTokenStore()
         self._lock = threading.RLock()
         self.rules = StandingRuleEngine(
             clock, self._store, event_log=event_log, caps=caps,
@@ -526,22 +605,22 @@ class ApprovalService:
     ) -> Approval:
         """Mint the PO send-approval for a link that a human has actually *consumed* (clicked)."""
         _check_hash(mime_hash)
+        _check_ttl(ttl, self._max_ttl)  # refuse a bad ttl BEFORE the link is marked used
         with self._lock:
-            record = self._tokens.get(claims.jti)
+            record = self._tokens.get(claims.tenant_id, claims.jti)
             if record is None or record.claims != claims:
                 raise TokenInvalid("claims do not match an issued approval link")
             if claims.action is not ApprovalAction.APPROVE:
                 raise TokenWrongAction("only an approve click can authorise a PO")
             if not record.consumed:
                 raise TokenError("approval link has not been consumed by its approver")
-            if record.po_issued:
+            # one atomic claim, so two processes cannot both mint a PO approval for one click
+            if record.po_issued or not self._tokens.mark_po_issued(claims.tenant_id, claims.jti):
                 raise TokenError("a PO approval was already issued for this approval")
-            approval = self._mint(
+            return self._mint(
                 claims.tenant_id, ApprovalKind.PO, claims.approver, mime_hash, ttl,
                 quote_version=claims.quote_version,
             )
-            record.po_issued = True
-            return approval
 
     def create_standing_rule(self, **kwargs: Any) -> StandingRule:
         return self.rules.create_rule(**kwargs)
@@ -604,8 +683,7 @@ class ApprovalService:
                 "exp": int(expires.timestamp()),
             }
         )
-        with self._lock:
-            self._tokens[claims.jti] = _TokenRecord(claims)
+        self._tokens.add(claims)
         self._audit(
             tenant_id, approver, EVT_APPROVAL_TOKEN_ISSUED, request_id,
             {
@@ -649,11 +727,12 @@ class ApprovalService:
     ) -> TokenClaims:
         """Verify and burn the link (call only from an authenticated POST). One use only."""
         with self._lock:
-            claims, record = self._check(
+            claims, _record = self._check(
                 token, tenant_id, approver, _coerce_action(action), quote_version, quote_hash
             )
             self._check_separation(claims.action, claims.approver, claims.requester, claims.amount)
-            record.consumed = True
+            if not self._tokens.mark_consumed(claims.tenant_id, claims.jti):  # atomic, shared
+                raise TokenReplayed("approval link was already used")
             self._audit(
                 tenant_id, approver, EVT_APPROVAL_TOKEN_CONSUMED, request_id,
                 {
@@ -674,11 +753,11 @@ class ApprovalService:
         action: ApprovalAction,
         quote_version: int,
         quote_hash: str,
-    ) -> tuple[TokenClaims, _TokenRecord]:
+    ) -> tuple[TokenClaims, TokenRecord]:
         claims = self._decode(token)
         if _utc(self._clock.now()) >= claims.expires_at:
             raise TokenExpired("approval link has expired")
-        record = self._tokens.get(claims.jti)
+        record = self._tokens.get(claims.tenant_id, claims.jti)
         if record is None or record.claims != claims:
             raise TokenInvalid("approval link was not issued by this service")
         if record.consumed:

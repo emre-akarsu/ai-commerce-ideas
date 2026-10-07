@@ -14,11 +14,15 @@ from typing import Any
 from sqlalchemy import (
     TIMESTAMP,
     BigInteger,
+    Boolean,
     CheckConstraint,
     Column,
+    Date,
     ForeignKey,
     Integer,
+    LargeBinary,
     MetaData,
+    Numeric,
     PrimaryKeyConstraint,
     Table,
     Text,
@@ -44,7 +48,15 @@ ENTITY_TABLES = (
 )
 # Every table below carries tenant_id and has FORCE ROW LEVEL SECURITY (tenants: id is the tenant).
 STAGE2_TABLES = ("offers", "approved_matches", "price_imports", "kit_templates", "quote_snapshots")
-TENANT_TABLES = ("tenants", *ENTITY_TABLES, "rule_uses", "events", "event_heads", *STAGE2_TABLES)
+# Process-shared security state (known-gaps H2, migration 0005); declared at the end of this module.
+SHARED_STATE_TABLES = (
+    "spent_approvals", "approval_tokens", "cap_spend", "spend_holds", "follow_up_plans",
+    "kill_switches", "idempotency_keys",
+)
+TENANT_TABLES = (
+    "tenants", *ENTITY_TABLES, "rule_uses", "events", "event_heads", *STAGE2_TABLES,
+    *SHARED_STATE_TABLES,
+)
 
 tenants = Table(
     "tenants",
@@ -181,6 +193,61 @@ quote_snapshots = Table(  # versioned, append-only
     Column("created_at", TIMESTAMP(timezone=True), nullable=False, server_default=func.now()),
     Column("data", JSONB, nullable=False),
     PrimaryKeyConstraint("tenant_id", "id", "version"),
+)
+
+# ---- shared security state (0005): see migrations/versions/0005_shared_state.py and aidb/state.py
+spent_approvals = Table(
+    "spent_approvals", metadata, _tenant_ref(),
+    Column("key", Text, nullable=False), Column("approval_id", Text, nullable=False),
+    Column("spent_at", TIMESTAMP(timezone=True), nullable=False, server_default=func.now()),
+    PrimaryKeyConstraint("tenant_id", "key"),
+)
+approval_tokens = Table(
+    "approval_tokens", metadata, _tenant_ref(),
+    Column("jti", Text, nullable=False), Column("claims", JSONB, nullable=False),
+    Column("consumed", Boolean, nullable=False, server_default="false"),
+    Column("po_issued", Boolean, nullable=False, server_default="false"),
+    Column("created_at", TIMESTAMP(timezone=True), nullable=False, server_default=func.now()),
+    PrimaryKeyConstraint("tenant_id", "jti"),
+)
+cap_spend = Table(
+    "cap_spend", metadata, _tenant_ref(),
+    Column("day", Date, nullable=False),
+    Column("spent", Numeric, nullable=False, server_default="0"),
+    PrimaryKeyConstraint("tenant_id", "day"),
+)
+spend_holds = Table(
+    "spend_holds", metadata, _tenant_ref(),
+    Column("request_id", Text, nullable=False), Column("kind", Text, nullable=False),
+    Column("day", Date, nullable=False), Column("amount", Numeric, nullable=False),
+    Column("currency", Text),
+    PrimaryKeyConstraint("tenant_id", "request_id", "kind"),
+)
+follow_up_plans = Table(
+    "follow_up_plans", metadata, _tenant_ref(),
+    Column("id", Text, nullable=False), Column("request_id", Text, nullable=False),
+    Column("rfq_id", Text, nullable=False), Column("vendor_id", Text, nullable=False),
+    Column("approval_id", Text, nullable=False), Column("sched_count", Integer, nullable=False),
+    Column("sched_interval_seconds", Numeric, nullable=False),
+    Column("sent_at", TIMESTAMP(timezone=True), nullable=False),
+    Column("raw_mime", LargeBinary, nullable=False),
+    Column("done", Integer, nullable=False, server_default="0"),
+    Column("active", Boolean, nullable=False, server_default="true"),
+    PrimaryKeyConstraint("tenant_id", "id"),
+)
+kill_switches = Table(
+    "kill_switches", metadata, _tenant_ref(),
+    Column("engaged", Boolean, nullable=False),
+    Column("changed_at", TIMESTAMP(timezone=True), nullable=False, server_default=func.now()),
+    PrimaryKeyConstraint("tenant_id"),
+)
+idempotency_keys = Table(
+    "idempotency_keys", metadata, _tenant_ref(),
+    Column("key", Text, nullable=False), Column("body_hash", Text, nullable=False),
+    Column("status", Integer, nullable=False), Column("content_type", Text, nullable=False),
+    Column("body", LargeBinary, nullable=False),
+    Column("stored_at", TIMESTAMP(timezone=True), nullable=False),
+    PrimaryKeyConstraint("tenant_id", "key"),
 )
 
 TABLES_BY_NAME: dict[str, Table] = dict(metadata.tables)

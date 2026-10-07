@@ -2,20 +2,43 @@
 
 These are deliberate, documented limits of the current in-memory build. None may ship to production as is.
 
-## H2: per-process state (Postgres-backed stores required before production)
-The following live in process memory only. A restart loses them; two processes (API + worker) do not
-share them, so each control can be bypassed or reset across processes:
-- spent per-message approvals (`SendService` spent-approval set) and consumed approval tokens
-  (`ApprovalService._tokens`): the same approval/link could be spent once per process;
-- spend caps and reservations (`CapPolicy._spent`; `PurchasingService._reserved`/`_committed`): a restart
-  resets the daily aggregate cap and the daily approval-threshold aggregate;
-- idempotency keys;
-- follow-up plans (`SendService._plans`): follow-ups scheduled by one process are invisible to another;
-- the per-tenant kill switch (`KillSwitch`): engaging it in the API process does not stop a worker
-  process. `PurchasingService.set_kill_switch` is audited, but the flag itself must move to shared storage.
-- the prepared-message cache (`PurchasingService._prepared`).
-Required: DB uniqueness for single-use approvals/tokens, caps and reservations in the database,
-persisted plans and kill switch, and one shared `EventLog`/store (`PgStore`).
+## H2: per-process state (partly closed: Postgres-backed stores exist; deployments must opt in)
+Migration `0005_shared_state` and `packages/aidb/state.py` add tenant tables (FORCE RLS, `tenant_isolation`,
+`app_user` only) and Postgres implementations behind small ports. The in-memory implementations stay the
+defaults, so a service built without them is still per-process: **nothing is shared until a deployment
+injects the Pg stores** (`PgSharedState(engine).as_kwargs()` into `build_in_memory_service(shared=...)`, or
+the constructor arguments `spent_approvals`, `follow_up_plans`, `kill_switch` on `SendService`, `token_store`
+on `ApprovalService`, `ledger` on `CapPolicy`, `spend_book` on `PurchasingService`, `idempotency_store` on
+`create_app`). The shipped dev entrypoints (`apps/api/asgi.py`, the worker) do not do this yet.
+
+Closed (when the Pg stores are injected; tested against real Postgres in `tests/sendservice/test_shared_state.py`):
+- spent per-message approvals: id and nonce are primary keys of `spent_approvals`, claimed atomically at the
+  point of no return; of two processes (or a restart) only one can spend an approval. A cap reserved by the loser
+  is given back. If the database errors, nothing is sent;
+- consumed approval links (`approval_tokens`): consumption and the one-PO-approval-per-click mark are conditional
+  UPDATEs, so exactly one caller wins across processes and restarts;
+- the daily aggregate spend (`cap_spend`): reservation is one conditional UPDATE; a concurrency test shows the cap
+  holds under concurrent reservers. The approval-threshold aggregate and PO-draft reservations
+  (`spend_holds`) are shared and survive a restart; releases are taken once (DELETE ... RETURNING);
+- follow-up plans (`follow_up_plans`): visible to every process, each slot claimed once, cancellation shared;
+- the per-tenant kill switch (`kill_switches`): engaging it in one process stops sends and follow-ups in another;
+  an unreachable database is read as engaged (fail closed). `PurchasingService.set_kill_switch` still audits it;
+- idempotency keys (`PgIdempotencyStore`; first write wins, expiry after the ttl).
+
+Remaining:
+- **Not wired by default** (above). Until the entrypoints inject the Pg stores, H2 is open in a running deployment.
+- The global (all-tenant) kill switch flag is still process-local; only the per-tenant one is shared.
+- The approval-threshold aggregate (`committed_today` then `set_committed` in `select_quote`) is read-then-write,
+  not atomic across processes: two processes selecting quotes at once can each see room under the threshold. The
+  atomic daily cap at PO-draft time is the hard backstop; closing this needs a locking claim.
+- Idempotency replay is get-then-put: two concurrent identical requests can both execute; only replays after the
+  first response is stored are deduplicated. No per-tenant size cap on stored keys.
+- The prepared-message cache (`PurchasingService._prepared`) is still per-process. It does not affect send
+  correctness (`approve-send` re-verifies the approval against the bytes it holds, and fails closed when the cache
+  is empty), but a restart or another process cannot approve what a different process prepared.
+- One shared `EventLog` (`PgEventStore`) is still a deployment choice; `SendService` duplicate/recipient-limit
+  checks read the event log it is given, so processes need the shared log for those.
+- Supplier profiles and assumptions in `PurchasingService` still use the in-memory `SupplierStore` unless wired.
 
 ## L5: transport isolation is by convention
 The planner has no import path to the transport and a static scan enforces it, but the send-service and

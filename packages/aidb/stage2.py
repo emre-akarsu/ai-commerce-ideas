@@ -4,7 +4,8 @@ Every store hands out tenant-bound capabilities (``for_tenant``) or takes the te
 all access goes through ``tenant_session`` so ``app.tenant_id`` is bound per transaction and RLS
 applies. Components never import this module; it imports components.
 
-* ``PgOfferStore`` satisfies ``components.quoting.context.TenantOffers``. A tenant sees the shared
+* ``PgOfferStore`` satisfies the ``TenantOffers`` protocol the quote pipeline expects. A tenant
+  sees the shared
   platform offers (table ``shared_offers``, SELECT-only for ``app_user``) plus its own private ones
   (RLS table ``offers``). Money and quantities are stored as strings and rebuilt as ``Decimal``;
   every offer is re-validated on read (rule 5). ``PgSharedOfferWriter`` is the platform-only write
@@ -294,7 +295,7 @@ class PgOfferRepository:
 
 
 class PgOfferStore:
-    """Satisfies `TenantOffers` (components.quoting.context). Use the app_user engine."""
+    """Satisfies `TenantOffers` (the quote pipeline's context). Use the app_user engine."""
 
     def __init__(self, engine: Engine, config: PricingConfig) -> None:
         self._engine = engine
