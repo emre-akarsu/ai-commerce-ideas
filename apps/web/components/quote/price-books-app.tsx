@@ -1,0 +1,207 @@
+"use client";
+// Price books: which merchants have a current price for this customer, how far each covers the job, and what to do about gaps.
+// Nothing here sends anything. The request and RFQ actions open previews with a demo-only button (rule R1).
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { Badge, Button, Card, EmptyState, H2, PageHeader } from "@/components/ui/ui";
+import { Modal } from "@/components/modal";
+import { cn } from "@/lib/utils";
+import { FIXTURE_NOTE, loadBundle } from "@/lib/quote/catalog";
+import { IMPORT_EXAMPLE } from "@/lib/quote/example";
+import { filterMerchants, fmtDate, gapsByMerchant, rankGaps, sortMerchants, STATUS_LABEL, STATUS_ORDER, statusCounts, type StatusFilter } from "@/lib/quote/calc";
+import type { Merchant, PriceBook, RequestDraft } from "@/lib/quote/types";
+import { CoverageBar, DataNotes, Dl, LadderPill, ReadError, ScopePicker, StatusChip, SyntheticBanner, TenantPicker, useSelection } from "./common";
+
+type Dialog = { kind: "request"; merchant: Merchant; draft: RequestDraft | null } | { kind: "upload" } | { kind: "rfq" } | null;
+
+export function PriceBooksApp() {
+  const [sel, setSel] = useSelection();
+  const res = useMemo(() => loadBundle(sel.tenant, sel.scope), [sel.tenant, sel.scope]);
+  const [filter, setFilter] = useState<StatusFilter>("all");
+  const [dialog, setDialog] = useState<Dialog>(null);
+
+  return (
+    <div data-screen="price-books">
+      <PageHeader title="Price books" sub="Which merchants have a current price for you, and what is missing." actions={<Link href="/quote" className="inline-flex min-h-target items-center rounded-md border border-strong px-4 text-sm font-semibold hover:bg-sunken">Go to Quote</Link>} />
+      <SyntheticBanner />
+      <Card className="mb-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <TenantPicker value={sel.tenant} onChange={(tenant) => setSel({ tenant })} />
+          <ScopePicker value={sel.scope} onChange={(scope) => setSel({ scope })} hint="Coverage is counted against this job's lines." />
+        </div>
+      </Card>
+      {res.kind === "missing" && <EmptyState title="No price book for this customer and job scope yet">Generated data for {res.key} has not been added. Pick another customer or scope.</EmptyState>}
+      {res.kind === "bad" && <ReadError title="The data file could not be read" errors={[res.error]} />}
+      {res.kind === "ok" && !res.bundle.priceBook.ok && <ReadError title={res.bundle.priceBook.reason === "format" ? "Unsupported price book format" : "The price book could not be read"} errors={res.bundle.priceBook.errors} />}
+      {res.kind === "ok" && res.bundle.priceBook.ok && (
+        <>
+          {res.bundle.source === "fixture" && <p className="mb-4 text-xs text-mute" data-fixture-note>{FIXTURE_NOTE}</p>}
+          <Book book={res.bundle.priceBook.book} filter={filter} setFilter={setFilter} open={setDialog} />
+        </>
+      )}
+      {dialog?.kind === "request" && res.kind === "ok" && <RequestDialog merchant={dialog.merchant} draft={dialog.draft} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "upload" && <UploadDialog onClose={() => setDialog(null)} />}
+      {dialog?.kind === "rfq" && res.kind === "ok" && res.bundle.priceBook.ok && <RfqDialog book={res.bundle.priceBook.book} onClose={() => setDialog(null)} />}
+    </div>
+  );
+}
+
+function Book({ book, filter, setFilter, open }: { book: PriceBook; filter: StatusFilter; setFilter: (f: StatusFilter) => void; open: (d: Dialog) => void }) {
+  const counts = statusCounts(book.merchants);
+  const shown = sortMerchants(filterMerchants(book.merchants, filter));
+  const names = new Map(book.merchants.map((m) => [m.merchantId, m.name]));
+  const gaps = rankGaps(book.gaps);
+  return (
+    <>
+      <section aria-label="Summary" data-summary className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {STATUS_ORDER.map((s) => (
+          <button key={s} type="button" aria-pressed={filter === s} onClick={() => setFilter(filter === s ? "all" : s)} data-filter={s}
+            className={cn("min-h-16 rounded-lg border p-3 text-left hover:bg-sunken", filter === s ? "border-accent bg-accent-soft" : "border-line bg-surface")}>
+            <span className="num block text-2xl font-semibold">{counts[s]}</span>
+            <span className="text-xs text-mute">{STATUS_LABEL[s]}</span>
+          </button>
+        ))}
+      </section>
+      <p className="mb-3 text-sm text-mute" data-summary-sentence>
+        {book.merchants.length} merchants: {counts.current} current, {counts.stale} stale, {counts.missing} missing{counts.indicative_only ? `, ${counts.indicative_only} indicative only` : ""}.
+        {" "}Prices as of {fmtDate(book.asOf)}, compared {book.comparisonBasis === "inc_tax" ? "inc VAT" : "ex VAT"} in {book.currency || "the book's currency"}.
+        {filter !== "all" && <> Showing {STATUS_LABEL[filter].toLowerCase()} only. <button type="button" className="min-h-target font-semibold text-accent underline" onClick={() => setFilter("all")}>Show all</button></>}
+      </p>
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Button variant="secondary" type="button" onClick={() => open({ kind: "upload" })}>Upload price file</Button>
+        <Button variant="secondary" type="button" onClick={() => open({ kind: "rfq" })} disabled={gaps.length === 0}>Send RFQ for these gaps</Button>
+      </div>
+      <ul className="space-y-3" aria-label="Merchants" data-merchants>
+        {shown.map((m) => <MerchantCard key={m.merchantId} m={m} draft={book.requestDrafts.find((d) => d.merchantId === m.merchantId) ?? null} open={open} />)}
+        {shown.length === 0 && <li><EmptyState title="No merchants with this status" action={<Button variant="secondary" onClick={() => setFilter("all")}>Show all</Button>} /></li>}
+      </ul>
+
+      <section className="mt-6" aria-labelledby="gaps-h" data-gaps>
+        <H2 aside={<span className="text-xs text-mute">{gaps.length} line{gaps.length === 1 ? "" : "s"}</span>}><span id="gaps-h">Gaps, biggest spend first</span></H2>
+        {gaps.length === 0 ? <p className="text-sm text-mute">No gaps: every line has a current price from at least one merchant.</p> : (
+          <ol className="space-y-2">
+            {gaps.map((g) => (
+              <li key={g.kitLineId} className="rounded-lg border border-line bg-surface p-3" data-gap={g.kitLineId}>
+                <p className="text-sm"><span className="num mr-2 font-semibold text-accent">#{g.spendRank}</span><span className="break-words">{g.text || g.kitLineId}</span></p>
+                <p className="mt-1 text-xs text-mute break-words">No price from: {g.merchantsWithoutPrice.map((id) => names.get(id) ?? id).join(", ") || "none listed"}</p>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
+      {book.freshnessSummary.length > 0 && (
+        <section className="mt-6" data-freshness>
+          <H2>Freshness</H2>
+          <Card><Dl rows={book.freshnessSummary.map((r, i): [string, React.ReactNode] => [r.key ? r.key.replace(/_/g, " ") : `Summary ${i + 1}`, r.value])} /></Card>
+        </section>
+      )}
+      <DataNotes notes={book.notes} label="Price book" />
+    </>
+  );
+}
+
+function MerchantCard({ m, draft, open }: { m: Merchant; draft: RequestDraft | null; open: (d: Dialog) => void }) {
+  return (
+    <li className="rounded-lg border border-line bg-surface p-4" data-merchant={m.merchantId} data-status={m.status}>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <h3 className="min-w-0 break-words text-base font-semibold">{m.name}</h3>
+        <div className="flex flex-wrap gap-1.5"><LadderPill level={m.ladderLevel} /><StatusChip status={m.status} raw={m.statusRaw} /></div>
+      </div>
+      <p className="mt-1 text-sm break-words" data-status-reason>{m.statusReason || "No reason given."}</p>
+      <div className="mt-3 grid gap-4 md:grid-cols-2">
+        <Dl rows={[
+          ["As of", fmtDate(m.asOf)], ["Valid until", fmtDate(m.validUntil)], ["VAT basis", vatText(m.vatBasis)],
+          ["Visible to", m.visibility === "shared" ? "Shared with other customers" : "Private to you"], ["Next refresh due", m.nextRefreshDue ? fmtDate(m.nextRefreshDue) : "not scheduled"],
+        ]} />
+        <div className="space-y-2">
+          <CoverageBar coverage={m.coverage} />
+          <p className="text-xs text-mute">{m.offers} offer{m.offers === 1 ? "" : "s"} loaded{m.quarantined ? `, ${m.quarantined} quarantined` : ""}. {m.attested ? "You attested validity and VAT basis." : "Not attested, so never a firm line."}{m.sourceKinds.length ? ` Source: ${m.sourceKinds.map((s) => s.replace(/_/g, " ")).join(", ")}.` : ""}</p>
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <Button variant="secondary" type="button" onClick={() => open({ kind: "request", merchant: m, draft })} disabled={!draft} data-act="request">Request price file</Button>
+        {!draft && <span className="text-xs text-mute">No email drafted for this merchant.</span>}
+        <Button variant="ghost" type="button" onClick={() => open({ kind: "upload" })}>Upload price file</Button>
+      </div>
+    </li>
+  );
+}
+const vatText = (v: string): string => ({ ex_tax: "Ex VAT", inc_tax: "Inc VAT", mixed: "Mixed (some rows ex, some inc)", unknown: "Unknown, so not comparable" })[v] ?? v;
+
+const DEMO_NOTE = "Demo only. Nothing is sent. In the real flow you approve this exact message and the send-service sends it; the draft cannot go out without your approval.";
+
+function RequestDialog({ merchant, draft, onClose }: { merchant: Merchant; draft: RequestDraft | null; onClose: () => void }) {
+  const [done, setDone] = useState(false);
+  return (
+    <Modal open onClose={onClose} label={`Request price file from ${merchant.name}`}>
+      <div className="max-h-[80vh] overflow-y-auto p-5" data-dialog="request">
+        <h2 className="text-base font-semibold">Request price file</h2>
+        <p className="mt-1 text-sm text-mute break-words">Drafted for {merchant.name}. Subject and body are shown exactly as drafted.</p>
+        <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-mute">Subject</p>
+        <p className="break-words rounded-md bg-sunken p-2 text-sm" data-draft-subject>{draft?.subject ?? ""}</p>
+        <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-mute">Body</p>
+        <pre className="max-h-64 overflow-y-auto whitespace-pre-wrap break-words rounded-md bg-sunken p-2 font-sans text-sm" data-draft-body>{draft?.body ?? ""}</pre>
+        <p className="mt-3 rounded-md border border-warn bg-warn-soft p-2 text-xs text-warn">{DEMO_NOTE}</p>
+        {done && <p role="status" className="mt-3 text-sm font-medium" data-demo-result>Demo only: nothing was sent and nothing was approved.</p>}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button type="button" variant="secondary" onClick={() => setDone(true)} data-demo-button>Demo only: pretend to approve (nothing is sent)</Button>
+          <Button type="button" variant="ghost" onClick={onClose} data-autofocus>Close</Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function UploadDialog({ onClose }: { onClose: () => void }) {
+  const ex = IMPORT_EXAMPLE;
+  return (
+    <Modal open onClose={onClose} label="Upload price file">
+      <div className="max-h-[80vh] overflow-y-auto p-5" data-dialog="upload">
+        <h2 className="text-base font-semibold">Upload price file</h2>
+        <p className="mt-1 rounded-md border border-warn bg-warn-soft p-2 text-sm text-warn" data-static-example>Static example only. Nothing is uploaded here and this is not read from your data. It shows the layout of the import report you would see after uploading a CSV or Excel file.</p>
+        <h3 className="mt-4 text-sm font-semibold">Import report</h3>
+        <p className="break-words text-sm text-mute">{ex.file}</p>
+        <div className="mt-2 grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-md bg-sunken p-2"><p className="num text-lg font-semibold">{ex.rows}</p><p className="text-xs text-mute">rows read</p></div>
+          <div className="rounded-md bg-ok-soft p-2 text-ok"><p className="num text-lg font-semibold">{ex.accepted}</p><p className="text-xs">accepted</p></div>
+          <div className="rounded-md bg-warn-soft p-2 text-warn"><p className="num text-lg font-semibold">{ex.quarantined}</p><p className="text-xs">quarantined</p></div>
+        </div>
+        <h3 className="mt-4 text-sm font-semibold">Why rows were quarantined</h3>
+        <ul className="mt-1 space-y-2">
+          {ex.reasons.map((r) => <li key={r.code} className="text-sm"><Badge tone="amber">{r.count} x {r.code.replace(/_/g, " ")}</Badge><span className="mt-0.5 block break-words text-mute">{r.text}</span></li>)}
+        </ul>
+        <h3 className="mt-4 text-sm font-semibold">Before the file becomes firm prices you attest</h3>
+        <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-mute">{ex.attest.map((a) => <li key={a}>{a}</li>)}</ul>
+        <Button type="button" className="mt-4" onClick={onClose} data-autofocus>Close</Button>
+      </div>
+    </Modal>
+  );
+}
+
+function RfqDialog({ book, onClose }: { book: PriceBook; onClose: () => void }) {
+  const [done, setDone] = useState(false);
+  const groups = gapsByMerchant(book.gaps, book.merchants);
+  return (
+    <Modal open onClose={onClose} label="Send RFQ for these gaps">
+      <div className="max-h-[80vh] overflow-y-auto p-5" data-dialog="rfq">
+        <h2 className="text-base font-semibold">Send RFQ for these gaps</h2>
+        <p className="mt-1 text-sm text-mute">One request per merchant, listing the lines it has no current price for, biggest spend first.</p>
+        <div className="mt-3 space-y-3">
+          {groups.map((g) => (
+            <section key={g.merchantId} data-rfq-merchant={g.merchantId} className="rounded-md border border-line p-3">
+              <h3 className="break-words text-sm font-semibold">{g.name} <span className="font-normal text-mute">({g.gaps.length} line{g.gaps.length === 1 ? "" : "s"})</span></h3>
+              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">{g.gaps.map((x) => <li key={x.kitLineId} className="break-words">{x.text || x.kitLineId} <span className="text-xs text-mute">(spend rank {x.spendRank})</span></li>)}</ul>
+            </section>
+          ))}
+        </div>
+        <p className="mt-3 rounded-md border border-warn bg-warn-soft p-2 text-xs text-warn">{DEMO_NOTE}</p>
+        {done && <p role="status" className="mt-3 text-sm font-medium" data-demo-result>Demo only: no RFQ was created or sent.</p>}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button type="button" variant="secondary" onClick={() => setDone(true)} data-demo-button>Demo only: prepare RFQs (nothing is sent)</Button>
+          <Button type="button" variant="ghost" onClick={onClose} data-autofocus>Close</Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}

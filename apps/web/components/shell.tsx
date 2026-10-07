@@ -18,6 +18,8 @@ const NAV: NavItem[] = [
   { href: "/requests", label: "Requests", short: "Requests", key: "r" },
   { href: "/vendors", label: "Suppliers", short: "Suppliers", key: "s" },
   { href: "/kits", label: "Job kits", short: "Kits", key: "t" },
+  { href: "/price-books", label: "Price books", short: "Prices", key: "p" },
+  { href: "/quote", label: "Quote", short: "Quote", key: "q" },
   { href: "/setup", label: "Setup", short: "Setup", cap: "view_setup", key: "u" },
   { href: "/audit", label: "Audit", short: "Audit", cap: "view_audit", key: "a" },
 ];
@@ -114,10 +116,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-5xl flex-1 px-4 py-5 pb-28 outline-none md:px-6 md:pb-10">{children}</main>
       </div>
 
-      <nav aria-label="Main (mobile)" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
+      <nav aria-label="Main (mobile)" className="fixed inset-x-0 bottom-0 z-30 flex overflow-x-auto border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
         {NAV.map((n) => (
           <Link key={n.href} href={n.href} aria-current={isActive(path, n.href) ? "page" : undefined}
-            className={cn("flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-medium", isActive(path, n.href) ? "text-accent" : "text-mute")}>
+            className={cn("flex min-h-14 min-w-[4.5rem] flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium", isActive(path, n.href) ? "text-accent" : "text-mute")}>
             <span>{n.short}</span>
             {n.href === "/" && needs !== null && needs > 0 && <span className="rounded-full bg-accent px-1.5 text-[10px] text-accent-ink">{needs}</span>}
           </Link>
@@ -172,7 +174,7 @@ function Palette({ open, onClose, go, role }: { open: boolean; onClose: () => vo
 
 function ShortcutHelp({ open, onClose }: { open: boolean; onClose: () => void }) {
   const rows: Array<[string, string]> = [
-    ["Ctrl/Cmd K or /", "Search or jump"], ["n", "New request"], ["g then i / r / s / t / u / a", "Go to Inbox / Requests / Suppliers / Job kits / Setup / Audit"],
+    ["Ctrl/Cmd K or /", "Search or jump"], ["n", "New request"], ["g then i / r / s / t / p / q / u / a", "Go to Inbox / Requests / Suppliers / Job kits / Price books / Quote / Setup / Audit"],
     ["j and k", "Move down and up a list"], ["Enter", "Open the focused item"], [".", "Focus the next-action button (it never presses it)"],
     ["Esc", "Close a dialog"], ["?", "This help"],
   ];

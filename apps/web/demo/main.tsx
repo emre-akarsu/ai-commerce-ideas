@@ -10,6 +10,8 @@ import Vendors from "@/app/vendors/page";
 import Setup from "@/app/setup/page";
 import Audit from "@/app/audit/page";
 import Kits from "@/app/kits/page";
+import PriceBooks from "@/app/price-books/page";
+import Quote from "@/app/quote/page";
 import Approve from "@/app/approve/[token]/page";
 import { useRoute } from "./router";
 
@@ -22,6 +24,8 @@ function Page() {
   if (r === "/setup") return <Setup />;
   if (r === "/audit") return <Audit />;
   if (r === "/kits") return <Kits />;
+  if (r === "/price-books") return <PriceBooks />;
+  if (r === "/quote") return <Quote />;
   return <Inbox />;
 }
 

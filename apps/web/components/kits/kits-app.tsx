@@ -8,6 +8,8 @@ import type { KitSpec, Scalar } from "@/lib/kits/model";
 import { isUnknownAnswer, measuredDerived, resolveKit, type Resolution } from "@/lib/kits/resolve";
 import { initialWizard, lineState, STEPS, unknownIds, wizardReducer, type Step, type WizardAction, type WizardState } from "@/lib/kits/state";
 import { assumptionTexts, completeness, indicativeTotals, ledger, money, rfqDraft, type RfqDraft } from "@/lib/kits/summary";
+import Link from "next/link";
+import { rememberQuoteScope } from "@/lib/quote/prefs";
 import { isMock } from "@/lib/api";
 import { useProfile } from "@/lib/profile";
 import { Badge, Button, Card, EmptyState, ErrorNote, H2, PageHeader } from "@/components/ui/ui";
@@ -379,6 +381,7 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
             <div className="mt-3 flex flex-col gap-2">
               <Button type="button" onClick={() => setDraft(rfqDraft(spec, s, res))} disabled={blocking.length > 0}>Create RFQ draft</Button>
               {blocking.length > 0 && <p className="text-xs text-bad">Fix the checks marked to fix first.</p>}
+              <Link href="/quote" onClick={() => rememberQuoteScope(spec.scope.scopeId)} className="inline-flex min-h-target items-center justify-center rounded-md border border-strong px-4 py-2 text-sm font-semibold hover:bg-sunken">Build quote</Link>
               <Button type="button" variant="secondary" onClick={() => dispatch({ type: "go", step: "review" })}>Change something</Button>
               <Button type="button" variant="ghost" onClick={() => dispatch({ type: "reset" })}>Start a different job</Button>
             </div>

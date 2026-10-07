@@ -9,7 +9,8 @@
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "sync-kits": "node scripts/sync-kits.mjs"
+    "sync-kits": "node scripts/sync-kits.mjs",
+    "sync-quote-data": "node scripts/sync-quote-data.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

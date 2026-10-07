@@ -1,0 +1,1206 @@
+{
+ "format": "quote-draft-ui/1",
+ "quote_id": "quote-after-review-demo",
+ "tenant_id": "demo-tenant-a",
+ "generated_at": "2026-10-07T09:00:00+00:00",
+ "currency": "GBP",
+ "notice": {
+  "code": "not_a_supplier_quote",
+  "text": "This is a comparison of prices observed in the data sources, at the times shown. It is not a quote from any supplier, not an offer that can be accepted and not a reservation of stock. Prices, stock and delivery terms can change, and VAT, delivery and rounding are estimates on the stated basis. Nothing has been sent or ordered.",
+  "label": "not a supplier quote"
+ },
+ "data_labels": {
+  "contains_synthetic_data": true
+ },
+ "partition": {
+  "priced": 4,
+  "review": 1,
+  "unmatched": 2,
+  "indicative_only": 1,
+  "no_offer": 3,
+  "skipped": 1
+ },
+ "totals": {
+  "basis": "ex_tax",
+  "goods": "256.40",
+  "delivery": "11.45",
+  "subtotal": "267.85",
+  "tax_rate": "0.20",
+  "tax": "53.57",
+  "total_ex_tax": "267.85",
+  "total_inc_tax": "321.42",
+  "delivery_incomplete": false,
+  "currency": "GBP",
+  "scope": "firm_lines_only"
+ },
+ "firm_lines": [
+  {
+   "position": 0,
+   "line_id": "pipe",
+   "kit_line_id": null,
+   "description": "15 mm copper tube",
+   "text": "Copper Tube 15mm x 3m",
+   "quantity": "10",
+   "unit": "m",
+   "kit": null,
+   "sku_id": "SYN-CP-0001",
+   "product": {
+    "title": "Copper Tube 15mm x 3m",
+    "brand": "Pipesynth"
+   },
+   "merchant_id": "m-corvane",
+   "offer_id": "synth-corvane-trade:658bd500e7d1323a1008",
+   "packs": 4,
+   "pack_content": "3.000000",
+   "surplus": "2.000000",
+   "unit_price": "8.2500",
+   "goods_total": "99.00",
+   "lead_time_days": 1,
+   "flags": [],
+   "excluded_codes": [
+    "expired",
+    "stale"
+   ],
+   "assumptions": [
+    {
+     "code": "surplus",
+     "text": "Buying whole packs of offer synth-corvane-trade:658bd500e7d1323a1008 gives 2.000000 m more than required."
+    }
+   ],
+   "reasons": [
+    {
+     "code": "auto_accept_group",
+     "text": "1 interchangeable SKU(s) pass every check; the best scores 1.0."
+    },
+    {
+     "code": "selected_lowest_landed_cost",
+     "text": "Offer synth-corvane-trade:658bd500e7d1323a1008 from m-corvane (SKU SYN-CP-0001) has the lowest landed cost: 99.00 GBP for 10 m (4 pack(s); goods 99.00, delivery 0.00; ex_tax)."
+    }
+   ],
+   "match": {
+    "outcome": "auto_accept",
+    "previously_approved": false,
+    "kind": "generic",
+    "reason_codes": [
+     "auto_accept_group"
+    ],
+    "reasons": [
+     "1 interchangeable SKU(s) pass every check; the best scores 1.0."
+    ],
+    "group": [
+     {
+      "sku_id": "SYN-CP-0001",
+      "title": "Copper Tube 15mm x 3m",
+      "brand": "Pipesynth"
+     }
+    ],
+    "parsed": [
+     {
+      "key": "kind",
+      "value": "generic"
+     },
+     {
+      "key": "type",
+      "value": "copper_pipe"
+     },
+     {
+      "key": "type_certain",
+      "value": "true"
+     },
+     {
+      "key": "quantity",
+      "value": "10"
+     },
+     {
+      "key": "brand",
+      "value": ""
+     },
+     {
+      "key": "mpn",
+      "value": ""
+     },
+     {
+      "key": "gtin",
+      "value": ""
+     },
+     {
+      "key": "attr.diameter",
+      "value": "15 mm"
+     },
+     {
+      "key": "attr.length",
+      "value": "3000 mm"
+     }
+    ]
+   },
+   "price": {
+    "packs": 4,
+    "pack_content": "3.000000",
+    "purchased": "12.000000",
+    "surplus": "2.000000",
+    "pack_price": "24.7500",
+    "unit_price": "8.2500",
+    "goods": "99.00",
+    "delivery_if_ordered_alone": "0.00",
+    "landed_if_ordered_alone": "99.00",
+    "basis": "ex_tax",
+    "currency": "GBP"
+   },
+   "runner_ups": [
+    {
+     "offer_id": "synth-pennywell-trade:69a4feb12e871323cfb0",
+     "merchant_id": "m-pennywell",
+     "sku_id": "SYN-CP-0001",
+     "packs": 4,
+     "unit_price": "8.8200",
+     "goods": "105.84",
+     "landed_if_ordered_alone": "105.84",
+     "lead_time_days": 2,
+     "flags": []
+    },
+    {
+     "offer_id": "synth-northgate-trade:20ace1238d0024f3c6ec",
+     "merchant_id": "m-northgate",
+     "sku_id": "SYN-CP-0001",
+     "packs": 4,
+     "unit_price": "8.4300",
+     "goods": "101.16",
+     "landed_if_ordered_alone": "113.66",
+     "lead_time_days": 2,
+     "flags": []
+    },
+    {
+     "offer_id": "synth-halden-trade:2defda275622108dc1b6",
+     "merchant_id": "m-halden",
+     "sku_id": "SYN-CP-0001",
+     "packs": 4,
+     "unit_price": "7.8200",
+     "goods": "93.84",
+     "landed_if_ordered_alone": "118.84",
+     "lead_time_days": 2,
+     "flags": []
+    }
+   ],
+   "excluded_offers": [
+    {
+     "offer_id": "synth-brindlecote-trade:a0e8ebca1c836232ce31",
+     "merchant_id": "m-brindlecote",
+     "sku_id": "SYN-CP-0001",
+     "codes": [
+      "expired"
+     ],
+     "reasons": [
+      {
+       "code": "expired",
+       "text": "Offer synth-brindlecote-trade:a0e8ebca1c836232ce31 was valid until 2026-10-06T07:00:00+00:00, which has passed."
+      }
+     ]
+    },
+    {
+     "offer_id": "synth-pennywell-public:69a4feb12e871323cfb0",
+     "merchant_id": "m-pennywell",
+     "sku_id": "SYN-CP-0001",
+     "codes": [
+      "indicative_only",
+      "stale"
+     ],
+     "reasons": [
+      {
+       "code": "indicative_only",
+       "text": "Offer synth-pennywell-public:69a4feb12e871323cfb0 is indicative only (its source, price type, validity or attestation do not allow a quote line) and is never selected."
+      },
+      {
+       "code": "stale",
+       "text": "Offer synth-pennywell-public:69a4feb12e871323cfb0 was observed 49.0 h ago; the limit for affiliate_feed is 48 h."
+      }
+     ]
+    }
+   ],
+   "indicative": null,
+   "alternatives": [],
+   "provenance": {
+    "offer_id": "synth-corvane-trade:658bd500e7d1323a1008",
+    "source_id": "synth-corvane-trade",
+    "source_kind": "trade_feed",
+    "method": "file_row",
+    "synthetic": true,
+    "licence": "tenant-supplied-synthetic",
+    "source_ref": "corvane_trade.csv#row=27",
+    "observed_at": "2026-10-06T08:00:00+00:00",
+    "valid_until": "2026-11-05T00:00:00+00:00",
+    "confidence": "0.90",
+    "visibility": "tenant_private",
+    "match_tier": "A",
+    "match_basis": "rule_match",
+    "substitution_approval_id": null
+   }
+  },
+  {
+   "position": 1,
+   "line_id": "basin_tap",
+   "kit_line_id": null,
+   "description": "Basin tap",
+   "text": "Basin Mixer Tap Chrome",
+   "quantity": "2",
+   "unit": "each",
+   "kit": null,
+   "sku_id": "SYN-TP-0003",
+   "product": {
+    "title": "Mono Basin Mixer Tap Chrome",
+    "brand": "Taposynth"
+   },
+   "merchant_id": "m-pennywell",
+   "offer_id": "synth-pennywell-trade:basin_tap0001",
+   "packs": 1,
+   "pack_content": "1.000000",
+   "surplus": "-1.00000000000",
+   "unit_price": "45.0000",
+   "goods_total": "90.00",
+   "lead_time_days": 2,
+   "flags": [],
+   "excluded_codes": [
+    "expired",
+    "stale"
+   ],
+   "assumptions": [
+    {
+     "code": "surplus",
+     "text": "Buying whole packs of offer synth-corvane-trade:658bd500e7d1323a1008 gives 2.000000 m more than required."
+    }
+   ],
+   "reasons": [
+    {
+     "code": "auto_accept_group",
+     "text": "1 interchangeable SKU(s) pass every check; the best scores 1.0."
+    },
+    {
+     "code": "selected_lowest_landed_cost",
+     "text": "Offer synth-pennywell-trade:basin_tap0001 from m-pennywell has the lowest landed cost: 90.00 GBP for 2 each (ex_tax)."
+    }
+   ],
+   "match": {
+    "outcome": "auto_accept",
+    "previously_approved": false,
+    "kind": "generic",
+    "reason_codes": [
+     "auto_accept_group"
+    ],
+    "reasons": [
+     "1 interchangeable SKU(s) pass every check; the best scores 1.0."
+    ],
+    "group": [
+     {
+      "sku_id": "SYN-CP-0001",
+      "title": "Copper Tube 15mm x 3m",
+      "brand": "Pipesynth"
+     }
+    ],
+    "parsed": [
+     {
+      "key": "kind",
+      "value": "generic"
+     },
+     {
+      "key": "type",
+      "value": "copper_pipe"
+     },
+     {
+      "key": "type_certain",
+      "value": "true"
+     },
+     {
+      "key": "quantity",
+      "value": "10"
+     },
+     {
+      "key": "brand",
+      "value": ""
+     },
+     {
+      "key": "mpn",
+      "value": ""
+     },
+     {
+      "key": "gtin",
+      "value": ""
+     },
+     {
+      "key": "attr.diameter",
+      "value": "15 mm"
+     },
+     {
+      "key": "attr.length",
+      "value": "3000 mm"
+     }
+    ]
+   },
+   "price": {
+    "packs": 1,
+    "pack_content": "1.000000",
+    "purchased": "1.000000",
+    "surplus": "-1.000000",
+    "pack_price": "45.0000000000",
+    "unit_price": "45.0000",
+    "goods": "90.00",
+    "delivery_if_ordered_alone": "0.00",
+    "landed_if_ordered_alone": "90.00",
+    "basis": "ex_tax",
+    "currency": "GBP"
+   },
+   "runner_ups": [
+    {
+     "offer_id": "synth-pennywell-trade:69a4feb12e871323cfb0",
+     "merchant_id": "m-pennywell",
+     "sku_id": "SYN-CP-0001",
+     "packs": 4,
+     "unit_price": "8.8200",
+     "goods": "105.84",
+     "landed_if_ordered_alone": "105.84",
+     "lead_time_days": 2,
+     "flags": []
+    },
+    {
+     "offer_id": "synth-northgate-trade:20ace1238d0024f3c6ec",
+     "merchant_id": "m-northgate",
+     "sku_id": "SYN-CP-0001",
+     "packs": 4,
+     "unit_price": "8.4300",
+     "goods": "101.16",
+     "landed_if_ordered_alone": "113.66",
+     "lead_time_days": 2,
+     "flags": []
+    }
+   ],
+   "excluded_offers": [
+    {
+     "offer_id": "synth-brindlecote-trade:a0e8ebca1c836232ce31",
+     "merchant_id": "m-brindlecote",
+     "sku_id": "SYN-CP-0001",
+     "codes": [
+      "expired"
+     ],
+     "reasons": [
+      {
+       "code": "expired",
+       "text": "Offer synth-brindlecote-trade:a0e8ebca1c836232ce31 was valid until 2026-10-06T07:00:00+00:00, which has passed."
+      }
+     ]
+    }
+   ],
+   "indicative": null,
+   "alternatives": [],
+   "provenance": {
+    "offer_id": "synth-pennywell-trade:basin_tap0001",
+    "source_id": "synth-pennywell-trade",
+    "source_kind": "trade_feed",
+    "method": "file_row",
+    "synthetic": true,
+    "licence": "tenant-supplied-synthetic",
+    "source_ref": "pennywell_trade.csv#row=11",
+    "observed_at": "2026-10-06T08:00:00+00:00",
+    "valid_until": "2026-11-05T00:00:00+00:00",
+    "confidence": "0.90",
+    "visibility": "tenant_private",
+    "match_tier": "A",
+    "match_basis": "rule_match",
+    "substitution_approval_id": null
+   }
+  },
+  {
+   "position": 2,
+   "line_id": "sealant",
+   "kit_line_id": null,
+   "description": "Sealant",
+   "text": "Sanitary Silicone White 310ml",
+   "quantity": "4",
+   "unit": "each",
+   "kit": null,
+   "sku_id": "SYN-SL-0001",
+   "product": {
+    "title": "Sanitary Silicone White 310ml",
+    "brand": "Sealsynth"
+   },
+   "merchant_id": "m-halden",
+   "offer_id": "synth-halden-trade:sealant0001",
+   "packs": 1,
+   "pack_content": "1.000000",
+   "surplus": "-3.00000000000",
+   "unit_price": "6.2000",
+   "goods_total": "24.80",
+   "lead_time_days": 1,
+   "flags": [
+    "below_moq"
+   ],
+   "excluded_codes": [
+    "expired",
+    "stale"
+   ],
+   "assumptions": [
+    {
+     "code": "surplus",
+     "text": "Buying whole packs of offer synth-corvane-trade:658bd500e7d1323a1008 gives 2.000000 m more than required."
+    }
+   ],
+   "reasons": [
+    {
+     "code": "auto_accept_group",
+     "text": "1 interchangeable SKU(s) pass every check; the best scores 1.0."
+    },
+    {
+     "code": "selected_lowest_landed_cost",
+     "text": "Offer synth-halden-trade:sealant0001 from m-halden has the lowest landed cost: 24.80 GBP for 4 each (ex_tax)."
+    }
+   ],
+   "match": {
+    "outcome": "auto_accept",
+    "previously_approved": false,
+    "kind": "generic",
+    "reason_codes": [
+     "auto_accept_group"
+    ],
+    "reasons": [
+     "1 interchangeable SKU(s) pass every check; the best scores 1.0."
+    ],
+    "group": [
+     {
+      "sku_id": "SYN-CP-0001",
+      "title": "Copper Tube 15mm x 3m",
+      "brand": "Pipesynth"
+     }
+    ],
+    "parsed": [
+     {
+      "key": "kind",
+      "value": "generic"
+     },
+     {
+      "key": "type",
+      "value": "copper_pipe"
+     },
+     {
+      "key": "type_certain",
+      "value": "true"
+     },
+     {
+      "key": "quantity",
+      "value": "10"
+     },
+     {
+      "key": "brand",
+      "value": ""
+     },
+     {
+      "key": "mpn",
+      "value": ""
+     },
+     {
+      "key": "gtin",
+      "value": ""
+     },
+     {
+      "key": "attr.diameter",
+      "value": "15 mm"
+     },
+     {
+      "key": "attr.length",
+      "value": "3000 mm"
+     }
+    ]
+   },
+   "price": {
+    "packs": 1,
+    "pack_content": "1.000000",
+    "purchased": "1.000000",
+    "surplus": "-3.000000",
+    "pack_price": "6.2000000000",
+    "unit_price": "6.2000",
+    "goods": "24.80",
+    "delivery_if_ordered_alone": "0.00",
+    "landed_if_ordered_alone": "24.80",
+    "basis": "ex_tax",
+    "currency": "GBP"
+   },
+   "runner_ups": [
+    {
+     "offer_id": "synth-pennywell-trade:69a4feb12e871323cfb0",
+     "merchant_id": "m-pennywell",
+     "sku_id": "SYN-CP-0001",
+     "packs": 4,
+     "unit_price": "8.8200",
+     "goods": "105.84",
+     "landed_if_ordered_alone": "105.84",
+     "lead_time_days": 2,
+     "flags": []
+    },
+    {
+     "offer_id": "synth-northgate-trade:20ace1238d0024f3c6ec",
+     "merchant_id": "m-northgate",
+     "sku_id": "SYN-CP-0001",
+     "packs": 4,
+     "unit_price": "8.4300",
+     "goods": "101.16",
+     "landed_if_ordered_alone": "113.66",
+     "lead_time_days": 2,
+     "flags": []
+    }
+   ],
+   "excluded_offers": [
+    {
+     "offer_id": "synth-brindlecote-trade:a0e8ebca1c836232ce31",
+     "merchant_id": "m-brindlecote",
+     "sku_id": "SYN-CP-0001",
+     "codes": [
+      "expired"
+     ],
+     "reasons": [
+      {
+       "code": "expired",
+       "text": "Offer synth-brindlecote-trade:a0e8ebca1c836232ce31 was valid until 2026-10-06T07:00:00+00:00, which has passed."
+      }
+     ]
+    }
+   ],
+   "indicative": null,
+   "alternatives": [],
+   "provenance": {
+    "offer_id": "synth-halden-trade:sealant0001",
+    "source_id": "synth-halden-trade",
+    "source_kind": "trade_feed",
+    "method": "file_row",
+    "synthetic": true,
+    "licence": "tenant-supplied-synthetic",
+    "source_ref": "halden_trade.csv#row=11",
+    "observed_at": "2026-10-06T08:00:00+00:00",
+    "valid_until": "2026-11-05T00:00:00+00:00",
+    "confidence": "0.90",
+    "visibility": "tenant_private",
+    "match_tier": "A",
+    "match_basis": "rule_match",
+    "substitution_approval_id": null
+   }
+  },
+  {
+   "position": 3,
+   "line_id": "grout",
+   "kit_line_id": null,
+   "description": "Grout",
+   "text": "Flexible Cement Tile Grout Grey 5kg",
+   "quantity": "3",
+   "unit": "each",
+   "kit": null,
+   "sku_id": "SYN-GR-0004",
+   "product": {
+    "title": "Flexible Cement Tile Grout Grey 5kg",
+    "brand": "TileSynth Pro"
+   },
+   "merchant_id": "m-corvane",
+   "offer_id": "synth-corvane-trade:grout0001",
+   "packs": 1,
+   "pack_content": "1.000000",
+   "surplus": "-2.00000000000",
+   "unit_price": "14.2000",
+   "goods_total": "42.60",
+   "lead_time_days": 1,
+   "flags": [],
+   "excluded_codes": [
+    "expired",
+    "stale"
+   ],
+   "assumptions": [
+    {
+     "code": "surplus",
+     "text": "Buying whole packs of offer synth-corvane-trade:658bd500e7d1323a1008 gives 2.000000 m more than required."
+    }
+   ],
+   "reasons": [
+    {
+     "code": "auto_accept_group",
+     "text": "1 interchangeable SKU(s) pass every check; the best scores 1.0."
+    },
+    {
+     "code": "selected_lowest_landed_cost",
+     "text": "Offer synth-corvane-trade:grout0001 from m-corvane has the lowest landed cost: 42.60 GBP for 3 each (ex_tax)."
+    }
+   ],
+   "match": {
+    "outcome": "previously_approved",
+    "previously_approved": true,
+    "kind": "generic",
+    "reason_codes": [
+     "auto_accept_group"
+    ],
+    "reasons": [
+     "1 interchangeable SKU(s) pass every check; the best scores 1.0."
+    ],
+    "group": [
+     {
+      "sku_id": "SYN-CP-0001",
+      "title": "Copper Tube 15mm x 3m",
+      "brand": "Pipesynth"
+     }
+    ],
+    "parsed": [
+     {
+      "key": "kind",
+      "value": "generic"
+     },
+     {
+      "key": "type",
+      "value": "copper_pipe"
+     },
+     {
+      "key": "type_certain",
+      "value": "true"
+     },
+     {
+      "key": "quantity",
+      "value": "10"
+     },
+     {
+      "key": "brand",
+      "value": ""
+     },
+     {
+      "key": "mpn",
+      "value": ""
+     },
+     {
+      "key": "gtin",
+      "value": ""
+     },
+     {
+      "key": "attr.diameter",
+      "value": "15 mm"
+     },
+     {
+      "key": "attr.length",
+      "value": "3000 mm"
+     }
+    ]
+   },
+   "price": {
+    "packs": 1,
+    "pack_content": "1.000000",
+    "purchased": "1.000000",
+    "surplus": "-2.000000",
+    "pack_price": "14.2000000000",
+    "unit_price": "14.2000",
+    "goods": "42.60",
+    "delivery_if_ordered_alone": "0.00",
+    "landed_if_ordered_alone": "42.60",
+    "basis": "ex_tax",
+    "currency": "GBP"
+   },
+   "runner_ups": [
+    {
+     "offer_id": "synth-pennywell-trade:69a4feb12e871323cfb0",
+     "merchant_id": "m-pennywell",
+     "sku_id": "SYN-CP-0001",
+     "packs": 4,
+     "unit_price": "8.8200",
+     "goods": "105.84",
+     "landed_if_ordered_alone": "105.84",
+     "lead_time_days": 2,
+     "flags": []
+    },
+    {
+     "offer_id": "synth-northgate-trade:20ace1238d0024f3c6ec",
+     "merchant_id": "m-northgate",
+     "sku_id": "SYN-CP-0001",
+     "packs": 4,
+     "unit_price": "8.4300",
+     "goods": "101.16",
+     "landed_if_ordered_alone": "113.66",
+     "lead_time_days": 2,
+     "flags": []
+    }
+   ],
+   "excluded_offers": [
+    {
+     "offer_id": "synth-brindlecote-trade:a0e8ebca1c836232ce31",
+     "merchant_id": "m-brindlecote",
+     "sku_id": "SYN-CP-0001",
+     "codes": [
+      "expired"
+     ],
+     "reasons": [
+      {
+       "code": "expired",
+       "text": "Offer synth-brindlecote-trade:a0e8ebca1c836232ce31 was valid until 2026-10-06T07:00:00+00:00, which has passed."
+      }
+     ]
+    }
+   ],
+   "indicative": null,
+   "alternatives": [],
+   "provenance": {
+    "offer_id": "synth-corvane-trade:grout0001",
+    "source_id": "synth-corvane-trade",
+    "source_kind": "trade_feed",
+    "method": "file_row",
+    "synthetic": true,
+    "licence": "tenant-supplied-synthetic",
+    "source_ref": "corvane_trade.csv#row=11",
+    "observed_at": "2026-10-06T08:00:00+00:00",
+    "valid_until": "2026-11-05T00:00:00+00:00",
+    "confidence": "0.90",
+    "visibility": "tenant_private",
+    "match_tier": "A",
+    "match_basis": "rule_match",
+    "substitution_approval_id": null
+   }
+  }
+ ],
+ "deliveries": [
+  {
+   "merchant_id": "m-corvane",
+   "line_ids": [
+    "pipe",
+    "grout"
+   ],
+   "spend": "141.60",
+   "fee": "0.00"
+  },
+  {
+   "merchant_id": "m-halden",
+   "line_ids": [
+    "sealant"
+   ],
+   "spend": "24.80",
+   "fee": "4.95"
+  },
+  {
+   "merchant_id": "m-pennywell",
+   "line_ids": [
+    "basin_tap"
+   ],
+   "spend": "90.00",
+   "fee": "6.50"
+  }
+ ],
+ "review_queue": [
+  {
+   "position": 4,
+   "line_id": "wc_seat",
+   "kit_line_id": null,
+   "description": "WC seat",
+   "text": "toilet seat soft close",
+   "quantity": "1",
+   "unit": "each",
+   "kit": null,
+   "outcome": "review",
+   "reason_codes": [
+    "required_attribute_unresolved"
+   ],
+   "reasons": [
+    {
+     "code": "needs_a_person",
+     "text": "A person must choose a product for this line before it can be priced."
+    },
+    {
+     "code": "required_attribute_unresolved",
+     "text": "Required attribute(s) not stated on the line: colour."
+    }
+   ],
+   "question": "Which seat shape (D-shape, square or round)? Available: D-shape, square.",
+   "candidates": [
+    {
+     "sku_id": "SYN-WS-0001",
+     "title": "Soft Close WC Seat D-shape White",
+     "brand": "Aquasynth",
+     "score": "0.7811",
+     "reasons": [
+      "required_attribute_unresolved: colour: required and not stated on the line."
+     ]
+    },
+    {
+     "sku_id": "SYN-WS-0002",
+     "title": "Soft Close WC Seat Square White",
+     "brand": "Aquasynth",
+     "score": "0.7640",
+     "reasons": [
+      "required_attribute_unresolved: colour: required and not stated on the line."
+     ]
+    },
+    {
+     "sku_id": "SYN-WS-0003",
+     "title": "Standard WC Seat Round White",
+     "brand": "Aquasynth",
+     "score": "0.6902",
+     "reasons": [
+      "required_attribute_unresolved: colour: required and not stated on the line."
+     ]
+    },
+    {
+     "sku_id": "SYN-WS-0004",
+     "title": "Slim WC Seat Black",
+     "brand": "Aquasynth",
+     "score": "0.5100",
+     "reasons": [
+      "required_attribute_unresolved: colour: required and not stated on the line."
+     ]
+    }
+   ],
+   "alternatives": [],
+   "price": null,
+   "match": {
+    "outcome": "review",
+    "previously_approved": false,
+    "kind": "generic",
+    "reason_codes": [
+     "required_attribute_unresolved"
+    ],
+    "reasons": [
+     "Required attribute(s) not stated on the line: colour."
+    ],
+    "group": [],
+    "parsed": [
+     {
+      "key": "kind",
+      "value": "generic"
+     },
+     {
+      "key": "type",
+      "value": "tile_grout"
+     },
+     {
+      "key": "type_certain",
+      "value": "true"
+     },
+     {
+      "key": "quantity",
+      "value": "3"
+     },
+     {
+      "key": "brand",
+      "value": ""
+     },
+     {
+      "key": "mpn",
+      "value": ""
+     },
+     {
+      "key": "gtin",
+      "value": ""
+     },
+     {
+      "key": "attr.grout_type",
+      "value": "flexible_cement"
+     },
+     {
+      "key": "attr.pack_weight",
+      "value": "5 kg"
+     }
+    ]
+   }
+  }
+ ],
+ "indicative_lines": [
+  {
+   "position": 7,
+   "line_id": "trap",
+   "kit_line_id": null,
+   "description": "Shower trap",
+   "text": "shower trap 40mm",
+   "quantity": "1",
+   "unit": "each",
+   "kit": null,
+   "label": "indicative, not a quote",
+   "range": {
+    "label": "indicative, not a quote",
+    "low": "7.40",
+    "high": "11.90",
+    "unit": "each",
+    "currency": "GBP",
+    "basis": "ex_tax",
+    "count": 2,
+    "oldest_observed_at": "2026-10-03T08:00:00+00:00",
+    "newest_observed_at": "2026-10-05T08:00:00+00:00",
+    "offers": [
+     {
+      "offer_id": "synth-pennywell-public:t1",
+      "merchant_id": "m-pennywell",
+      "sku_id": "SYN-TR-0001",
+      "unit_price": "7.40",
+      "observed_at": "2026-10-03T08:00:00+00:00",
+      "source_kind": "affiliate_feed"
+     },
+     {
+      "offer_id": "synth-northgate-invoice:t2",
+      "merchant_id": "m-northgate",
+      "sku_id": "SYN-TR-0001",
+      "unit_price": "11.90",
+      "observed_at": "2026-10-05T08:00:00+00:00",
+      "source_kind": "manual_quote"
+     }
+    ]
+   },
+   "flags": [],
+   "excluded_codes": [
+    "indicative_only"
+   ],
+   "reasons": [
+    {
+     "code": "indicative_only",
+     "text": "Every offer for this product is indicative only (its source, price type, validity or attestation do not allow a quote line)."
+    }
+   ],
+   "match": null,
+   "price": null
+  }
+ ],
+ "unmatched_lines": [
+  {
+   "position": 5,
+   "line_id": "hook",
+   "kit_line_id": null,
+   "description": "",
+   "text": "left-handed sky hook",
+   "quantity": "1",
+   "unit": "each",
+   "kit": null,
+   "reasons": [
+    {
+     "code": "no_catalogue_match",
+     "text": "No catalogue product fits this line closely enough; nothing is priced."
+    },
+    {
+     "code": "below_reject_threshold",
+     "text": "The best candidate scores 0.2046, below the reject threshold 0.35."
+    }
+   ],
+   "flags": [],
+   "closest": [
+    {
+     "sku_id": "SYN-SH-0004",
+     "title": "Dual Voltage Shaver Socket Chrome one gang",
+     "brand": "Lumisynth",
+     "score": "0.1703",
+     "reasons": [
+      "required_attribute_unresolved: finish: required and not stated on the line."
+     ]
+    },
+    {
+     "sku_id": "SYN-WC-0006",
+     "title": "Wall Hung WC Rimless Soft Close",
+     "brand": "Aquasynth",
+     "score": "0.1696",
+     "reasons": [
+      "required_attribute_unresolved: construction: required and not stated on the line."
+     ]
+    },
+    {
+     "sku_id": "SYN-WC-0002",
+     "title": "Close Coupled WC Rimmed Standard Seat",
+     "brand": "Aquasynth",
+     "score": "0.1687",
+     "reasons": [
+      "required_attribute_unresolved: construction: required and not stated on the line."
+     ]
+    }
+   ],
+   "alternatives": [],
+   "price": null
+  },
+  {
+   "position": 6,
+   "line_id": "labour",
+   "kit_line_id": null,
+   "description": "Labour",
+   "text": "plumber labour, 1 day",
+   "quantity": "1",
+   "unit": "each",
+   "kit": null,
+   "reasons": [
+    {
+     "code": "service_not_a_product",
+     "text": "This line is a service; the catalogue only holds products, so nothing is priced."
+    }
+   ],
+   "flags": [],
+   "closest": [],
+   "alternatives": [],
+   "price": null
+  }
+ ],
+ "no_offer_lines": [
+  {
+   "position": 8,
+   "line_id": "fan",
+   "kit_line_id": null,
+   "description": "extractor fan 100mm",
+   "text": "extractor fan 100mm",
+   "quantity": "1",
+   "unit": "each",
+   "kit": null,
+   "status": "no_eligible_offer",
+   "flags": [],
+   "excluded_codes": [
+    "stale"
+   ],
+   "excluded_offers": [
+    {
+     "offer_id": "synth-halden-trade:fan",
+     "merchant_id": "m-halden",
+     "sku_id": "SYN-XX-0001",
+     "codes": [
+      "stale"
+     ],
+     "reasons": [
+      {
+       "code": "stale",
+       "text": "Offer synth-halden-trade:fan was observed 456.0 h ago; the limit for trade_feed is 168 h."
+      }
+     ]
+    }
+   ],
+   "reasons": [
+    {
+     "code": "stale",
+     "text": "Offer synth-halden-trade:fan was observed 456.0 h ago; the limit for trade_feed is 168 h."
+    }
+   ],
+   "match": null,
+   "price": null
+  },
+  {
+   "position": 9,
+   "line_id": "cable",
+   "kit_line_id": null,
+   "description": "twin and earth 2.5mm",
+   "text": "twin and earth 2.5mm",
+   "quantity": "1",
+   "unit": "each",
+   "kit": null,
+   "status": "no_eligible_offer",
+   "flags": [],
+   "excluded_codes": [
+    "vat_unknown"
+   ],
+   "excluded_offers": [
+    {
+     "offer_id": "synth-halden-trade:cable",
+     "merchant_id": "m-halden",
+     "sku_id": "SYN-XX-0001",
+     "codes": [
+      "vat_unknown"
+     ],
+     "reasons": [
+      {
+       "code": "vat_unknown",
+       "text": "Offer synth-halden-trade:cable has no stated VAT basis, so it cannot be compared and is not used."
+      }
+     ]
+    }
+   ],
+   "reasons": [
+    {
+     "code": "vat_unknown",
+     "text": "Offer synth-halden-trade:cable has no stated VAT basis, so it cannot be compared and is not used."
+    }
+   ],
+   "match": null,
+   "price": null
+  },
+  {
+   "position": 10,
+   "line_id": "valve",
+   "kit_line_id": null,
+   "description": "radiator valve",
+   "text": "radiator valve",
+   "quantity": "1",
+   "unit": "each",
+   "kit": null,
+   "status": "no_eligible_offer",
+   "flags": [],
+   "excluded_codes": [
+    "expired"
+   ],
+   "excluded_offers": [
+    {
+     "offer_id": "synth-halden-trade:valve",
+     "merchant_id": "m-halden",
+     "sku_id": "SYN-XX-0001",
+     "codes": [
+      "expired"
+     ],
+     "reasons": [
+      {
+       "code": "expired",
+       "text": "Offer synth-halden-trade:valve was valid until 2026-10-01T00:00:00+00:00, which has passed."
+      }
+     ]
+    }
+   ],
+   "reasons": [
+    {
+     "code": "expired",
+     "text": "Offer synth-halden-trade:valve was valid until 2026-10-01T00:00:00+00:00, which has passed."
+    }
+   ],
+   "match": null,
+   "price": null
+  }
+ ],
+ "skipped_lines": [
+  {
+   "kit_line_id": "so_old_bath",
+   "description": "Remove old bath",
+   "reason": "already_have",
+   "kit": null
+  }
+ ],
+ "freshness": {
+  "as_of": "2026-10-07T09:00:00+00:00",
+  "offers_used": 1,
+  "oldest_observed_at": "2026-10-06T08:00:00+00:00",
+  "newest_observed_at": "2026-10-06T08:00:00+00:00",
+  "max_age_hours_observed": "25.0",
+  "by_source_kind": [
+   {
+    "source_kind": "trade_feed",
+    "count": 1
+   }
+  ],
+  "limits_hours": [
+   {
+    "source_kind": "affiliate_feed",
+    "hours": 48
+   },
+   {
+    "source_kind": "manual_quote",
+    "hours": 720
+   },
+   {
+    "source_kind": "merchant_api",
+    "hours": 24
+   },
+   {
+    "source_kind": "search_snapshot",
+    "hours": 24
+   },
+   {
+    "source_kind": "trade_feed",
+    "hours": 168
+   }
+  ]
+ },
+ "optimisation": {
+  "method": "heuristic",
+  "exact": false,
+  "components": 3,
+  "optimality_gap": "0.00",
+  "savings_vs_line_by_line": "19.84",
+  "savings_vs_single_merchant": "12.30",
+  "notes": [
+   {
+    "code": "basket_heuristic",
+    "text": "Above 12 free lines the basket is solved heuristically; the optimality gap is reported."
+   }
+  ]
+ },
+ "schema_changes": [
+  "quote-draft-ui/1 is the first version.",
+  "Evolution is additive only: a later version adds optional fields, never renames, removes or re-types one, and never changes the meaning of a value. A reader must ignore keys it does not know and must not fail on a new value of a documented enum it can show as text."
+ ]
+}

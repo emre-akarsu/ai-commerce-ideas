@@ -1,0 +1,170 @@
+{
+ "format": "price-books-ui/1",
+ "label": "SYNTHETIC demo only: fictional merchants and prices.",
+ "as_of": "2026-10-07T09:00:00+00:00",
+ "tenant_id": "demo-tenant-a",
+ "currency": "GBP",
+ "comparison_basis": "ex_tax",
+ "merchants": [
+  {
+   "merchant_id": "m-corvane",
+   "name": "Corvane Plumbing Trade (fictional)",
+   "source_kinds": [
+    "trade_feed"
+   ],
+   "visibility": "tenant_private",
+   "attested": true,
+   "ladder_level": 3,
+   "status": "current",
+   "status_reason": "Scheduled file received 1 day ago, valid until 5 November.",
+   "as_of": "2026-10-06T08:00:00+00:00",
+   "valid_until": "2026-11-05T00:00:00+00:00",
+   "vat_basis": "ex_tax",
+   "offers": 212,
+   "quarantined": 3,
+   "coverage": {
+    "lines_priced": 34,
+    "lines_total": 41,
+    "pct": "82.9"
+   },
+   "next_refresh_due": "2026-10-13"
+  },
+  {
+   "merchant_id": "m-pennywell",
+   "name": "Pennywell Supplies (fictional)",
+   "source_kinds": [
+    "trade_feed",
+    "affiliate_feed"
+   ],
+   "visibility": "tenant_private",
+   "attested": true,
+   "ladder_level": 2,
+   "status": "stale",
+   "status_reason": "Price file is 19 days old; the limit for this source is 7 days.",
+   "as_of": "2026-09-18T08:00:00+00:00",
+   "valid_until": "2026-10-18T00:00:00+00:00",
+   "vat_basis": "inc_tax",
+   "offers": 148,
+   "quarantined": 0,
+   "coverage": {
+    "lines_priced": 22,
+    "lines_total": 41,
+    "pct": "53.7"
+   },
+   "next_refresh_due": "2026-10-07"
+  },
+  {
+   "merchant_id": "m-northgate",
+   "name": "Northgate Bathrooms (fictional)",
+   "source_kinds": [
+    "manual_quote"
+   ],
+   "visibility": "tenant_private",
+   "attested": false,
+   "ladder_level": 1,
+   "status": "indicative_only",
+   "status_reason": "Only invoice prices (last paid); not attested, so never a firm line.",
+   "as_of": "2026-10-03T08:00:00+00:00",
+   "valid_until": null,
+   "vat_basis": "unknown",
+   "offers": 9,
+   "quarantined": 0,
+   "coverage": {
+    "lines_priced": 5,
+    "lines_total": 41,
+    "pct": "12.2"
+   },
+   "next_refresh_due": null
+  },
+  {
+   "merchant_id": "m-halden",
+   "name": "Halden Trade Counter (fictional)",
+   "source_kinds": [
+    "trade_feed"
+   ],
+   "visibility": "shared",
+   "attested": true,
+   "ladder_level": 4,
+   "status": "current",
+   "status_reason": "Contracted feed refreshed this morning.",
+   "as_of": "2026-10-07T06:00:00+00:00",
+   "valid_until": "2026-10-08T06:00:00+00:00",
+   "vat_basis": "mixed",
+   "offers": 301,
+   "quarantined": 2,
+   "coverage": {
+    "lines_priced": 39,
+    "lines_total": 41,
+    "pct": "95.1"
+   },
+   "next_refresh_due": "2026-10-08"
+  },
+  {
+   "merchant_id": "m-brindlecote",
+   "name": "Brindlecote Merchants (fictional)",
+   "source_kinds": [],
+   "visibility": "tenant_private",
+   "attested": false,
+   "ladder_level": 0,
+   "status": "missing",
+   "status_reason": "No price file yet. Request one, or send an RFQ for the lines you need.",
+   "as_of": null,
+   "valid_until": null,
+   "vat_basis": "unknown",
+   "offers": 0,
+   "quarantined": 0,
+   "coverage": {
+    "lines_priced": 0,
+    "lines_total": 41,
+    "pct": "0.0"
+   },
+   "next_refresh_due": null
+  }
+ ],
+ "gaps": [
+  {
+   "kit_line_id": "tl_wall_tiles",
+   "text": "Ceramic wall tile 600 x 300, 18 m2",
+   "spend_rank": 1,
+   "merchants_without_price": [
+    "m-pennywell",
+    "m-brindlecote"
+   ]
+  },
+  {
+   "kit_line_id": "sw_wc_pan",
+   "text": "Close coupled WC pan",
+   "spend_rank": 2,
+   "merchants_without_price": [
+    "m-northgate",
+    "m-brindlecote"
+   ]
+  },
+  {
+   "kit_line_id": "el_light",
+   "text": "7 W fire-rated downlight, 4 off",
+   "spend_rank": 3,
+   "merchants_without_price": [
+    "m-brindlecote"
+   ]
+  }
+ ],
+ "request_drafts": [
+  {
+   "merchant_id": "m-pennywell",
+   "subject": "Updated trade price file please",
+   "body": "Hello,\n\nCould you send us your current trade price file (CSV or Excel) with the VAT basis and the date the prices are valid until?\n\nThank you.\n[demo: fictional merchant, nothing is sent]"
+  },
+  {
+   "merchant_id": "m-brindlecote",
+   "subject": "Trade price file request",
+   "body": "Hello,\n\nWe would like to see your trade prices for bathroom fittings. Could you send a price file, with the VAT basis and validity date?\n\nThank you."
+  }
+ ],
+ "freshness_summary": {
+  "current": 2,
+  "stale": 1,
+  "missing": 1,
+  "indicative_only": 1
+ }
+}
