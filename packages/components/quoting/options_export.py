@@ -4,14 +4,14 @@ Byte-identical for identical input: fixed key order, options in the fixed order 
 and ids sorted, Decimals as strings (never floats), times as ISO 8601. Every amount sits beside
 its VAT basis. Indicative prices are a separate block outside every option. A separate export
 from `quote-draft-ui/1`, which is unchanged. Evolution is additive only (see SCHEMA_CHANGES and
-docs/architecture/quote-options.md); the schema is profiles/data/quoting/quote-options-ui.schema.json.
+docs/architecture/quote-options.md); the schema is
+profiles/data/quoting/quote-options-ui.schema.json.
 """
 
 from __future__ import annotations
 
 import json
 from collections.abc import Mapping
-from decimal import Decimal
 from typing import Any
 
 from components.pricing.quote import NOTICE, NOTICE_CODE
@@ -30,7 +30,7 @@ from .options_models import (
     QuoteOption,
     SingleSupplierInfo,
 )
-from .options_reasons import BASIS_LABEL, OptionReason
+from .options_reasons import BASIS_LABEL, OptionReason, reason
 
 OPTIONS_FORMAT = "quote-options-ui/1"
 INDICATIVE_LABEL = "indicative, not a quote"
@@ -126,22 +126,23 @@ def _indicative(i: IndicativeInfo) -> dict[str, Any]:
 
 def _config(s: OptionSet) -> dict[str, Any]:
     c = s.config
-    anchor: Decimal = s.optimiser.cheapest_total
     return {
         "kinds": list(c.kinds), "tolerance_pct": dec(c.tolerance_pct),
         "fastest_tolerance_pct": dec(c.fast_tolerance), "max_options": c.max_options,
         "preferred_merchants": list(s.preferred),
         "balanced": {
+            "status": "computed" if s.composite else "not_computed",
+            "why_not": None if s.composite else reason_json(
+                reason("no_buyer_references")),
             "weights_status": WEIGHTS_STATUS,
             "weights": {"total": dec(c.weight_total), "lead_time": dec(c.weight_lead_time),
                         "deliveries": dec(c.weight_deliveries),
                         "preferred": dec(c.weight_preferred)},
-            "references": {"cost_anchor_total": dec(anchor), "cost_anchor_vat_basis": s.basis,
-                           "cost_span_pct": dec(c.cost_span_pct),
-                           "target_lead_time_days": c.target_lead_time_days,
-                           "worst_lead_time_days": c.worst_lead_time_days,
-                           "target_deliveries": c.target_deliveries,
-                           "worst_deliveries": c.worst_deliveries}}}
+            "references": {
+                "source": "buyer",
+                "budget_total": dec(c.budget_total), "budget_vat_basis": s.basis,
+                "required_by": None if c.required_by is None else c.required_by.isoformat(),
+                "required_by_days": s.required_by_days, "max_deliveries": c.max_deliveries}}}
 
 
 def quote_options_ui(s: OptionSet) -> dict[str, Any]:

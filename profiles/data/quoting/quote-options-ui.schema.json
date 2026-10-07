@@ -1,0 +1,1042 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quote-options-ui.schema.json",
+  "title": "quote-options-ui/1",
+  "description": "Quote options: several complete basket assignments for the same job. SYNTHETIC/ILLUSTRATIVE when data_labels says so. Not a supplier quote. Additive evolution only: new optional keys and enum values; one schema accepts every published version.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "tenant_id",
+    "generated_at",
+    "currency",
+    "vat",
+    "notice",
+    "data_labels",
+    "config",
+    "optimiser",
+    "firm_line_ids",
+    "options",
+    "duplicates",
+    "not_shown",
+    "pareto",
+    "excluded_lines",
+    "indicative_block",
+    "notes",
+    "schema_changes"
+  ],
+  "properties": {
+    "format": {
+      "const": "quote-options-ui/1"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.*(\\+|-)[0-9]{2}:[0-9]{2}$"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "vat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "basis_label",
+        "rate",
+        "statement"
+      ],
+      "properties": {
+        "basis": {
+          "enum": [
+            "ex_tax",
+            "inc_tax"
+          ]
+        },
+        "basis_label": {
+          "type": "string"
+        },
+        "rate": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "statement": {
+          "type": "string"
+        }
+      }
+    },
+    "notice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "text",
+        "label"
+      ],
+      "properties": {
+        "code": {
+          "const": "not_a_supplier_quote"
+        },
+        "text": {
+          "type": "string"
+        },
+        "label": {
+          "const": "not a supplier quote"
+        }
+      }
+    },
+    "data_labels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contains_synthetic_data"
+      ],
+      "properties": {
+        "contains_synthetic_data": {
+          "type": "boolean"
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kinds",
+        "tolerance_pct",
+        "fastest_tolerance_pct",
+        "max_options",
+        "preferred_merchants",
+        "balanced"
+      ],
+      "properties": {
+        "kinds": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "cheapest",
+              "single_supplier",
+              "fewest_deliveries",
+              "fastest",
+              "preferred",
+              "balanced"
+            ]
+          }
+        },
+        "tolerance_pct": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "fastest_tolerance_pct": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "max_options": {
+          "type": "integer"
+        },
+        "preferred_merchants": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "balanced": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "why_not",
+            "weights_status",
+            "weights",
+            "references"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "computed",
+                "not_computed"
+              ]
+            },
+            "why_not": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/reason"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "weights_status": {
+              "const": "unsourced_placeholder"
+            },
+            "weights": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "total",
+                "lead_time",
+                "deliveries",
+                "preferred"
+              ],
+              "properties": {
+                "total": {
+                  "type": "string",
+                  "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                },
+                "lead_time": {
+                  "type": "string",
+                  "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                },
+                "deliveries": {
+                  "type": "string",
+                  "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                },
+                "preferred": {
+                  "type": "string",
+                  "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                }
+              }
+            },
+            "references": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "budget_total",
+                "budget_vat_basis",
+                "required_by",
+                "required_by_days",
+                "max_deliveries"
+              ],
+              "properties": {
+                "source": {
+                  "const": "buyer"
+                },
+                "budget_total": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                },
+                "budget_vat_basis": {
+                  "enum": [
+                    "ex_tax",
+                    "inc_tax"
+                  ]
+                },
+                "required_by": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "required_by_days": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "max_deliveries": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "optimiser": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "exact",
+        "cheapest_total",
+        "vat_basis",
+        "solver_calls",
+        "search_incomplete"
+      ],
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "exact": {
+          "type": "boolean"
+        },
+        "cheapest_total": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "vat_basis": {
+          "enum": [
+            "ex_tax",
+            "inc_tax"
+          ]
+        },
+        "solver_calls": {
+          "type": "integer"
+        },
+        "search_incomplete": {
+          "type": "boolean"
+        }
+      }
+    },
+    "firm_line_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/option"
+      }
+    },
+    "duplicates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "same_as",
+          "reason"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "cheapest",
+              "single_supplier",
+              "fewest_deliveries",
+              "fastest",
+              "preferred",
+              "balanced"
+            ]
+          },
+          "same_as": {
+            "type": "string"
+          },
+          "reason": {
+            "$ref": "#/$defs/reason"
+          }
+        }
+      }
+    },
+    "not_shown": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "reason"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "cheapest",
+              "single_supplier",
+              "fewest_deliveries",
+              "fastest",
+              "preferred",
+              "balanced"
+            ]
+          },
+          "reason": {
+            "$ref": "#/$defs/reason"
+          }
+        }
+      }
+    },
+    "pareto": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "axes",
+        "front",
+        "dominated"
+      ],
+      "properties": {
+        "axes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "front": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dominated": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "option_id",
+              "dominated_by"
+            ],
+            "properties": {
+              "option_id": {
+                "type": "string"
+              },
+              "dominated_by": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "excluded_lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "line_id",
+          "bucket"
+        ],
+        "properties": {
+          "line_id": {
+            "type": "string"
+          },
+          "bucket": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "indicative_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "note",
+        "lines"
+      ],
+      "properties": {
+        "label": {
+          "const": "indicative, not a quote"
+        },
+        "note": {
+          "type": "string"
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "line_id",
+              "description",
+              "label",
+              "low",
+              "high",
+              "unit",
+              "currency",
+              "vat_basis",
+              "count",
+              "oldest_observed_at",
+              "newest_observed_at",
+              "price"
+            ],
+            "properties": {
+              "line_id": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "label": {
+                "const": "indicative, not a quote"
+              },
+              "low": {
+                "type": "string",
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+              },
+              "high": {
+                "type": "string",
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+              },
+              "unit": {
+                "type": "string"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "vat_basis": {
+                "enum": [
+                  "ex_tax",
+                  "inc_tax",
+                  "unknown"
+                ]
+              },
+              "count": {
+                "type": "integer"
+              },
+              "oldest_observed_at": {
+                "type": "string",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.*(\\+|-)[0-9]{2}:[0-9]{2}$"
+              },
+              "newest_observed_at": {
+                "type": "string",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.*(\\+|-)[0-9]{2}:[0-9]{2}$"
+              },
+              "price": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/reason"
+      }
+    },
+    "schema_changes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "reason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "text"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "offer_id",
+        "source_id",
+        "source_kind",
+        "method",
+        "synthetic",
+        "licence",
+        "source_ref",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "visibility"
+      ],
+      "properties": {
+        "offer_id": {
+          "type": "string"
+        },
+        "source_id": {
+          "type": "string"
+        },
+        "source_kind": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "synthetic": {
+          "type": "boolean"
+        },
+        "licence": {
+          "type": "string"
+        },
+        "source_ref": {
+          "type": "string"
+        },
+        "observed_at": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.*(\\+|-)[0-9]{2}:[0-9]{2}$"
+        },
+        "valid_until": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "visibility": {
+          "type": "string"
+        }
+      }
+    },
+    "line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "line_id",
+        "description",
+        "sku_id",
+        "offer_id",
+        "merchant_id",
+        "packs",
+        "unit_price",
+        "goods",
+        "vat_basis",
+        "lead_time_days",
+        "stock_status",
+        "flags",
+        "match",
+        "provenance"
+      ],
+      "properties": {
+        "line_id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "offer_id": {
+          "type": "string"
+        },
+        "merchant_id": {
+          "type": "string"
+        },
+        "packs": {
+          "type": "integer"
+        },
+        "unit_price": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "goods": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "vat_basis": {
+          "enum": [
+            "ex_tax",
+            "inc_tax"
+          ]
+        },
+        "lead_time_days": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "stock_status": {
+          "type": "string"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "match": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tier",
+            "basis"
+          ],
+          "properties": {
+            "tier": {
+              "type": "string"
+            },
+            "basis": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "merchant_id",
+        "line_ids",
+        "spend",
+        "fee",
+        "fee_known",
+        "vat_basis"
+      ],
+      "properties": {
+        "merchant_id": {
+          "type": "string"
+        },
+        "line_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "spend": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "fee": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "fee_known": {
+          "type": "boolean"
+        },
+        "vat_basis": {
+          "enum": [
+            "ex_tax",
+            "inc_tax"
+          ]
+        }
+      }
+    },
+    "single_supplier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "merchant_id",
+        "supplied_line_ids",
+        "outside_line_ids",
+        "supplier_total",
+        "remainder_total",
+        "vat_basis"
+      ],
+      "properties": {
+        "merchant_id": {
+          "type": "string"
+        },
+        "supplied_line_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outside_line_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "supplier_total": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "remainder_total": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "vat_basis": {
+          "enum": [
+            "ex_tax",
+            "inc_tax"
+          ]
+        }
+      }
+    },
+    "option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "option_id",
+        "kinds",
+        "label",
+        "totals",
+        "comparison",
+        "merchant_count",
+        "delivery_count",
+        "lead_time",
+        "uncovered_line_ids",
+        "preferred_line_ids",
+        "balanced",
+        "pareto",
+        "flags",
+        "reasons",
+        "single_supplier",
+        "deliveries",
+        "lines"
+      ],
+      "properties": {
+        "option_id": {
+          "type": "string"
+        },
+        "kinds": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "cheapest",
+              "single_supplier",
+              "fewest_deliveries",
+              "fastest",
+              "preferred",
+              "balanced"
+            ]
+          },
+          "minItems": 1
+        },
+        "label": {
+          "type": "string"
+        },
+        "totals": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "currency",
+            "vat_basis",
+            "goods",
+            "delivery",
+            "subtotal",
+            "tax_rate",
+            "tax",
+            "total_ex_tax",
+            "total_inc_tax",
+            "delivery_incomplete"
+          ],
+          "properties": {
+            "currency": {
+              "type": "string"
+            },
+            "vat_basis": {
+              "enum": [
+                "ex_tax",
+                "inc_tax"
+              ]
+            },
+            "goods": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "delivery": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "subtotal": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "tax_rate": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "tax": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "total_ex_tax": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "total_inc_tax": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "delivery_incomplete": {
+              "type": "boolean"
+            }
+          }
+        },
+        "comparison": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "vat_basis",
+            "extra_vs_cheapest",
+            "savings_vs_most_expensive"
+          ],
+          "properties": {
+            "vat_basis": {
+              "enum": [
+                "ex_tax",
+                "inc_tax"
+              ]
+            },
+            "extra_vs_cheapest": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "savings_vs_most_expensive": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            }
+          }
+        },
+        "merchant_count": {
+          "type": "integer"
+        },
+        "delivery_count": {
+          "type": "integer"
+        },
+        "lead_time": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "latest_days",
+            "complete",
+            "per_line",
+            "unknown_line_ids"
+          ],
+          "properties": {
+            "latest_days": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "per_line": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "line_id",
+                  "days"
+                ],
+                "properties": {
+                  "line_id": {
+                    "type": "string"
+                  },
+                  "days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "unknown_line_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "uncovered_line_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "preferred_line_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "balanced": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "score",
+            "score_rank"
+          ],
+          "properties": {
+            "score": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "score_rank": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          }
+        },
+        "pareto": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dominated",
+            "dominated_by"
+          ],
+          "properties": {
+            "dominated": {
+              "type": "boolean"
+            },
+            "dominated_by": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reason"
+          }
+        },
+        "single_supplier": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/single_supplier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deliveries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/delivery"
+          }
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/line"
+          }
+        }
+      }
+    }
+  }
+}

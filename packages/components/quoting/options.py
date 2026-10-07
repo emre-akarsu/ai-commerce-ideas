@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import replace
+from datetime import datetime
 from decimal import ROUND_FLOOR, Decimal
 from fractions import Fraction
 from typing import Any
@@ -27,7 +28,6 @@ from .models import Bucket, QuoteResult
 from .options_config import KINDS, OptionsConfig, OptionsError, check_preferred
 from .options_engine import Evaluated, Instance, Pairs, Searcher
 from .options_models import (
-    LABELS,
     Duplicate,
     ExcludedLine,
     IndicativeInfo,
@@ -40,7 +40,7 @@ from .options_models import (
     QuoteOption,
     SingleSupplierInfo,
 )
-from .options_reasons import OptionReason, reason
+from .options_reasons import LABELS, OptionReason, reason
 from .options_score import balanced_score, display_score, dominators
 from .views import offer_provenance
 
@@ -155,13 +155,27 @@ def _truncate(groups: list[tuple[Evaluated, tuple[str, ...]]], limit: int
     return kept, lost
 
 
+def _reference_flags(ev: Evaluated, cfg: OptionsConfig, rdays: int | None) -> set[str]:
+    """Where an option misses what the buyer asked for (only references the buyer gave)."""
+    out: set[str] = set()
+    if cfg.budget_total is not None and ev.total > cfg.budget_total:
+        out.add("over_budget")
+    if rdays is not None and (ev.lead[0] or ev.lead[1] > rdays):
+        out.add("after_required_date")
+    if cfg.max_deliveries is not None and ev.merchants > cfg.max_deliveries:
+        out.add("over_delivery_cap")
+    return out
+
+
 def _limit(ref: Decimal, pct: Decimal) -> Decimal:
     return (ref * (100 + pct) / 100).quantize(Decimal("0.01"), rounding=ROUND_FLOOR)
 
 
 def _reasons(kinds: tuple[str, ...], ev: Evaluated, ref: Evaluated, *, pcfg: PricingConfig,
-             cfg: OptionsConfig, lines: int, preferred: bool, dearest_shown: Decimal, single: SingleSupplierInfo | None, score: Decimal,
-             indicative: int, exact: bool, incomplete: bool) -> tuple[OptionReason, ...]:
+             cfg: OptionsConfig, lines: int, preferred: bool, dearest_shown: Decimal,
+             single: SingleSupplierInfo | None, score: Decimal | None,
+             indicative: int, exact: bool, incomplete: bool,
+             reference_flags: set[str]) -> tuple[OptionReason, ...]:
     cur, basis = pcfg.base_currency, pcfg.compare_basis
     out: list[OptionReason] = []
     if ev.pairs == ref.pairs:
@@ -192,8 +206,9 @@ def _reasons(kinds: tuple[str, ...], ev: Evaluated, ref: Evaluated, *, pcfg: Pri
                    else reason("preferred_none"))
     if single is not None:
         out.extend(_single_reasons(single, lines, cur, basis))
-    if "balanced" in kinds:
+    if "balanced" in kinds and score is not None:
         out.append(reason("balanced_score", score=score))
+    out.extend(reason(c) for c in sorted(reference_flags))
     if dearest_shown > ev.total:
         out.append(reason("saves_vs_dearest", amount=dearest_shown - ev.total, currency=cur,
                           basis=basis))
@@ -245,7 +260,8 @@ def build_options(
     excl = tuple(sorted({*excluded, *drop_lines}, key=lambda e: (e.line_id, e.bucket)))
     base = dict(tenant_id=tenant_id, generated_at=now, currency=pcfg.base_currency,
                 basis=pcfg.compare_basis, tax_rate=pcfg.vat_rate, config=cfg, preferred=pref,
-                excluded_lines=excl, indicative=tuple(indicative))
+                excluded_lines=excl, indicative=tuple(indicative), composite=cfg.composite,
+                required_by_days=required_days(cfg, now))
     if not firm:
         return OptionSet(
             **base, firm_line_ids=(), options=(), duplicates=(), not_shown=(), pareto_front=(),
@@ -274,39 +290,52 @@ def build_options(
             merchant, tuple(sorted(covered)),
             tuple(sorted(set(inst.line_merchants) - set(covered))), mine_total,
             ev.total - mine_total)
-    anchor = ref.total
-    produced["balanced"] = min(
-        s.pool.values(),
-        key=lambda e: (_raw_score(e, anchor, inst, pref, cfg), e.total, e.merchants, e.pairs))
+    rdays = required_days(cfg, now)
+    if cfg.composite:
+        produced["balanced"] = min(s.pool.values(), key=lambda e: (
+            _raw_score(e, inst, pref, cfg, rdays), e.total, e.merchants, e.pairs))
+    elif "balanced" in cfg.kinds:
+        not_shown.append(NotShown("balanced", reason("no_buyer_references")))
     groups, lost = _truncate(_group(produced, cfg.kinds), cfg.max_options)
     not_shown.extend(lost)
-    return _assemble(base, groups, not_shown, ref, inst, s, pcfg, cfg, s_info, ind_count)
+    return _assemble(base, groups, not_shown, ref, inst, s, pcfg, cfg, s_info, ind_count,
+                     rdays)
 
 
-def _raw_score(ev: Evaluated, anchor: Decimal, inst: Instance, pref: tuple[str, ...],
-               cfg: OptionsConfig) -> Fraction:
-    return balanced_score(
-        total=ev.total, anchor=anchor, lead=ev.lead, deliveries=ev.merchants,
+def required_days(cfg: OptionsConfig, now: datetime) -> int | None:
+    """Days from the injected clock's date to the buyer's required-by date (may be negative)."""
+    return None if cfg.required_by is None else (cfg.required_by - now.date()).days
+
+
+def _raw_score(ev: Evaluated, inst: Instance, pref: tuple[str, ...], cfg: OptionsConfig,
+               rdays: int | None) -> Fraction:
+    score = balanced_score(
+        total=ev.total, lead=ev.lead, deliveries=ev.merchants,
         preferred_lines=len(ev.preferred_lines), lines=len(inst.lines), has_preferred=bool(pref),
-        cfg=cfg)
+        required_days=rdays, cfg=cfg)
+    assert score is not None
+    return score
 
 
 def _assemble(base: dict[str, Any], groups: list[tuple[Evaluated, tuple[str, ...]]],
               not_shown: list[NotShown], ref: Evaluated, inst: Instance, s: Searcher,
               pcfg: PricingConfig, cfg: OptionsConfig, s_info: dict[Pairs, SingleSupplierInfo],
-              indicative_count: int) -> OptionSet:
-    anchor = ref.total
-
-    def score_of(ev: Evaluated) -> Decimal:
-        return display_score(_raw_score(ev, anchor, inst, base["preferred"], cfg))
+              indicative_count: int, rdays: int | None) -> OptionSet:
+    def score_of(ev: Evaluated) -> Decimal | None:
+        if not cfg.composite:
+            return None
+        return display_score(_raw_score(ev, inst, base["preferred"], cfg, rdays))
 
     ids = {id(g): g[1][0] for g in groups}
     totals = [g[0].total for g in groups]
     dearest = max(totals)
     dom = dominators([(ids[id(g)], g[0].total, g[0].lead, g[0].merchants) for g in groups])
-    order = sorted(groups, key=lambda g: (score_of(g[0]), g[0].total, g[0].merchants,
-                                          ids[id(g)]))
-    score_rank = {ids[id(g)]: i + 1 for i, g in enumerate(order)}
+    score_rank: dict[str, int] = {}
+    if cfg.composite:  # an exact fraction decides the order, so rounding never reorders
+        order = sorted(groups, key=lambda g: (
+            _raw_score(g[0], inst, base["preferred"], cfg, rdays), g[0].total, g[0].merchants,
+            ids[id(g)]))
+        score_rank = {ids[id(g)]: i + 1 for i, g in enumerate(order)}
     basket = s.basket
     assert basket is not None
     options: list[QuoteOption] = []
@@ -330,10 +359,12 @@ def _assemble(base: dict[str, Any], groups: list[tuple[Evaluated, tuple[str, ...
         uncovered = tuple(sorted(set(inst.line_merchants) - covered))
         if uncovered:
             flags.add("partial_cover")
+        flags |= _reference_flags(ev, cfg, rdays)
         reasons = _reasons(
-            kinds, ev, ref, pcfg=pcfg, cfg=cfg, lines=len(inst.lines), preferred=bool(base["preferred"]),
-            dearest_shown=dearest, single=info, score=score,
-            indicative=indicative_count, exact=basket.exact, incomplete=s.incomplete)
+            kinds, ev, ref, pcfg=pcfg, cfg=cfg, lines=len(inst.lines),
+            preferred=bool(base["preferred"]), dearest_shown=dearest, single=info, score=score,
+            indicative=indicative_count, exact=basket.exact, incomplete=s.incomplete,
+            reference_flags=_reference_flags(ev, cfg, rdays))
         if uncovered:
             reasons += (reason("uncovered_lines", count=len(uncovered)),)
         options.append(QuoteOption(
@@ -349,7 +380,7 @@ def _assemble(base: dict[str, Any], groups: list[tuple[Evaluated, tuple[str, ...
             lead_times=tuple((ln.line_id, ln.lead_time_days) for ln in lines),
             lead_time_unknown_line_ids=ev.unknown_lead_lines, uncovered_line_ids=uncovered,
             preferred_line_ids=ev.preferred_lines, balanced_score=score,
-            score_rank=score_rank[oid], dominated=bool(dom[oid]), dominated_by=dom[oid],
+            score_rank=score_rank.get(oid), dominated=bool(dom[oid]), dominated_by=dom[oid],
             flags=tuple(sorted(flags)), reasons=reasons, single_supplier=info))
         for extra in kinds[1:]:
             dups.append(Duplicate(extra, oid, reason("same_as", option=oid)))

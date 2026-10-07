@@ -28,33 +28,33 @@ def _clamp(x: Fraction) -> Fraction:
     return min(Fraction(1), max(Fraction(0), x))
 
 
-def cost_score(total: Decimal, anchor: Decimal, cfg: OptionsConfig) -> Fraction:
-    if anchor <= 0:
-        return Fraction(0) if total <= 0 else Fraction(1)
-    span = Fraction(anchor) * Fraction(cfg.cost_span_pct) / 100
-    return _clamp((Fraction(total) - Fraction(anchor)) / span)
+def balanced_score(*, total: Decimal, lead: Lead, deliveries: int, preferred_lines: int,
+                   lines: int, has_preferred: bool, required_days: int | None,
+                   cfg: OptionsConfig) -> Fraction | None:
+    """Weighted mean (0 best, 1 worst) over the criteria the BUYER gave a reference for; None when
+    there is none. Each criterion depends only on this option and the buyer's reference:
 
-
-def lead_score(lead: Lead, cfg: OptionsConfig) -> Fraction:
-    if lead[0]:
-        return Fraction(1)
-    gap = cfg.worst_lead_time_days - cfg.target_lead_time_days
-    return _clamp(Fraction(lead[1] - cfg.target_lead_time_days, gap))
-
-
-def delivery_score(deliveries: int, cfg: OptionsConfig) -> Fraction:
-    gap = cfg.worst_deliveries - cfg.target_deliveries
-    return _clamp(Fraction(deliveries - cfg.target_deliveries, gap))
-
-
-def balanced_score(*, total: Decimal, anchor: Decimal, lead: Lead, deliveries: int,
-                   preferred_lines: int, lines: int, has_preferred: bool,
-                   cfg: OptionsConfig) -> Fraction:
-    """Weighted mean of four scores in [0, 1] (0 best). Without a preferred list the preferred
-    weight is dropped and the others are renormalised."""
-    parts = [(cfg.weight_total, cost_score(total, anchor, cfg)),
-             (cfg.weight_lead_time, lead_score(lead, cfg)),
-             (cfg.weight_deliveries, delivery_score(deliveries, cfg))]
+    * total: share of the budget used (1 at or over the budget);
+    * latest delivery: share of the days until the required-by date (1 when later or unknown);
+    * deliveries: (n - 1) / cap (1 when over the cap);
+    * preferred: 1 - share of lines from preferred suppliers (only with a preferred list).
+    Weights are renormalised over the active criteria."""
+    parts: list[tuple[Decimal, Fraction]] = []
+    if cfg.budget_total is not None:
+        parts.append((cfg.weight_total, _clamp(Fraction(total) / Fraction(cfg.budget_total))))
+    if required_days is not None:
+        if lead[0]:
+            s = Fraction(1)
+        elif required_days <= 0:
+            s = Fraction(0) if lead[1] <= 0 else Fraction(1)
+        else:
+            s = _clamp(Fraction(lead[1], required_days))
+        parts.append((cfg.weight_lead_time, s))
+    if cfg.max_deliveries is not None:
+        parts.append((cfg.weight_deliveries,
+                      _clamp(Fraction(deliveries - 1, cfg.max_deliveries))))
+    if not parts:
+        return None
     if has_preferred and lines:
         parts.append((cfg.weight_preferred, 1 - Fraction(preferred_lines, lines)))
     weight = sum((Fraction(w) for w, _ in parts), Fraction(0))

@@ -12,12 +12,6 @@ from .models import OfferProvenance
 from .options_config import OptionsConfig
 from .options_reasons import OptionReason
 
-LABELS = {
-    "cheapest": "Lowest total cost", "single_supplier": "Single supplier",
-    "fewest_deliveries": "Fewest deliveries", "fastest": "Fastest",
-    "preferred": "Preferred suppliers", "balanced": "Balanced",
-}
-
 
 @dataclass(frozen=True)
 class ExcludedLine:
@@ -110,8 +104,8 @@ class QuoteOption:
     lead_time_unknown_line_ids: tuple[str, ...]
     uncovered_line_ids: tuple[str, ...]
     preferred_line_ids: tuple[str, ...]
-    balanced_score: Decimal  # 0 best, 1 worst, against fixed references
-    score_rank: int  # 1 = best score; independent of which other options are shown
+    balanced_score: Decimal | None  # 0 best, 1 worst, against the buyer's references; else None
+    score_rank: int | None  # 1 = best score; relative order never depends on the other options
     dominated: bool
     dominated_by: tuple[str, ...]
     flags: tuple[str, ...]
@@ -156,6 +150,8 @@ class OptionSet:
     not_shown: tuple[NotShown, ...]
     pareto_front: tuple[str, ...]
     excluded_lines: tuple[ExcludedLine, ...]
+    composite: bool  # a balanced score exists only when the buyer gave a reference
+    required_by_days: int | None
     indicative: tuple[IndicativeInfo, ...]
     optimiser: OptimiserInfo
     notes: tuple[OptionReason, ...]

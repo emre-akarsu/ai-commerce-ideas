@@ -45,6 +45,7 @@ from components.quoting import (  # noqa: E402
     dumps,
     order_lines_from_kit,
     quote_draft_ui,
+    quote_options,
 )
 from components.quoting.loading import load_price_files, specs_from_manifest  # noqa: E402
 
@@ -184,6 +185,58 @@ def print_quote(title: str, quote: QuoteResult, scope: str, finish: str | None,
     print(f"\n{d.notice}")
 
 
+def demo_preferred(tenant: str) -> list[str]:
+    """A SYNTHETIC preferred-supplier list for the demo: the tenant's first two private price
+    files in manifest order (a real tenant would set its own list)."""
+    manifest = json.loads((DATA / "manifest.json").read_text(encoding="utf-8"))
+    own = [f["merchant_id"] for f in manifest["files"] if f.get("tenant_id") == tenant]
+    return list(dict.fromkeys(own))[:2]
+
+
+def print_options(ctx: QuotingContext, quote: QuoteResult) -> None:
+    """Quote options (cheapest, fewest deliveries, fastest, preferred): a comparison table, then
+    the templated trade-off sentences. Nothing is chosen for the buyer."""
+    pref = demo_preferred(quote.tenant_id)
+    s = quote_options(quote, ctx.pricing, ctx.clock, preferred=pref)
+    print(f"\n{'=' * 100}\nQUOTE OPTIONS for {s.tenant_id} (firm lines only; all prices "
+          f"{s.currency} ex VAT unless stated)\n{'=' * 100}")
+    print(BANNER)
+    print(f"demo preferred suppliers (synthetic list): {', '.join(pref) or 'none'}")
+    if not s.options:
+        print("no line has a firm offer, so there are no options")
+        return
+    print(f"{len(s.firm_line_ids)} firm lines; {len(s.excluded_lines)} lines are in no option "
+          f"(review, unmatched, indicative only, no offer, skipped)")
+    print(RULE)
+    print(f"  {'option':22} {'total ex VAT':>13} {'total inc VAT':>14} {'vs lowest':>10} "
+          f"{'suppliers':>9} {'deliveries':>10} {'latest lead':>12}  flags")
+    for o in s.options:
+        lead = "unknown" if not o.lead_time_complete and o.latest_lead_time_days is None else (
+            f"{o.latest_lead_time_days} d" + ("+?" if not o.lead_time_complete else ""))
+        print(f"  {o.label:22} {money(o.totals.total_ex_tax):>13} "
+              f"{money(o.totals.total_inc_tax):>14} {money(o.extra_vs_cheapest):>10} "
+              f"{o.merchant_count:>9} {o.delivery_count:>10} "
+              f"{lead:>12}  {clip(','.join(o.flags) + (' dominated' if o.dominated else ''), 40)}")
+    for d in s.duplicates:
+        print(f"  {d.kind}: {d.reason.text}")
+    for n in s.not_shown:
+        print(f"  not shown: {n.kind}: {n.reason.text}")
+    print(f"  (lowest total is exact: {s.optimiser.exact}; Pareto front on total, latest lead "
+          f"time, suppliers: {', '.join(s.pareto_front)})")
+    for o in s.options:
+        print(f"\n{o.label} ({', '.join(o.kinds)})")
+        for r in o.reasons:
+            print(f"  - {r.text}")
+        for d in o.deliveries:
+            fee = "not stated" if d.fee is None else money(d.fee)
+            print(f"    {d.merchant_id:14} {len(d.line_ids):3} lines  goods {money(d.spend):>10}"
+                  f"  delivery {fee:>10} (ex VAT)")
+    if s.indicative:
+        print(f"\nINDICATIVE ONLY, in no option ({len(s.indicative)} lines): "
+              f"{', '.join(i.line_id for i in s.indicative[:6])}"
+              f"{' ...' if len(s.indicative) > 6 else ''} (indicative, not a quote)")
+
+
 def apply_decisions(ctx: QuotingContext, tenant: str, quote: QuoteResult) -> int:
     decisions = json.loads((DATA / "demo_reviewer_decisions.json").read_text(encoding="utf-8"))
     queued = {r.line_id: r for r in quote.review_queue}
@@ -206,6 +259,9 @@ def main(argv: list[str] | None = None) -> int:
                         help="print only the first quote, without the demo reviewer's decisions")
     parser.add_argument("--review-lines", type=int, default=6,
                         help="how many review-queue lines to print in full")
+    parser.add_argument("--options", action="store_true",
+                        help="after the review step, print the quote options with a comparison "
+                             "table")
     parser.add_argument("--export", type=Path, default=None, help="write quote-draft-ui/1 JSON")
     args = parser.parse_args(argv)
     try:
@@ -228,6 +284,8 @@ def main(argv: list[str] | None = None) -> int:
         quote = build_quote(ctx, args.tenant, lines)
         print_quote("QUOTE AFTER REVIEW (approved lines resolve instantly)", quote,
                     kit.scope_id, args.finish_level, args.review_lines)
+    if args.options:
+        print_options(ctx, quote)
     if args.export is not None:
         args.export.write_text(dumps(quote_draft_ui(quote)), encoding="utf-8")
         print(f"\nwrote {args.export}")

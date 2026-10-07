@@ -12,7 +12,7 @@ and the single-supplier cost are computed here; they are cheap evaluations, not 
 from __future__ import annotations
 
 import itertools
-from collections.abc import Callable, Hashable, Sequence
+from collections.abc import Callable, Hashable, Iterable, Sequence
 from dataclasses import dataclass, replace
 from decimal import Decimal
 
@@ -117,8 +117,27 @@ class Instance:
             preferred_rank_sum=sum(self.rank[chosen[lid].offer.merchant_id] for lid in pref))
 
 
-def pairs_of(choices: Sequence[tuple[str, str]]) -> Pairs:
+def pairs_of(choices: Iterable[tuple[str, str]]) -> Pairs:
     return tuple(sorted(choices))
+
+
+def _only_merchants(chosen: frozenset[str]) -> Keep:
+    return lambda _line, p: p.offer.merchant_id in chosen
+
+
+def _up_to_days(level: int) -> Keep:
+    return lambda _line, p: p.lead_time_days is not None and p.lead_time_days <= level
+
+
+def _prefer(inst: Instance, chosen: frozenset[str]) -> Keep:
+    """Offers of the chosen merchants wherever one of them can supply the line, else any."""
+    return lambda lid, p: (p.offer.merchant_id in chosen
+                           or not (inst.line_merchants[lid] & chosen))
+
+
+def _split(merchant: str, covered: frozenset[str]) -> Keep:
+    """The merchant for the lines it can supply; every other merchant for the rest."""
+    return lambda lid, p: (p.offer.merchant_id == merchant) == (lid in covered)
 
 
 class Searcher:
@@ -197,7 +216,7 @@ class Searcher:
                            for lid in self.inst.line_merchants):
                     continue
                 chosen = frozenset(subset)
-                ev = self.solve(("S", chosen), lambda _l, p, s=chosen: p.offer.merchant_id in s)
+                ev = self.solve(("S", chosen), _only_merchants(chosen))
                 if ev is not None and self.within(ev, ref.total, pct):
                     found.append(ev)
             if found:
@@ -223,8 +242,7 @@ class Searcher:
         for level in (*days, None):
             if level is None:
                 return ref
-            ev = self.solve(("L", level), lambda _l, p, lv=level: (
-                p.lead_time_days is not None and p.lead_time_days <= lv))
+            ev = self.solve(("L", level), _up_to_days(level))
             if ev is not None and self.within(ev, ref.total, pct):
                 return ev
         return ref
@@ -239,9 +257,7 @@ class Searcher:
         for k in range(len(present), 0, -1):
             for subset in itertools.combinations(present, k):
                 chosen = frozenset(subset)
-                ev = self.solve(("P", chosen), lambda lid, p, s=chosen: (
-                    p.offer.merchant_id in s
-                    or not (self.inst.line_merchants[lid] & s)))
+                ev = self.solve(("P", chosen), _prefer(self.inst, chosen))
                 if ev is not None and self.within(ev, ref.total, pct):
                     cands.append(self.improve(ev, ref.total, pct))
         return min(cands, key=lambda e: (-len(e.preferred_lines), e.preferred_rank_sum, e.total,
@@ -286,6 +302,5 @@ class Searcher:
 
         merchant = min(inst.merchants, key=rank)
         covered = tuple(lid for lid in inst.line_merchants if (lid, merchant) in inst.cheapest)
-        ev = self.solve(("U", merchant), lambda lid, p, m=merchant, c=frozenset(covered): (
-            (p.offer.merchant_id == m) if lid in c else (p.offer.merchant_id != m)))
+        ev = self.solve(("U", merchant), _split(merchant, frozenset(covered)))
         return None if ev is None else (ev, merchant, covered)

@@ -16,6 +16,11 @@ from .options_config import OptionsError
 
 _SAFE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:+#=-]{0,119}")
 BASIS_LABEL = {"ex_tax": "ex VAT", "inc_tax": "inc VAT"}
+LABELS = {
+    "cheapest": "Lowest total cost", "single_supplier": "Single supplier",
+    "fewest_deliveries": "Fewest deliveries", "fastest": "Fastest",
+    "preferred": "Preferred suppliers", "balanced": "Balanced",
+}
 
 TEMPLATES: dict[str, str] = {
     "total_is_lowest": "Lowest total of all options: {total} {currency} {basis}.",
@@ -23,9 +28,9 @@ TEMPLATES: dict[str, str] = {
     "total_within_tolerance": "The total is within {pct}% of the lowest total (limit {limit} "
                               "{currency} {basis}).",
     "saves_vs_dearest": "{amount} {currency} {basis} less than the most expensive option shown.",
-    "deliveries_fewer": "{count} fewer deliveries than the lowest-total option ({deliveries} "
+    "deliveries_fewer": "{count} fewer delivery(ies) than the lowest-total option ({deliveries} "
                         "instead of {other}).",
-    "deliveries_more": "{count} more deliveries than the lowest-total option ({deliveries} "
+    "deliveries_more": "{count} more delivery(ies) than the lowest-total option ({deliveries} "
                        "instead of {other}).",
     "deliveries_same": "{deliveries} delivery(ies), as many as the lowest-total option.",
     "lead_earlier": "Latest lead time {days} day(s), {diff} day(s) earlier than the lowest-total "
@@ -39,13 +44,19 @@ TEMPLATES: dict[str, str] = {
     "delivery_terms_unknown": "{count} supplier(s) state no usable delivery terms; delivery for "
                               "them is not included in the total.",
     "preferred_coverage": "{covered} of {lines} line(s) come from your preferred suppliers.",
-    "preferred_none": "No line comes from your preferred suppliers within the price tolerance.",
+    "preferred_none": "No line comes from your preferred suppliers.",
     "single_supplier_covers": "{merchant_id} can supply {covered} of {lines} line(s).",
     "single_supplier_outside": "{outside} line(s) it cannot supply are bought elsewhere for "
                                "{remainder} {currency} {basis}.",
     "single_supplier_all": "{merchant_id} supplies every line.",
-    "balanced_score": "Balanced score {score} (0 is best; fixed references, weights are "
-                      "unsourced placeholders).",
+    "balanced_score": "Balanced score {score} (0 is best), measured against your own budget, "
+                      "required-by date and delivery limit; the weights are unsourced "
+                      "placeholders.",
+    "no_buyer_references": "No budget, required-by date or delivery limit was given, so no "
+                           "balanced score is computed and no balanced option is shown.",
+    "over_budget": "The total is over your budget.",
+    "after_required_date": "Delivery is after your required-by date, or its date is unknown.",
+    "over_delivery_cap": "More deliveries than your limit.",
     "uncovered_lines": "{count} firm line(s) are not covered by this option.",
     "indicative_excluded": "Indicative prices exist for {count} line(s) and are shown apart; "
                            "they are in no option.",
@@ -79,6 +90,8 @@ class OptionReason:
         values = dict(self.params)
         if "basis" in values:
             values["basis"] = BASIS_LABEL.get(values["basis"], values["basis"])
+        if "option" in values:
+            values["option"] = LABELS.get(values["option"], values["option"])
         return TEMPLATES[self.code].format(**values)
 
 

@@ -1,0 +1,801 @@
+{
+  "format": "quote-options-ui/1",
+  "tenant_id": "demo-tenant-a",
+  "generated_at": "2026-10-07T09:00:00+00:00",
+  "currency": "GBP",
+  "vat": {
+    "basis": "ex_tax",
+    "basis_label": "ex VAT",
+    "rate": "0.20",
+    "statement": "All prices are shown ex VAT unless a figure states otherwise."
+  },
+  "notice": {
+    "code": "not_a_supplier_quote",
+    "text": "This is a comparison of prices observed in the data sources, at the times shown. It is not a quote from any supplier, not an offer that can be accepted and not a reservation of stock. Prices, stock and delivery terms can change, and VAT, delivery and rounding are estimates on the stated basis. Nothing has been sent or ordered.",
+    "label": "not a supplier quote"
+  },
+  "data_labels": {
+    "contains_synthetic_data": true
+  },
+  "config": {
+    "kinds": [
+      "cheapest",
+      "single_supplier",
+      "fewest_deliveries",
+      "fastest",
+      "preferred",
+      "balanced"
+    ],
+    "tolerance_pct": "20",
+    "fastest_tolerance_pct": "20",
+    "max_options": 6,
+    "preferred_merchants": [
+      "P"
+    ],
+    "balanced": {
+      "status": "computed",
+      "why_not": null,
+      "weights_status": "unsourced_placeholder",
+      "weights": {
+        "total": "50",
+        "lead_time": "25",
+        "deliveries": "15",
+        "preferred": "10"
+      },
+      "references": {
+        "source": "buyer",
+        "budget_total": "45",
+        "budget_vat_basis": "ex_tax",
+        "required_by": "2026-10-12",
+        "required_by_days": 5,
+        "max_deliveries": 3
+      }
+    }
+  },
+  "optimiser": {
+    "method": "exact_dp",
+    "exact": true,
+    "cheapest_total": "35.00",
+    "vat_basis": "ex_tax",
+    "solver_calls": 5,
+    "search_incomplete": false
+  },
+  "firm_line_ids": [
+    "a",
+    "b",
+    "c"
+  ],
+  "options": [
+    {
+      "option_id": "cheapest",
+      "kinds": [
+        "cheapest",
+        "single_supplier",
+        "fewest_deliveries",
+        "balanced"
+      ],
+      "label": "Lowest total cost",
+      "totals": {
+        "currency": "GBP",
+        "vat_basis": "ex_tax",
+        "goods": "30.00",
+        "delivery": "5.00",
+        "subtotal": "35.00",
+        "tax_rate": "0.20",
+        "tax": "7.00",
+        "total_ex_tax": "35.00",
+        "total_inc_tax": "42.00",
+        "delivery_incomplete": false
+      },
+      "comparison": {
+        "vat_basis": "ex_tax",
+        "extra_vs_cheapest": "0.00",
+        "savings_vs_most_expensive": "6.70"
+      },
+      "merchant_count": 1,
+      "delivery_count": 1,
+      "lead_time": {
+        "latest_days": 7,
+        "complete": true,
+        "per_line": [
+          {
+            "line_id": "a",
+            "days": 1
+          },
+          {
+            "line_id": "b",
+            "days": 7
+          },
+          {
+            "line_id": "c",
+            "days": 7
+          }
+        ],
+        "unknown_line_ids": []
+      },
+      "uncovered_line_ids": [],
+      "preferred_line_ids": [],
+      "balanced": {
+        "score": "0.7389",
+        "score_rank": 1
+      },
+      "pareto": {
+        "dominated": false,
+        "dominated_by": []
+      },
+      "flags": [
+        "after_required_date",
+        "indicative_excluded"
+      ],
+      "reasons": [
+        {
+          "code": "total_is_lowest",
+          "text": "Lowest total of all options: 35.00 GBP ex VAT."
+        },
+        {
+          "code": "deliveries_same",
+          "text": "1 delivery(ies), as many as the lowest-total option."
+        },
+        {
+          "code": "lead_same",
+          "text": "Latest lead time 7 day(s), the same as the lowest-total option."
+        },
+        {
+          "code": "preferred_none",
+          "text": "No line comes from your preferred suppliers."
+        },
+        {
+          "code": "single_supplier_all",
+          "text": "A supplies every line."
+        },
+        {
+          "code": "balanced_score",
+          "text": "Balanced score 0.7389 (0 is best), measured against your own budget, required-by date and delivery limit; the weights are unsourced placeholders."
+        },
+        {
+          "code": "after_required_date",
+          "text": "Delivery is after your required-by date, or its date is unknown."
+        },
+        {
+          "code": "saves_vs_dearest",
+          "text": "6.70 GBP ex VAT less than the most expensive option shown."
+        },
+        {
+          "code": "indicative_excluded",
+          "text": "Indicative prices exist for 2 line(s) and are shown apart; they are in no option."
+        }
+      ],
+      "single_supplier": {
+        "merchant_id": "A",
+        "supplied_line_ids": [
+          "a",
+          "b",
+          "c"
+        ],
+        "outside_line_ids": [],
+        "supplier_total": "35.00",
+        "remainder_total": "0.00",
+        "vat_basis": "ex_tax"
+      },
+      "deliveries": [
+        {
+          "merchant_id": "A",
+          "line_ids": [
+            "a",
+            "b",
+            "c"
+          ],
+          "spend": "30.00",
+          "fee": "5.00",
+          "fee_known": true,
+          "vat_basis": "ex_tax"
+        }
+      ],
+      "lines": [
+        {
+          "line_id": "a",
+          "description": "line a",
+          "sku_id": "sku-a",
+          "offer_id": "A:sku-a:f:demo-tenant-a",
+          "merchant_id": "A",
+          "packs": 1,
+          "unit_price": "10.0000",
+          "goods": "10.00",
+          "vat_basis": "ex_tax",
+          "lead_time_days": 1,
+          "stock_status": "in_stock",
+          "flags": [],
+          "match": {
+            "tier": "A",
+            "basis": null
+          },
+          "provenance": {
+            "offer_id": "A:sku-a:f:demo-tenant-a",
+            "source_id": "test-source",
+            "source_kind": "trade_feed",
+            "method": "file_row",
+            "synthetic": true,
+            "licence": "tenant-supplied",
+            "source_ref": "test.csv#row=1",
+            "observed_at": "2026-10-06T09:00:00+00:00",
+            "valid_until": "2026-11-06T09:00:00+00:00",
+            "confidence": "0.9",
+            "visibility": "tenant_private"
+          }
+        },
+        {
+          "line_id": "b",
+          "description": "line b",
+          "sku_id": "sku-b",
+          "offer_id": "A:sku-b:f:demo-tenant-a",
+          "merchant_id": "A",
+          "packs": 1,
+          "unit_price": "10.0000",
+          "goods": "10.00",
+          "vat_basis": "ex_tax",
+          "lead_time_days": 7,
+          "stock_status": "in_stock",
+          "flags": [],
+          "match": {
+            "tier": "A",
+            "basis": null
+          },
+          "provenance": {
+            "offer_id": "A:sku-b:f:demo-tenant-a",
+            "source_id": "test-source",
+            "source_kind": "trade_feed",
+            "method": "file_row",
+            "synthetic": true,
+            "licence": "tenant-supplied",
+            "source_ref": "test.csv#row=1",
+            "observed_at": "2026-10-06T09:00:00+00:00",
+            "valid_until": "2026-11-06T09:00:00+00:00",
+            "confidence": "0.9",
+            "visibility": "tenant_private"
+          }
+        },
+        {
+          "line_id": "c",
+          "description": "line c",
+          "sku_id": "sku-c",
+          "offer_id": "A:sku-c:f:demo-tenant-a",
+          "merchant_id": "A",
+          "packs": 1,
+          "unit_price": "10.0000",
+          "goods": "10.00",
+          "vat_basis": "ex_tax",
+          "lead_time_days": 7,
+          "stock_status": "in_stock",
+          "flags": [],
+          "match": {
+            "tier": "A",
+            "basis": null
+          },
+          "provenance": {
+            "offer_id": "A:sku-c:f:demo-tenant-a",
+            "source_id": "test-source",
+            "source_kind": "trade_feed",
+            "method": "file_row",
+            "synthetic": true,
+            "licence": "tenant-supplied",
+            "source_ref": "test.csv#row=1",
+            "observed_at": "2026-10-06T09:00:00+00:00",
+            "valid_until": "2026-11-06T09:00:00+00:00",
+            "confidence": "0.9",
+            "visibility": "tenant_private"
+          }
+        }
+      ]
+    },
+    {
+      "option_id": "fastest",
+      "kinds": [
+        "fastest"
+      ],
+      "label": "Fastest",
+      "totals": {
+        "currency": "GBP",
+        "vat_basis": "ex_tax",
+        "goods": "31.70",
+        "delivery": "10.00",
+        "subtotal": "41.70",
+        "tax_rate": "0.20",
+        "tax": "8.34",
+        "total_ex_tax": "41.70",
+        "total_inc_tax": "50.04",
+        "delivery_incomplete": false
+      },
+      "comparison": {
+        "vat_basis": "ex_tax",
+        "extra_vs_cheapest": "6.70",
+        "savings_vs_most_expensive": "0.00"
+      },
+      "merchant_count": 2,
+      "delivery_count": 2,
+      "lead_time": {
+        "latest_days": 3,
+        "complete": true,
+        "per_line": [
+          {
+            "line_id": "a",
+            "days": 1
+          },
+          {
+            "line_id": "b",
+            "days": 1
+          },
+          {
+            "line_id": "c",
+            "days": 3
+          }
+        ],
+        "unknown_line_ids": []
+      },
+      "uncovered_line_ids": [],
+      "preferred_line_ids": [],
+      "balanced": {
+        "score": "0.7633",
+        "score_rank": 2
+      },
+      "pareto": {
+        "dominated": false,
+        "dominated_by": []
+      },
+      "flags": [
+        "indicative_excluded"
+      ],
+      "reasons": [
+        {
+          "code": "extra_vs_lowest",
+          "text": "6.70 GBP ex VAT more than the lowest total."
+        },
+        {
+          "code": "total_within_tolerance",
+          "text": "The total is within 20% of the lowest total (limit 42.00 GBP ex VAT)."
+        },
+        {
+          "code": "deliveries_more",
+          "text": "1 more delivery(ies) than the lowest-total option (2 instead of 1)."
+        },
+        {
+          "code": "lead_earlier",
+          "text": "Latest lead time 3 day(s), 4 day(s) earlier than the lowest-total option."
+        },
+        {
+          "code": "preferred_none",
+          "text": "No line comes from your preferred suppliers."
+        },
+        {
+          "code": "indicative_excluded",
+          "text": "Indicative prices exist for 2 line(s) and are shown apart; they are in no option."
+        }
+      ],
+      "single_supplier": null,
+      "deliveries": [
+        {
+          "merchant_id": "B",
+          "line_ids": [
+            "a",
+            "b"
+          ],
+          "spend": "20.80",
+          "fee": "5.00",
+          "fee_known": true,
+          "vat_basis": "ex_tax"
+        },
+        {
+          "merchant_id": "C",
+          "line_ids": [
+            "c"
+          ],
+          "spend": "10.90",
+          "fee": "5.00",
+          "fee_known": true,
+          "vat_basis": "ex_tax"
+        }
+      ],
+      "lines": [
+        {
+          "line_id": "a",
+          "description": "line a",
+          "sku_id": "sku-a",
+          "offer_id": "B:sku-a:f:demo-tenant-a",
+          "merchant_id": "B",
+          "packs": 1,
+          "unit_price": "10.4000",
+          "goods": "10.40",
+          "vat_basis": "ex_tax",
+          "lead_time_days": 1,
+          "stock_status": "in_stock",
+          "flags": [],
+          "match": {
+            "tier": "A",
+            "basis": null
+          },
+          "provenance": {
+            "offer_id": "B:sku-a:f:demo-tenant-a",
+            "source_id": "test-source",
+            "source_kind": "trade_feed",
+            "method": "file_row",
+            "synthetic": true,
+            "licence": "tenant-supplied",
+            "source_ref": "test.csv#row=1",
+            "observed_at": "2026-10-06T09:00:00+00:00",
+            "valid_until": "2026-11-06T09:00:00+00:00",
+            "confidence": "0.9",
+            "visibility": "tenant_private"
+          }
+        },
+        {
+          "line_id": "b",
+          "description": "line b",
+          "sku_id": "sku-b",
+          "offer_id": "B:sku-b:f:demo-tenant-a",
+          "merchant_id": "B",
+          "packs": 1,
+          "unit_price": "10.4000",
+          "goods": "10.40",
+          "vat_basis": "ex_tax",
+          "lead_time_days": 1,
+          "stock_status": "in_stock",
+          "flags": [],
+          "match": {
+            "tier": "A",
+            "basis": null
+          },
+          "provenance": {
+            "offer_id": "B:sku-b:f:demo-tenant-a",
+            "source_id": "test-source",
+            "source_kind": "trade_feed",
+            "method": "file_row",
+            "synthetic": true,
+            "licence": "tenant-supplied",
+            "source_ref": "test.csv#row=1",
+            "observed_at": "2026-10-06T09:00:00+00:00",
+            "valid_until": "2026-11-06T09:00:00+00:00",
+            "confidence": "0.9",
+            "visibility": "tenant_private"
+          }
+        },
+        {
+          "line_id": "c",
+          "description": "line c",
+          "sku_id": "sku-c",
+          "offer_id": "C:sku-c:f:demo-tenant-a",
+          "merchant_id": "C",
+          "packs": 1,
+          "unit_price": "10.9000",
+          "goods": "10.90",
+          "vat_basis": "ex_tax",
+          "lead_time_days": 3,
+          "stock_status": "in_stock",
+          "flags": [],
+          "match": {
+            "tier": "A",
+            "basis": null
+          },
+          "provenance": {
+            "offer_id": "C:sku-c:f:demo-tenant-a",
+            "source_id": "test-source",
+            "source_kind": "trade_feed",
+            "method": "file_row",
+            "synthetic": true,
+            "licence": "tenant-supplied",
+            "source_ref": "test.csv#row=1",
+            "observed_at": "2026-10-06T09:00:00+00:00",
+            "valid_until": "2026-11-06T09:00:00+00:00",
+            "confidence": "0.9",
+            "visibility": "tenant_private"
+          }
+        }
+      ]
+    },
+    {
+      "option_id": "preferred",
+      "kinds": [
+        "preferred"
+      ],
+      "label": "Preferred suppliers",
+      "totals": {
+        "currency": "GBP",
+        "vat_basis": "ex_tax",
+        "goods": "30.10",
+        "delivery": "10.00",
+        "subtotal": "40.10",
+        "tax_rate": "0.20",
+        "tax": "8.02",
+        "total_ex_tax": "40.10",
+        "total_inc_tax": "48.12",
+        "delivery_incomplete": false
+      },
+      "comparison": {
+        "vat_basis": "ex_tax",
+        "extra_vs_cheapest": "5.10",
+        "savings_vs_most_expensive": "1.60"
+      },
+      "merchant_count": 2,
+      "delivery_count": 2,
+      "lead_time": {
+        "latest_days": 7,
+        "complete": true,
+        "per_line": [
+          {
+            "line_id": "a",
+            "days": 1
+          },
+          {
+            "line_id": "b",
+            "days": 7
+          },
+          {
+            "line_id": "c",
+            "days": 7
+          }
+        ],
+        "unknown_line_ids": []
+      },
+      "uncovered_line_ids": [],
+      "preferred_line_ids": [
+        "c"
+      ],
+      "balanced": {
+        "score": "0.8122",
+        "score_rank": 3
+      },
+      "pareto": {
+        "dominated": true,
+        "dominated_by": [
+          "cheapest"
+        ]
+      },
+      "flags": [
+        "after_required_date",
+        "indicative_excluded"
+      ],
+      "reasons": [
+        {
+          "code": "extra_vs_lowest",
+          "text": "5.10 GBP ex VAT more than the lowest total."
+        },
+        {
+          "code": "total_within_tolerance",
+          "text": "The total is within 20% of the lowest total (limit 42.00 GBP ex VAT)."
+        },
+        {
+          "code": "deliveries_more",
+          "text": "1 more delivery(ies) than the lowest-total option (2 instead of 1)."
+        },
+        {
+          "code": "lead_same",
+          "text": "Latest lead time 7 day(s), the same as the lowest-total option."
+        },
+        {
+          "code": "preferred_coverage",
+          "text": "1 of 3 line(s) come from your preferred suppliers."
+        },
+        {
+          "code": "after_required_date",
+          "text": "Delivery is after your required-by date, or its date is unknown."
+        },
+        {
+          "code": "saves_vs_dearest",
+          "text": "1.60 GBP ex VAT less than the most expensive option shown."
+        },
+        {
+          "code": "indicative_excluded",
+          "text": "Indicative prices exist for 2 line(s) and are shown apart; they are in no option."
+        }
+      ],
+      "single_supplier": null,
+      "deliveries": [
+        {
+          "merchant_id": "A",
+          "line_ids": [
+            "a",
+            "b"
+          ],
+          "spend": "20.00",
+          "fee": "5.00",
+          "fee_known": true,
+          "vat_basis": "ex_tax"
+        },
+        {
+          "merchant_id": "P",
+          "line_ids": [
+            "c"
+          ],
+          "spend": "10.10",
+          "fee": "5.00",
+          "fee_known": true,
+          "vat_basis": "ex_tax"
+        }
+      ],
+      "lines": [
+        {
+          "line_id": "a",
+          "description": "line a",
+          "sku_id": "sku-a",
+          "offer_id": "A:sku-a:f:demo-tenant-a",
+          "merchant_id": "A",
+          "packs": 1,
+          "unit_price": "10.0000",
+          "goods": "10.00",
+          "vat_basis": "ex_tax",
+          "lead_time_days": 1,
+          "stock_status": "in_stock",
+          "flags": [],
+          "match": {
+            "tier": "A",
+            "basis": null
+          },
+          "provenance": {
+            "offer_id": "A:sku-a:f:demo-tenant-a",
+            "source_id": "test-source",
+            "source_kind": "trade_feed",
+            "method": "file_row",
+            "synthetic": true,
+            "licence": "tenant-supplied",
+            "source_ref": "test.csv#row=1",
+            "observed_at": "2026-10-06T09:00:00+00:00",
+            "valid_until": "2026-11-06T09:00:00+00:00",
+            "confidence": "0.9",
+            "visibility": "tenant_private"
+          }
+        },
+        {
+          "line_id": "b",
+          "description": "line b",
+          "sku_id": "sku-b",
+          "offer_id": "A:sku-b:f:demo-tenant-a",
+          "merchant_id": "A",
+          "packs": 1,
+          "unit_price": "10.0000",
+          "goods": "10.00",
+          "vat_basis": "ex_tax",
+          "lead_time_days": 7,
+          "stock_status": "in_stock",
+          "flags": [],
+          "match": {
+            "tier": "A",
+            "basis": null
+          },
+          "provenance": {
+            "offer_id": "A:sku-b:f:demo-tenant-a",
+            "source_id": "test-source",
+            "source_kind": "trade_feed",
+            "method": "file_row",
+            "synthetic": true,
+            "licence": "tenant-supplied",
+            "source_ref": "test.csv#row=1",
+            "observed_at": "2026-10-06T09:00:00+00:00",
+            "valid_until": "2026-11-06T09:00:00+00:00",
+            "confidence": "0.9",
+            "visibility": "tenant_private"
+          }
+        },
+        {
+          "line_id": "c",
+          "description": "line c",
+          "sku_id": "sku-c",
+          "offer_id": "P:sku-c:f:demo-tenant-a",
+          "merchant_id": "P",
+          "packs": 1,
+          "unit_price": "10.1000",
+          "goods": "10.10",
+          "vat_basis": "ex_tax",
+          "lead_time_days": 7,
+          "stock_status": "in_stock",
+          "flags": [],
+          "match": {
+            "tier": "A",
+            "basis": null
+          },
+          "provenance": {
+            "offer_id": "P:sku-c:f:demo-tenant-a",
+            "source_id": "test-source",
+            "source_kind": "trade_feed",
+            "method": "file_row",
+            "synthetic": true,
+            "licence": "tenant-supplied",
+            "source_ref": "test.csv#row=1",
+            "observed_at": "2026-10-06T09:00:00+00:00",
+            "valid_until": "2026-11-06T09:00:00+00:00",
+            "confidence": "0.9",
+            "visibility": "tenant_private"
+          }
+        }
+      ]
+    }
+  ],
+  "duplicates": [
+    {
+      "kind": "single_supplier",
+      "same_as": "cheapest",
+      "reason": {
+        "code": "same_as",
+        "text": "Same as Lowest total cost."
+      }
+    },
+    {
+      "kind": "fewest_deliveries",
+      "same_as": "cheapest",
+      "reason": {
+        "code": "same_as",
+        "text": "Same as Lowest total cost."
+      }
+    },
+    {
+      "kind": "balanced",
+      "same_as": "cheapest",
+      "reason": {
+        "code": "same_as",
+        "text": "Same as Lowest total cost."
+      }
+    }
+  ],
+  "not_shown": [],
+  "pareto": {
+    "axes": [
+      "total",
+      "latest_lead_time",
+      "merchants"
+    ],
+    "front": [
+      "cheapest",
+      "fastest"
+    ],
+    "dominated": [
+      {
+        "option_id": "preferred",
+        "dominated_by": [
+          "cheapest"
+        ]
+      }
+    ]
+  },
+  "excluded_lines": [
+    {
+      "line_id": "x",
+      "bucket": "indicative_only"
+    }
+  ],
+  "indicative_block": {
+    "label": "indicative, not a quote",
+    "note": "Indicative prices are in no option and in no total.",
+    "lines": [
+      {
+        "line_id": "a",
+        "description": "line a",
+        "label": "indicative, not a quote",
+        "low": "1.0000",
+        "high": "1.0000",
+        "unit": "each",
+        "currency": "GBP",
+        "vat_basis": "ex_tax",
+        "count": 1,
+        "oldest_observed_at": "2026-10-06T09:00:00+00:00",
+        "newest_observed_at": "2026-10-06T09:00:00+00:00",
+        "price": null
+      },
+      {
+        "line_id": "x",
+        "description": "line x",
+        "label": "indicative, not a quote",
+        "low": "2.0000",
+        "high": "2.0000",
+        "unit": "each",
+        "currency": "GBP",
+        "vat_basis": "ex_tax",
+        "count": 1,
+        "oldest_observed_at": "2026-10-06T09:00:00+00:00",
+        "newest_observed_at": "2026-10-06T09:00:00+00:00",
+        "price": null
+      }
+    ]
+  },
+  "notes": [],
+  "schema_changes": [
+    "quote-options-ui/1 is the first version.",
+    "Evolution is additive only: a later version adds optional fields, never renames, removes or re-types one, and never changes the meaning of a value. A reader must ignore keys it does not know and must not fail on a new value of a documented enum it can show as text. A reader never computes money from this export."
+  ]
+}

@@ -1,7 +1,8 @@
 """Configuration of the quote-options engine: a plain dataclass the CALLER fills.
 
 Every default below is a PLACEHOLDER, not evidence: no study of what buyers value has been done
-here. The balanced weights (50/25/15/10) and the reference values are unsourced starting points.
+here. The balanced weights (50/25/15/10) are unsourced starting points; the references (budget,
+required-by date, delivery cap) have no default at all: they come from the buyer.
 They live in this dataclass (not in code constants) so that a deployment profile can own them
 later (docs/architecture/quote-options.md, "config keys"). None of them can weaken a hard rule.
 """
@@ -10,6 +11,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, fields
+from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
 
@@ -52,18 +54,17 @@ class OptionsConfig:
     kinds: tuple[str, ...] = DEFAULT_KINDS  # which options may be shown, in this display order
     tolerance_pct: Decimal = Decimal(5)  # fewest/preferred: total at most cheapest + this percent
     fastest_tolerance_pct: Decimal | None = None  # None: use tolerance_pct
-    # Balanced score weights (relative; they are normalised). Unsourced placeholder values.
+    # Balanced option. A composite score is computed ONLY when the buyer supplies at least one of
+    # budget_total, required_by, max_deliveries (fixed references from the buyer, never taken from
+    # the generated options, so adding or removing an option cannot reorder the others).
+    budget_total: Decimal | None = None  # target total on the configured VAT basis
+    required_by: date | None = None  # latest acceptable delivery date (days counted from the clock)
+    max_deliveries: int | None = None  # most deliveries (merchant orders) the buyer will accept
+    # Weights over the ACTIVE criteria (renormalised). Unsourced placeholder values.
     weight_total: Decimal = Decimal(50)
-    weight_lead_time: Decimal = Decimal(25)  # latest delivery
+    weight_lead_time: Decimal = Decimal(25)  # latest delivery date
     weight_deliveries: Decimal = Decimal(15)
     weight_preferred: Decimal = Decimal(10)
-    # FIXED references of the balanced score (a score never depends on the other options shown):
-    # cost anchor = the optimiser's cheapest total; score 0 at the anchor, 1 at +cost_span_pct.
-    cost_span_pct: Decimal = Decimal(25)
-    target_lead_time_days: int = 2  # score 0 at or under this latest lead time
-    worst_lead_time_days: int = 14  # score 1 at or over this (and when a lead time is unknown)
-    target_deliveries: int = 1
-    worst_deliveries: int = 5
     max_options: int = 5  # most options shown
     max_search_merchants: int = 8  # merchants enumerated in subset searches (the rest are not)
     max_solver_calls: int = 64  # basket-optimiser calls allowed per search
@@ -85,19 +86,23 @@ class OptionsConfig:
             set_(self, name, _dec(getattr(self, name), name, Decimal(0), Decimal(1000)))
         if sum((getattr(self, n) for n in weights), Decimal(0)) <= 0:
             raise OptionsError("at least one balanced weight must be positive")
-        set_(self, "cost_span_pct", _dec(self.cost_span_pct, "cost_span_pct", Decimal(0),
-                                         Decimal(1000), lo_open=True))
-        _int(self.target_lead_time_days, "target_lead_time_days", 0, 365)
-        _int(self.worst_lead_time_days, "worst_lead_time_days", 1, 365)
-        _int(self.target_deliveries, "target_deliveries", 1, 50)
-        _int(self.worst_deliveries, "worst_deliveries", 2, 50)
-        if self.target_lead_time_days >= self.worst_lead_time_days:
-            raise OptionsError("target_lead_time_days must be below worst_lead_time_days")
-        if self.target_deliveries >= self.worst_deliveries:
-            raise OptionsError("target_deliveries must be below worst_deliveries")
+        if self.budget_total is not None:
+            set_(self, "budget_total", _dec(self.budget_total, "budget_total", Decimal(0),
+                                            Decimal(10) ** 12, lo_open=True))
+        if self.required_by is not None and (
+                not isinstance(self.required_by, date) or isinstance(self.required_by, datetime)):
+            raise OptionsError("required_by must be a date")
+        if self.max_deliveries is not None:
+            _int(self.max_deliveries, "max_deliveries", 1, 50)
         _int(self.max_options, "max_options", 1, 6)
         _int(self.max_search_merchants, "max_search_merchants", 1, 12)
         _int(self.max_solver_calls, "max_solver_calls", 1, 5000)
+
+    @property
+    def composite(self) -> bool:
+        """True when the buyer gave a reference, so a composite (balanced) score may be computed."""
+        return (self.budget_total is not None or self.required_by is not None
+                or self.max_deliveries is not None)
 
     @property
     def fast_tolerance(self) -> Decimal:
