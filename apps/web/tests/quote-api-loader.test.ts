@@ -174,3 +174,16 @@ describe("API quote loader", () => {
     });
   });
 });
+
+import { defaultKitInput } from "@/lib/quote/api-loader";
+describe("defaultKitInput", () => {
+  it("uses the scope's sample measurements so the API can size the lines", () => {
+    const k = defaultKitInput("bathroom_full");
+    expect(Object.keys(k.measurements).length).toBeGreaterThan(0);
+    for (const v of Object.values(k.measurements)) expect(v).toMatch(/^\d+(\.\d+)?$/);
+    expect(k.answers).toEqual({});
+  });
+  it("an unknown scope sends no measurements (the API refuses it, never a guess)", () => {
+    expect(defaultKitInput("nope").measurements).toEqual({});
+  });
+});

@@ -3,6 +3,17 @@
 // without rendering to the UI; failed or unreadable responses never become quotes.
 import { readBundle, type Bundle } from "./bundle";
 import { parseError } from "../api";
+import { bundledKits, isReady } from "../kits/catalog";
+
+export interface KitInputBody { answers: Record<string, unknown>; measurements: Record<string, string>; allowances: Record<string, string>; choices: Record<string, string>; lines: Record<string, string> }
+
+/** The kit input used when a quote is opened without the wizard: the scope's own sample measurements, template defaults for everything else
+ *  (the same starting point the wizard shows). The API needs measurements to size the lines. */
+export function defaultKitInput(scopeId: string): KitInputBody {
+  const entry = bundledKits().filter(isReady).find((e) => e.result.spec.scope.scopeId === scopeId);
+  const measurements = Object.fromEntries((entry?.result.spec.measurements ?? []).map((m) => [m.id, m.sample]));
+  return { answers: {}, measurements, allowances: {}, choices: {}, lines: {} };
+}
 
 export type BundleLoadResult =
   | { kind: "ok"; bundle: Bundle }
@@ -18,6 +29,7 @@ export async function loadBundleFromApi(
   tenantId: string,
   scopeId: string,
   token: string | null,
+  kit: KitInputBody = defaultKitInput(scopeId),
 ): Promise<BundleLoadResult> {
   try {
     // POST /v1/quotes to create/load a quote snapshot
@@ -29,7 +41,7 @@ export async function loadBundleFromApi(
       },
       body: JSON.stringify({
         scope_id: scopeId,
-        kit: { answers: {}, measurements: {}, allowances: {}, choices: {}, lines: {} },
+        kit,
       }),
     });
 
