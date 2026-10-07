@@ -1,6 +1,6 @@
 # Next-version improvement triage: ten candidates (2026-10-07)
 
-The owner supplied ten candidate improvements, each with an "Est. improvement" and a "Red-team adjusted" percentage. This document decides which are necessary for spec v0.3. Decisions are the assistant's recommendations for the owner to confirm; nothing here changes a hard rule (spec section 4, R1 to R12).
+The owner supplied ten candidate improvements, each with an "Est. improvement" and a "Red-team adjusted" percentage. This document decides which are necessary for spec v0.3. Decisions are the assistant's recommendations for the owner to confirm; nothing here changes a hard rule (spec section 4, R1 to R12). Rule numbers follow the product spec (money is R9; CLAUDE.md compresses the rules to seven and calls money rule 5). A read-only review on 2026-10-07 found hard-rule conflicts in the first draft; they are fixed below and listed in section 5.
 
 ## 0. How the decisions were made
 
@@ -16,10 +16,10 @@ The owner supplied ten candidate improvements, each with an "Est. improvement" a
 | 3 | Normalised quote comparison | **Adopt: must (finish)** | Mostly built; remaining work is exclusions, validity and split or partial deliveries (gap 3) |
 | 2 | Pre-filled RFQs from the client's own material | **Adopt: must, phased** | Biggest manual step; spreadsheets, PDFs with a text layer and pasted or forwarded email first, photos later |
 | 4 | Exceptions-only digest | **Adopt: must, as an in-app queue** | It is the gap-2 exception board; the emailed digest is deferred |
-| 1 | Tiered autonomy on approval cards | **Adopt part: must (tiered cards, one-tap approval); auto-send in shadow mode only** | One-tap approval of the exact text keeps R1; sending without per-message approval waits for the earned-autonomy review |
+| 1 | Tiered autonomy on approval cards | **Adopt part: must (tiered cards, one-tap approval of the full message); auto-send in shadow mode only, with no transport path** | One tap approves the full-MIME hash, so R1 holds; sending without per-message approval waits for the earned-autonomy review |
 | 7 | Active learning | **Adopt restricted: should** | Order and batch the review queue by value; never skip a required check |
-| 10 | Supplier memory | **Adopt restricted: should** | Hints and flags from confirmed resolutions only; never fills a critical field; no vendor scores (spec 4a) |
-| 6 | Backfill onboarding | **Adopt restricted: should** | From files the customer hands over, not by mining the mailbox; outputs wait for confirmation |
+| 10 | Supplier memory | **Adopt restricted: should** | Parsing conventions only (price basis, pack sizes, VAT habit); a default never counts as an answer; lead times stay internal (F14, spec 4a) |
+| 6 | Backfill onboarding | **Adopt restricted: should** | PO history, price files, quote PDFs and invoices only; email history waits for a counsel ruling; verbatim values only; never contact or bank data |
 | 5 | Trace-to-rule distillation | **Defer to v0.4** | No correction volume yet; auto-promotion conflicts with the matching spec; raw threads are not retained |
 | 8 | Hybrid matching with a reranker | **Defer** | Hybrid retrieval already exists; the synthetic gold set has no headroom to measure; needs real data |
 
@@ -48,15 +48,15 @@ Plus one prerequisite that is not on the list: **M0, measurement events** (secti
 - **Measure:** time from submission to a confirmed RFQ draft against manual entry; required-field accuracy at least 98% before buyer review, reported per line and per whole request (PDF chapter 17); seeded wrong lines caught at confirmation.
 
 ### 4. Exceptions-only digest: adopt, must, in-app
-- **Decision:** build it as the in-app exception queue that gap 2 needs (F24 in the spec draft): items needing a decision, with diff-first cards that show what changed since the last approved version (quote versions are immutable, so a diff exists to show). Cards carry a permitted next action.
-- **Deferred:** the emailed daily digest. The send-service is the only holder of mail credentials (R1), so an email digest needs a separate notifier port, privacy review and a decision on content. Start in-app.
+- **Decision:** build it as the in-app exception queue that gap 2 needs (F24 in the spec draft): items needing a decision, with diff-first cards that show what changed since the last approved version (quote versions are immutable, so a diff exists to show). Cards carry a permitted next action. Cards that show vendor text render it inert: no links, markup or hidden text (R6).
+- **Deferred:** the emailed daily digest. The send-service is the only holder of mail credentials and R1 bars outbound email without a recorded authorisation, whoever the recipient is, so a separate notifier would be a second sender. If an email digest is ever built it goes through the send-service as a standing-rule class, or the owner amends R1 for internal notifications. Not in v0.3.
 - **Measure:** sessions per user per day, median time to decision on an exception, and missed-exception rate on seeded cases. Stop if exceptions are rare enough that the queue adds a visit instead of removing one.
 
 ### 1. Tiered autonomy on approval cards: adopt part, shadow the rest
-- **Rule check:** R1 allows two kinds of authorisation: a per-message approval, or a standing pre-authorisation set by a human (vendor, part family, amount band, count, expiry). The existing `StandingRule` has those fields (plus its id and tenant) and no message class. The only limit on what a standing approval may send lives in code (`send_service/service.py`: a standing approval may send any non-PO purpose, and a message purpose is RFQ or PO), and no test refuses a standing approval for a PO: add that test before extending standing rules with a message class. The follow-up default is a function default, not a profile setting; move it to the profile before any chaser class exists. Spec F4 keeps follow-ups off by default, 4a limits recipients and forbids identical blasts, and F20 (earned autonomy) needs its own risk review.
-- **Must in v0.3:** risk-tiered cards. Low risk with high confidence: one tap approves the exact hashed text (still a human approval). Full review is required for new suppliers, price jumps against history, orders over the profile's threshold, any critical-attribute doubt and every substitution. First-time or changed text is shown in full on the card; a repeat of a templated message shows a diff against the last approved text with the full text one tap away.
-- **Shadow only in v0.3:** auto-send of templated, non-binding messages (acknowledgements, chasers, clarifications) as a standing-rule class. The system records "would have sent" and a human later marks each right or wrong. It sends nothing. Promotion to real auto-send is the earned-autonomy track and needs its own risk review; it is never allowed for RFQs to new suppliers, purchase orders, or anything that states money or terms.
-- **Measure:** time per approval, edit rate, share approved without expanding the text, and seeded-defect catch rate. A time saving counts only if the catch rate does not fall below the baseline.
+- **Rule check:** R1 allows two kinds of authorisation, both over the hash of the FULL message (headers, recipients, body and the R8 footer): a per-message approval, or a standing pre-authorisation set by a human (vendor, part family, amount band, count, expiry). The existing `StandingRule` has those fields (plus its id and tenant) and no message class; adding one changes the frozen `domain.py`, so it goes through `CONTRACT_CHANGES.md`. The only limit on what a standing approval may send lives in code (`send_service/service.py`: a standing approval may send any non-PO purpose, and a message purpose is RFQ or PO), and no test refuses a standing approval for a PO: add that test first. The follow-up default is a function default, not a profile setting; move it to the profile before any chaser class exists. Spec F4 keeps follow-ups off by default, 4a limits recipients and forbids identical blasts for low-value items, and F20 (earned autonomy) needs its own risk review.
+- **Must in v0.3:** risk-tiered cards. Low risk with high confidence: one tap approves the full-message hash, footer and recipients included, as a POST from an authenticated session bound to the approver, the hash and the action (R1, R11); a GET never approves. Recipients, subject and footer are always visible on the card, in diff view too. Full review is required for new suppliers, price jumps against history (threshold from the profile), orders over the profile's threshold, any critical-attribute doubt and every substitution. First-time or changed text is shown in full; a repeat of a templated message shows a diff against the last approved text with the full text one tap away.
+- **Shadow only in v0.3:** auto-send of templated, non-binding messages as a standing-rule class. "Non-binding" means a fixed list of templates with no money or terms slot. Chasers follow the F4 follow-up schedule (count and interval) and stay off by default. The shadow code has no transport import and cannot create an Approval (a static scan test enforces both, like the existing transport-import scan); it records "would have sent" and a human later marks each right or wrong. Promotion to real auto-send is the earned-autonomy track and needs its own risk review; it is never allowed for RFQs to new suppliers, purchase orders, or anything that states money or terms. The 24-hour won/lost message in spec 4a is also an outbound vendor message and needs its own class.
+- **Measure:** time per approval, edit rate, and seeded-defect catch rate. A time saving counts only if the catch rate does not fall below the baseline. The share approved without expanding the text is a rubber-stamp signal to watch, never a target.
 
 ### 7. Active learning: adopt restricted, should
 - **Scope:** order and batch the review queue and clarifying questions by value of information (spend, uncertainty, size of the match group), and offer "decide once for N similar lines" (match groups already exist). The questions cap in R4 stays.
@@ -64,15 +64,15 @@ Plus one prerequisite that is not on the list: **M0, measurement events** (secti
 - **Measure:** review minutes per quote at equal accuracy by replay, and no rise in wrong accepts.
 
 ### 10. Supplier memory: adopt restricted, should
-- **Scope:** per tenant, per supplier, per product family: observed price basis (each, per pack, per metre, per length, per 100), usual pack sizes, VAT habit, usual quote validity and delivery threshold, learned only from confirmed human resolutions and accepted quotes, with provenance. Use only to (a) pre-select a default in a clarifying question and (b) raise a flag when a new quote departs from the usual convention.
-- **Not allowed:** filling a critical field (price basis, unit, pack) silently. An unknown stays unknown until confirmed. A prior never replaces the grounding check (R6). The data is private to the tenant (R10).
-- **Spec 4a:** "no vendor performance scores are ever shown to customers or other vendors". Usual lead times therefore appear only as an "unusual against your own past orders" flag with the customer's own order dates on drill-down, never as a score, rating or ranking. **The owner should confirm this reading.**
+- **Scope:** per tenant, per supplier, per product family: how that supplier writes quotes, meaning the price basis (each, per pack, per metre, per length, per 100), usual pack sizes, VAT habit and delivery threshold, learned only from confirmed human resolutions and accepted quotes, with provenance. Use only to (a) pre-select an option in a clarifying question and (b) raise a flag when a new quote departs from the usual convention.
+- **A default never counts as an answer.** A critical field (price basis, unit, pack) needs an explicit human choice recorded as source = human, and the question still counts toward the R4 limit. A prior never satisfies a critical attribute (R3) and never replaces the grounding check (R6). An unknown stays unknown until confirmed. The data is private to the tenant (R10).
+- **Lead times and responsiveness stay internal.** Spec F14 says vendor responsiveness data is internal use only and 4a says no vendor performance scores are ever shown to customers or other vendors. A flag such as "unusual against your past orders from this supplier" would show vendor delivery performance to the customer, so it is NOT in v0.3. Lead-time history may be collected for internal use; any display to the customer needs the owner to amend F14 and 4a (default: no).
 - **Measure:** clarifications per 100 quotes, parse errors per 100 quotes, false-flag rate.
 
 ### 6. Backfill onboarding: adopt restricted, should
-- **Rule check:** mailbox OAuth is out of scope for R0 and R1 (spec 1), mailbox-derived data stays out of shared datasets (R10), raw email bodies are short-lived by default (spec 7), and the UK counsel questions are open (`docs/uk/04-counsel-and-adviser-checklist.md`).
-- **Scope:** backfill from files the customer hands over: the PO history CSV (F11), supplier price files (built), exported or forwarded quote emails and PDFs, invoices. A quarantined extractor turns them into proposed memory (product aliases, supplier conventions, last-paid prices, usual lead times). Nothing takes effect until the customer confirms it in bulk. This is also the source of the price history that item 9 needs.
-- **Not in v0.3:** reading a live mailbox.
+- **Rule check:** mailbox OAuth is out of scope for R0 and R1 (spec 1: alias only), raw email bodies are short-lived by default (spec 7: `retention.raw_email_days`), mailbox-derived data stays out of shared datasets (R10), vendor contact and remit-to changes need an admin and an out-of-band callback (R12), and the UK counsel questions on retention are open (`docs/uk/04-counsel-and-adviser-checklist.md`).
+- **Scope for v0.3:** backfill from files the customer hands over: the PO history CSV (F11), supplier price files (built), PDFs of past quotes and invoices. A quarantined extractor turns them into proposed memory (product aliases, price basis conventions, last-paid prices). Every proposal carries the verbatim span it came from (R6); normalised values are derived from that span by deterministic code. Contact, remit-to, bank and domain fields are never proposed, and bulk confirmation cannot include them. Nothing takes effect until the customer confirms it. Input files follow the profile's retention; only structured fields and short source snippets persist, as for live quotes. This is also the source of the price history that item 9 needs.
+- **Not in v0.3:** reading a live mailbox, and ingesting exported or forwarded email history, which waits for a counsel-approved retention rule.
 - **Measure:** cold-start corrections in the first 20 requests with and without backfill (design partners), and the share of proposed entries the customer confirms.
 
 ### 5. Trace-to-rule distillation: defer to v0.4
@@ -99,22 +99,28 @@ None of the claims can be validated without timings. Today the event log records
 
 ## 5. Hard-rule check
 
+All twelve rules, spec numbering. "Conditional" means the item is acceptable only if the stated condition is built and tested.
+
 | Rule | Effect of the adopted items |
 | --- | --- |
-| R1 nothing sent without authorisation | Unchanged. One-tap approval is still a human approval of the exact text hash. Auto-send is shadow only. |
-| R2 no cross-tier substitution | Strengthened by scoped substitution approvals. |
-| R3 no claim without provenance | Unchanged. Supplier memory and rule candidates never satisfy a critical attribute and never alter checks. |
-| R4 bounded questions | Unchanged. Active learning reorders; it does not remove a required question. |
-| R5 money | Unchanged. Verification checks use `Decimal` with explicit units and currency. |
-| R6 vendor and client content untrusted | Applies to the new intake sources. Shadow diff adds a second reader, it does not trust either. |
-| R7 no fetching of third-party links or sites | Unchanged. No response links, no web automation. |
-| R10 tenant isolation | Supplier memory, backfill and history are tenant-private. No mailbox-derived shared data. |
+| R1 nothing sent without authorisation | **Conditional.** Approval is of the full-message hash (recipients, subject, body, footer) from an authenticated session. Shadow auto-send has no transport import and cannot create an Approval. Standing-rule classes are fixed templates with no money or terms and are off by default. |
+| R2 no cross-tier substitution | Strengthened by scoped substitution approvals. A scoped approval is not a standing rule. |
+| R3 no claim without provenance | **Conditional.** Supplier memory defaults and rule candidates never satisfy a critical attribute; a critical field needs a human entry recorded as source = human. |
+| R4 bounded questions | Unchanged. Active learning reorders; a pre-selected default does not count as an answer and the question still counts. |
+| R5 authenticity tri-state | Unaffected. |
+| R6 vendor content untrusted | Applies to the new intake sources (client files, pasted text, backfill PDFs): quarantined extractor, verbatim grounding, inert rendering on every card that shows vendor text. Shadow diff adds a second reader and trusts neither. |
+| R7 no fetching of links or sites | **Conditional.** New PDF and email parsing runs in the no-network, antivirus sandbox. No response links, no web automation. |
+| R8 AI disclosure footer | The footer is part of the approved message and stays non-removable for every message class. |
+| R9 money safely | Verification checks use `Decimal` with explicit unit and currency. Per-order and daily aggregate caps are unchanged. |
+| R10 tenant isolation and consented sharing | Supplier memory, backfill and history are tenant-private. No mailbox-derived shared data. The export check is unchanged. |
+| R11 approval links non-forgeable | Approval is a POST from an authenticated session bound to approver, hash and action; a GET only renders. |
+| R12 vendor identity | Backfill never proposes contact, remit-to, bank or domain data. |
 
 ## 6. Decisions for the owner
 
 1. Confirm the picks and the deferrals in section 1.
-2. Confirm the reading of spec 4a for lead-time hints (flag only, never a score).
-3. Confirm that real auto-send stays out of the pilot (shadow only).
-4. Decide the channel for an eventual emailed digest (a separate notifier, not the send-service).
-5. Decide whether file-based backfill is enough for the pilot, and when to put the mailbox question to counsel.
+2. Decide whether to amend F14 and spec 4a so a customer may see lead times from their own past orders (recommended default: no, lead times stay internal).
+3. Confirm that real auto-send stays out of the pilot (shadow only, no transport path).
+4. Decide the channel for an eventual emailed digest: the send-service as a standing-rule class, or an owner amendment of R1 for internal notifications.
+5. Ask counsel whether exported or forwarded email history may be used for backfill and under what retention; until then backfill uses PO history, price files, quote PDFs and invoices.
 6. Decide the refurbishment-versus-MRO focus (`11-gap-coverage-vs-consolidated-research.md`, section 5).
