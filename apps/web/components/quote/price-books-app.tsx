@@ -1,37 +1,64 @@
 "use client";
 // Price books: which merchants have a current price for this customer, how far each covers the job, and what to do about gaps.
 // Nothing here sends anything. The request and RFQ actions open previews with a demo-only button (rule R1).
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Badge, Button, Card, EmptyState, H2, PageHeader } from "@/components/ui/ui";
 import { Modal } from "@/components/modal";
 import { cn } from "@/lib/utils";
 import { onLanding } from "@/lib/quote/prefs";
-import { loadBundle } from "@/lib/quote/catalog";
+import { loadBundle, loadBundleAsync, type BundleResult } from "@/lib/quote/catalog";
 import { IMPORT_EXAMPLE } from "@/lib/quote/example";
 import { filterMerchants, fmtDate, fixed, humanCode, gapsByMerchant, rankGaps, sortMerchants, STATUS_LABEL, STATUS_ORDER, statusCounts, type StatusFilter } from "@/lib/quote/calc";
 import type { Merchant, PriceBook, RequestDraft } from "@/lib/quote/types";
 import { CoverageBar, DataNotes, Dl, LadderPill, Limited, ReadError, ScopePicker, StatusChip, SyntheticBanner, TenantPicker, useSelection } from "./common";
+import { isMock } from "@/lib/api";
 
+type BundleLoadState = BundleResult | { kind: "loading" };
 type Dialog = { kind: "request"; merchant: Merchant; draft: RequestDraft | null } | { kind: "upload" } | { kind: "rfq" } | null;
 
 export function PriceBooksApp() {
   const [sel, setSel] = useSelection();
-  const res = useMemo(() => loadBundle(sel.tenant, sel.scope), [sel.tenant, sel.scope]);
+  const [res, setRes] = useState<BundleLoadState>(isMock() ? loadBundle(sel.tenant, sel.scope) : { kind: "loading" });
+  const [isLoading, setIsLoading] = useState(!isMock());
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [dialog, setDialog] = useState<Dialog>(null);
+
+  // Load from API in API mode
+  useEffect(() => {
+    if (!isMock()) {
+      setIsLoading(true);
+      loadBundleAsync(sel.tenant, sel.scope)
+        .then((result) => { setRes(result); setIsLoading(false); })
+        .catch((e) => { setRes({ kind: "error", key: `${sel.tenant}/${sel.scope}`, error: String(e) }); setIsLoading(false); });
+    } else {
+      setRes(loadBundle(sel.tenant, sel.scope));
+      setIsLoading(false);
+    }
+  }, [sel.tenant, sel.scope]);
+
   useEffect(() => onLanding((l) => { if (l === "rfq") setDialog({ kind: "rfq" }); }), []);
 
+  const apiMode = !isMock();
   return (
     <div data-screen="price-books">
       <PageHeader title="Price books" sub="Which merchants have a current price for you, and what is missing." actions={<Link href="/quote" className="inline-flex min-h-target items-center rounded-md border border-strong px-4 text-sm font-semibold hover:bg-sunken">Go to Quote</Link>} />
-      <SyntheticBanner />
+      {apiMode ? (
+        <p className="mb-4 rounded-md border border-accent bg-accent-soft px-3 py-2 text-sm font-medium text-accent">
+          Live data from your account
+        </p>
+      ) : (
+        <SyntheticBanner />
+      )}
       <Card className="mb-4">
         <div className="grid gap-3 sm:grid-cols-2">
-          <TenantPicker value={sel.tenant} onChange={(tenant) => setSel({ tenant })} />
+          {!apiMode && <TenantPicker value={sel.tenant} onChange={(tenant) => setSel({ tenant })} />}
           <ScopePicker value={sel.scope} onChange={(scope) => setSel({ scope })} hint="Coverage is counted against this job's lines." />
         </div>
       </Card>
+      {isLoading && <EmptyState title="Loading price book..." action={<p className="text-sm text-mute">Fetching from your account.</p>} />}
+      {res.kind === "error" && <ReadError title="Failed to load price book" errors={[res.error]} />}
+      {res.kind === "loading" && <EmptyState title="Loading..." />}
       {res.kind === "missing" && <EmptyState title="No price book for this customer and job scope yet">Generated data for {res.key} has not been added. Pick another customer or scope.</EmptyState>}
       {res.kind === "bad" && <ReadError title="The data file could not be read" errors={[res.error]} />}
       {res.kind === "ok" && !res.bundle.priceBook.ok && <ReadError title={res.bundle.priceBook.reason === "format" ? "Unsupported price book format" : "The price book could not be read"} errors={res.bundle.priceBook.errors} />}

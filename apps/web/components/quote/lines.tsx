@@ -1,9 +1,12 @@
 "use client";
 // Line sections of the quote screen. Every string from the export is rendered as plain text; URLs are never links.
+import { useState } from "react";
 import { Badge, Card, H2 } from "@/components/ui/ui";
 import { cn } from "@/lib/utils";
 import { fixed, fmtDate, humanCode, money, ratePct, type Check, type MerchantGroup } from "@/lib/quote/calc";
 import type { Candidate, FirmLine, Freshness, IndicativeItem, NoOfferItem, Quote, ReviewItem, ReviewerDecision, SkippedItem, UnmatchedItem } from "@/lib/quote/types";
+import { recordDecision } from "@/lib/quote/decisions";
+import { isMock } from "@/lib/api";
 import { Dl, Limited } from "./common";
 
 export const INDICATIVE_LABEL = "indicative, not a quote";
@@ -107,11 +110,11 @@ function FirmRow({ l, names, currency }: { l: FirmLine; names: Names; currency: 
 
 // ------------------------------------------------------------------ review queue
 
-export function ReviewSection({ items, chosen, onChoose }: { items: ReviewItem[]; chosen: Record<string, string>; onChoose: (lineId: string, sku: string) => void }) {
+export function ReviewSection({ items, quoteId, chosen, onChoose }: { items: ReviewItem[]; quoteId: string; chosen: Record<string, string>; onChoose: (lineId: string, sku: string) => void }) {
   return (
     <section aria-labelledby="review-h" data-section="review">
       <H2 aside={<Badge tone="blue">needs you, not in totals</Badge>}><span id="review-h">Review queue</span></H2>
-      <p className="mb-2 text-xs text-mute">Choosing here only changes this demo page. Nothing is saved, priced, sent or ordered, and a line stays out of the totals until a real review is recorded.</p>
+      <p className="mb-2 text-xs text-mute">{isMock() ? "Choosing here only changes this demo page. Nothing is saved, priced, sent or ordered, and a line stays out of the totals until a real review is recorded." : "Choosing a candidate records your decision with the approval system. Nothing is sent or ordered without your approval."}</p>
       {items.length === 0 && <p className="text-sm text-mute">Nothing waiting for review.</p>}
       <Limited items={items} limit={5} noun="review lines" render={(r) => {
           const pick = chosen[r.lineId];
@@ -122,24 +125,47 @@ export function ReviewSection({ items, chosen, onChoose }: { items: ReviewItem[]
               {r.question && <p className="mt-2 rounded-md bg-accent-soft p-2 text-sm break-words" data-question>{r.question}</p>}
               <Reasons reasons={r.reasons} />
               <ul className="mt-2 space-y-2">
-                {r.candidates.slice(0, 3).map((c) => <CandidateRow key={c.skuId} c={c} on={pick === c.skuId} onChoose={() => onChoose(r.lineId, c.skuId)} />)}
+                {r.candidates.slice(0, 3).map((c) => <CandidateRow key={c.skuId} c={c} on={pick === c.skuId} quoteId={quoteId} lineId={r.lineId} onChoose={() => onChoose(r.lineId, c.skuId)} />)}
               </ul>
               {r.candidates.length === 0 && <p className="mt-2 text-sm text-mute">No candidates to choose from.</p>}
-              {pick && <p role="status" className="mt-2 text-xs font-medium" data-chosen>Chosen in this demo only: {r.candidates.find((c) => c.skuId === pick)?.title}. It is not priced and nothing was saved.</p>}
+              {pick && <p role="status" className="mt-2 text-xs font-medium" data-chosen>{isMock() ? "Chosen in this demo only" : "Recorded"}: {r.candidates.find((c) => c.skuId === pick)?.title}.</p>}
             </li>
           );
         }} />
     </section>
   );
 }
-function CandidateRow({ c, on, onChoose }: { c: Candidate; on: boolean; onChoose: () => void }) {
+
+function CandidateRow({ c, on, quoteId, lineId, onChoose }: { c: Candidate; on: boolean; quoteId: string; lineId: string; onChoose: () => void }) {
+  const [deciding, setDeciding] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const choose = async () => {
+    if (isMock()) {
+      onChoose();
+      return;
+    }
+
+    setDeciding(true);
+    setError(null);
+    const result = await recordDecision(quoteId, lineId, c.skuId);
+    setDeciding(false);
+
+    if (result.kind === "ok") {
+      onChoose();
+    } else {
+      setError(result.error);
+    }
+  };
+
   return (
     <li className={cn("rounded-md border p-3", on ? "border-accent bg-accent-soft" : "border-line")} data-candidate={c.skuId}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0"><p className="break-words text-sm font-medium">{c.title}</p><p className="text-xs text-mute break-words">{c.brand} · {c.skuId} · match score {c.score}</p></div>
-        <button type="button" aria-pressed={on} onClick={onChoose} className={cn("min-h-target rounded-md border px-3 text-sm font-semibold", on ? "border-accent bg-accent text-accent-ink" : "border-strong bg-surface hover:bg-sunken")}>{on ? "Chosen (demo)" : "Choose"}</button>
+        <button type="button" aria-pressed={on} onClick={choose} disabled={deciding} className={cn("min-h-target rounded-md border px-3 text-sm font-semibold", on ? "border-accent bg-accent text-accent-ink" : "border-strong bg-surface hover:bg-sunken", deciding && "opacity-50")}>{deciding ? "Recording..." : on ? "Chosen" : "Choose"}</button>
       </div>
       {c.reasons.length > 0 && <ul className="mt-1 list-disc space-y-0.5 pl-5 text-xs text-mute">{c.reasons.map((x, i) => <li key={i} className="break-words">{x}</li>)}</ul>}
+      {error && <p className="mt-2 text-xs text-bad">{error}</p>}
     </li>
   );
 }

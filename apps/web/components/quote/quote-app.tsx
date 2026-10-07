@@ -6,12 +6,15 @@ import Link from "next/link";
 import { Card, EmptyState, PageHeader } from "@/components/ui/ui";
 import { cn } from "@/lib/utils";
 import { onLanding } from "@/lib/quote/prefs";
-import { loadBundle } from "@/lib/quote/catalog";
+import { loadBundle, loadBundleAsync, type BundleResult } from "@/lib/quote/catalog";
 import { appliedDecisions, barShares, checkQuote, groupByMerchant, partitionRows, partitionTotal, quoteForStage, type PartitionRow, type Stage } from "@/lib/quote/calc";
 import type { Quote } from "@/lib/quote/types";
 import { DataNotes, ReadError, ScopePicker, SyntheticBanner, TenantPicker, useSelection } from "./common";
 import { OptionsSection } from "./options";
 import { DecisionsPanel, FirmSection, FreshnessCard, IndicativeSection, NoOfferSection, ReviewSection, SkippedSection, TotalsCard, UnmatchedSection } from "./lines";
+import { isMock } from "@/lib/api";
+
+type BundleLoadState = BundleResult | { kind: "loading" };
 
 const TONE_BG: Record<PartitionRow["tone"], string> = { ok: "bg-ok", accent: "bg-accent", warn: "bg-warn", mute: "bg-strong", bad: "bg-bad" };
 
@@ -19,32 +22,57 @@ export function QuoteApp() {
   const [sel, setSel] = useSelection();
   const [stage, setStage] = useState<Stage>("first");
   const [chosen, setChosen] = useState<Record<string, string>>({});
-  const res = useMemo(() => loadBundle(sel.tenant, sel.scope), [sel.tenant, sel.scope]);
+  const [res, setRes] = useState<BundleLoadState>(isMock() ? loadBundle(sel.tenant, sel.scope) : { kind: "loading" });
+  const [isLoading, setIsLoading] = useState(!isMock());
+
+  // Load from API in API mode
+  useEffect(() => {
+    if (!isMock()) {
+      setIsLoading(true);
+      loadBundleAsync(sel.tenant, sel.scope)
+        .then((result) => { setRes(result); setIsLoading(false); })
+        .catch((e) => { setRes({ kind: "error", key: `${sel.tenant}/${sel.scope}`, error: String(e) }); setIsLoading(false); });
+    } else {
+      setRes(loadBundle(sel.tenant, sel.scope));
+      setIsLoading(false);
+    }
+  }, [sel.tenant, sel.scope]);
+
   useEffect(() => { setChosen({}); }, [sel.tenant, sel.scope, stage]);
   useEffect(() => onLanding((l) => { if (l === "options") setTimeout(() => document.querySelector('[data-section="options"]')?.scrollIntoView({ block: "start" }), 150); }), []);
   const choose = (lineId: string, sku: string) => setChosen((c) => { const n = { ...c }; if (n[lineId] === sku) delete n[lineId]; else n[lineId] = sku; return n; });
 
   const read = res.kind === "ok" ? quoteForStage(res.bundle, stage) : null;
+  const apiMode = !isMock();
   return (
     <div data-screen="quote">
       <PageHeader title="Quote" sub="A draft comparison of observed prices for a job. Nothing is sent or ordered." actions={<Link href="/price-books" className="inline-flex min-h-target items-center rounded-md border border-strong px-4 text-sm font-semibold hover:bg-sunken">Price books</Link>} />
-      <SyntheticBanner />
+      {apiMode ? (
+        <p className="mb-4 rounded-md border border-accent bg-accent-soft px-3 py-2 text-sm font-medium text-accent">
+          Live data from your account
+        </p>
+      ) : (
+        <SyntheticBanner />
+      )}
       <Card className="mb-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <ScopePicker value={sel.scope} onChange={(scope) => setSel({ scope })} />
-          <TenantPicker value={sel.tenant} onChange={(tenant) => setSel({ tenant })} />
+          {!apiMode && <TenantPicker value={sel.tenant} onChange={(tenant) => setSel({ tenant })} />}
         </div>
         <div className="mt-3" role="group" aria-label="Quote stage" data-stage-toggle>
           <p className="mb-1 text-sm font-medium">Stage</p>
           <div className="inline-grid w-full grid-cols-2 gap-1 rounded-lg bg-sunken p-1 sm:w-auto">
             {([["first", "First quote"], ["after", "After my reviews"]] as const).map(([k, label]) => (
-              <button key={k} type="button" aria-pressed={stage === k} onClick={() => setStage(k)} data-stage={k}
+              <button key={k} type="button" aria-pressed={stage === k} onClick={() => setStage(k)} data-stage={k} disabled={isLoading}
                 className={cn("min-h-target rounded-md px-4 text-sm font-semibold", stage === k ? "bg-surface shadow-sm ring-1 ring-strong" : "text-mute hover:text-ink")}>{label}</button>
             ))}
           </div>
           {stage === "after" && <p className="mt-1 text-xs text-mute">Shows the quote after the reviews below were applied. Those reviews are invented for the demo.</p>}
         </div>
       </Card>
+      {isLoading && <EmptyState title="Loading quote..." action={<p className="text-sm text-mute">Fetching from your account.</p>} />}
+      {res.kind === "error" && <ReadError title="Failed to load quote" errors={[res.error]} />}
+      {res.kind === "loading" && <EmptyState title="Loading..." />}
       <NoticeBar quote={read && read.ok ? read.quote : null} />
       {res.kind === "missing" && <EmptyState title="No quote for this customer and job scope yet">Generated data for {res.key} has not been added. Pick another customer or scope.</EmptyState>}
       {res.kind === "bad" && <ReadError title="The data file could not be read" errors={[res.error]} />}
@@ -84,7 +112,7 @@ function QuoteBody({ quote, bundle, stage, chosen, choose }: { quote: Quote; bun
       {stage === "after" && <DecisionsPanel rows={decisions} />}
       <OptionsSection key={`${bundle.meta.tenantId}/${bundle.meta.scopeId}/${stage}`} options={bundle.options} inputs={bundle.optionsInputs} quote={optionsQuote} names={names} stage={stage} />
       <FirmSection groups={groups} names={names} currency={quote.currency} />
-      <ReviewSection items={quote.review} chosen={chosen} onChoose={choose} />
+      <ReviewSection items={quote.review} quoteId={quote.quoteId} chosen={chosen} onChoose={choose} />
       <IndicativeSection items={quote.indicative} names={names} currency={quote.currency} />
       <UnmatchedSection items={quote.unmatched} />
       <NoOfferSection items={quote.noOffer} />

@@ -6,12 +6,13 @@ import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { bundledKits, isReady, parametersFor, type CatalogEntry, type ReadyEntry } from "@/lib/kits/catalog";
 import type { KitSpec, Scalar, Tag } from "@/lib/kits/model";
 import { isUnknownAnswer, measuredDerived, resolveKit, type Resolution } from "@/lib/kits/resolve";
-import { applyTemplate, cleanName, loadTemplates, makeTemplate, sampleTemplate, saveTemplates, templatesFor, withTemplate, type KitTemplate } from "@/lib/kits/templates";
+import { applyTemplate, cleanName, loadTemplates, makeTemplate, sampleTemplate, templatesFor, type KitTemplate } from "@/lib/kits/templates";
+import { createTemplateStore, type TemplateStore } from "@/lib/kits/template-store";
 import { currentPreset, initialWizard, lineState, STEPS, unknownIds, wizardReducer, type Step, type WizardAction, type WizardState } from "@/lib/kits/state";
 import { assumptionTexts, completeness, indicativeTotals, ledger, money, rfqDraft, type RfqDraft } from "@/lib/kits/summary";
 import Link from "next/link";
 import { rememberQuoteScope } from "@/lib/quote/prefs";
-import { isMock } from "@/lib/api";
+import { isMock, baseUrl, currentToken } from "@/lib/api";
 import { useProfile } from "@/lib/profile";
 import { Badge, Button, Card, EmptyState, ErrorNote, H2, PageHeader } from "@/components/ui/ui";
 import { cn } from "@/lib/utils";
@@ -177,7 +178,31 @@ function NavRow({ back, children }: { back?: () => void; children?: React.ReactN
 function ScopeStep({ entries, dispatch, heading }: WizardProps) {
   const ready = entries.filter(isReady);
   const [saved, setSaved] = useState<KitTemplate[]>([]);
-  useEffect(() => { setSaved(loadTemplates()); }, []);
+
+  useEffect(() => {
+    const loadSavedTemplates = async () => {
+      try {
+        const token = isMock() ? null : await currentToken();
+        const store = createTemplateStore(
+          isMock()
+            ? { mode: "local" }
+            : { mode: "api", baseUrl: baseUrl(), token }
+        );
+        const result = await store.list();
+        if (Array.isArray(result)) {
+          setSaved(result);
+        } else {
+          // Fall back to local templates if API fails
+          setSaved(loadTemplates());
+        }
+      } catch {
+        // Fall back to local templates
+        setSaved(loadTemplates());
+      }
+    };
+    loadSavedTemplates();
+  }, []);
+
   const broken = entries.filter((e) => !e.result.ok);
   return (
     <section className="space-y-3">
@@ -365,6 +390,10 @@ function PresetBar({ spec, s, dispatch }: { spec: KitSpec; s: WizardState; dispa
 
 function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardProps & { spec: KitSpec; res: Resolution; back: () => void }) {
   const [draft, setDraft] = useState<RfqDraft | null>(null);
+  const [buildingQuote, setBuildingQuote] = useState(false);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
+  const [quoteId, setQuoteId] = useState<string | null>(null);
+
   const included = res.lines.filter((x) => lineState(s.lines, x.line.id) === "include");
   const notNeeded = res.lines.filter((x) => lineState(s.lines, x.line.id) === "not_needed");
   const have = res.lines.filter((x) => lineState(s.lines, x.line.id) === "have");
@@ -375,6 +404,61 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
   const totals = indicativeTotals(res, s.lines);
   const checks = completeness(spec, s, res);
   const blocking = checks.filter((c) => c.level === "block");
+
+  const buildQuote = async () => {
+    setBuildingQuote(true);
+    setQuoteError(null);
+    setQuoteId(null);
+
+    try {
+      const token = isMock() ? null : await currentToken();
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch(`${isMock() ? "" : baseUrl()}/v1/quotes`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          scope_id: spec.scope.scopeId,
+          kit: {
+            answers: s.answers,
+            measurements: s.measurements,
+            allowances: s.allowances,
+            choices: s.choices,
+            lines: s.lines,
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+        const errMsg = (errData.error as Record<string, unknown>)?.message || `HTTP ${res.status}`;
+        setQuoteError(String(errMsg));
+        return;
+      }
+
+      const data = (await res.json()) as { id?: string };
+      if (data.id) {
+        const quoteId = data.id;
+        setQuoteId(quoteId);
+        // Navigate to quote screen
+        rememberQuoteScope(spec.scope.scopeId);
+        // In a real app, we'd use a router to navigate to /quote?id=...
+        // For now, show a message
+        setTimeout(() => {
+          window.location.href = `/quote?quote=${encodeURIComponent(quoteId)}`;
+        }, 100);
+      } else {
+        setQuoteError("No quote ID returned");
+      }
+    } catch (e) {
+      setQuoteError(`Error: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setBuildingQuote(false);
+    }
+  };
   return (
     <section className="space-y-4">
       <StepHeading heading={heading} title="Summary" sub={`${spec.scope.title}. ${included.length} lines to source${notNeeded.length + have.length ? `, ${notNeeded.length + have.length} left out` : ""}.`} />
@@ -442,11 +526,19 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
           <CompletenessPanel checks={checks} />
           <Card>
             <H2>Next</H2>
-            <p className="text-sm text-mute">An RFQ draft lists these lines for your suppliers. Nothing is sent without your approval.</p>
+            <p className="text-sm text-mute">Build a quote to explore options from your suppliers. Nothing is sent without your approval.</p>
             <div className="mt-3 flex flex-col gap-2">
               <Button type="button" onClick={() => setDraft(rfqDraft(spec, s, res))} disabled={blocking.length > 0}>Create RFQ draft</Button>
               {blocking.length > 0 && <p className="text-xs text-bad">Fix the checks marked to fix first.</p>}
-              <Link href="/quote" onClick={() => rememberQuoteScope(spec.scope.scopeId)} className="inline-flex min-h-target items-center justify-center rounded-md border border-strong px-4 py-2 text-sm font-semibold hover:bg-sunken">Build quote</Link>
+              {!isMock() ? (
+                <Button type="button" onClick={buildQuote} disabled={buildingQuote || blocking.length > 0} className="inline-flex min-h-target items-center justify-center rounded-md border border-strong px-4 py-2 text-sm font-semibold hover:bg-sunken">
+                  {buildingQuote ? "Building..." : "Build quote"}
+                </Button>
+              ) : (
+                <Link href="/quote" onClick={() => rememberQuoteScope(spec.scope.scopeId)} className="inline-flex min-h-target items-center justify-center rounded-md border border-strong px-4 py-2 text-sm font-semibold hover:bg-sunken">Build quote (demo)</Link>
+              )}
+              {quoteError && <p className="text-xs text-bad">{quoteError}</p>}
+              {quoteId && <p className="text-xs text-ok">Quote created: {quoteId}</p>}
               <Button type="button" variant="secondary" onClick={() => dispatch({ type: "go", step: "review" })}>Change something</Button>
               <Button type="button" variant="ghost" onClick={() => dispatch({ type: "reset" })}>Start a different job</Button>
             </div>
@@ -463,12 +555,36 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
 function SaveTemplate({ spec, s }: { spec: KitSpec; s: WizardState }) {
   const [name, setName] = useState("");
   const [msg, setMsg] = useState("");
-  function save() {
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
     const t = makeTemplate(spec, s, name, new Date().toISOString(), `t-${Date.now().toString(36)}`);
     if (!t) { setMsg("Give the template a name first."); return; }
-    setMsg(saveTemplates(withTemplate(loadTemplates(), t)) ? `Saved "${t.name}" as a template in this browser.` : "This browser blocked saving, so the template was not kept.");
-    setName("");
+
+    setSaving(true);
+    let store: TemplateStore;
+    try {
+      const token = isMock() ? null : await currentToken();
+      store = createTemplateStore(
+        isMock()
+          ? { mode: "local" }
+          : { mode: "api", baseUrl: baseUrl(), token }
+      );
+
+      const result = await store.put(t);
+      if (result.kind === "error") {
+        setMsg(result.error);
+      } else {
+        setMsg(`Saved "${t.name}" as a template (${store.location()}).`);
+        setName("");
+      }
+    } catch (e) {
+      setMsg(`Error saving template: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setSaving(false);
+    }
   }
+
   return (
     <Card data-save-template>
       <H2>Reuse this job</H2>
@@ -476,9 +592,9 @@ function SaveTemplate({ spec, s }: { spec: KitSpec; s: WizardState }) {
       <div className="flex flex-wrap items-end gap-2">
         <label className="min-w-48 flex-1 text-sm font-medium">Template name
           <input className="mt-1 min-h-target w-full rounded-md border border-strong bg-surface px-3 py-2 text-sm font-normal" value={name} maxLength={80} onChange={(e) => setName(e.target.value)}
-            placeholder={`${spec.scope.title}, ${new Date().getFullYear()}`} />
+            placeholder={`${spec.scope.title}, ${new Date().getFullYear()}`} disabled={saving} />
         </label>
-        <Button type="button" variant="secondary" onClick={save} disabled={!cleanName(name)}>Save as template</Button>
+        <Button type="button" variant="secondary" onClick={save} disabled={!cleanName(name) || saving}>{saving ? "Saving..." : "Save as template"}</Button>
       </div>
       {msg && <p role="status" className="mt-2 text-sm" data-template-msg>{msg}</p>}
     </Card>
