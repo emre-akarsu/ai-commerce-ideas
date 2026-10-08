@@ -15,6 +15,11 @@ import { rememberQuoteScope } from "@/lib/quote/prefs";
 import { isMock, baseUrl, currentToken } from "@/lib/api";
 import { useProfile } from "@/lib/profile";
 import { Badge, Button, Card, EmptyState, ErrorNote, H2, PageHeader } from "@/components/ui/ui";
+import { Disclosure } from "@/components/ui/disclosure";
+import { Meter } from "@/components/ui/meter";
+import { StatTile } from "@/components/ui/stat-tile";
+import { Term } from "@/components/ui/term";
+import { useSetJourneyStep } from "@/lib/journey-step";
 import { cn } from "@/lib/utils";
 import { ConfigTab } from "./config-tab";
 import { CompletenessPanel, Ledger, ModuleSection } from "./lines";
@@ -56,39 +61,24 @@ export function KitsApp() {
 
   return (
     <div>
-      <PageHeader title="Job kits" sub="Build a materials list from a job template. Defaults are filled in; you confirm or change them." />
-      <p className="mb-4 rounded-md border border-warn bg-warn-soft px-3 py-2 text-sm font-medium text-warn" data-seed-label>
-        {SEED_LABEL}. Not licensed data; quantities and prices are illustrative.
+      <PageHeader title="Job" sub="Pick the job, check the answers, get a materials list." />
+      <p className="mb-4 text-sm text-mute" data-seed-label>
+        Demo data: {SEED_LABEL}. Not licensed data; quantities and prices are illustrative.
       </p>
-      <Tabs tab={tab} setTab={setTab} />
-      <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="mt-4">
+      <div role="tabpanel" id={`panel-${tab}`} className="mt-2">
         {tab === "config" ? (
           <>
             <h2 ref={heading} tabIndex={-1} className="sr-only focus-visible:outline-none">Config</h2>
+            <Button variant="secondary" type="button" className="mb-4" onClick={() => setTab("wizard")}>Back to the job</Button>
             <ConfigTab bundled={bundled} onPreview={preview} />
           </>
         ) : (
-          <Wizard s={s} dispatch={dispatch} entries={entries} spec={spec} res={res} params={params} locale={locale} heading={heading} />
+          <>
+            <Wizard s={s} dispatch={dispatch} entries={entries} spec={spec} res={res} params={params} locale={locale} heading={heading} />
+            <div className="mt-8 border-t border-line pt-3"><button type="button" onClick={() => setTab("config")} className="min-h-target text-sm font-medium text-accent underline-offset-2 hover:underline">Advanced: edit job templates (Config)</button></div>
+          </>
         )}
       </div>
-    </div>
-  );
-}
-
-function Tabs({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
-  const tabs: Array<[Tab, string]> = [["wizard", "Wizard"], ["config", "Config"]];
-  function onKey(e: React.KeyboardEvent) {
-    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-    e.preventDefault();
-    const next = tab === "wizard" ? "config" : "wizard";
-    setTab(next); document.getElementById(`tab-${next}`)?.focus();
-  }
-  return (
-    <div role="tablist" aria-label="Job kits" className="inline-flex rounded-lg border border-line bg-sunken p-1" onKeyDown={onKey}>
-      {tabs.map(([id, label]) => (
-        <button key={id} id={`tab-${id}`} role="tab" type="button" aria-selected={tab === id} aria-controls={`panel-${id}`} tabIndex={tab === id ? 0 : -1} onClick={() => setTab(id)}
-          className={cn("min-h-target rounded-md px-4 text-sm font-semibold", tab === id ? "bg-surface text-ink shadow-sm" : "text-mute hover:text-ink")}>{label}</button>
-      ))}
     </div>
   );
 }
@@ -114,9 +104,12 @@ function Wizard(p: WizardProps) {
   const go = (step: Step) => dispatch({ type: "go", step });
   const next = () => { const n = steps[at + 1]; if (n) go(n); };
   const back = () => { const b = steps[at - 1]; if (b) go(b); };
+  const label = STEPS.find((x) => x.id === s.step)?.label ?? s.step;
+  const line = `Step ${at + 1} of ${steps.length}: ${label}`;
+  useSetJourneyStep(steps.length > 1 ? line : null);
   return (
     <div className="space-y-4">
-      <Stepper steps={steps} at={at} go={go} />
+      {steps.length > 1 && <StepLine steps={steps} at={at} label={label} />}
       {s.step === "scope" || !spec || !res ? <ScopeStep {...p} />
         : s.step === "questions" ? <QuestionsStep {...p} spec={spec} next={next} back={back} />
         : s.step === "measure" ? <MeasureStep {...p} spec={spec} next={next} back={back} />
@@ -126,31 +119,13 @@ function Wizard(p: WizardProps) {
   );
 }
 
-function Stepper({ steps, at, go }: { steps: Step[]; at: number; go: (s: Step) => void }) {
-  // Infographic track: numbered nodes joined by a progress line; earlier steps show a check and can be reopened.
-  const n = Math.max(steps.length, 1);
+/** Not a second tracker: one line of text and a thin bar. The journey tracker above carries the same words. */
+function StepLine({ steps, at, label }: { steps: Step[]; at: number; label: string }) {
   return (
-    <nav aria-label="Wizard steps" data-wizard-track>
-      <ol className="relative grid" style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
-        <span aria-hidden className="absolute top-4 h-0.5 rounded-full bg-line" style={{ left: `${50 / n}%`, right: `${50 / n}%` }} />
-        <span aria-hidden className="absolute top-4 h-0.5 rounded-full bg-accent transition-all" style={{ left: `${50 / n}%`, width: `${n > 1 ? (at / (n - 1)) * ((n - 1) / n) * 100 : 0}%` }} />
-        {steps.map((id, i) => {
-          const label = STEPS.find((x) => x.id === id)?.label ?? id;
-          const state = i < at ? "done" : i === at ? "current" : "todo";
-          return (
-            <li key={id} className="relative min-w-0">
-              <button type="button" disabled={state === "todo"} onClick={() => go(id)} aria-current={state === "current" ? "step" : undefined}
-                className="flex min-h-target w-full flex-col items-center gap-1 rounded-md px-0.5 text-center text-[11px] font-semibold disabled:cursor-default sm:text-sm">
-                <span className={cn("relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs",
-                  state === "current" ? "border-accent bg-accent text-accent-ink shadow-md" : state === "done" ? "border-accent bg-surface text-accent" : "border-strong bg-surface text-mute")}>
-                  {state === "done" ? <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 10.5l3.5 3.5 7.5-8" /></svg> : i + 1}
-                </span>
-                <span className={cn("block w-full truncate", state === "todo" ? "text-mute" : "text-ink")}>{label}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ol>
+    <nav aria-label="Wizard steps" data-wizard-track className="flex items-center gap-3">
+      <span aria-current="step" className="text-sm font-semibold">{label}</span>
+      <Meter value={at + 1} max={steps.length} text={`Step ${at + 1} of ${steps.length}`} className="max-w-48 flex-1" />
+      <span className="num text-sm text-mute">{at + 1} of {steps.length}</span>
     </nav>
   );
 }
@@ -158,8 +133,8 @@ function Stepper({ steps, at, go }: { steps: Step[]; at: number; go: (s: Step) =
 function StepHeading({ heading, title, sub }: { heading: WizardProps["heading"]; title: string; sub?: string }) {
   return (
     <div>
-      <h2 ref={heading} tabIndex={-1} data-step-heading className="scroll-mt-20 text-lg font-semibold focus-visible:outline-none">{title}</h2>
-      {sub && <p className="text-sm text-mute">{sub}</p>}
+      <h2 ref={heading} tabIndex={-1} data-step-heading className="scroll-mt-20 text-xl font-semibold focus-visible:outline-none">{title}</h2>
+      {sub && <p className="text-base text-mute">{sub}</p>}
     </div>
   );
 }
@@ -171,6 +146,16 @@ function NavRow({ back, children }: { back?: () => void; children?: React.ReactN
       <div className="flex flex-wrap items-center gap-2">{children}</div>
     </div>
   );
+}
+
+const ICONS: Record<string, string> = {
+  bathroom_wc_only: "M7 3h6v5H7zM6 8h8v3a4 4 0 0 1-8 0zM8 15v2h4v-2",
+  bathroom_cloakroom: "M4 9h12M6 9v3a4 4 0 0 0 8 0V9M10 3v3M8 5h4",
+  bathroom_full: "M3 10h14v2a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4zM5 10V5a2 2 0 0 1 4 0M6 16l-1 2M14 16l1 2",
+  bathroom_wet_room: "M10 3v3M6 6h8M7 9v1M10 9v2M13 9v1M5 14h10M4 17h12",
+};
+function ScopeIcon({ id }: { id: string }) {
+  return <svg aria-hidden viewBox="0 0 20 20" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d={ICONS[id] ?? "M4 5h12M4 10h12M4 15h8"} /></svg>;
 }
 
 // ------------------------------------------------------------------ 1. scope
@@ -204,23 +189,48 @@ function ScopeStep({ entries, dispatch, heading }: WizardProps) {
   }, []);
 
   const broken = entries.filter((e) => !e.result.ok);
+  const reuse = ready.length > 0 ? [...saved, ...ready.map((e) => sampleTemplate(e.result.spec))] : [];
   return (
-    <section className="space-y-3">
-      <StepHeading heading={heading} title="What is the job?" sub="Pick the scope closest to the work. You can change anything later." />
-      {ready.length === 0 && <EmptyState title="No job templates found">Run npm run sync-kits, or load one on the Config tab.</EmptyState>}
-      {ready.length > 0 && (
-        <Card data-templates>
-          <H2>Start from a former quote</H2>
-          <p className="mb-2 text-sm text-mute">Reuse the answers, sizes, option picks and left-out lines of an earlier job for similar work. Prices are never copied: they always come from your current price book.</p>
+    <section className="space-y-4">
+      <StepHeading heading={heading} title="What is the job?" sub="Pick the closest job. You can change anything later." />
+      {ready.length === 0 && <EmptyState title="No job templates found">Run npm run sync-kits, or load one under Advanced.</EmptyState>}
+      <ul className="grid gap-3 sm:grid-cols-2">
+        {ready.map((e) => {
+          const k = e.result.spec;
+          const lines = k.modules.reduce((n, m) => n + m.lines.length, 0);
+          return (
+            <li key={e.key} className="min-w-0">
+              <button type="button" onClick={() => dispatch({ type: "pick", kitKey: e.key, spec: k })} data-scope={k.scope.scopeId}
+                className="flex h-full min-h-32 w-full flex-col gap-2 rounded-xl border border-line bg-surface p-5 text-left shadow-card hover:border-accent hover:bg-sunken">
+                <span className="flex items-center gap-3">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent"><ScopeIcon id={k.scope.scopeId} /></span>
+                  <span className="text-lg font-semibold">{k.scope.title}</span>
+                  {e.source === "pasted" && <Badge tone="blue">Preview</Badge>}
+                </span>
+                <span className="text-sm text-mute">{k.scope.description}</span>
+                <span className="mt-auto flex flex-wrap gap-1.5 pt-1">
+                  <Badge tone="gray">{k.upfrontQuestions.length} question{k.upfrontQuestions.length === 1 ? "" : "s"}</Badge>
+                  <Badge tone="gray">{lines} lines</Badge>
+                  {k.status !== "reviewed" && <Badge tone="amber">Needs tradesperson review</Badge>}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {reuse.length > 0 && (
+        <Disclosure id="reuse" title="Reuse an earlier quote" summary={`${reuse.length} saved`}>
+          <div data-templates>
+          <p className="mb-2 text-sm text-mute">Reuses the answers, sizes and choices of an earlier job. Prices are never copied; they come from your current supplier prices.</p>
           <ul className="grid gap-2 sm:grid-cols-2">
-            {[...saved, ...ready.map((e) => sampleTemplate(e.result.spec))].map((t) => {
+            {reuse.map((t) => {
               const targets = ready.filter((e) => templatesFor(e.result.spec, [t]).length > 0 && (!t.sample || t.scopeId === e.result.spec.scope.scopeId))
                 .sort((a, b) => Number(b.result.spec.scope.scopeId === t.scopeId) - Number(a.result.spec.scope.scopeId === t.scopeId));
               if (!targets.length) return null;
               return (
-                <li key={t.id} className="min-w-0 rounded-md border border-line p-2 text-sm" data-template={t.id}>
+                <li key={t.id} className="min-w-0 rounded-lg border border-line p-3 text-sm" data-template={t.id}>
                   <span className="block break-words font-medium">{t.name}</span>
-                  <span className="block text-xs text-mute">{t.sample ? "Built-in example" : `Saved ${t.savedAt.slice(0, 10)}`}</span>
+                  <span className="block text-sm text-mute">{t.sample ? "Built-in example" : `Saved ${t.savedAt.slice(0, 10)}`}</span>
                   <span className="mt-2 flex flex-wrap gap-2">
                     {targets.map((e) => (
                       <Button key={e.key} type="button" variant="secondary" data-use-template onClick={() => {
@@ -233,32 +243,9 @@ function ScopeStep({ entries, dispatch, heading }: WizardProps) {
               );
             })}
           </ul>
-          <p className="mt-2 text-xs text-mute">Templates apply to the same scope or to the same job type. Anything the new scope does not have is left out, and you confirm the measurements next. Save a job as a template on its summary; templates are kept in this browser only.</p>
-        </Card>
+          </div>
+        </Disclosure>
       )}
-      <ul className="grid gap-3 sm:grid-cols-2">
-        {ready.map((e) => {
-          const k = e.result.spec;
-          const lines = k.modules.reduce((n, m) => n + m.lines.length, 0);
-          return (
-            <li key={e.key} className="min-w-0">
-              <button type="button" onClick={() => dispatch({ type: "pick", kitKey: e.key, spec: k })} data-scope={k.scope.scopeId}
-                className="flex h-full w-full flex-col gap-2 rounded-lg border border-line bg-surface p-4 text-left hover:border-accent hover:bg-sunken">
-                <span className="flex flex-wrap items-center gap-2">
-                  <span className="text-base font-semibold">{k.scope.title}</span>
-                  {e.source === "pasted" && <Badge tone="blue">Preview from Config</Badge>}
-                </span>
-                <span className="text-sm text-mute">{k.scope.description}</span>
-                <span className="mt-auto flex flex-wrap gap-1.5 pt-1">
-                  <Badge tone="gray">{k.upfrontQuestions.length} question{k.upfrontQuestions.length === 1 ? "" : "s"}</Badge>
-                  <Badge tone="gray">{k.modules.length} sections · {lines} lines</Badge>
-                  {k.status !== "reviewed" && <Badge tone="amber">Needs tradesperson review</Badge>}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
       {broken.map((e) => <ErrorNote key={e.key} message={`${e.origin} could not be read.`} help={!e.result.ok ? e.result.errors.slice(0, 3).join(" ") : undefined} />)}
     </section>
   );
@@ -327,34 +314,37 @@ function ReviewStep({ s, dispatch, spec, res, locale, heading, back }: WizardPro
   const items = ledger(spec, s, res);
   const checks = completeness(spec, s, res);
   const byModule = res.modules.map((m) => ({ m, lines: res.lines.filter((x) => x.module.id === m.id) }));
-  const accept = <Button type="button" onClick={() => dispatch({ type: "acceptDefaults" })}>Accept all defaults</Button>;
+  const toFix = checks.filter((c) => c.level === "block").length;
+  const toLook = checks.filter((c) => c.level === "warn").length;
+  const assumedCount = items.filter((i) => i.active).length;
+  const accept = <Button size="lg" type="button" onClick={() => dispatch({ type: "acceptDefaults" })}>Accept all defaults</Button>;
   return (
     <section className="space-y-4">
-      <StepHeading heading={heading} title="Review the kit" sub={`${res.lines.length} lines in ${res.modules.length} sections, pre-filled with the template defaults. Change only what is different on this job.`} />
-      <div className="flex flex-wrap items-center gap-2">{accept}<span className="text-sm text-mute">You can still change anything on the summary.</span></div>
-      <PresetBar spec={spec} s={s} dispatch={dispatch} />
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="min-w-0 space-y-4">
-          <Card>
-            <H2>Defaults we assumed</H2>
-            <p className="mb-3 text-sm text-mute">Tap one to change it.</p>
-            <Ledger spec={spec} items={items} answers={s.answers} allowances={s.allowances} lines={res.lines} locale={locale}
-              onAnswer={(id, v, u) => dispatch({ type: "answer", id, value: v, unknown: u })}
-              onAllowance={(id, v) => dispatch({ type: "allowance", id, value: v })}
-              onChoose={(lineId, optionId) => dispatch({ type: "choose", lineId, optionId })} />
-          </Card>
-          <div className="space-y-2">
-            <H2>Materials by section</H2>
-            {byModule.map(({ m, lines }) => (
-              <ModuleSection key={m.id} module={m} lines={lines} states={s.lines} locale={locale}
-                onState={(lineId, v) => dispatch({ type: "line", spec, lineId, value: v })}
-                onModule={(v) => dispatch({ type: "module", spec, moduleId: m.id, value: v })}
-                onChoose={(lineId, optionId) => dispatch({ type: "choose", lineId, optionId })} />
-            ))}
-          </div>
-        </div>
-        <div className="min-w-0 lg:sticky lg:top-20 lg:self-start"><CompletenessPanel checks={checks} /></div>
+      <StepHeading heading={heading} title="Check the list" sub="Pre-filled with the template defaults. Change only what is different on this job." />
+      <div className="grid grid-cols-3 gap-3" data-review-tiles>
+        <StatTile label="Lines" value={<span className="num">{res.lines.length}</span>} />
+        <StatTile label="Sections" value={<span className="num">{res.modules.length}</span>} />
+        <StatTile label="Checks" value={toFix ? <span className="num text-bad">{toFix} to fix</span> : toLook ? <span className="num text-warn">{toLook} to look at</span> : <span className="text-ok">All clear</span>} />
       </div>
+      <div className="flex flex-wrap items-center gap-3">{accept}<span className="text-sm text-mute">You can still change anything on the summary.</span></div>
+      <PresetBar spec={spec} s={s} dispatch={dispatch} />
+      <Disclosure id="assumed" title="We assumed" summary={`${assumedCount} default${assumedCount === 1 ? "" : "s"}, tap one to change it`} defaultOpen>
+        <Ledger spec={spec} items={items} answers={s.answers} allowances={s.allowances} lines={res.lines} locale={locale}
+          onAnswer={(id, v, u) => dispatch({ type: "answer", id, value: v, unknown: u })}
+          onAllowance={(id, v) => dispatch({ type: "allowance", id, value: v })}
+          onChoose={(lineId, optionId) => dispatch({ type: "choose", lineId, optionId })} />
+      </Disclosure>
+      <Disclosure id="sections" title="Materials by section" summary={`${res.lines.length} lines`}>
+        <div className="space-y-2">
+          {byModule.map(({ m, lines }) => (
+            <ModuleSection key={m.id} module={m} lines={lines} states={s.lines} locale={locale}
+              onState={(lineId, v) => dispatch({ type: "line", spec, lineId, value: v })}
+              onModule={(v) => dispatch({ type: "module", spec, moduleId: m.id, value: v })}
+              onChoose={(lineId, optionId) => dispatch({ type: "choose", lineId, optionId })} />
+          ))}
+        </div>
+      </Disclosure>
+      {(toFix > 0 || toLook > 0) && <Disclosure id="checks" title="Checks" summary={toFix ? `${toFix} to fix` : `${toLook} to look at`} defaultOpen={toFix > 0}><CompletenessPanel checks={checks} /></Disclosure>}
       <NavRow back={back}>{accept}</NavRow>
     </section>
   );
@@ -362,9 +352,9 @@ function ReviewStep({ s, dispatch, spec, res, locale, heading, back }: WizardPro
 
 const PRESETS: Array<{ tier: Tag | "defaults"; label: string; hint: string }> = [
   { tier: "budget", label: "Budget", hint: "Lowest-cost option on every line" },
-  { tier: "most_used", label: "Most used", hint: "The usual pick on every line" },
+  { tier: "most_used", label: "Standard", hint: "The usual pick on every line" },
   { tier: "premium", label: "Premium", hint: "Higher-spec option on every line" },
-  { tier: "defaults", label: "Template defaults", hint: "Undo: back to the defaults" },
+  { tier: "defaults", label: "Defaults", hint: "Undo: back to the template defaults" },
 ];
 
 /** One tap sets every line to a tier, so nobody has to choose line by line. Per-line changes afterwards still win. */
@@ -372,17 +362,16 @@ function PresetBar({ spec, s, dispatch }: { spec: KitSpec; s: WizardState; dispa
   const cur = currentPreset(spec, s);
   const custom = Object.keys(s.choices).length;
   return (
-    <Card data-presets>
-      <H2>Set every line at once</H2>
-      <p className="mb-2 text-sm text-mute">Pick a level for the whole kit. Lines with no option at that level keep their default. This replaces option picks you made line by line.</p>
-      <div role="group" aria-label="Level for every line" className="flex flex-wrap gap-2">
+    <div data-presets>
+      <p className="mb-1 flex items-center gap-1.5 text-sm font-semibold"><Term k="finish" /></p>
+      <div role="group" aria-label="Finish for every line" className="inline-flex flex-wrap gap-1 rounded-xl bg-sunken p-1">
         {PRESETS.map((p) => (
-          <Button key={p.tier} type="button" variant={cur === p.tier ? "primary" : "secondary"} aria-pressed={cur === p.tier} title={p.hint} data-preset={p.tier}
-            onClick={() => dispatch({ type: "preset", spec, tier: p.tier })}>{p.label}</Button>
+          <button key={p.tier} type="button" aria-pressed={cur === p.tier} title={p.hint} data-preset={p.tier} onClick={() => dispatch({ type: "preset", spec, tier: p.tier })}
+            className={cn("min-h-target rounded-lg px-4 text-sm font-semibold", cur === p.tier ? "bg-surface text-ink shadow-card" : "text-mute hover:text-ink")}>{p.label}</button>
         ))}
       </div>
-      {custom > 0 && <p className="mt-2 text-xs text-mute" data-custom-picks>{custom} line{custom === 1 ? " is" : "s are"} set by hand.</p>}
-    </Card>
+      {custom > 0 && <p className="mt-1 text-sm text-mute" data-custom-picks>{custom} line{custom === 1 ? " is" : "s are"} set by hand.</p>}
+    </div>
   );
 }
 
@@ -404,6 +393,7 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
   const totals = indicativeTotals(res, s.lines);
   const checks = completeness(spec, s, res);
   const blocking = checks.filter((c) => c.level === "block");
+  const lookAt = checks.filter((c) => c.level === "warn").length;
 
   const buildQuote = async () => {
     setBuildingQuote(true);
@@ -462,6 +452,11 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
   return (
     <section className="space-y-4">
       <StepHeading heading={heading} title="Summary" sub={`${spec.scope.title}. ${included.length} lines to source${notNeeded.length + have.length ? `, ${notNeeded.length + have.length} left out` : ""}.`} />
+      <div className="grid grid-cols-3 gap-3" data-summary-tiles>
+        <StatTile label="Lines to source" value={<span className="num">{included.length}</span>} />
+        <StatTile label="Left out" value={<span className="num">{notNeeded.length + have.length}</span>} />
+        <StatTile label="Checks" value={blocking.length ? <span className="num text-bad">{blocking.length} to fix</span> : lookAt ? <span className="num text-warn">{lookAt} to look at</span> : <span className="text-ok">All clear</span>} />
+      </div>
       {s.acceptedDefaults && <p className="text-sm text-mute">You accepted the defaults on review. Each one is listed below as an assumption to confirm.</p>}
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-4">
@@ -526,19 +521,16 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
           <CompletenessPanel checks={checks} />
           <Card>
             <H2>Next</H2>
-            <p className="text-sm text-mute">Build a quote to explore options from your suppliers. Nothing is sent without your approval.</p>
+            <p className="text-sm text-mute">Build the quote to see prices from your suppliers. Nothing is sent without a person approving it.</p>
             <div className="mt-3 flex flex-col gap-2">
-              <Button type="button" onClick={() => setDraft(rfqDraft(spec, s, res))} disabled={blocking.length > 0}>Create RFQ draft</Button>
-              {blocking.length > 0 && <p className="text-xs text-bad">Fix the checks marked to fix first.</p>}
               {!isMock() ? (
-                <Button type="button" onClick={buildQuote} disabled={buildingQuote || blocking.length > 0} className="inline-flex min-h-target items-center justify-center rounded-md border border-strong px-4 py-2 text-sm font-semibold hover:bg-sunken">
-                  {buildingQuote ? "Building..." : "Build quote"}
-                </Button>
+                <Button size="lg" type="button" onClick={buildQuote} disabled={buildingQuote || blocking.length > 0}>{buildingQuote ? "Building..." : "Build the quote"}</Button>
               ) : (
-                <Link href="/quote" onClick={() => rememberQuoteScope(spec.scope.scopeId)} className="inline-flex min-h-target items-center justify-center rounded-md border border-strong px-4 py-2 text-sm font-semibold hover:bg-sunken">Build quote (demo)</Link>
+                <Link href="/quote" onClick={() => rememberQuoteScope(spec.scope.scopeId)} className="inline-flex min-h-target-lg items-center justify-center rounded-lg bg-accent px-6 text-base font-semibold text-accent-ink hover:brightness-110">Build the quote</Link>
               )}
-              {quoteError && <p className="text-xs text-bad">{quoteError}</p>}
-              {quoteId && <p className="text-xs text-ok">Quote created: {quoteId}</p>}
+              {blocking.length > 0 && <p className="text-sm text-bad">Fix the checks marked to fix first.</p>}
+              {quoteError && <p className="text-sm text-bad">{quoteError}</p>}
+              {quoteId && <p className="text-sm text-ok">Quote created: {quoteId}</p>}
               <Button type="button" variant="secondary" onClick={() => dispatch({ type: "go", step: "review" })}>Change something</Button>
               <Button type="button" variant="ghost" onClick={() => dispatch({ type: "reset" })}>Start a different job</Button>
             </div>
@@ -546,7 +538,11 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
         </div>
       </div>
       <SaveTemplate spec={spec} s={s} />
-      {draft && <DraftPanel draft={draft} />}
+      <Disclosure id="advanced" title="Advanced: request data">
+        <p className="mb-2 text-sm text-mute">The data this list would hand to the request workflow. Nothing is created or sent from here.</p>
+        <Button type="button" variant="secondary" onClick={() => setDraft(rfqDraft(spec, s, res))} disabled={blocking.length > 0}>Create RFQ draft</Button>
+        {draft && <div className="mt-3"><DraftPanel draft={draft} /></div>}
+      </Disclosure>
       <NavRow back={back} />
     </section>
   );

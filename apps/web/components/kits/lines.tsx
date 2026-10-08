@@ -180,7 +180,7 @@ export function Ledger({ spec, items, answers, allowances, lines, onAnswer, onAl
                 className={cn("inline-flex min-h-target max-w-full items-center gap-1.5 rounded-full border px-3 py-1 text-left text-xs",
                   isOpen ? "border-accent bg-accent-soft" : i.changed ? "border-accent bg-surface" : "border-strong bg-surface hover:bg-sunken")}>
                 <span className="min-w-0 break-words"><span className="text-mute">{i.label.replace(/\?$/, "")}: </span><span className="font-semibold">{i.valueLabel}</span></span>
-                {i.changed && <span className="shrink-0 rounded-full bg-accent px-1.5 text-[10px] font-semibold text-accent-ink">changed</span>}
+                {i.changed && <span className="shrink-0 rounded-full bg-accent px-1.5 text-xs font-semibold text-accent-ink">changed</span>}
               </button>
             </li>
           );

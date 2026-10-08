@@ -5,6 +5,7 @@ import { api, type DecisionResult } from "@/lib/api";
 import { flagInfo, humanise } from "@/lib/flow";
 import { useQuery, errMsg } from "@/lib/store";
 import { Badge, Button, Card, ErrorNote, SkeletonRows } from "@/components/ui/ui";
+import { LABELS, matchWord } from "@/lib/labels";
 import { copy, formatDate, formatMoney, leadTimeLabel, taxBasisLabel, useProfile } from "@/lib/profile";
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
@@ -32,25 +33,26 @@ export default function ApprovePage() {
     <div className="mx-auto max-w-xl space-y-4">
       <h1 className="text-xl font-semibold md:text-2xl">{copy(profile, "approve.heading", "Approval needed")}</h1>
       <Card>
-        <p className="mb-4">{v.part_summary || "Part"} from <b>{v.vendor.name}</b></p>
-        <dl className="grid gap-4 sm:grid-cols-2">
+        <p className="text-base text-mute">{v.part_summary || "Part"} from <b className="text-ink">{v.vendor.name}</b></p>
+        <p className="num mt-2 hero-figure" data-approve-total>{money(v.total)}</p>
+        <p className="mt-1 text-sm text-mute">Total, {taxBasisLabel(profile, v.tax_basis)}</p>
+        <dl className="mt-5 grid grid-cols-2 gap-4">
           <Fact label="Quantity">{v.quantity ?? "?"}</Fact>
-          <Fact label="Unit price">{money(v.unit_price_each)} <span className="text-sm font-normal text-mute">({taxBasisLabel(profile, v.tax_basis)})</span></Fact>
-          <Fact label="Total">{money(v.total)}</Fact>
+          <Fact label="Unit price">{money(v.unit_price_each)}</Fact>
           <Fact label="Lead time">{leadTimeLabel(profile, v.lead_time_days)}</Fact>
-          <Fact label="Offered part number">{v.offered_mpn ?? "?"}</Fact>
-          <Fact label="Match tier"><Badge tone={v.offered_tier === "A" ? "green" : "amber"}>Tier {v.offered_tier}</Badge></Fact>
+          <Fact label={LABELS.match.label}><Badge tone={v.offered_tier === "A" ? "green" : "amber"}>{matchWord(v.offered_tier)}</Badge></Fact>
+          <Fact label={LABELS.part_number.label}>{v.offered_mpn ?? "?"}</Fact>
         </dl>
-        {v.flags.length > 0 && <p className="mt-4 flex flex-wrap gap-1.5" aria-label="Quote flags">{[...new Set(v.flags)].map((f) => <Badge key={f} tone="red" title={f}>{flagInfo(f).text}</Badge>)}</p>}
-        {(v.review_notes ?? []).length > 0 && <p className="mt-3 flex flex-wrap gap-1.5" aria-label="Assumptions made">{v.review_notes.map((f) => <Badge key={f} tone="amber">{humanise(f)}</Badge>)}</p>}
+        {v.flags.length > 0 && <div className="mt-5"><p className="mb-1 text-sm font-semibold">{LABELS.warning.label}s</p><p className="flex flex-wrap gap-1.5" aria-label="Quote flags">{[...new Set(v.flags)].map((f) => <Badge key={f} tone="red" title={f}>{flagInfo(f).text}</Badge>)}</p></div>}
+        {(v.review_notes ?? []).length > 0 && <div className="mt-3"><p className="mb-1 text-sm font-semibold">{LABELS.we_assumed.label}</p><p className="flex flex-wrap gap-1.5" aria-label="Assumptions made">{v.review_notes.map((f) => <Badge key={f} tone="amber">{humanise(f)}</Badge>)}</p></div>}
         {v.note && <p className="mt-3 text-sm">{v.note}</p>}
-        <p className="mt-4 text-sm text-mute">Link expires {formatDate(profile, v.expires_at)}. You must be signed in. It can be used once. Approving confirms this quote; it does not place an order.</p>
+        <p className="mt-5 text-sm text-mute">Approving confirms this quote; it does not place an order. The link can be used once and expires {formatDate(profile, v.expires_at)}. You must be signed in.</p>
       </Card>
       <ErrorNote message={err} />
       {result ? <p role="status" className="rounded-md border border-ok bg-ok-soft p-3 font-medium">Recorded: {result.decision} (request now {humanise(result.state.toLowerCase())}).</p> : (
         <div className="flex flex-col gap-3 sm:flex-row">
-          {v.action_options.includes("approve") && <Button className="w-full sm:w-auto" disabled={busy} onClick={() => decide("approve")}>Approve this quote</Button>}
-          {v.action_options.includes("decline") && <Button className="w-full sm:w-auto" variant="danger" disabled={busy} onClick={() => decide("decline")}>Decline</Button>}
+          {v.action_options.includes("approve") && <Button size="lg" className="w-full sm:w-auto" disabled={busy} onClick={() => decide("approve")}>Approve this quote</Button>}
+          {v.action_options.includes("decline") && <Button size="lg" className="w-full sm:w-auto" variant="danger" disabled={busy} onClick={() => decide("decline")}>Decline</Button>}
         </div>
       )}
     </div>

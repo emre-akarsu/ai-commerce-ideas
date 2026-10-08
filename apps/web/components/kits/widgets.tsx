@@ -164,7 +164,7 @@ export function NumberField({ id, label, unit, value, onChange, bounds, hint, co
   id: string; label: string; unit: string | null; value: string; onChange: (v: string) => void; bounds: Bounds; hint?: string; compact?: boolean;
 }) {
   const problem = numberProblem(value, bounds);
-  const btn = "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-strong bg-surface text-lg font-semibold hover:bg-sunken disabled:opacity-40";
+  const btn = "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-strong bg-surface text-lg font-semibold hover:bg-sunken disabled:opacity-40";
   return (
     <div className="min-w-0">
       <label htmlFor={`n-${id}`} className={cn("block font-medium", compact ? "text-sm" : "text-sm md:text-base")}>{label}</label>
