@@ -55,9 +55,11 @@ SHARED_STATE_TABLES = (
 )
 # Review telemetry (migration 0006); declared at the end of this module.
 REVIEW_TABLES = ("review_events", "review_drills")
+# Price history (migration 0007); declared at the end of this module.
+PRICE_HISTORY_TABLES = ("price_observations",)
 TENANT_TABLES = (
     "tenants", *ENTITY_TABLES, "rule_uses", "events", "event_heads", *STAGE2_TABLES,
-    *SHARED_STATE_TABLES, *REVIEW_TABLES,
+    *SHARED_STATE_TABLES, *REVIEW_TABLES, *PRICE_HISTORY_TABLES,
 )
 
 tenants = Table(
@@ -307,6 +309,40 @@ review_drills = Table(
         name="review_drills_expected_check",
     ),
     CheckConstraint("created_by ~ '^[0-9a-f]{64}$'", name="review_drills_created_by_check"),
+)
+
+# ---- price history (0007): see migrations/versions/0007_price_observations.py.
+# The customer's own price points (F28 clause 5). Append-only: app_user may SELECT and INSERT only.
+price_observations = Table(
+    "price_observations", metadata, _tenant_ref(),
+    Column("id", Text, nullable=False),
+    Column("item_key", Text, nullable=False),
+    Column("merchant_id", Text, nullable=False),
+    Column("unit_price", Numeric(20, 6), nullable=False),
+    Column("unit", Text, nullable=False),
+    Column("currency", Text, nullable=False),
+    Column("quantity", Numeric(20, 6), nullable=True),
+    Column("observed_at", TIMESTAMP(timezone=True), nullable=False),
+    Column("source", Text, nullable=False),
+    Column("recorded_at", TIMESTAMP(timezone=True), nullable=False, server_default=func.now()),
+    PrimaryKeyConstraint("tenant_id", "id"),
+    CheckConstraint("tenant_id <> ''", name="price_observations_tenant_nonempty"),
+    CheckConstraint(
+        "item_key ~ '^[A-Za-z0-9._:/ -]{1,80}$'",
+        name="price_observations_item_key_check",
+    ),
+    CheckConstraint(
+        "merchant_id ~ '^[A-Za-z0-9._:-]{1,64}$'",
+        name="price_observations_merchant_id_check",
+    ),
+    CheckConstraint("unit_price >= 0", name="price_observations_unit_price_check"),
+    CheckConstraint("char_length(unit) BETWEEN 1 AND 24", name="price_observations_unit_check"),
+    CheckConstraint("currency ~ '^[A-Z]{3}$'", name="price_observations_currency_check"),
+    CheckConstraint("quantity IS NULL OR quantity > 0", name="price_observations_quantity_check"),
+    CheckConstraint(
+        "source IN ('po_import', 'accepted_quote', 'price_file')",
+        name="price_observations_source_check",
+    ),
 )
 
 TABLES_BY_NAME: dict[str, Table] = dict(metadata.tables)
