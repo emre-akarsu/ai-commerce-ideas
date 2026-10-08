@@ -18,6 +18,7 @@ from .errors import (
     SourceError,
     TenantScopeError,
 )
+from .feasibility import Feasibility, FeasibilityStatus, assess_feasibility
 from .lines import AmbiguousLine, IndexBand, MatchedSku, ResolvedLine, UnmatchedLine
 from .models import (
     DeliveryTerms,
@@ -64,6 +65,8 @@ __all__ = [
     "DeliveryTier",
     "DuplicateOfferError",
     "ExcludedOffer",
+    "Feasibility",
+    "FeasibilityStatus",
     "HttpClient",
     "InMemoryOfferStore",
     "IndexBand",
@@ -106,6 +109,7 @@ __all__ = [
     "UnmatchedLine",
     "VatBasis",
     "Visibility",
+    "assess_feasibility",
     "build_quote_draft",
     "ingest",
     "optimise_basket",
