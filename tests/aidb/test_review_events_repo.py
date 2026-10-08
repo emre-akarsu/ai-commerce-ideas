@@ -1,7 +1,7 @@
 """Review telemetry repository on real Postgres (migration 0006).
 
 ``PgReviewEvents`` must give the same summary as the in-memory store for the shared scenario in
-``tests/api/test_telemetry_store.py``, keep tenants apart, refuse a whole bad batch, and let only the
+``tests/telemetry/test_store.py``, keep tenants apart, refuse a whole bad batch, and let only the
 owner/admin engine purge. Runs through the fixtures in ``conftest.py``; skips with a reason when
 Postgres is unreachable.
 """
@@ -13,7 +13,13 @@ from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from apps.api.telemetry_store import (
+from sqlalchemy import Engine, text
+from sqlalchemy.exc import DBAPIError
+
+from aidb import migrate
+from aidb.session import PrivilegedRoleError, tenant_session
+from aidb.telemetry import PgReviewEvents, purge_review_events
+from components.telemetry.store import (
     Drill,
     DrillConflictError,
     DrillResults,
@@ -21,13 +27,7 @@ from apps.api.telemetry_store import (
     ReviewEventRepository,
     Summary,
 )
-from sqlalchemy import Engine, text
-from sqlalchemy.exc import DBAPIError
-
-from aidb import migrate
-from aidb.session import PrivilegedRoleError, tenant_session
-from aidb.telemetry import PgReviewEvents, purge_review_events
-from tests.api.test_telemetry_store import (
+from tests.telemetry.test_store import (
     DRILL_CASES,
     DRILL_ORDER,
     EMPTY_DRILLS,

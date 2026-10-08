@@ -12,7 +12,8 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 import pytest
-from apps.api.telemetry_store import (
+
+from components.telemetry.store import (
     EVENTS,
     EXPECTED,
     META_KEYS,

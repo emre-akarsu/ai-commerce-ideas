@@ -1,14 +1,15 @@
 """Postgres review telemetry (migration 0006): ``review_events`` and ``review_drills``.
 
 ``PgReviewEvents(engine).for_tenant(tenant_id)`` satisfies the ``TelemetryStore`` and
-``ReviewEventRepository`` Protocols in ``apps/api/telemetry_store.py``. Every call is one
+``ReviewEventRepository`` Protocols in ``packages/components/telemetry/store.py``. Every call is one
 ``tenant_session`` transaction, and the tenant filter is also explicit in each query. ``app_user``
 may INSERT and SELECT only, so writes are insert-only.
 
-The metric rules live in ``apps/api/telemetry_store.py``. This module gathers counts, percentiles
-and drill exposures with SQL and passes them to the shared builders, so both stores report the
-same numbers. ``purge_review_events`` is the one cross-tenant operation: a retention job for the
-owner/admin engine. It is refused for any role that does not bypass row level security.
+The metric rules live in ``components/telemetry/store.py``. This module gathers counts,
+percentiles and drill exposures with SQL and passes them to the shared builders, so both stores
+report the same numbers. ``purge_review_events`` is the one cross-tenant operation: a retention
+job for the owner/admin engine. It is refused for any role that does not bypass row level
+security.
 """
 
 from __future__ import annotations
@@ -18,7 +19,10 @@ from collections.abc import Iterable
 from datetime import UTC, datetime
 from typing import Any
 
-from apps.api.telemetry_store import (
+from sqlalchemy import Connection, Engine, Row, delete, insert, select, text
+from sqlalchemy.exc import IntegrityError
+
+from components.telemetry.store import (
     FAST_APPROVAL_MS,
     Drill,
     DrillConflictError,
@@ -34,8 +38,6 @@ from apps.api.telemetry_store import (
     validate_drill,
     validate_event,
 )
-from sqlalchemy import Connection, Engine, Row, delete, insert, select, text
-from sqlalchemy.exc import IntegrityError
 
 from .models import review_drills, review_events
 from .session import tenant_session
