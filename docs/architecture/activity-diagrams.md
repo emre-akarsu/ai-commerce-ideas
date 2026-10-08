@@ -1,6 +1,6 @@
 # Activity diagrams: every module, every optimization, and where AI is used
 
-Status: 2026-10-08, read from the code at commit `9de0777`. The diagrams describe what the code does today. They are not a plan, and they say nothing about accuracy on real data: every dataset and gold set in this repository is synthetic.
+Status: 2026-10-08, read from the code at commit `7526dfd`. The diagrams describe what the code does today. They are not a plan, and they say nothing about accuracy on real data: every dataset and gold set in this repository is synthetic.
 
 Each diagram is a UML-style activity diagram drawn in Mermaid: a small dot starts it, a ringed dot ends it, a diamond is a decision, a grey bar is a fork or join (steps that run side by side). Colour says who or what acts.
 
@@ -322,15 +322,16 @@ p5 --> d1{"Family known and<br/>required attributes present?"}:::rule
 d1 -->|"no"| p6["Open question from a template, or escalate"]:::human
 p6 --> E1(((" "))):::fin
 d1 -->|"yes"| p7["Compare each candidate part with the request<br/>by the family's attribute tables"]:::rule
-p7 --> d2{"Criticality, or a mismatch<br/>on a critical attribute?"}:::rule
+p7 --> d2{"Criticality set, or a<br/>critical attribute conflicts<br/>or is unknown, or an<br/>unrecognised suffix?"}:::rule
 d2 -->|"yes"| p8["Tier D: engineering review"]:::human
-d2 -->|"no"| p9["Tier A same part<br/>B documented equivalent<br/>C rule match, hidden until unlocked"]:::rule
+d2 -->|"no"| p9["Tier A same part: same maker and part<br/>number, or a same-maker supersession<br/>B documented equivalent<br/>C marketing cross-reference or rule match,<br/>hidden until unlocked"]:::rule
 p8 --> E1
 p9 --> E2(((" "))):::fin
 ```
 
 - `packages/components/parts/` (`spec/intake.py`, `spec/designation.py`, `equivalence/engine.py`, `families/registry.py`). The families shipped are bearings and belts.
 - Tiers enabled per deployment; the default is A and B (`Settings.tiers_enabled`).
+- A same-part or supersession match is tier A unless a known conflict or criticality sends it to D.
 
 ### 3.2 rfq: the request state machine
 
@@ -356,7 +357,7 @@ r1 --> E1(((" "))):::fin
 d1 -->|"no"| d2{"Allowed by the<br/>transition table?"}:::gate
 d2 -->|"no"| r2["Refuse: IllegalTransition"]:::gate
 r2 --> E1
-d2 -->|"yes"| w3["Preconditions<br/>ESCALATED needs a reason<br/>RFQ_APPROVED, APPROVED and DECLINED need a<br/>human actor<br/>RFQ_SENT and PO_SENT need a send ref the<br/>send-service itself logged"]:::gate
+d2 -->|"yes"| w3["Preconditions<br/>ESCALATED needs a reason<br/>APPROVED and DECLINED need a human actor<br/>RFQ_APPROVED needs a human actor, or the<br/>system actor of a standing rule with its<br/>rule id<br/>RFQ_SENT and PO_SENT need a send ref the<br/>send-service itself logged"]:::gate
 w3 --> d3{"All met?"}:::rule
 d3 -->|"no"| r3["Refuse with the specific error"]:::gate
 r3 --> E1
@@ -389,9 +390,12 @@ q1 --> q2["Trusted adapter checks sender domain and<br/>DMARC alignment<br/>a fa
 q2 --> d0{"Stop request from the<br/>supplier's<br/>own authenticated domain?"}:::gate
 d0 -->|"yes"| q3["Suppress the supplier<br/>no quote is read, no state moves"]:::gate
 q3 --> E1(((" "))):::fin
-d0 -->|"no"| q4["Make the text inert<br/>hidden content, HTML, links removed: what<br/>the model reads is what the buyer sees"]:::gate
+d0 -->|"no"| d0b{"A sent RFQ exists, the<br/>request can take quotes, the<br/>text is within the size cap?"}:::gate
+d0b -->|"no"| rf["Refuse with a conflict<br/>nothing is read"]:::gate
+rf --> E1
+d0b -->|"yes"| q4["Make the text inert<br/>hidden content, HTML, links removed: what<br/>the model reads is what the buyer sees"]:::gate
 q4 --> d1{"Which reader?"}:::rule
-d1 -->|"default"| q5["Regex reader<br/>conflicting candidates blank the field"]:::rule
+d1 -->|"default"| q5["Regex reader<br/>conflicting price, currency, unit,<br/>part-number or tax-wording candidates blank<br/>the field; other fields take the first match"]:::rule
 subgraph SB[" "]
   q6["AI extractor copies up to 12 fields word for<br/>word, or null<br/>sandbox: no tools, JSON schema only"]:::ai
 end
@@ -402,8 +406,9 @@ q7 --> q8["Instruction-like phrases raise<br/>injection_suspected<br/>the flag n
 q8 --> q9["Normalise<br/>Decimal money with currency, price per each,<br/>lead time, validity, VAT basis<br/>anything unsafe becomes blank plus a flag"]:::rule
 q9 --> q10["Classify the offered part against the<br/>request<br/>tier A to D by the equivalence rules"]:::rule
 q10 --> q11["Verification layer<br/>second reading, number checks, price history"]:::rule
-q11 --> q12["Store the quote version with flags and<br/>snippets<br/>append quote.ingested and quote.verified"]:::data
-q12 --> d2{"Every sent RFQ has a<br/>usable quote?"}:::rule
+q11 --> q12["Store the quote version with flags and<br/>snippets<br/>append quote.ingested, and quote.verified<br/>when verification found something"]:::data
+q12 --> q12b["On the first quote RFQ_SENT moves to<br/>QUOTES_COLLECTING"]:::rule
+q12b --> d2{"Every sent RFQ has a<br/>usable quote?"}:::rule
 d2 -->|"yes"| q13["Move to COMPARISON_READY"]:::rule
 d2 -->|"no"| q14["Keep collecting"]:::rule
 q13 --> E2(((" "))):::fin
@@ -436,15 +441,15 @@ d1 -->|"yes"| v2["Second reading by the regex reader<br/>grounded the same way"]
 v2 --> v3["Compare the twelve fields by meaning<br/>amounts as numbers, pound sign equals GBP,<br/>lead time and validity in days"]:::rule
 v3 --> v4["A difference or a one-sided value gives<br/>readings_disagree or reading_missing<br/>nothing picks a reading"]:::gate
 d1 -->|"no"| v5
-v4 --> v5["Number checks<br/>negative or absurd values; line total, pack<br/>and VAT arithmetic when the data has them"]:::rule
+v4 --> v5["Number checks on the unit price<br/>negative, zero or absurd values; line-total,<br/>pack and VAT arithmetic exist, but quote<br/>reading gives them no input yet"]:::rule
 v5 --> d2{"Enough earlier prices of<br/>this part,<br/>same currency<br/>(min_history_points)?"}:::rule
 d2 -->|"yes"| v6["Plausibility against this customer's own<br/>history<br/>price jump, unit-basis shift (10, 12, 100,<br/>1000 times), unusual quantity"]:::rule
 d2 -->|"no"| v7
 v6 --> v7["Findings become flags<br/>review severity: verification_review forces<br/>a second person<br/>flag severity: verification_flag is shown on<br/>the approval page"]:::gate
-v7 --> v8["Append quote.verified with templated texts<br/>anything that is not plain text is replaced<br/>by not shown"]:::data
+v7 --> v8["Append quote.verified when there are<br/>findings, with templated texts<br/>anything that is not plain text is replaced<br/>by not shown"]:::data
 v8 --> E1(((" "))):::fin
 S2((" ")):::bar --> h1["A quote becomes a PO draft"]:::rule
-h1 --> h2["Store its price as one history point<br/>accepted_quote, each, ex VAT, normalised<br/>part number, this customer only"]:::data
+h1 --> h2["Store its unit price as one history point<br/>source accepted_quote, per each, filed under<br/>the normalised part number, this customer<br/>only<br/>ex VAT where the quote states its basis, as<br/>read where it does not"]:::data
 h2 --> d3{"Stored?"}:::rule
 d3 -->|"no"| h3["Append price_history.record_failed<br/>the draft still succeeds"]:::rule
 d3 -->|"yes"| E2(((" "))):::fin
@@ -586,13 +591,13 @@ classDef fin fill:#6b7280,stroke:#ffffff,color:#ffffff,stroke-width:3px
 S((" ")):::bar --> e1["Something changes<br/>a state move, a send, an approval, a price<br/>file, a tool call"]:::rule
 e1 --> e2["Build the envelope<br/>id, tenant, request, time, actor, type,<br/>non-personal payload"]:::rule
 e2 --> e3["Personal data sits under _pii<br/>a keyed HMAC digest per field is committed,<br/>not the value"]:::gate
-e3 --> e4["hash = sha256 of the previous hash plus the<br/>canonical envelope"]:::rule
-e4 --> e5["Append under a lock<br/>the state field flips only after the append<br/>succeeded"]:::data
+e3 --> e4["hash = HMAC-SHA256 with the chain key<br/>over the previous hash and the canonical<br/>envelope"]:::rule
+e4 --> e5["Append under a lock<br/>the workflow flips Request.state only after<br/>the append succeeded"]:::data
 e5 --> E1(((" "))):::fin
 S2((" ")):::bar --> w1["Worker task verify_audit_chain, per customer"]:::rule
 w1 --> d1{"Every link verifies?"}:::gate
-d1 -->|"yes"| w2["Append chain.verified with the head hash"]:::data
-d1 -->|"no"| w3["Append chain.invalid, log an error, call the<br/>alert hook"]:::gate
+d1 -->|"yes"| w2["Append audit.chain_verified with the head<br/>hash"]:::data
+d1 -->|"no"| w3["Append audit.chain_invalid, log an error,<br/>call the alert hook"]:::gate
 w2 --> E2(((" "))):::fin
 w3 --> E2
 S3((" ")):::bar --> r1["Erasure request"]:::human
@@ -601,12 +606,13 @@ r2 --> E3(((" "))):::fin
 ```
 
 - `packages/components/evidence/log.py`. Keyed digests keep low-entropy values such as email addresses from being recovered from a redacted export.
+- The chain hash is keyed: a party that can write rows but does not hold the chain key cannot forge an event that verifies.
 
 ### 3.9 doc_parse and imports: turning files into safe data
 
-**No AI in this module. The parser's output is the text a model would later be shown.**
+**No AI in this module. The parser's output is the kind of text a model would later be shown.**
 
-Two flows. An inbound message is parsed into inert text. A CSV is turned into typed rows or reasons for rejection. Neither fetches a link or runs anything.
+Two flows, both only partly wired. An inbound message can be parsed into inert text, but the worker task has no inbound storage wired in this repository. The wired CSV upload checks part numbers and counts rows.
 
 ```mermaid
 flowchart TB
@@ -618,8 +624,11 @@ classDef gate fill:#fde3e1,stroke:#b02b2b,color:#3a0d0d,stroke-width:1.5px
 classDef data fill:#dbeafe,stroke:#1d4ed8,color:#0b1f4d,stroke-width:1.5px
 classDef bar fill:#6b7280,stroke:#374151,color:#ffffff
 classDef fin fill:#6b7280,stroke:#ffffff,color:#ffffff,stroke-width:3px
-S((" ")):::bar --> i1["Inbound message arrives<br/>worker task parse_inbound_message with an<br/>opaque storage reference"]:::rule
-i1 --> i2["Fetch the raw bytes inside a per-customer<br/>database session"]:::rule
+S((" ")):::bar --> i1["Worker task parse_inbound_message<br/>with an opaque storage reference"]:::rule
+i1 --> d0{"Is an inbound storage source<br/>wired?"}:::rule
+d0 -->|"no, as in this<br/>repository"| i0["The task raises a clear error<br/>a deployment wires the source"]:::gate
+i0 --> E0(((" "))):::fin
+d0 -->|"yes"| i2["Fetch the raw bytes inside a per-customer<br/>database session"]:::rule
 i2 --> i3["Parse txt, eml, csv, xlsx or a pdf text<br/>layer<br/>size, page and row limits; no network; no<br/>link is fetched"]:::gate
 i3 --> i4["Nothing is executed<br/>xlsx formulas keep cached values; hidden and<br/>zero-width text removed"]:::gate
 i4 --> d1{"A parser exists for this<br/>type?"}:::rule
@@ -627,17 +636,19 @@ d1 -->|"no, for example pdf<br/>without pypdf"| i5["Flag unsupported:pdf_needs_s
 d1 -->|"yes"| i6["Inert text, pages, attachments, flags"]:::rule
 i5 --> i7
 i6 --> i7["Append inbound.parsed with counts only,<br/>never content"]:::data
-i7 --> i8["When set, the on_parsed hook hands the<br/>document on"]:::rule
+i7 --> i8["If the deployment set an on_parsed callback,<br/>it receives the document"]:::rule
 i8 --> E1(((" "))):::fin
-S2((" ")):::bar --> c1["CSV upload<br/>parts list, asset list, PO history,<br/>suppliers"]:::human
-c1 --> c2["Neutralise formula-injection prefixes and<br/>echo-unsafe cells"]:::gate
-c2 --> c3["Typed rows, or reject-with-reason for each<br/>row"]:::rule
-c3 --> c4["Supplier names matched to the customer's own<br/>suppliers<br/>exact on a normalised form, never fuzzy"]:::rule
-c4 --> c5["Summary: rows, accepted, rejected, errors<br/>nothing is written here; the caller persists<br/>through tenant repositories"]:::rule
+S2((" ")):::bar --> c1["Buyer uploads a CSV to the import route"]:::human
+c1 --> c2["Check the file<br/>size limit, valid UTF-8 CSV"]:::gate
+c2 --> c3["Check each row's part_number<br/>present, at most 80 characters, no control<br/>characters"]:::gate
+c3 --> c4["Count rows, accepted and rejected<br/>the first 100 errors are listed with row<br/>numbers"]:::rule
+c4 --> c5["Append import.csv with the counts<br/>nothing is persisted yet"]:::data
 c5 --> E2(((" "))):::fin
 ```
 
-- `packages/components/doc_parse/` (`parser.py`, `sandbox.py`), `packages/components/imports/`, `apps/worker/tasks.py`. Price files have their own, stricter path (see pricing).
+- `packages/components/doc_parse/` (`parser.py`, `sandbox.py`), `apps/worker/tasks.py` (the README says `inbound_source` is not wired), `PurchasingService.import_csv`.
+- Quotes reach the reading pipeline through the signed inbound webhook, which passes text straight to `ingest_inbound_reply`, not through this parser.
+- The typed importers for parts lists, asset lists and PO history (`imports/importers.py`) and the exact vendor-name matcher (`imports/vendors.py`) exist and are tested, but nothing calls them yet. The supplier CSV has its own parser in `suppliers/rules.py`, which is wired.
 
 ## 4. Modules: quote engine
 
