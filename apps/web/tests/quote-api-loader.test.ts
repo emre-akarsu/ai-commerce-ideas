@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { loadBundleFromApi, createApiQuoteLoader } from "@/lib/quote/api-loader";
 import { GENERATED } from "@/lib/quote/generated";
 
+// What GET /v1/quotes/{id}/options returns: the quote-options-ui/1 document, as a generated bundle keeps it under `quote_options`.
+const optionsDoc = () => JSON.parse(JSON.stringify(GENERATED["demo-tenant-a/full"])).quote_options;
+
 describe("API quote loader", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -14,7 +17,7 @@ describe("API quote loader", () => {
         id: "quote-123",
         quote: JSON.parse(JSON.stringify(GENERATED["demo-tenant-a/full"])).quote_first,
       };
-      const optionsData = { options: [], inputs: null };
+      const optionsData = optionsDoc();
       const priceBookData = JSON.parse(JSON.stringify(GENERATED["demo-tenant-a/full"])).price_book;
 
       mockFetch
@@ -38,6 +41,24 @@ describe("API quote loader", () => {
       if (result.kind === "ok") {
         expect(result.bundle.meta.tenantId).toBe("demo-tenant-a");
       }
+    });
+
+    it("reads the options document the API returns, not a wrapper around it", async () => {
+      // GET /v1/quotes/{id}/options answers with the quote-options-ui/1 document itself (its own `options` key is the list of
+      // options), the same document a generated bundle keeps under `quote_options`.
+      const full = JSON.parse(JSON.stringify(GENERATED["demo-tenant-a/full"]));
+      const mockFetch = vi.fn()
+        .mockResolvedValueOnce({ ok: true, json: async () => ({ id: "quote-123", quote: full.quote_first }) } as Response)
+        .mockResolvedValueOnce({ ok: true, json: async () => full.quote_options } as Response)
+        .mockResolvedValueOnce({ ok: true, json: async () => full.price_book } as Response);
+      global.fetch = mockFetch as unknown as typeof fetch;
+
+      const result = await loadBundleFromApi("http://localhost:8000", "demo-tenant-a", "bathroom_full", "token");
+      expect(result.kind).toBe("ok");
+      if (result.kind !== "ok") return;
+      const options = result.bundle.options;
+      expect(options?.ok).toBe(true);
+      if (options?.ok) expect(options.set.options.length).toBeGreaterThan(0);
     });
 
     it("returns error for failed API call", async () => {
@@ -79,7 +100,7 @@ describe("API quote loader", () => {
         } as Response)
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => ({ options: [], inputs: null, extra: "ok" }),
+          json: async () => ({ ...optionsDoc(), extra: "ok" }),
         } as Response)
         .mockResolvedValueOnce({
           ok: true,
@@ -99,7 +120,7 @@ describe("API quote loader", () => {
         id: "quote-123",
         quote: JSON.parse(JSON.stringify(GENERATED["demo-tenant-a/full"])).quote_first,
       };
-      const optionsData = { options: [], inputs: null };
+      const optionsData = optionsDoc();
       const priceBookData = JSON.parse(JSON.stringify(GENERATED["demo-tenant-a/full"])).price_book;
 
       mockFetch
@@ -155,7 +176,7 @@ describe("API quote loader", () => {
         } as Response)
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => ({ options: [], inputs: null }),
+          json: async () => optionsDoc(),
         } as Response)
         .mockResolvedValueOnce({
           ok: true,

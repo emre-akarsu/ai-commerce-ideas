@@ -100,8 +100,10 @@ export async function loadBundleFromApi(
       quote_first: quoteData.quote,
       quote_after_review: quoteData.quote,
       reviewer_decisions: [],
-      quote_options: optionsData.options || null,
-      options_inputs: optionsData.inputs || null,
+      // The options endpoint answers with the quote-options-ui/1 document itself (its own `options` key is the list of options).
+      // The buyer's references go to the API as query parameters, which this screen does not send, so there are no inputs to show.
+      quote_options: optionsData ?? null,
+      options_inputs: null,
     };
 
     // Read and validate using the existing reader (tolerant of extra keys)

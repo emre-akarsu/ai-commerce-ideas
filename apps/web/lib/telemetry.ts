@@ -11,12 +11,17 @@ export type ReviewEventName = (typeof EVENTS)[number];
 export interface ReviewEventIn { surface: Surface; subject_id: string; event: ReviewEventName; duration_ms?: number; meta?: Record<string, string | number> }
 
 const META_KEYS = new Set(["risk_tier", "drill_id", "position"]);
+// The API refuses a whole batch (422) for one subject id outside this shape (packages/components/telemetry/store.py SUBJECT_RE).
+const SUBJECT = /^[A-Za-z0-9._:-]{1,64}$/;
+
+/** A subject id built from parts, for example the kinds of options on screen: joined with ":", any other character made "_", at most 64 long. */
+export function subjectOf(parts: readonly string[]): string { return parts.join(":").replace(/[^A-Za-z0-9._:-]/g, "_").slice(0, 64); }
 const MAX_BATCH = 50;
 
 /** Drops anything outside the closed vocabulary; returns null when the event itself is not allowed. */
 export function sanitise(e: ReviewEventIn): ReviewEventIn | null {
   if (!SURFACES.includes(e.surface) || !EVENTS.includes(e.event)) return null;
-  if (typeof e.subject_id !== "string" || e.subject_id.length === 0 || e.subject_id.length > 80) return null;
+  if (typeof e.subject_id !== "string" || !SUBJECT.test(e.subject_id)) return null;
   const meta: Record<string, string | number> = {};
   for (const [k, v] of Object.entries(e.meta ?? {})) if (META_KEYS.has(k) && (typeof v === "number" ? Number.isInteger(v) : typeof v === "string" && v.length <= 40)) meta[k] = v;
   const d = e.duration_ms;

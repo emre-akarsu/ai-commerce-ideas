@@ -38,7 +38,7 @@ describe("loadBundleFromApi remembers the quote it created", () => {
     const quote = JSON.parse(JSON.stringify(GENERATED["demo-tenant-a/full"])).quote_first;
     const mockFetch = vi.fn()
       .mockResolvedValueOnce({ ok: true, json: async () => ({ id: "quote-77", quote }) } as Response)
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ options: [], inputs: null }) } as Response)
+      .mockResolvedValueOnce({ ok: true, json: async () => JSON.parse(JSON.stringify(GENERATED["demo-tenant-a/full"])).quote_options } as Response)
       .mockResolvedValueOnce({ ok: true, json: async () => JSON.parse(JSON.stringify(GENERATED["demo-tenant-a/full"])).price_book } as Response);
     global.fetch = mockFetch as unknown as typeof fetch;
 

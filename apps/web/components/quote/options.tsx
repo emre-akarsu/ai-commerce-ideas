@@ -3,7 +3,7 @@
 // is fixed and is not a recommendation. "Select this option" only changes local state on this page: nothing is ordered or sent.
 // Indicative prices are listed apart from every option. Every string from data is plain React text.
 import { useEffect, useState } from "react";
-import { emitReviewEvent, emitShownOnce } from "@/lib/telemetry";
+import { emitReviewEvent, emitShownOnce, subjectOf } from "@/lib/telemetry";
 import { Badge, Card, H2 } from "@/components/ui/ui";
 import { Disclosure } from "@/components/ui/disclosure";
 import { OptionTable } from "@/components/charts/option-table";
@@ -35,7 +35,7 @@ export function OptionsSection({ options, inputs, quote, names, stage }: { optio
 function OptionsBody({ set, inputs, quote, names, stage, selected, setSelected }: { set: OptionSetView; inputs: OptionsInputs | null; quote: Quote; names: Names; stage: "first" | "after"; selected: string | null; setSelected: (id: string | null) => void }) {
   const notes = optimiserNotes(set);
   const chosen = set.options.find((o) => o.optionId === selected) ?? null;
-  useEffect(() => { if (set.options.length > 0) emitShownOnce("comparison", set.options.map((o) => o.optionId).join("+").slice(0, 80)); }, [set]);
+  useEffect(() => { if (set.options.length > 0) emitShownOnce("comparison", subjectOf(set.options.map((o) => o.optionId))); }, [set]);
   return (
     <>
       <p className="text-base text-mute" data-options-intro>Ways to buy the same confirmed lines from the prices on file (not a market-wide best price). Nothing is chosen for you.</p>
