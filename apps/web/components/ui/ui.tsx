@@ -1,5 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { LABELS } from "@/lib/labels";
+import { InfoTip } from "./info-tip";
 
 type Variant = "primary" | "secondary" | "danger" | "ghost";
 type Size = "md" | "lg";
@@ -71,9 +73,10 @@ export function PageHeader({ title, sub, actions }: { title: string; sub?: React
 export function H2({ children, aside }: { children: React.ReactNode; aside?: React.ReactNode }) {
   return <div className="mb-2 flex items-baseline justify-between gap-2"><h2 className="text-base font-semibold">{children}</h2>{aside}</div>;
 }
+/** One slim line at the top in the demo build; the full wording is behind the info button. */
 export function MockBanner() {
   return process.env.NEXT_PUBLIC_API_MOCK === "1"
-    ? <p className="bg-warn-soft px-4 py-1.5 text-center text-xs font-medium text-warn">Demo with synthetic data: not real parts, prices or suppliers. Nothing is sent.</p>
+    ? <p data-demo-ribbon className="flex min-h-8 items-center justify-center gap-2 bg-warn-soft px-4 text-sm font-medium text-warn"><span>Demo data. Nothing is sent.</span><span className="ml-2"><InfoTip text={LABELS.demo_data.tip} label="About demo data" /></span></p>
     : null;
 }
 export function Spinner() { return <span aria-hidden className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />; }

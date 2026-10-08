@@ -12,19 +12,25 @@ import { can, humanise, type Capability, type Role } from "@/lib/flow";
 import type { RequestView } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { JourneyBar, JourneyNav } from "@/components/journey";
+import { label } from "@/lib/labels";
+import { askForNewRequest } from "@/lib/new-request";
 
-interface NavItem { href: string; label: string; short: string; cap?: Capability; key: string }
+interface NavItem { href: string; label: string; short: string; cap?: Capability; key: string; also?: readonly string[] }
+// Six destinations. "Quote a job" is the whole buying journey (Job, Prices, Quote, Compare, Ask suppliers).
 const NAV: NavItem[] = [
-  { href: "/", label: "Inbox", short: "Inbox", key: "i" },
-  { href: "/requests", label: "Requests", short: "Requests", key: "r" },
-  { href: "/vendors", label: "Suppliers", short: "Suppliers", key: "s" },
-  { href: "/kits", label: "Job kits", short: "Kits", key: "t" },
-  { href: "/price-books", label: "Price books", short: "Prices", key: "p" },
-  { href: "/quote", label: "Quote", short: "Quote", key: "q" },
-  { href: "/setup", label: "Setup", short: "Setup", cap: "view_setup", key: "u" },
-  { href: "/audit", label: "Audit", short: "Audit", cap: "view_audit", key: "a" },
+  { href: "/", label: label("home"), short: label("home"), key: "i" },
+  { href: "/kits", label: label("quote_a_job"), short: "Quote", key: "t", also: ["/price-books", "/quote"] },
+  { href: "/requests", label: label("requests"), short: label("requests"), key: "r" },
+  { href: "/vendors", label: label("suppliers"), short: label("suppliers"), key: "s" },
+  { href: "/setup", label: label("setup"), short: label("setup"), cap: "view_setup", key: "u" },
+  { href: "/audit", label: label("activity"), short: label("activity"), cap: "view_audit", key: "a" },
 ];
-const isActive = (path: string, href: string) => (href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`));
+// Extra g-chords and palette entries for the journey stages and the old letters, so no shortcut is lost.
+const EXTRA_GO: Array<{ key: string; href: string; label: string }> = [
+  { key: "p", href: "/price-books", label: `Go to ${label("stage_prices")}` },
+  { key: "q", href: "/quote", label: `Go to ${label("stage_quote")}` },
+];
+const isActive = (path: string, n: NavItem) => (n.href === "/" ? path === "/" : [n.href, ...(n.also ?? [])].some((h) => path === h || path.startsWith(`${h}/`)));
 const typing = (t: EventTarget | null): boolean => {
   const el = t as HTMLElement | null;
   return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable);
@@ -35,7 +41,7 @@ interface Cmd { id: string; label: string; hint?: string; run: () => void }
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
-  const { role, label, setRole } = useSession();
+  const { role, label: who, setRole } = useSession();
   const profile = useProfile();
   const needs = useNeedsYouCount();
   const [palette, setPalette] = useState(false);
@@ -43,6 +49,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const chord = useRef<{ g: boolean; t: ReturnType<typeof setTimeout> | null }>({ g: false, t: null });
 
   const go = useCallback((href: string) => { setPalette(false); router.push(href); }, [router]);
+  const openNew = useCallback(() => { setPalette(false); if (path !== "/") router.push("/"); askForNewRequest(); }, [router, path]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -50,10 +57,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       if (e.ctrlKey || e.metaKey || e.altKey || typing(e.target) || document.querySelector('[role="dialog"]')) return;
       if (e.key === "/") { e.preventDefault(); setPalette(true); return; }
       if (e.key === "?") { e.preventDefault(); setHelp(true); return; }
-      if (e.key === "n") { e.preventDefault(); go("/#new"); return; }
+      if (e.key === "n") { e.preventDefault(); openNew(); return; }
       if (chord.current.g) {
         chord.current.g = false; if (chord.current.t) clearTimeout(chord.current.t);
-        const hit = NAV.find((n) => n.key === e.key);
+        const hit = NAV.find((n) => n.key === e.key) ?? EXTRA_GO.find((n) => n.key === e.key);
         if (hit) { e.preventDefault(); go(hit.href); }
         return;
       }
@@ -61,14 +68,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go]);
+  }, [go, openNew]);
 
   // The approver arrives from an emailed link: a bare page with no navigation to other areas.
   if (path.startsWith("/approve/")) {
     return (
       <div className="min-h-screen">
         <MockBanner />
-        <header className="border-b border-line bg-surface px-4 py-3"><p className="mx-auto max-w-xl text-sm font-semibold">Buy-side RFQ: approval</p></header>
+        <header className="border-b border-line bg-surface px-4 py-3"><p className="mx-auto max-w-xl text-base font-semibold">Approve a quote</p></header>
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-xl px-4 py-6 outline-none">{children}</main>
       </div>
     );
@@ -77,22 +84,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen md:grid md:grid-cols-[232px_minmax(0,1fr)]">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-surface focus:px-3 focus:py-2">Skip to content</a>
       <aside className="sticky top-0 hidden h-screen flex-col border-r border-line bg-surface md:flex">
-        <div className="px-4 py-4"><p className="text-sm font-semibold tracking-tight">Buy-side RFQ</p><p className="text-xs text-mute">Quotes from your own suppliers</p></div>
+        <div className="px-4 py-4"><p className="text-base font-semibold tracking-tight">Buy-side RFQ</p><p className="text-sm text-mute">Quotes from your suppliers</p></div>
         <nav aria-label="Main" className="flex-1 space-y-0.5 px-2">
           {NAV.map((n) => {
             const gate = n.cap ? can(role, n.cap) : { ok: true as const };
             return (
-              <Link key={n.href} href={n.href} aria-current={isActive(path, n.href) ? "page" : undefined}
-                className={cn("flex min-h-target items-center justify-between rounded-md px-3 text-sm font-medium hover:bg-sunken", isActive(path, n.href) && "bg-accent-soft text-accent")}>
+              <Link key={n.href} href={n.href} aria-current={isActive(path, n) ? "page" : undefined}
+                className={cn("flex min-h-target items-center justify-between rounded-lg px-3 text-sm font-medium hover:bg-sunken", isActive(path, n) && "bg-accent-soft text-accent")}>
                 <span>{n.label}</span>
                 {n.href === "/" && needs !== null && needs > 0 && <Badge tone="blue">{needs}</Badge>}
-                {!gate.ok && <span className="text-xs text-mute" title={gate.reason}>admin</span>}
+                {!gate.ok && <span className="text-xs text-mute" title={gate.reason}>Admin only</span>}
               </Link>
             );
           })}
         </nav>
         <div className="space-y-2 border-t border-line p-3 text-xs text-mute">
-          <p>Profile <span className="font-mono text-ink">{profile.id}@{profile.digest.slice(0, 8) || "default"}</span></p>
+          <p>Profile <span className="font-mono text-ink">{profile.id}</span></p>
           <p>Press <Kbd>?</Kbd> for shortcuts</p>
         </div>
       </aside>
@@ -100,7 +107,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-w-0 flex-col">
         <MockBanner />
         <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur">
-          <p className="text-sm font-semibold md:hidden">Buy-side RFQ</p>
+          <p className="text-base font-semibold md:hidden">Buy-side RFQ</p>
           <button onClick={() => setPalette(true)} className="ml-auto flex min-h-target items-center gap-2 rounded-md border border-strong bg-surface px-3 text-sm text-mute hover:bg-sunken md:ml-0 md:min-w-72" aria-label="Search or jump to anything">
             <span>Search or jump</span><span className="ml-auto hidden md:inline"><Kbd>Ctrl</Kbd> <Kbd>K</Kbd></span>
           </button>
@@ -111,44 +118,46 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <option value="requester">Requester</option><option value="buyer">Buyer</option><option value="admin">Admin</option>
                 </select>
               </label>
-            ) : <Badge tone="gray">{humanise(role)}{label ? ` · ${label}` : ""}</Badge>}
+            ) : <Badge tone="gray">{humanise(role)}{who ? ` · ${who}` : ""}</Badge>}
           </div>
         </header>
         <JourneyNav />
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-5xl flex-1 px-4 py-5 pb-28 outline-none md:px-6 md:pb-10">{children}<JourneyBar /></main>
       </div>
 
-      <nav aria-label="Main (mobile)" className="fixed inset-x-0 bottom-0 z-30 flex overflow-x-auto border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
+      <nav aria-label="Main (mobile)" className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
         {NAV.map((n) => (
-          <Link key={n.href} href={n.href} aria-current={isActive(path, n.href) ? "page" : undefined}
-            className={cn("flex min-h-14 min-w-[4.5rem] flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium", isActive(path, n.href) ? "text-accent" : "text-mute")}>
+          <Link key={n.href} href={n.href} aria-current={isActive(path, n) ? "page" : undefined}
+            className={cn("relative flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 text-xs font-medium", isActive(path, n) ? "text-accent" : "text-mute")}>
+            {isActive(path, n) && <span aria-hidden className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-accent" />}
             <span>{n.short}</span>
-            {n.href === "/" && needs !== null && needs > 0 && <span className="rounded-full bg-accent px-1.5 text-[10px] text-accent-ink">{needs}</span>}
+            {n.href === "/" && needs !== null && needs > 0 && <span className="rounded-full bg-accent px-1.5 text-xs text-accent-ink">{needs}</span>}
           </Link>
         ))}
       </nav>
 
-      <Palette open={palette} onClose={() => setPalette(false)} go={go} role={role} />
+      <Palette open={palette} onClose={() => setPalette(false)} go={go} openNew={openNew} role={role} />
       <ShortcutHelp open={help} onClose={() => setHelp(false)} />
     </div>
   );
 }
 
-function Palette({ open, onClose, go, role }: { open: boolean; onClose: () => void; go: (href: string) => void; role: Role }) {
+function Palette({ open, onClose, go, openNew, role }: { open: boolean; onClose: () => void; go: (href: string) => void; openNew: () => void; role: Role }) {
   const [q, setQ] = useState("");
   const [i, setI] = useState(0);
   useEffect(() => { if (open) { setQ(""); setI(0); } }, [open]);
   const cmds = useMemo<Cmd[]>(() => {
-    const out: Cmd[] = [{ id: "new", label: "New request", hint: "n", run: () => go("/#new") }];
+    const out: Cmd[] = [{ id: "new", label: "New request", hint: "n", run: openNew }];
     for (const n of NAV) {
       const g = n.cap ? can(role, n.cap) : { ok: true as const };
       out.push({ id: `go-${n.href}`, label: `Go to ${n.label}`, hint: `g ${n.key}`, run: () => go(n.href) });
       void g;
     }
+    for (const x of EXTRA_GO) out.push({ id: `go-${x.href}`, label: x.label, hint: `g ${x.key}`, run: () => go(x.href) });
     const reqs = (open ? peek<RequestView[]>("requests") : undefined) ?? [];
     for (const r of reqs.slice(0, 12)) out.push({ id: `rq-${r.id}`, label: `Open ${r.id}: ${humanise(r.family ?? "request")} x${r.quantity ?? "?"}`, hint: humanise(r.state.toLowerCase()), run: () => go(`/requests/${r.id}`) });
     return out;
-  }, [go, role, open]);
+  }, [go, openNew, role, open]);
   const shown = cmds.filter((c) => c.label.toLowerCase().includes(q.trim().toLowerCase()));
   useEffect(() => { setI(0); }, [q]);
   function onKey(e: React.KeyboardEvent) {
@@ -176,7 +185,7 @@ function Palette({ open, onClose, go, role }: { open: boolean; onClose: () => vo
 
 function ShortcutHelp({ open, onClose }: { open: boolean; onClose: () => void }) {
   const rows: Array<[string, string]> = [
-    ["Ctrl/Cmd K or /", "Search or jump"], ["n", "New request"], ["g then i / r / s / t / p / q / u / a", "Go to Inbox / Requests / Suppliers / Job kits / Price books / Quote / Setup / Audit"],
+    ["Ctrl/Cmd K or /", "Search or jump"], ["n", "New request"], ["g then i / t / p / q / r / s / u / a", "Go to Home / Job / Prices / Quote / Requests / Suppliers / Setup / Activity"],
     ["j and k", "Move down and up a list"], ["Enter", "Open the focused item"], [".", "Focus the next-action button (it never presses it)"],
     ["Esc", "Close a dialog"], ["?", "This help"],
   ];
@@ -187,7 +196,7 @@ function ShortcutHelp({ open, onClose }: { open: boolean; onClose: () => void })
         <dl className="space-y-2 text-sm">
           {rows.map(([k, d]) => <div key={k} className="flex justify-between gap-4"><dt><Kbd>{k}</Kbd></dt><dd className="text-right text-mute">{d}</dd></div>)}
         </dl>
-        <p className="mt-4 text-xs text-mute">Sending and approving always need a deliberate click on the button. No shortcut presses it.</p>
+        <p className="mt-4 text-sm text-mute">Sending and approving always need a deliberate click on the button. No shortcut presses it.</p>
         <button data-autofocus onClick={onClose} className="mt-4 min-h-target rounded-md border border-strong px-4 text-sm font-semibold hover:bg-sunken">Close</button>
       </div>
     </Modal>
