@@ -465,3 +465,46 @@ def test_tenant_b_sees_nothing_of_tenant_a() -> None:
 def test_for_tenant_refuses_a_bad_tenant_id(bad: object) -> None:
     with pytest.raises(ValueError):
         InMemoryTelemetryStore().for_tenant(bad)  # type: ignore[arg-type]
+
+
+# ---------------------------------------------------------------- reviewer_ref
+
+
+def test_reviewer_ref_is_a_stable_64_hex_digest() -> None:
+    from components.telemetry.store import USER_REF_RE, reviewer_ref
+
+    key = b"k" * 32
+    ref = reviewer_ref(key, "t1", "u1")
+    assert USER_REF_RE.fullmatch(ref)
+    assert ref == reviewer_ref(key, "t1", "u1")
+
+
+def test_reviewer_ref_differs_by_tenant_user_and_key() -> None:
+    from components.telemetry.store import reviewer_ref
+
+    key = b"k" * 32
+    base = reviewer_ref(key, "t1", "u1")
+    assert base != reviewer_ref(key, "t2", "u1")
+    assert base != reviewer_ref(key, "t1", "u2")
+    assert base != reviewer_ref(b"j" * 32, "t1", "u1")
+
+
+def test_reviewer_ref_does_not_confuse_tenant_and_user_boundaries() -> None:
+    from components.telemetry.store import reviewer_ref
+
+    key = b"k" * 32
+    assert reviewer_ref(key, "ab", "c") != reviewer_ref(key, "a", "bc")
+
+
+def test_reviewer_ref_refuses_a_short_key_and_blank_ids() -> None:
+    import pytest
+
+    from components.telemetry.store import reviewer_ref
+
+    with pytest.raises(ValueError):
+        reviewer_ref(b"short", "t1", "u1")
+    with pytest.raises(ValueError):
+        reviewer_ref(b"k" * 32, "t1", "")
+    with pytest.raises(ValueError):
+        reviewer_ref(b"k" * 32, "", "u1")
+

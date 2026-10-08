@@ -30,6 +30,8 @@ Metric definitions. Rows and counts use the window ``[since, until)`` on event t
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import math
 import re
 import threading
@@ -188,6 +190,19 @@ def validate_drill(drill: Drill) -> None:
     _one_of("expected", drill.expected, EXPECTED)
     _check_match("created_by", drill.created_by, USER_REF_RE)
     require_aware("created_at", drill.created_at)
+
+
+def reviewer_ref(key: bytes, tenant_id: str, user_id: str) -> str:
+    """Keyed hash of a reviewer within one tenant (HMAC-SHA256, 64 hex). It cannot be reversed
+    without `key`, and the same user id gives a different value in another tenant. It is stored
+    only to keep a reviewer apart from a drill's author and to count distinct reviewers; nothing
+    reports by it."""
+    if not isinstance(key, bytes) or len(key) < 16:
+        raise ValueError("the reviewer key must be at least 16 bytes")
+    tenant = check_tenant(tenant_id)
+    if not isinstance(user_id, str) or not user_id:
+        raise ValueError("user_id is required")
+    return hmac.new(key, tenant.encode() + b"\x00" + user_id.encode(), hashlib.sha256).hexdigest()
 
 
 def check_tenant(tenant_id: object) -> str:
