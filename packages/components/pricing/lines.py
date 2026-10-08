@@ -18,7 +18,7 @@ from components.core.domain import Basis, Tier
 
 from .decimals import CTX, check_decimal
 from .errors import OfferValidationError
-from .models import VatBasis, _enum, _set
+from .models import MAX_LEAD_TIME_DAYS, VatBasis, _enum, _set
 from .text import check_id, check_token, clean_text
 from .units import Unit, UnitBasis
 
@@ -115,6 +115,9 @@ class ResolvedLine:
     unit: Unit
     description: str = ""
     index_band: IndexBand | None = None
+    # Days from now by which the packs must arrive (None: no deadline). Offers that state their
+    # availability are checked against it; offers that do not are flagged, never guessed at.
+    need_by_days: int | None = None
 
     def __post_init__(self) -> None:
         check_id(self.line_id, "line_id")
@@ -136,6 +139,12 @@ class ResolvedLine:
         _set(self, "description", clean_text(self.description, "description", DESCRIPTION_MAX))
         if self.index_band is not None and not isinstance(self.index_band, IndexBand):
             raise OfferValidationError("index_band must be an IndexBand")
+        if self.need_by_days is not None and (
+            isinstance(self.need_by_days, bool) or not isinstance(self.need_by_days, int)
+            or not 0 <= self.need_by_days <= MAX_LEAD_TIME_DAYS
+        ):
+            raise OfferValidationError(
+                f"need_by_days must be None or whole days from 0 to {MAX_LEAD_TIME_DAYS}")
 
     @classmethod
     def of(
@@ -148,13 +157,14 @@ class ResolvedLine:
         unit_basis: UnitBasis | None = None,
         description: str = "",
         index_band: IndexBand | None = None,
+        need_by_days: int | None = None,
     ) -> ResolvedLine:
         """Build a line from SKU ids (sharing `unit_basis`) and/or ready `MatchedSku` values."""
         group = tuple(
             s if isinstance(s, MatchedSku) else MatchedSku(s, unit_basis or UnitBasis())
             for s in skus
         )
-        return cls(line_id, group, quantity, unit, description, index_band)
+        return cls(line_id, group, quantity, unit, description, index_band, need_by_days)
 
     @property
     def sku_ids(self) -> tuple[str, ...]:

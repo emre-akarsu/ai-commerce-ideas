@@ -15,7 +15,8 @@ from .reasons import Reason, make_reason
 
 # Caveat flags that are explained but never exclude, after the exclusion codes.
 CAVEAT_ORDER: tuple[str, ...] = (
-    "vat_basis_assumed", "low_stock", "stock_unknown", "lead_time_unknown", "delivery_unknown",
+    "vat_basis_assumed", "low_stock", "stock_unknown", "availability_unknown",
+    "lead_time_unknown", "delivery_unknown",
     "delivery_basis_unknown", "below_moq", "order_multiple_applied", "unit_converted",
 )
 REASON_ORDER: tuple[str, ...] = EXCLUSION_ORDER + CAVEAT_ORDER
@@ -126,7 +127,35 @@ def _converted(c: Ctx) -> Reason:
                        sku_id=c.a.sku.sku_id)
 
 
+def _packs_needed(c: Ctx) -> int:
+    assert c.a.numbers is not None
+    return c.a.numbers.packs
+
+
+def _too_late(c: Ctx) -> Reason:
+    found, by = c.a.feasibility, c.line.need_by_days
+    assert found is not None and found.first_complete_day is not None and by is not None
+    by_day = c.a.offer.packs_available_by(by)
+    assert by_day is not None
+    return make_reason("availability_too_late", offer_id=_oid(c), packs_needed=_packs_needed(c),
+                       first_complete_day=found.first_complete_day, packs_by_day=by_day,
+                       need_by_days=by)
+
+
+def _insufficient(c: Ctx) -> Reason:
+    return make_reason("availability_insufficient", offer_id=_oid(c),
+                       packs_total=sum(t.packs for t in c.a.offer.availability),
+                       packs_needed=_packs_needed(c))
+
+
+def _availability_unknown(c: Ctx) -> Reason:
+    assert c.line.need_by_days is not None
+    return make_reason("availability_unknown", offer_id=_oid(c), need_by_days=c.line.need_by_days)
+
+
 _BUILDERS: dict[str, Callable[[Ctx], Reason]] = {
+    "availability_too_late": _too_late, "availability_insufficient": _insufficient,
+    "availability_unknown": _availability_unknown,
     "stale": _stale, "expired": _expired, "vat_basis_assumed": _assumed,
     "vat_rate_mismatch": _rate, "currency_not_comparable": _currency,
     "unit_not_convertible": _unit, "price_outlier_low": _outlier("price_outlier_low"),

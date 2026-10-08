@@ -35,6 +35,14 @@ TEMPLATES: dict[str, str] = {
     "currency_not_comparable": "Offer {offer_id} is priced in {currency}; comparison uses "
                                "{base_currency} and no exchange rate is applied.",
     "out_of_stock": "Offer {offer_id} is out of stock.",
+    "availability_too_late": "Offer {offer_id} can supply the {packs_needed} pack(s) needed only "
+                             "by day {first_complete_day}; {packs_by_day} of {packs_needed} "
+                             "pack(s) are available by day {need_by_days}.",
+    "availability_insufficient": "Offer {offer_id} states {packs_total} pack(s) in total; "
+                                 "{packs_needed} are needed.",
+    "availability_unknown": "Offer {offer_id} does not state how many packs are available by day "
+                            "{need_by_days}, so it could not be checked against the required "
+                            "date.",
     "low_stock": "Offer {offer_id} is reported as low stock.",
     "stock_unknown": "Offer {offer_id} does not state stock availability.",
     "unit_not_convertible": "Offer {offer_id} cannot be converted from its pack unit "

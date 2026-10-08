@@ -20,6 +20,7 @@ from fractions import Fraction
 from .config import PricingConfig
 from .decimals import ceil_div, frac_to_decimal
 from .delivery import FeeSchedule, compile_terms
+from .feasibility import Feasibility, FeasibilityStatus, assess_feasibility
 from .freshness import Freshness, assess_freshness
 from .lines import MatchedSku, ResolvedLine
 from .models import Offer, StockStatus, VatBasis
@@ -30,7 +31,8 @@ from .vat import convert, resolve_basis
 EXCLUSION_ORDER: tuple[str, ...] = (
     "indicative_only", "substitution_not_approved", "currency_not_comparable",
     "vat_basis_unknown", "vat_rate_mismatch", "unit_not_convertible", "expired",
-    "observed_in_future", "stale", "out_of_stock", "price_outlier_low", "price_outlier_high",
+    "observed_in_future", "stale", "out_of_stock", "availability_insufficient",
+    "availability_too_late", "price_outlier_low", "price_outlier_high",
     "index_band_low", "index_band_high",
 )
 
@@ -66,6 +68,7 @@ class Assessed:
     numbers: Numbers | None
     indicative: bool
     peer: bool  # counts toward the median of comparable offers
+    feasibility: Feasibility | None = None  # set when the offer could be priced
 
 
 def _freshness(fr: Freshness, cfg: PricingConfig, codes: set[str], flags: set[str]) -> None:
@@ -163,6 +166,21 @@ def _numbers_flags(offer: Offer, numbers: Numbers, flags: set[str]) -> None:
         flags.add("delivery_basis_unknown")
 
 
+def _availability(
+    offer: Offer, numbers: Numbers, line: ResolvedLine, codes: set[str], flags: set[str]
+) -> Feasibility:
+    """Can the packs that would be bought arrive by the line's day? An offer that states no
+    availability is never excluded for it: it is flagged when a day was asked for."""
+    found = assess_feasibility(offer, numbers.packs, line.need_by_days)
+    if found.status is FeasibilityStatus.INSUFFICIENT:
+        codes.add("availability_insufficient")
+    elif found.status is FeasibilityStatus.TOO_LATE:
+        codes.add("availability_too_late")
+    elif found.status is FeasibilityStatus.UNKNOWN and line.need_by_days is not None:
+        flags.add("availability_unknown")
+    return found
+
+
 def assess_offer(
     offer: Offer, sku: MatchedSku, line: ResolvedLine, cfg: PricingConfig, now: datetime
 ) -> Assessed:
@@ -178,6 +196,7 @@ def assess_offer(
     vat = resolve_basis(offer.price, cfg)
     flags.update(vat.flags)
     numbers: Numbers | None = None
+    feasibility: Feasibility | None = None
     if offer.price.currency != cfg.base_currency:
         codes.add("currency_not_comparable")
     elif vat.exclusion:
@@ -188,9 +207,10 @@ def assess_offer(
             codes.add("unit_not_convertible")
         else:
             _numbers_flags(offer, numbers, flags)
+            feasibility = _availability(offer, numbers, line, codes, flags)
     peer = (
         numbers is not None and not offer.is_indicative
         and not codes & {"substitution_not_approved", "expired", "observed_in_future", "stale"}
     )
     return Assessed(offer, sku, fresh, frozenset(flags), frozenset(codes), numbers,
-                    offer.is_indicative, peer)
+                    offer.is_indicative, peer, feasibility)
