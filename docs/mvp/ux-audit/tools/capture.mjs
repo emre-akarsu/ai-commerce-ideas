@@ -316,8 +316,8 @@ async function priceBooksFlow(ctx) {
   if (wants(ctx, "price-books-request")) {
     await openDialog(ctx, "price-books-request", '[data-merchant][data-status="missing"] [data-act="request"]', null, "request");
   }
-  if (wants(ctx, "price-books-upload")) await openDialog(ctx, "price-books-upload", "main button", "Upload price file", "upload");
-  if (wants(ctx, "price-books-rfq")) await openDialog(ctx, "price-books-rfq", "main button", "Send RFQ for these gaps", "rfq");
+  if (wants(ctx, "price-books-upload")) await openDialog(ctx, "price-books-upload", "main button", "Upload prices", "upload");
+  if (wants(ctx, "price-books-rfq")) await openDialog(ctx, "price-books-rfq", "main button", "Ask for missing prices", "rfq");
 }
 
 async function quoteFlow(ctx) {

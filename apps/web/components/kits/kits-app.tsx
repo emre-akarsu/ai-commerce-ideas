@@ -328,7 +328,7 @@ function ReviewStep({ s, dispatch, spec, res, locale, heading, back }: WizardPro
       </div>
       <div className="flex flex-wrap items-center gap-3">{accept}<span className="text-sm text-mute">You can still change anything on the summary.</span></div>
       <PresetBar spec={spec} s={s} dispatch={dispatch} />
-      <Disclosure id="assumed" title="We assumed" summary={`${assumedCount} default${assumedCount === 1 ? "" : "s"}, tap one to change it`} defaultOpen>
+      <Disclosure id="assumed" title="We assumed" summary={`${assumedCount} default${assumedCount === 1 ? "" : "s"}, tap one to change it`}>
         <Ledger spec={spec} items={items} answers={s.answers} allowances={s.allowances} lines={res.lines} locale={locale}
           onAnswer={(id, v, u) => dispatch({ type: "answer", id, value: v, unknown: u })}
           onAllowance={(id, v) => dispatch({ type: "allowance", id, value: v })}
@@ -460,8 +460,7 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
       {s.acceptedDefaults && <p className="text-sm text-mute">You accepted the defaults on review. Each one is listed below as an assumption to confirm.</p>}
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-4">
-          <Card>
-            <H2>Materials list</H2>
+          <Disclosure id="materials" title="Materials list" summary={`${included.length} lines`}>
             <p className="-mt-1 mb-2 text-xs text-mute">Quantities include the template&apos;s waste allowances. Doors and windows are not deducted.</p>
             {res.modules.map((m) => {
               const rows = included.filter((x) => x.module.id === m.id);
@@ -483,15 +482,14 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
                 </div>
               );
             })}
-          </Card>
+          </Disclosure>
           {(notNeeded.length > 0 || have.length > 0) && (
-            <Card>
-              <H2>Left out</H2>
+            <Disclosure id="leftout" title="Left out" summary={`${notNeeded.length + have.length} lines`}>
               {([["Not needed", notNeeded], ["Already have", have]] as const).filter(([, list]) => list.length > 0).map(([label, list]) => (
                 <div key={label} className="mt-2 text-sm"><p className="font-medium">{label} ({list.length})</p>
                   <ul className="list-disc pl-5 text-mute">{list.map((x) => <li key={x.line.id}>{x.line.description}</li>)}</ul></div>
               ))}
-            </Card>
+            </Disclosure>
           )}
           <Card>
             <H2>Prices</H2>
@@ -506,8 +504,7 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
               </div>
             )}
           </Card>
-          <Card>
-            <H2>Assumptions to confirm</H2>
+          <Disclosure id="assumptions" title="Assumptions to confirm" summary={`${assumed.length}`}>
             <p className="text-sm text-mute">Template defaults (source: {spec.assumptionSource.replace(/_/g, " ")}). None of them is a confirmed fact about this job.</p>
             {unk.length > 0 && <p className="mt-2 text-sm">You said &quot;don&apos;t know&quot; to: {unk.map((id) => spec.questions.find((q) => q.id === id)?.text ?? id).join("; ")}. The kit assumes the safe choice; confirm on site.</p>}
             {changed.length > 0 && <><p className="mt-3 text-sm font-medium">You changed</p><ul className="grid gap-1 text-sm sm:grid-cols-2">{changed.map((i) => <li key={`${i.kind}:${i.key}`} className="min-w-0"><span className="text-mute">{i.label.replace(/\?$/, "")}: </span>{i.valueLabel}</li>)}</ul></>}
@@ -515,7 +512,7 @@ function SummaryStep({ s, dispatch, spec, res, locale, heading, back }: WizardPr
               <summary className="inline-flex min-h-target cursor-pointer items-center font-medium">{assumed.length} assumption{assumed.length === 1 ? "" : "s"} to confirm</summary>
               <ul className="mt-1 grid gap-1 sm:grid-cols-2">{assumed.map((a) => <li key={`${a.kind}:${a.key}`} className="min-w-0 break-words"><span className="text-mute">{a.what}: </span>{a.value}</li>)}</ul>
             </details>
-          </Card>
+          </Disclosure>
         </div>
         <div className="min-w-0 space-y-4 lg:sticky lg:top-20 lg:self-start">
           <CompletenessPanel checks={checks} />

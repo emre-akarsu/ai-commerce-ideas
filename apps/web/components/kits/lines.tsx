@@ -171,7 +171,7 @@ export function Ledger({ spec, items, answers, allowances, lines, onAnswer, onAl
   const editing = shown.find((i) => `${i.kind}:${i.key}` === open) ?? null;
   return (
     <div>
-      <ul className="flex flex-wrap gap-2" aria-label="Defaults we assumed">
+      <ul className="flex flex-wrap gap-2" aria-label="We assumed">
         {shown.map((i) => {
           const k = `${i.kind}:${i.key}`; const isOpen = open === k;
           return (

@@ -15,6 +15,8 @@ import Quote from "@/app/quote/page";
 import Approve from "@/app/approve/[token]/page";
 import { useRoute } from "./router";
 
+document.documentElement.lang = "en-GB";
+
 function Page() {
   const r = useRoute();
   if (r.startsWith("/requests/")) return <RequestDetail key={r} />;

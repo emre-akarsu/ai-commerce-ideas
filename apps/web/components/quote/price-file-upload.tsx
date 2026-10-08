@@ -156,7 +156,7 @@ function UploadResult({ result, refresh }: { result: PriceFileResult; refresh: "
         ))}
       </dl>
       {result.quarantine.length > 0 && (
-        <div className="overflow-x-auto" data-quarantine>
+        <div tabIndex={0} role="region" aria-label="Rows on hold, scrolls sideways" className="overflow-x-auto" data-quarantine>
           <table className="w-full text-left text-sm">
             <caption className="mb-1 text-left font-semibold">Rows not loaded</caption>
             <thead><tr className="text-xs text-mute"><th scope="col" className="py-1 pr-3 font-semibold">Row</th><th scope="col" className="py-1 pr-3 font-semibold">Reasons</th><th scope="col" className="py-1 font-semibold">SKU</th></tr></thead>

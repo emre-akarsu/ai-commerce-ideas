@@ -110,7 +110,7 @@ function ImportPanel() {
         <div role="status" className="mt-3 text-sm">
           <p className="font-medium">{res.created} added, {res.updated} updated, {res.rejected.length} rejected.</p>
           {res.rejected.length > 0 && (
-            <div className="mt-2 relative overflow-x-auto rounded-md border border-line">
+            <div tabIndex={0} role="region" aria-label="Table, scrolls sideways" className="mt-2 relative overflow-x-auto rounded-md border border-line">
               <table className="w-full min-w-[420px] text-left"><caption className="sr-only">Rejected rows</caption>
                 <thead className="bg-sunken text-xs uppercase tracking-wide text-mute"><tr><th scope="col" className="px-3 py-2">Row</th><th scope="col" className="px-3 py-2">Why it was not imported</th></tr></thead>
                 <tbody className="divide-y divide-line">{res.rejected.map((r) => <tr key={r.row}><td className="num px-3 py-2">{r.row}</td><td className="px-3 py-2">{r.reason}</td></tr>)}</tbody>

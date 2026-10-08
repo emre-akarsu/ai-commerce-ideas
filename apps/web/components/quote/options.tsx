@@ -2,7 +2,8 @@
 // Options: alternative baskets for the same job, from the quote-options-ui/1 export. Every amount carries its VAT basis. The display order
 // is fixed and is not a recommendation. "Select this option" only changes local state on this page: nothing is ordered or sent.
 // Indicative prices are listed apart from every option. Every string from data is plain React text.
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { emitReviewEvent, emitShownOnce } from "@/lib/telemetry";
 import { Badge, Card, H2 } from "@/components/ui/ui";
 import { Disclosure } from "@/components/ui/disclosure";
 import { OptionTable } from "@/components/charts/option-table";
@@ -34,19 +35,21 @@ export function OptionsSection({ options, inputs, quote, names, stage }: { optio
 function OptionsBody({ set, inputs, quote, names, stage, selected, setSelected }: { set: OptionSetView; inputs: OptionsInputs | null; quote: Quote; names: Names; stage: "first" | "after"; selected: string | null; setSelected: (id: string | null) => void }) {
   const notes = optimiserNotes(set);
   const chosen = set.options.find((o) => o.optionId === selected) ?? null;
+  useEffect(() => { if (set.options.length > 0) emitShownOnce("comparison", set.options.map((o) => o.optionId).join("+").slice(0, 80)); }, [set]);
   return (
     <>
-      <p className="text-base text-mute" data-options-intro>Different ways to buy the same confirmed lines from the prices on file. Every amount says if it includes VAT. Nothing is chosen for you.</p>
-      {stage === "first" && <p className="rounded-lg bg-sunken p-3 text-sm text-mute" data-options-stage-note>Built from the quote after your reviews ({plural(set.firmLineIds.length, "line", "lines")}). Switch to &quot;After my reviews&quot; to see the matching lines and totals.</p>}
-      {notes.map((t) => <p key={t} role="note" data-options-note className="rounded-lg bg-warn-soft p-3 text-sm text-warn break-words">{t}</p>)}
+      <p className="text-base text-mute" data-options-intro>Ways to buy the same confirmed lines from the prices on file (not a market-wide best price). Nothing is chosen for you.</p>
+      {notes.length > 0 && <p role="note" data-options-note className="rounded-lg bg-warn-soft p-3 text-sm text-warn">The lowest total is not proven; a lower one may exist. Details are under Limits and notes.</p>}
       {set.options.length === 0 && <p className="text-sm text-mute" data-options-none>No line has a confirmed price, so there is nothing to compare.</p>}
       {set.options.length > 1 && <OptionTable set={set} />}
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-options-list>
-        {set.options.map((o) => <OptionCard key={o.optionId} set={set} o={o} names={names} on={selected === o.optionId} onSelect={() => setSelected(selected === o.optionId ? null : o.optionId)} />)}
+        {set.options.map((o) => <OptionCard key={o.optionId} set={set} o={o} names={names} on={selected === o.optionId} onSelect={() => { if (selected !== o.optionId) emitReviewEvent({ surface: "comparison", subject_id: o.optionId, event: "approved" }); setSelected(selected === o.optionId ? null : o.optionId); }} />)}
       </ul>
       {chosen && <NextPanel set={set} o={chosen} names={names} />}
       <Disclosure id="limits" title="Limits and notes" summary="budget, dates, lines left out">
         <div className="space-y-4">
+          {stage === "first" && <p className="rounded-lg bg-sunken p-3 text-sm text-mute" data-options-stage-note>Built from the quote after your reviews ({plural(set.firmLineIds.length, "line", "lines")}). Switch to &quot;After my reviews&quot; to see the matching lines and totals.</p>}
+          {notes.map((t) => <p key={t} className="rounded-lg bg-warn-soft p-3 text-sm text-warn break-words" data-options-note-full>{t}</p>)}
           <NotShown set={set} />
           <BalancedPanel set={set} inputs={inputs} names={names} />
           <ExcludedLines set={set} quote={quote} />

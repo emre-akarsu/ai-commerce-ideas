@@ -19,6 +19,7 @@ const res = []; const ok = (name, cond, extra = "") => res.push([cond ? "PASS" :
 const overflowLog = [];
 const has = async (s) => (await b.text()).includes(s);
 const clickSel = async (sel) => { const r = await b.ev(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});if(!e)return false;e.click();return true})()`); await b.sleep(400); return r; };
+const openAll = () => b.ev("document.querySelectorAll('details').forEach(d=>{d.open=true})");
 const toStep = () => b.ev(`(()=>{const h=document.querySelector('[data-step-heading]');if(h)h.scrollIntoView({block:'start'});return true})()`);
 const step = () => b.ev(`document.querySelector('[data-wizard-track] [aria-current=step]')?.innerText ?? ''`);
 async function checkOverflow(label) {
@@ -27,6 +28,7 @@ async function checkOverflow(label) {
   return o.scrollW <= o.w;
 }
 async function summaryDiffs(scope, name) {
+  await openAll();
   const ui = await b.ev(`Object.fromEntries([...document.querySelectorAll('[data-summary-line]')].map(e=>[e.dataset.summaryLine, e.lastElementChild.innerText.trim()]))`);
   const want = fixture.cases.find((c) => c.scope_id === scope && c.case === name).lines;
   const diffs = Object.entries(want).filter(([id, v]) => !ui[id] || Number(ui[id].split(" ")[0]) !== Number(v.quantity) || ui[id].split(" ")[1] !== v.unit).map(([id]) => id);
@@ -63,8 +65,8 @@ for (const [mode, w, h, mobile, dark] of modes) {
       await b.click("Continue");
     }
     ok(`${mode} ${scope}: on review`, (await step()).includes("Review"), await step());
-    ok(`${mode} ${scope}: ledger chips`, (await b.ev("document.querySelectorAll('[aria-label=\"Defaults we assumed\"] button').length")) > 0);
-    await clickSel("[data-module] summary"); // open the first section
+    ok(`${mode} ${scope}: ledger chips`, (await b.ev("document.querySelectorAll('[aria-label=\"We assumed\"] button').length")) > 0);
+    await openAll(); // the redesign keeps detail behind closed headings
     ok(`${mode} ${scope}: review overflow`, await checkOverflow(`${mode} ${scope} review`));
     if (shots) { if (mobile) await b.ev(`document.querySelector('[data-module]').scrollIntoView({block:'start'})`); await b.shot(`${out}/kits-${mode}-${scope}-3-review.png`); }
     ok(`${mode} ${scope}: accept all defaults`, await b.click("Accept all defaults"));
@@ -75,7 +77,7 @@ for (const [mode, w, h, mobile, dark] of modes) {
     ok(`${mode} ${scope}: summary overflow`, await checkOverflow(`${mode} ${scope} summary`));
     if (shots) { if (mobile) await toStep(); await b.shot(`${out}/kits-${mode}-${scope}-4-summary.png`); }
     if (mode === "desktop") {
-      ok(`${scope}: create RFQ draft`, await b.click("Create RFQ draft"));
+      await openAll(); ok(`${scope}: create RFQ draft`, await b.click("Create RFQ draft"));
       ok(`${scope}: draft says not wired`, (await has("Not wired")) && (await has("nothing was sent")));
     }
   }
@@ -90,7 +92,7 @@ for (const [level, name] of [["budget", "finish_budget"], ["premium", "finish_pr
     if (!(await b.ev(`!!document.querySelector('[data-question="finish_level"]')`))) {
       // finish_level asked on review: change it through its ledger chip.
       while ((await step()) && !(await step()).includes("Review")) await b.click("Continue");
-      await b.ev(`[...document.querySelectorAll('[aria-label="Defaults we assumed"] button')].find(x=>x.innerText.startsWith('Finish level')).click()`); await b.sleep(300);
+      await openAll(); await b.ev(`[...document.querySelectorAll('[aria-label="We assumed"] button')].find(x=>x.innerText.startsWith('Finish level')).click()`); await b.sleep(300);
     }
     await b.ev(`(()=>{const i=[...document.querySelectorAll('[data-question="finish_level"] input[type=radio]')];const t=i.find(x=>x.closest('label').innerText.toLowerCase().startsWith(${JSON.stringify(level)}));t.click()})()`); await b.sleep(300);
     if (level === "premium" && scope === "bathroom_full" && shots) { await b.ev(`document.querySelector('[data-question="finish_level"]').scrollIntoView({block:"center"})`); await b.shot(`${out}/kits-desktop-finish-premium.png`); }
@@ -109,7 +111,7 @@ while (!(await step()).includes("Review")) await b.click("Continue");
 await b.click("Accept all defaults");
 const dk = await summaryDiffs("bathroom_full", "unknown_answers");
 ok(`don't know: summary matches Python unknown_answers (${dk.n} lines)`, dk.bad.length === 0, dk.bad.slice(0, 5).join(","));
-await clickSel("[data-assumptions] summary");
+await openAll();
 ok("don't know: listed as an assumption", (await has("Don't know: treated as")) && (await has('You said "don\'t know"')));
 ok("paid add-ons stay off by default", !(await b.ev(`!!document.querySelector('[data-summary-line^="ex_"]')`)));
 if (shots) { await b.ev(`document.querySelector('[data-assumptions]').scrollIntoView({block:'center'})`); await b.shot(`${out}/kits-desktop-summary-assumptions.png`); }
@@ -119,12 +121,12 @@ await b.ev(`document.querySelector('[data-question="shower_location"] input[type
 await b.key("ArrowDown"); await b.sleep(200);
 ok("keyboard: arrow key changes a card choice", await b.ev(`document.querySelectorAll('[data-question="shower_location"] input[type=radio]')[1].checked`));
 await b.click("Continue"); await b.click("Continue");
-await clickSel('[data-module="strip_out"] summary');
+await openAll();
 await b.ev(`(()=>{const r=[...document.querySelectorAll('[data-line="so_cap_feeds"] input[type=radio]')].find(i=>i.parentElement.innerText.includes('Already have'));r.click()})()`); await b.sleep(300);
 ok("tri-state: Already have counted", await b.ev(`document.querySelector('[data-module="strip_out"] summary').innerText.includes('1 already have')`));
-await b.ev(`[...document.querySelectorAll('[aria-label="Defaults we assumed"] button')].find(x=>x.innerText.includes('Basin type')).click()`); await b.sleep(300);
+await openAll(); await b.ev(`[...document.querySelectorAll('[aria-label="We assumed"] button')].find(x=>x.innerText.includes('Basin type')).click()`); await b.sleep(300);
 await b.click("Wall-hung basin"); await b.sleep(300);
-ok("ledger: one tap opens the editor and the change shows", await b.ev(`[...document.querySelectorAll('[aria-label="Defaults we assumed"] button')].some(x=>x.innerText.includes('Wall-hung basin')&&x.innerText.includes('changed'))`));
+ok("ledger: one tap opens the editor and the change shows", await b.ev(`[...document.querySelectorAll('[aria-label="We assumed"] button')].some(x=>x.innerText.includes('Wall-hung basin')&&x.innerText.includes('changed'))`));
 if (shots) await b.shot(`${out}/kits-desktop-review-edited.png`);
 
 // Defaults are pre-selected; one-tap presets; a former quote as template.
@@ -141,7 +143,7 @@ await b.click("Accept all defaults");
 await b.fill("[data-save-template] input", "My test bathroom");
 await b.click("Save as template");
 ok("template: saved", await has('Saved "My test bathroom"'));
-await b.click("Start a different job");
+await b.click("Start a different job"); await openAll();
 ok("template: offered on the scope step", await b.ev(`[...document.querySelectorAll('[data-template]')].some(e=>e.innerText.includes('My test bathroom'))`));
 await b.ev(`[...document.querySelectorAll('[data-template]')].find(e=>e.innerText.includes('My test bathroom')).querySelector('[data-use-template]').click()`); await b.sleep(400);
 ok("template: lands on the measure step to confirm sizes", (await step()).includes("Measure"), await step());
@@ -153,11 +155,11 @@ ok("journey: track with five stages, Job kit current", await b.ev(`document.quer
 await clickSel('[data-journey] [data-stage="prices"] a'); await b.sleep(500);
 ok("journey: Prices opens the price books with the stage current", await b.ev(`document.querySelector('[data-journey] [data-stage="prices"]').dataset.state==='current' && document.querySelector('[data-journey] [data-stage="kit"]').dataset.state==='done'`));
 await clickSel('[data-journey] [data-stage="request"] a'); await b.sleep(700);
-ok("journey: Request quotes opens the RFQ preview", await b.ev(`!!document.querySelector('[data-dialog="rfq"]')`));
+ok("journey: Ask suppliers opens the quote request preview", await b.ev(`!!document.querySelector('[data-dialog="rfq"]')`));
 await b.key("Escape");
 await clickSel('[data-journey] [data-stage="compare"] a'); await b.sleep(700);
 ok("journey: Compare lands on the options", await b.ev(`document.querySelector('[data-journey] [data-stage="compare"]').dataset.state==='current' && !!document.querySelector('[data-section="options"]')`));
-ok("journey: back and next bar", await b.ev(`document.querySelector('[data-journey-bar]').innerText.includes('Next: Request quotes')`));
+ok("journey: back and next bar", await b.ev(`document.querySelector('[data-journey-bar]').innerText.includes('Next: Ask suppliers')`));
 await b.ev(`window.sessionStorage.clear()`);
 
 // Config tab: bad format, then a v2 sample built from a bundled kit.
@@ -189,7 +191,7 @@ await b.size(390, 844, true); await toStep(); if (shots) await b.shot(`${out}/ki
 ok("v2 mobile: questions overflow", await checkOverflow("mobile v2 questions"));
 await b.size(1280, 900);
 await b.click("Continue"); await b.click("Continue");
-await clickSel('[data-module="basin"] summary'); await clickSel('[data-module="waterproofing"] summary');
+await openAll();
 ok("v2: most used badge not shown for grade C", !(await b.ev(`document.querySelector('[data-line="sw_basin_taps"]').innerText.includes('Most used')`)));
 ok("v2: standard pick label for grade C", await b.ev(`document.querySelector('[data-line="sw_basin_taps"]').innerText.includes('Our standard pick')`));
 ok("v2: price band with VAT and not-verified note", await b.ev(`(()=>{const t=document.querySelector('[data-line="sw_basin_taps"]').innerText;return t.includes('inc VAT')&&t.includes('Observed price, not verified')})()`));

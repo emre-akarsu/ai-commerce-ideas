@@ -45,7 +45,7 @@ export default function AuditPage() {
             <label className="min-w-40"><span className="sr-only">Request id</span><input value={rid} onChange={(e) => setRid(e.target.value)} placeholder="Filter by request id" className={inputCls} /></label>
             <label><span className="sr-only">Event type</span><select value={type} onChange={(e) => setType(e.target.value)} className={inputCls}><option value="">All event types</option>{types.map((t) => <option key={t} value={t}>{humanise(t)}</option>)}</select></label>
           </div>
-          <div className="relative overflow-x-auto rounded-lg border border-line bg-surface">
+          <div tabIndex={0} role="region" aria-label="Activity log, scrolls sideways" className="relative overflow-x-auto rounded-lg border border-line bg-surface">
             <table className="w-full min-w-[640px] text-left text-sm">
               <caption className="sr-only">Audit events, newest first</caption>
               <thead className="bg-sunken text-xs uppercase tracking-wide text-mute"><tr><th scope="col" className="px-3 py-2">When</th><th scope="col" className="px-3 py-2">Event</th><th scope="col" className="px-3 py-2">By</th><th scope="col" className="px-3 py-2">Request</th><th scope="col" className="px-3 py-2">Hash</th></tr></thead>

@@ -47,7 +47,7 @@ export function StepCompare({ det, onDone }: StepProps) {
           {cmp.reasons.map((x) => reasonLabel(x, who)).filter((x): x is string => !!x).map((x) => <li key={x}>{x}</li>)}
         </ul>
         <p className="mb-3 text-sm text-mute">Prices are shown ex-{profile.tax.name} where the supplier said so; a quote with no stated basis is flagged, never guessed.</p>
-        <div className="relative overflow-x-auto rounded-md border border-line">
+        <div tabIndex={0} role="region" aria-label="Comparison table, scrolls sideways" className="relative overflow-x-auto rounded-md border border-line">
           <table className="w-full min-w-[680px] text-sm">
             <caption className="sr-only">Quotes compared by landed unit cost</caption>
             <thead className="bg-sunken text-left text-xs uppercase tracking-wide text-mute">

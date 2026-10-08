@@ -8,7 +8,7 @@ import { ChartFrame, tableCls, tdCls, thCls } from "./chart-frame";
 export function OptionTable({ set, title = "Side by side" }: { set: OptionSetView; title?: string }) {
   const cols = optionColumns(set);
   const table = (bars: boolean) => (
-    <div className="overflow-x-auto">
+    <div tabIndex={0} role="region" aria-label="Comparison table, scrolls sideways" className="overflow-x-auto">
       <table className={tableCls}>
         <thead><tr><th className={thCls}>Option</th>{cols.map((c) => <th key={c.key} className={thCls}>{c.label}</th>)}</tr></thead>
         <tbody>

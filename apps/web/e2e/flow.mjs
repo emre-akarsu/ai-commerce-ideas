@@ -8,6 +8,7 @@ for (const u of ["/", "/requests/rq-1001", "/requests/rq-1004", "/vendors", "/se
 await b.go("http://localhost:3100/");
 
 // composer -> request -> question
+await b.click("New request"); await b.sleep(400);
 await b.fill("textarea", "4 x 6205-2RS bearings for the packing line");
 ok("composer enables Start request", await b.click("Start request"));
 await b.sleep(1200);

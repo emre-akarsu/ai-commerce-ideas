@@ -19,7 +19,7 @@ export function InfoTip({ text, label = "More information" }: { text: string; la
     <span ref={box} className="relative inline-flex align-middle" data-info-tip>
       <button
         type="button" aria-expanded={open} aria-controls={open ? id : undefined} aria-label={label} onClick={() => setOpen((o) => !o)}
-        className="-m-[11px] inline-flex h-target w-target items-center justify-center rounded-full text-mute hover:text-ink"
+        className="-m-[14px] inline-flex h-11 w-11 items-center justify-center rounded-full text-mute hover:text-ink"
       >
         <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="10" cy="10" r="7.5" /><path d="M10 9v4.5M10 6.5v.01" />

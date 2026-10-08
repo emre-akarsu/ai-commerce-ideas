@@ -1,6 +1,7 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { emitReviewEvent, emitShownOnce } from "@/lib/telemetry";
 import { api, type DecisionResult } from "@/lib/api";
 import { flagInfo, humanise } from "@/lib/flow";
 import { useQuery, errMsg } from "@/lib/store";
@@ -21,8 +22,11 @@ export default function ApprovePage() {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  useEffect(() => { if (s.data) emitShownOnce("approval_card", s.data.quote_id); }, [s.data]);
+
   async function decide(action: "approve" | "decline") {
     setBusy(true); setErr(null);
+    emitReviewEvent({ surface: "approval_card", subject_id: s.data?.quote_id ?? "unknown", event: action === "approve" ? "approved" : "rejected" });
     try { setResult(await api.decide(token, action)); } catch (x) { setErr(errMsg(x)); } finally { setBusy(false); }
   }
   if (s.loading) return <SkeletonRows n={3} />;

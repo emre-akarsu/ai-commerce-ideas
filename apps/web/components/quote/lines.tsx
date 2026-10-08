@@ -9,6 +9,7 @@ import { fixed, fmtDate, humanCode, money, ratePct, type Check, type MerchantGro
 import type { Candidate, FirmLine, Freshness, IndicativeItem, NoOfferItem, Quote, ReviewItem, ReviewerDecision, SkippedItem, UnmatchedItem } from "@/lib/quote/types";
 import { recordDecision } from "@/lib/quote/decisions";
 import { isMock } from "@/lib/api";
+import { emitReviewEvent, emitShownOnce } from "@/lib/telemetry";
 import { Dl, Limited } from "./common";
 
 export const INDICATIVE_LABEL = LABELS.rough_price.label;
@@ -129,6 +130,7 @@ export function ReviewSection({ items, quoteId, chosen, onChoose }: { items: Rev
         {items.length === 0 && <p className="text-sm text-mute">Nothing is waiting for your choice.</p>}
         <Limited items={items} limit={5} noun="lines" render={(r) => {
           const pick = chosen[r.lineId];
+          emitShownOnce("review_line", r.lineId);
           return (
             <li key={r.lineId} className="rounded-lg border border-line bg-surface p-4" data-review-line={r.lineId}>
               <p className="break-words text-base font-medium">{r.text || r.description}</p>
@@ -136,7 +138,7 @@ export function ReviewSection({ items, quoteId, chosen, onChoose }: { items: Rev
               {r.question && <p className="mt-2 rounded-md bg-accent-soft p-2 text-sm break-words" data-question>{r.question}</p>}
               <Reasons reasons={r.reasons} />
               <ul className="mt-2 space-y-2">
-                {r.candidates.slice(0, 3).map((c) => <CandidateRow key={c.skuId} c={c} on={pick === c.skuId} quoteId={quoteId} lineId={r.lineId} onChoose={() => onChoose(r.lineId, c.skuId)} />)}
+                {r.candidates.slice(0, 3).map((c) => <CandidateRow key={c.skuId} c={c} on={pick === c.skuId} quoteId={quoteId} lineId={r.lineId} onChoose={() => { emitReviewEvent({ surface: "review_line", subject_id: r.lineId, event: pick === c.skuId ? "dismissed" : "approved" }); onChoose(r.lineId, c.skuId); }} />)}
               </ul>
               {r.candidates.length === 0 && <p className="mt-2 text-sm text-mute">No possible matches to choose from.</p>}
               {pick && <p role="status" className="mt-2 text-sm font-medium" data-chosen>{isMock() ? "Chosen in this demo only" : "Recorded"}: {r.candidates.find((c) => c.skuId === pick)?.title}.</p>}
