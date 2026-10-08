@@ -2,36 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design tokens. Light is the base; dark redefines the same names. Contrast pairs are chosen for WCAG AA text. */
+/* Design tokens. Light is the base; dark redefines the same names with its own steps (validated against
+   the dark surface, not an inversion). One palette family: the accent is the reference blue, charts use
+   the reference categorical order. Checked by `node docs/mvp/ux-audit/tools/contrast.mjs` (text 4.5:1,
+   control edges, marks and focus 3:1) and the dataviz palette validator; see docs/mvp/ux-audit/06-design-system.md. */
 :root {
-  --bg: #f3f5f6; --surface: #ffffff; --sunken: #e9edee; --line: #d5dcde; --strong: #aab6b9;
-  --ink: #14201f; --mute: #4a5a5b;
-  --accent: #0b5f67; --accent-ink: #ffffff; --accent-soft: #dcefef;
-  --ok: #1b6b3a; --ok-soft: #dff1e5; --warn: #8a4b00; --warn-soft: #fbecd2; --bad: #a12626; --bad-soft: #f8e1e1;
+  /* planes and ink */
+  --bg: #f4f4f1; --surface: #fcfcfb; --sunken: #ebeae5; --line: #e1e0d9; --strong: #858378;
+  --ink: #0b0b0b; --mute: #52514e;
+  /* interface accent and status text on soft fills (each with an icon and a word, never colour alone) */
+  --accent: #1c5cab; --accent-ink: #ffffff; --accent-soft: #e4eefb;
+  --ok: #006300; --ok-soft: #e2f2e2; --warn: #7a4a00; --warn-soft: #fdf0d2;
+  --bad: #b02b2b; --bad-soft: #fbe5e5; --serious: #9a3f12; --serious-soft: #fdeadf;
+  /* chart marks: categorical slots 1 to 6, "other", sequential blue ramp, status marks */
+  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100; --series-5: #e87ba4; --series-6: #008300;
+  --series-other: #898781;
+  --seq-100: #cde2fb; --seq-200: #9ec5f4; --seq-300: #6da7ec; --seq-400: #3987e5; --seq-500: #256abf; --seq-600: #184f95; --seq-700: #0d366b;
+  --mark-good: #0ca30c; --mark-warning: #fab219; --mark-serious: #ec835a; --mark-critical: #d03b3b;
+  --grid: #e1e0d9; --axis: #c3c2b7;
+  --shadow-card: 0 1px 2px rgba(11, 11, 11, 0.06), 0 1px 1px rgba(11, 11, 11, 0.04);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f1516; --surface: #172021; --sunken: #0b1011; --line: #2b3839; --strong: #4a5d5f;
-    --ink: #e7eeee; --mute: #a2b3b4;
-    --accent: #5cc4cc; --accent-ink: #062427; --accent-soft: #123a3e;
-    --ok: #6fd08f; --ok-soft: #14301f; --warn: #f0b95c; --warn-soft: #3a2a0d; --bad: #f19a9a; --bad-soft: #3a1818;
+    --bg: #0d0d0d; --surface: #1a1a19; --sunken: #262624; --line: #2c2c2a; --strong: #8f8d86;
+    --ink: #ffffff; --mute: #c3c2b7;
+    --accent: #6da7ec; --accent-ink: #0b0b0b; --accent-soft: #15253b;
+    --ok: #4fc84f; --ok-soft: #12301a; --warn: #fab219; --warn-soft: #3a2b08;
+    --bad: #f08a8a; --bad-soft: #3a1616; --serious: #ec835a; --serious-soft: #3a2012;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500; --series-5: #d55181; --series-6: #008300;
+    --series-other: #898781;
+    --seq-100: #0d366b; --seq-200: #104281; --seq-300: #184f95; --seq-400: #1c5cab; --seq-500: #256abf; --seq-600: #3987e5; --seq-700: #6da7ec;
+    --mark-good: #0ca30c; --mark-warning: #fab219; --mark-serious: #ec835a; --mark-critical: #d03b3b;
+    --grid: #2c2c2a; --axis: #383835;
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0f1516; --surface: #172021; --sunken: #0b1011; --line: #2b3839; --strong: #4a5d5f;
-  --ink: #e7eeee; --mute: #a2b3b4;
-  --accent: #5cc4cc; --accent-ink: #062427; --accent-soft: #123a3e;
-  --ok: #6fd08f; --ok-soft: #14301f; --warn: #f0b95c; --warn-soft: #3a2a0d; --bad: #f19a9a; --bad-soft: #3a1818;
+  --bg: #0d0d0d; --surface: #1a1a19; --sunken: #262624; --line: #2c2c2a; --strong: #8f8d86;
+  --ink: #ffffff; --mute: #c3c2b7;
+  --accent: #6da7ec; --accent-ink: #0b0b0b; --accent-soft: #15253b;
+  --ok: #4fc84f; --ok-soft: #12301a; --warn: #fab219; --warn-soft: #3a2b08;
+  --bad: #f08a8a; --bad-soft: #3a1616; --serious: #ec835a; --serious-soft: #3a2012;
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500; --series-5: #d55181; --series-6: #008300;
+  --series-other: #898781;
+  --seq-100: #0d366b; --seq-200: #104281; --seq-300: #184f95; --seq-400: #1c5cab; --seq-500: #256abf; --seq-600: #3987e5; --seq-700: #6da7ec;
+  --mark-good: #0ca30c; --mark-warning: #fab219; --mark-serious: #ec835a; --mark-critical: #d03b3b;
+  --grid: #2c2c2a; --axis: #383835;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
   color-scheme: dark;
 }
 html { font-family: var(--font-sans); }
 body { background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.5; }
+@media (max-width: 639px) { body { font-size: 16px; } }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 .num { font-variant-numeric: tabular-nums; }
+/* The one hero figure of a screen: proportional figures, never tabular. */
+.hero-figure { font-size: clamp(2.5rem, 7vw, 3.5rem); font-weight: 650; letter-spacing: -0.02em; line-height: 1.05; font-variant-numeric: normal; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
 .skeleton { background: var(--sunken); border-radius: 6px; animation: pulse-soft 1.4s ease-in-out infinite; }
+/* Native disclosure: no default marker, our own chevron. */
+details > summary { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+details[open] > summary .chev { transform: rotate(90deg); }
+.chev { transition: transform .15s ease; }

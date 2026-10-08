@@ -2,24 +2,26 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 type Variant = "primary" | "secondary" | "danger" | "ghost";
-export function Button({ variant = "primary", className, ...p }: React.ComponentPropsWithRef<"button"> & { variant?: Variant }) {
+type Size = "md" | "lg";
+export function Button({ variant = "primary", size = "md", className, ...p }: React.ComponentPropsWithRef<"button"> & { variant?: Variant; size?: Size }) {
   const v: Record<Variant, string> = {
     primary: "bg-accent text-accent-ink hover:brightness-110 border border-transparent",
     secondary: "bg-surface text-ink border border-strong hover:bg-sunken",
     danger: "bg-bad text-surface border border-transparent hover:brightness-110",
     ghost: "bg-transparent text-ink border border-transparent hover:bg-sunken",
   };
-  return <button className={cn("inline-flex min-h-target items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50", v[variant], className)} {...p} />;
+  const sz: Record<Size, string> = { md: "min-h-target px-4 text-sm", lg: "min-h-target-lg px-6 text-base" };
+  return <button className={cn("inline-flex items-center justify-center gap-2 rounded-lg py-2 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50", sz[size], v[variant], className)} {...p} />;
 }
 export function Card({ className, ...p }: React.HTMLAttributes<HTMLDivElement>) {
-  return <section className={cn("rounded-lg border border-line bg-surface p-4", className)} {...p} />;
+  return <section className={cn("rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5", className)} {...p} />;
 }
 export type Tone = "gray" | "green" | "amber" | "red" | "blue";
 const TONE: Record<Tone, string> = {
   gray: "bg-sunken text-ink", green: "bg-ok-soft text-ok", amber: "bg-warn-soft text-warn", red: "bg-bad-soft text-bad", blue: "bg-accent-soft text-accent",
 };
 export function Badge({ tone = "gray", children, title }: { tone?: Tone; children: React.ReactNode; title?: string }) {
-  return <span title={title} className={cn("inline-flex items-center whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold", TONE[tone])}>{children}</span>;
+  return <span title={title} className={cn("inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold", TONE[tone])}>{children}</span>;
 }
 export const inputCls = "min-h-target w-full rounded-md border border-strong bg-surface px-3 py-2 text-sm text-ink placeholder:text-mute";
 export function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
@@ -59,7 +61,7 @@ export function PageHeader({ title, sub, actions }: { title: string; sub?: React
   return (
     <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
       <div className="min-w-0">
-        <h1 className="text-xl font-semibold tracking-tight md:text-2xl">{title}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{title}</h1>
         {sub && <p className="mt-0.5 text-sm text-mute">{sub}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
