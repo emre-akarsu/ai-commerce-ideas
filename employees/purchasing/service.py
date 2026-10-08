@@ -562,7 +562,7 @@ class PurchasingService(MvpOps):
         suppliers: SupplierStore | None = None,
         spend_book: SpendBook | None = None,
         shadow_extractor: Extractor | None = None,
-        price_history: PriceHistory | None = None,
+        price_history: Callable[[str], PriceHistory | None] | None = None,
     ) -> None:
         self._suppliers = suppliers if suppliers is not None else SupplierStore()
         self._reply_key = reply_token_key if reply_token_key is not None else secrets.token_bytes(32)
@@ -580,7 +580,9 @@ class PurchasingService(MvpOps):
         self._settings = settings or Settings()
         self._profile = profile
         # Verification layer: a second, independent reader of every quote (findings only) and the
-        # tenant's price history, when one is supplied. Thresholds come from the profile.
+        # tenant's price history, when one is supplied. `price_history` is called with the tenant id
+        # and must return a history bound to that tenant (hard rule 7). Thresholds come from the
+        # profile.
         self._shadow_extractor = shadow_extractor
         self._price_history = price_history
         self._verify_cfg = (VerifyConfig.from_mapping(profile.profile.verification.model_dump(mode="json"))
@@ -1400,8 +1402,9 @@ class PurchasingService(MvpOps):
             except Exception:  # noqa: BLE001 - a failing second reader adds nothing
                 shadow = None
         qty = Decimal(request.quantity) if request.quantity else None
+        history = self._price_history(request.tenant_id) if self._price_history else None
         return verify_quote(quote, primary, shadow, cfg=self._verify_cfg,
-                            history=self._price_history, merchant_id=vendor.id, quantity=qty)
+                            history=history, merchant_id=vendor.id, quantity=qty)
 
     def _quote_id_for(self, request: Request, rfq: RFQ) -> str:
         ts = self._ts(request.tenant_id)
@@ -1834,7 +1837,7 @@ def build_in_memory_service(
     profile: ResolvedProfile | None = None,
     suppliers: SupplierStore | None = None,
     shared: dict[str, Any] | None = None,
-    price_history: PriceHistory | None = None,
+    price_history: Callable[[str], PriceHistory | None] | None = None,
 ) -> PurchasingService:
     """Fully wired service on in-memory stores. The transport is handed to the send-service ONLY.
     Defaults are dev-safe: a recording transport (nothing leaves the process), caps from the manifest
