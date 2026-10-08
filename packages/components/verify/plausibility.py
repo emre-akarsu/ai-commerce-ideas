@@ -46,6 +46,11 @@ class InMemoryPriceHistory:
     def add(self, obs: PriceObservation) -> None:
         self._rows.append(obs)
 
+    def add_many(self, observations: Iterable[PriceObservation]) -> int:
+        batch = list(observations)
+        self._rows.extend(batch)
+        return len(batch)
+
     def observations(
         self, item_key: str, merchant_id: str | None = None, limit: int = 20
     ) -> Sequence[PriceObservation]:

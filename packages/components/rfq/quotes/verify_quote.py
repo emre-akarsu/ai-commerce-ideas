@@ -35,10 +35,12 @@ def verify_quote(
     history: PriceHistory | None = None,
     merchant_id: str = "",
     quantity: Decimal | None = None,
+    item_key: str | None = None,
 ) -> tuple[Finding, ...]:
     """`primary` is the reading the quote was built from; `shadow` an independent second reading
     of the same text (None when no second reader is configured). `history` is bound to the
-    quote's tenant."""
+    quote's tenant. `item_key` is the key the history is filed under (the caller's normalised part
+    number); it defaults to the offered part number as stated."""
     found: list[Finding] = []
     if shadow is not None:
         found.extend(diff_readings(shadow, primary))
@@ -46,10 +48,10 @@ def verify_quote(
     if price is not None:
         found.extend(check_line(
             QuoteLineFacts(line_id=quote.id, unit_price=price, currency=quote.currency), cfg))
-        if history is not None and quote.offered_mpn and quote.currency:
+        key = item_key or quote.offered_mpn
+        if history is not None and key and quote.currency:
             found.extend(check_plausibility(
-                quote.offered_mpn, merchant_id, price, "each", quote.currency, quantity,
-                history, cfg))
+                key, merchant_id, price, "each", quote.currency, quantity, history, cfg))
     return tuple(sorted(found, key=lambda f: (f.field, f.code, f.values)))
 
 

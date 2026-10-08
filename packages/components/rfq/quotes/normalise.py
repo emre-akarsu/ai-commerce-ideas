@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import math
 import re
-from collections.abc import Collection, Iterable, Mapping
+from collections.abc import Collection, Iterable, Mapping, Sequence
 from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
@@ -91,6 +91,21 @@ def parse_money(raw: str) -> Money | None:
     if m["neg"] or paren:
         amount = -amount
     return Money(amount=amount, currency_token=pre or post)
+
+
+def currency_candidates(token: str) -> frozenset[str]:
+    """The ISO codes a currency token can mean, whatever the deployment: a symbol gives its code,
+    a three-letter code gives itself, a bare dollar sign gives every dollar currency, and anything
+    else gives nothing. Used to compare two readings of one quote; it never decides a quote's
+    currency (that is `normalise_quote` under the deployment's policy)."""
+    text = token.strip()
+    if text == "$":
+        return frozenset(_BARE_DOLLAR_OK)
+    if text in _SYMBOLS:
+        return frozenset({_SYMBOLS[text]})
+    if len(text) == 3 and text.isascii() and text.isalpha():
+        return frozenset({text.upper()})
+    return frozenset()
 
 
 def _iso(
@@ -563,6 +578,7 @@ def normalise_quote(
     cur_pol = _currency_policy(profile)
     tax_active = profile is not None and profile.profile.tax.standard_rate > 0
     price_text = _strip_tax_tail(ex.unit_price) if tax_active else None
+    f: Sequence[str]  # flags of the step just run: some steps give a list, some a tuple
     amount, currency, f = _resolve_price(ex, cur_pol, price_text)
     flags += f
     price_each, f = _unit_price_each(ex, amount)

@@ -116,7 +116,7 @@ from components.send_service.service import TenantIdentities
 from components.suppliers import SupplierStore, is_stop_request
 from components.verify.config import VerifyConfig
 from components.verify.findings import Finding
-from components.verify.history import PriceHistory
+from components.verify.history import PriceHistoryStore, PriceObservation
 
 from .mvp import MvpOps
 from .service_port import Conflict, NotFound, TextRfqDraft
@@ -146,6 +146,7 @@ EVT_CANDIDATES = "candidates.found"
 EVT_RFQ_PREPARED = "rfq.prepared"
 EVT_QUOTE_INGESTED = "quote.ingested"
 EVT_QUOTE_VERIFIED = "quote.verified"  # verification findings for an ingested quote (flags only)
+EVT_PRICE_HISTORY_FAILED = "price_history.record_failed"  # the price of a PO draft was not kept
 EVT_VENDOR_UPSERTED = "vendor.upserted"
 EVT_CSV_IMPORT = "import.csv"
 EVT_VENDOR_CONTACT_CHANGED = "vendor.contact_changed"
@@ -562,7 +563,7 @@ class PurchasingService(MvpOps):
         suppliers: SupplierStore | None = None,
         spend_book: SpendBook | None = None,
         shadow_extractor: Extractor | None = None,
-        price_history: Callable[[str], PriceHistory | None] | None = None,
+        price_history: Callable[[str], PriceHistoryStore | None] | None = None,
     ) -> None:
         self._suppliers = suppliers if suppliers is not None else SupplierStore()
         self._reply_key = reply_token_key if reply_token_key is not None else secrets.token_bytes(32)
@@ -1403,8 +1404,9 @@ class PurchasingService(MvpOps):
                 shadow = None
         qty = Decimal(request.quantity) if request.quantity else None
         history = self._price_history(request.tenant_id) if self._price_history else None
-        return verify_quote(quote, primary, shadow, cfg=self._verify_cfg,
-                            history=history, merchant_id=vendor.id, quantity=qty)
+        key = normalise_mpn(quote.offered_mpn) if quote.offered_mpn else None
+        return verify_quote(quote, primary, shadow, cfg=self._verify_cfg, history=history,
+                            merchant_id=vendor.id, quantity=qty, item_key=key or None)
 
     def _quote_id_for(self, request: Request, rfq: RFQ) -> str:
         ts = self._ts(request.tenant_id)
@@ -1656,7 +1658,25 @@ class PurchasingService(MvpOps):
         self._move(request, S.PO_DRAFTED, ctx.actor, {
             "po_id": draft.id, "quote_id": quote.id, "quote_version": quote.version,
             "total": total, "currency": quote.currency})
+        self._remember_price(request, draft)
         return draft
+
+    def _remember_price(self, request: Request, draft: PurchaseOrderDraft) -> None:
+        """Keep the price of a quote that became a PO draft as one point of this tenant's price
+        history (read by the plausibility check on later quotes). Best effort: the PO draft is
+        already recorded, so a failure here is an audit event, never a failed draft."""
+        store = self._price_history(request.tenant_id) if self._price_history else None
+        key = normalise_mpn(draft.mpn)
+        if store is None or not key:
+            return
+        try:
+            store.add_many([PriceObservation(
+                item_key=key, merchant_id=draft.vendor_id, unit_price=draft.unit_price_each,
+                unit="each", currency=draft.currency, quantity=Decimal(draft.quantity),
+                observed_at=self._clock.now(), source="accepted_quote")])
+        except Exception as exc:  # noqa: BLE001 - history is a side record, never a blocker
+            self._emit(request.tenant_id, request.id, "agent", EVT_PRICE_HISTORY_FAILED, {
+                "po_id": draft.id, "reason": type(exc).__name__})
 
     def _canonical_mpn(self, tenant_id: str, request_id: str, offered: str) -> str:
         """The request's own candidate MPN when the offered part matches one (R2/L2), never the
@@ -1837,7 +1857,7 @@ def build_in_memory_service(
     profile: ResolvedProfile | None = None,
     suppliers: SupplierStore | None = None,
     shared: dict[str, Any] | None = None,
-    price_history: Callable[[str], PriceHistory | None] | None = None,
+    price_history: Callable[[str], PriceHistoryStore | None] | None = None,
 ) -> PurchasingService:
     """Fully wired service on in-memory stores. The transport is handed to the send-service ONLY.
     Defaults are dev-safe: a recording transport (nothing leaves the process), caps from the manifest

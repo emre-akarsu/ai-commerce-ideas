@@ -4,7 +4,7 @@ holds only the interface and the observation record."""
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
@@ -28,3 +28,9 @@ class PriceHistory(Protocol):
 
     def observations(self, item_key: str, merchant_id: str | None = None,
                      limit: int = 20) -> Sequence[PriceObservation]: ...
+
+
+class PriceHistoryStore(PriceHistory, Protocol):
+    """A history that can also take new points. Append only: nothing is updated or deleted."""
+
+    def add_many(self, observations: Iterable[PriceObservation]) -> int: ...

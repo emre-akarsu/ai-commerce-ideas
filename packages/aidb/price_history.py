@@ -20,7 +20,7 @@ from typing import Any
 
 from sqlalchemy import Engine, RowMapping, insert, select
 
-from components.verify.history import PriceHistory, PriceObservation
+from components.verify.history import PriceHistoryStore, PriceObservation
 
 from .models import price_observations
 from .session import tenant_session
@@ -156,6 +156,6 @@ class PgPriceHistory:
         return TenantPriceHistory(self._engine, _tenant(tenant_id))
 
 
-def _as_price_history(history: TenantPriceHistory) -> PriceHistory:
+def _as_price_history(history: TenantPriceHistory) -> PriceHistoryStore:
     """Static check only: mypy fails here if TenantPriceHistory stops satisfying the Protocol."""
     return history

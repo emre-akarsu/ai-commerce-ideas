@@ -4,7 +4,8 @@
 nothing here picks a reading or returns a merged value. Pure and deterministic.
 
 Each field is compared by its kind (see `_KIND`):
-- money: `parse_money`; amounts must be equal, and currency tokens equal when both are present.
+- money: `parse_money`; amounts must be equal, and currency tokens compatible when both are
+  present (`currency_candidates`: "£" and "GBP" agree, "$" agrees with every dollar code).
 - lead time, validity: the days read by `parse_lead_time_days` / `parse_validity_days`.
 - unit of measure: `parse_uom_divisor`; the text itself when the parser returns None.
 - part number: upper case with whitespace removed.
@@ -24,6 +25,7 @@ from typing import TypeAlias
 from components.core.domain import ExtractedQuote
 from components.rfq.quotes.normalise import (
     Money,
+    currency_candidates,
     parse_lead_time_days,
     parse_money,
     parse_uom_divisor,
@@ -56,6 +58,7 @@ class _Kind(StrEnum):
     VALIDITY = "validity"
     UOM = "uom"
     PART = "part"
+    CURRENCY = "currency"
     TEXT = "text"
 
 
@@ -66,7 +69,7 @@ _KIND: Mapping[str, _Kind] = {
     "validity": _Kind.VALIDITY,
     "uom": _Kind.UOM,
     "offered_mpn": _Kind.PART,
-    "currency": _Kind.TEXT,
+    "currency": _Kind.CURRENCY,
     "quantity_available": _Kind.TEXT,
     "moq": _Kind.TEXT,
     "condition": _Kind.TEXT,
@@ -75,7 +78,7 @@ _KIND: Mapping[str, _Kind] = {
 }
 
 # A normalised reading: equal values agree. `None` from a parser means it could not read the text.
-_Value: TypeAlias = Money | int | str
+_Value: TypeAlias = Money | int | str | frozenset[str]
 
 
 def diff_readings(a: ExtractedQuote, b: ExtractedQuote) -> tuple[Finding, ...]:
@@ -130,12 +133,16 @@ def _read(kind: _Kind, text: str) -> _Value | None:
         return _squash(text) if divisor is None else divisor
     if kind is _Kind.PART:
         return "".join(text.split()).upper()
+    if kind is _Kind.CURRENCY:
+        return currency_candidates(text) or _squash(text)
     return _squash(text)
 
 
 def _same(a: _Value, b: _Value) -> bool:
     if isinstance(a, Money) and isinstance(b, Money):
         return _same_money(a, b)
+    if isinstance(a, frozenset) and isinstance(b, frozenset):
+        return bool(a & b)
     return a == b
 
 
@@ -144,7 +151,10 @@ def _same_money(a: Money, b: Money) -> bool:
         return False
     if a.currency_token is None or b.currency_token is None:
         return True  # a missing token is compatible; the amounts already agree
-    return a.currency_token.casefold() == b.currency_token.casefold()
+    left, right = a.currency_token, b.currency_token
+    if left.casefold() == right.casefold():
+        return True
+    return bool(currency_candidates(left) & currency_candidates(right))
 
 
 def _squash(text: str) -> str:

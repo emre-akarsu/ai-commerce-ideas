@@ -9,6 +9,7 @@ from employees.purchasing.service import EVT_QUOTE_VERIFIED
 
 from components.core.domain import ExtractedQuote
 from components.core.domain import RequestState as S
+from components.parts.equivalence.catalogue import normalise_mpn
 from components.rfq.quotes.extractors import RegexQuoteExtractor
 from components.verify.history import PriceHistory, PriceObservation
 from components.verify.plausibility import InMemoryPriceHistory
@@ -89,7 +90,7 @@ def _paid(price: str, day: int) -> PriceObservation:
     from datetime import UTC, datetime
 
     return PriceObservation(
-        item_key="AL6205-2RS", merchant_id="acme", unit_price=Decimal(price), unit="each",
+        item_key=normalise_mpn("AL6205-2RS"), merchant_id="acme", unit_price=Decimal(price), unit="each",
         currency="USD", quantity=None, observed_at=datetime(2026, 1, day, tzinfo=UTC),
         source="po_import")
 

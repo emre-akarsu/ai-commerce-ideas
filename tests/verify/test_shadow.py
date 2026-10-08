@@ -199,3 +199,31 @@ def test_findings_are_sorted_by_field_and_code_and_repeatable() -> None:
 def test_critical_fields_are_every_extracted_quote_field() -> None:
     assert set(CRITICAL_FIELDS) == set(ExtractedQuote.model_fields)
     assert set(BASE) == set(CRITICAL_FIELDS)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [("£12.50", "GBP 12.50"), ("$12.50", "USD 12.50"), ("$12.50", "CAD 12.50"),
+     ("€12.50", "eur 12.50"), ("US$12.50", "USD 12.50")],
+)
+def test_currency_symbols_and_codes_for_the_same_currency_agree(a: str, b: str) -> None:
+    assert diff_readings(_reading(unit_price=a), _reading(unit_price=b)) == ()
+
+
+@pytest.mark.parametrize(
+    ("a", "b"), [("£12.50", "USD 12.50"), ("£12.50", "€12.50"), ("GBP 12.50", "EUR 12.50")]
+)
+def test_different_currencies_still_disagree(a: str, b: str) -> None:
+    (f,) = diff_readings(_reading(unit_price=a), _reading(unit_price=b))
+    assert f.code == "readings_disagree"
+
+
+@pytest.mark.parametrize(("a", "b"), [("£", "GBP"), ("$", "USD"), ("US$", "usd"), ("$", "MXN")])
+def test_the_currency_field_compares_what_the_tokens_mean(a: str, b: str) -> None:
+    assert diff_readings(_reading(currency=a), _reading(currency=b)) == ()
+
+
+def test_the_currency_field_disagrees_for_different_currencies() -> None:
+    (f,) = diff_readings(_reading(currency="£"), _reading(currency="USD"))
+    assert (f.code, f.field) == ("readings_disagree", "currency")
+
