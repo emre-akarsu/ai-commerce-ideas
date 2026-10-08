@@ -28,7 +28,7 @@ export function useSelection(): [Selection, (s: Partial<Selection>) => void] {
 
 export function TenantPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
-    <Field label="Customer (demo)" hint="Two invented customers with different private price lists.">
+    <Field label="Customer (demo)">
       <select data-tenant value={value} onChange={(e) => onChange(e.target.value)} className={inputCls}>
         {TENANTS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
       </select>
@@ -37,7 +37,7 @@ export function TenantPicker({ value, onChange }: { value: string; onChange: (v:
 }
 export function ScopePicker({ value, onChange, hint }: { value: string; onChange: (v: string) => void; hint?: string }) {
   return (
-    <Field label="Job scope" hint={hint}>
+    <Field label="Job type" hint={hint}>
       <select data-scope value={value} onChange={(e) => onChange(e.target.value)} className={inputCls}>
         {SCOPES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
       </select>

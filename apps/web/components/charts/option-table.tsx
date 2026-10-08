@@ -5,7 +5,7 @@ import type { OptionSetView } from "@/lib/quote/options";
 import { optionColumns } from "@/lib/quote/viz";
 import { ChartFrame, tableCls, tdCls, thCls } from "./chart-frame";
 
-export function OptionTable({ set, title = "Ways to buy" }: { set: OptionSetView; title?: string }) {
+export function OptionTable({ set, title = "Side by side" }: { set: OptionSetView; title?: string }) {
   const cols = optionColumns(set);
   const table = (bars: boolean) => (
     <div className="overflow-x-auto">
