@@ -4,9 +4,9 @@ The owner supplied ten candidate improvements, each with an "Est. improvement" a
 
 ## 0. How the decisions were made
 
-- **The percentages are not used to rank.** Neither column states a source, a population or a baseline, and nothing in this repository has measured any of them. They are treated as hypotheses. The UI-time items (1 to 4) also overlap: they shorten different phases of one task, so their gains cannot be added. Measure end-to-end task time once (request to approved PO draft) and use per-step timings only to diagnose.
+- **The percentages are not used to rank.** Neither column states a source, a population or a baseline, and nothing in this repository has measured any of them. They are treated as hypotheses. The UI-time items (1 to 4) also overlap: they act on one task and on each other (the exception queue changes which cards reach the approval step), so their gains cannot be added. Measure end-to-end task time once (request to approved PO draft) and use per-step timings only to diagnose.
 - **Criteria, in order:** (1) does it need a hard rule relaxed; (2) does it close a gap in `11-gap-coverage-vs-consolidated-research.md` or a known gap; (3) how much is already built; (4) can we measure it against a baseline; (5) does it depend on real data we do not have; (6) cost against value.
-- **A speed metric alone rewards rubber-stamping.** Any item that speeds up review (1, 4, 7) is only valid if the rate at which reviewers catch seeded defects does not fall. That guard is part of each gate below.
+- **A speed metric alone rewards rubber-stamping.** Any item whose benefit is less human time (1, 2, 3, 4, 7, 10) is only valid if the rate at which reviewers catch seeded defects does not fall. That guard is part of each gate below.
 
 ## 1. Decision summary
 
@@ -34,7 +34,7 @@ Plus one prerequisite that is not on the list: **M0, measurement events** (secti
   2. *Shadow diff:* a deterministic parser and the model extractor read the same quote. Any disagreement on a critical field (price, quantity, unit, pack, lead time, validity, VAT basis) goes to review with both readings and the source snippet side by side. Never auto-pick one.
   3. *Plausibility against history:* start with the tenant's own last-paid price (from the PO history import, F11, and accepted quotes) and per-SKU medians. Flags only: a price jump, a unit-basis shift (for example a per-metre price near a per-length price), an unusual quantity. All thresholds come from the resolved profile, never constants.
 - **Rules:** all three only add flags or send lines to review. None can approve a line. Money stays `Decimal` with explicit unit and currency (R9).
-- **Measure:** build a seeded-error set first (take correct quotes; inject decimal slips, wrong pack, ex/inc VAT swaps, unit swaps, wrong currency, transposed quantities, expired validity). Report detection recall per error type with Wilson intervals, the false-alarm rate and the review minutes added. Gate: no injected critical error reaches "approval-ready" without a flag, on at least 300 lines from at least 30 vendors (spec 8.5). Zero observed errors is reported as an upper bound, not as safety (spec 8.8).
+- **Measure:** build a seeded-error set first (take correct quotes; inject decimal slips, wrong pack, ex/inc VAT swaps, unit swaps, wrong currency, transposed quantities, expired validity). Report detection recall per error type with Wilson intervals, the false-alarm rate and the review minutes added. Gate: no injected critical error reaches "approval-ready" without a flag, in at least 189 held-out injected errors (the unit is the injected error, not the line) placed in at least 300 quotes from at least 30 vendors (spec 8.5), with a ceiling on false alarms so that flagging everything does not pass, scored on the sealed set. Zero observed errors is reported as an upper bound, not as safety (spec 8.8).
 
 ### 3. Normalised quote comparison: adopt, must (finish)
 - **Today:** side-by-side offers with VAT basis on every amount, delivery, lead time, per-reason templated text, ranked options (`quote-options.md`). Split deliveries are explicitly not modelled; bundles and quote-wide freight allocation are not.
@@ -124,3 +124,16 @@ All twelve rules, spec numbering. "Conditional" means the item is acceptable onl
 4. Decide the channel for an eventual emailed digest: the send-service as a standing-rule class, or an owner amendment of R1 for internal notifications.
 5. Ask counsel whether exported or forwarded email history may be used for backfill and under what retention; until then backfill uses PO history, price files, quote PDFs and invoices.
 6. Decide the refurbishment-versus-MRO focus (`11-gap-coverage-vs-consolidated-research.md`, section 5).
+
+## 7. Review of the gates and metrics (2026-10-08)
+
+A read-only adversarial review of sections 0, 2 (the Measure bullets) and 3, and of spec sections 8 and 9, found the points below. Each is applied in spec v0.3 (section 5a F28 and M0, section 8 items 2, 3 and 13, section 9).
+
+- **Two bound methods were mixed.** Spec 8.2 sizes use the two-sided Wilson bound; 8.3 used exact one-sided values (59 and 299), which under Wilson give 6.1% and 1.3%. All sizes are now Wilson: 73, 189 and 381 for 5%, 2% and 1%.
+- **A flag-everything verifier would pass the item 9 gate.** The unit is now the injected error (at least 189), with a false-alarm ceiling.
+- **Drills are learnable and underpowered.** Nine of ten seeds caught has a Wilson interval of about 60 to 98 percent, and detecting a fall from 95 to 90 percent needs about 435 seeds per arm. Drills are now unannounced, pooled by cohort, held out from training, and the guard is a stated non-inferiority margin that reads "not evaluated" below the stated seed count.
+- **Baselines had no length.** At least four weeks on the current flow, fixed in advance.
+- **Abstention shrinks a gate's denominator.** Abstained items stay in the fixed labelled set and are reported with coverage.
+- **Gates could be scored on tuning data.** Gate results come from the sealed set or live data; thresholds are frozen first.
+- **Pilot rows had no N.** Each row states its N; at five accounts, three accepting has a Wilson lower bound of about 23 percent. Willingness to pay is gated on paid conversions.
+- **The summed UI-time gains were replaced** by one end-to-end measure from `request_received` to `po_draft_approved`, with touch minutes and elapsed hours reported separately and censoring rules stated.
