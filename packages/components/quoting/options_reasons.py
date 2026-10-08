@@ -67,6 +67,8 @@ TEMPLATES: dict[str, str] = {
     "same_as": "Same as {option}.",
     "no_preferred_list": "No preferred suppliers are set, so this option is not produced.",
     "no_firm_lines": "No line has a firm offer, so there are no options.",
+    "availability_filtered": "{offers} offer(s) were left out because they cannot supply the "
+                             "packs needed by day {day}; {lines} line(s) have no offer left.",
     "max_options": "Not shown: the limit of {limit} options was reached.",
 }
 

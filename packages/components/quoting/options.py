@@ -19,7 +19,15 @@ from fractions import Fraction
 from typing import Any
 
 from components.core.ports import Clock
-from components.pricing import PricedLine, PricedOffer, PricingConfig, VatBasis, Visibility
+from components.pricing import (
+    FeasibilityStatus,
+    PricedLine,
+    PricedOffer,
+    PricingConfig,
+    VatBasis,
+    Visibility,
+    assess_feasibility,
+)
 from components.pricing.results import LineStatus
 from components.pricing.text import check_id
 from components.pricing.vat import split_total
@@ -98,6 +106,35 @@ def _prepare(lines: Sequence[PricedLine], tenant_id: str) -> tuple[
         firm.append(pl if len(ranked) == len(pl.ranked) else
                     replace(pl, ranked=ranked, best=ranked[0], runner_ups=ranked[1:]))
     return firm, excluded, indicative, dropped
+
+
+_CANNOT_SUPPLY = frozenset({FeasibilityStatus.TOO_LATE, FeasibilityStatus.INSUFFICIENT})
+
+
+def _within_availability(
+    firm: list[PricedLine], days: int | None
+) -> tuple[list[PricedLine], list[ExcludedLine], int]:
+    """Leave out the offers that cannot supply the packs they would be bought in by `days` (a date
+    in the past counts as today). An offer that states no availability stays in. A line left with
+    no offer is excluded and listed, never dropped silently. Returns the lines, the excluded
+    lines and the number of offers left out."""
+    if days is None:
+        return firm, [], 0
+    by = max(days, 0)
+    kept: list[PricedLine] = []
+    late: list[ExcludedLine] = []
+    removed = 0
+    for pl in firm:
+        ok = tuple(p for p in pl.ranked
+                   if assess_feasibility(p.offer, p.packs, by).status not in _CANNOT_SUPPLY)
+        removed += len(pl.ranked) - len(ok)
+        if not ok:
+            late.append(ExcludedLine(pl.line.line_id, "not_available_in_time"))
+        elif len(ok) == len(pl.ranked):
+            kept.append(pl)
+        else:
+            kept.append(replace(pl, ranked=ok, best=ok[0], runner_ups=ok[1:]))
+    return kept, late, removed
 
 
 def _totals(ev: Evaluated, pcfg: PricingConfig) -> OptionTotals:
@@ -256,17 +293,22 @@ def build_options(
     pref = check_preferred(list(preferred))
     now = clock.now()
     firm, drop_lines, indicative, dropped = _prepare(lines, tenant_id)
+    rdays = required_days(cfg, now)
+    firm, late_lines, late_offers = _within_availability(firm, rdays)
+    avail_notes = ((reason("availability_filtered", offers=late_offers, lines=len(late_lines),
+                           day=max(rdays or 0, 0)),) if late_offers else ())
     ind_count = len(dropped | {i.line_id for i in indicative})
-    excl = tuple(sorted({*excluded, *drop_lines}, key=lambda e: (e.line_id, e.bucket)))
+    excl = tuple(sorted({*excluded, *drop_lines, *late_lines},
+                        key=lambda e: (e.line_id, e.bucket)))
     base = dict(tenant_id=tenant_id, generated_at=now, currency=pcfg.base_currency,
                 basis=pcfg.compare_basis, tax_rate=pcfg.vat_rate, config=cfg, preferred=pref,
                 excluded_lines=excl, indicative=tuple(indicative), composite=cfg.composite,
-                required_by_days=required_days(cfg, now))
+                required_by_days=rdays)
     if not firm:
         return OptionSet(
             **base, firm_line_ids=(), options=(), duplicates=(), not_shown=(), pareto_front=(),
             optimiser=OptimiserInfo("none", True, Decimal(0), 0, False),
-            notes=(reason("no_firm_lines"),))  # type: ignore[arg-type]
+            notes=(reason("no_firm_lines"), *avail_notes))  # type: ignore[arg-type]
     inst = Instance(firm, pref)
     s = Searcher(inst, pcfg, cfg)
     ref = s.cheapest()
@@ -290,7 +332,6 @@ def build_options(
             merchant, tuple(sorted(covered)),
             tuple(sorted(set(inst.line_merchants) - set(covered))), mine_total,
             ev.total - mine_total)
-    rdays = required_days(cfg, now)
     if cfg.composite:
         produced["balanced"] = min(s.pool.values(), key=lambda e: (
             _raw_score(e, inst, pref, cfg, rdays), e.total, e.merchants, e.pairs))
@@ -299,7 +340,7 @@ def build_options(
     groups, lost = _truncate(_group(produced, cfg.kinds), cfg.max_options)
     not_shown.extend(lost)
     return _assemble(base, groups, not_shown, ref, inst, s, pcfg, cfg, s_info, ind_count,
-                     rdays)
+                     rdays, avail_notes)
 
 
 def required_days(cfg: OptionsConfig, now: datetime) -> int | None:
@@ -320,7 +361,8 @@ def _raw_score(ev: Evaluated, inst: Instance, pref: tuple[str, ...], cfg: Option
 def _assemble(base: dict[str, Any], groups: list[tuple[Evaluated, tuple[str, ...]]],
               not_shown: list[NotShown], ref: Evaluated, inst: Instance, s: Searcher,
               pcfg: PricingConfig, cfg: OptionsConfig, s_info: dict[Pairs, SingleSupplierInfo],
-              indicative_count: int, rdays: int | None) -> OptionSet:
+              indicative_count: int, rdays: int | None,
+              notes: tuple[OptionReason, ...] = ()) -> OptionSet:
     def score_of(ev: Evaluated) -> Decimal | None:
         if not cfg.composite:
             return None
@@ -389,7 +431,7 @@ def _assemble(base: dict[str, Any], groups: list[tuple[Evaluated, tuple[str, ...
         **base, firm_line_ids=tuple(sorted(inst.line_merchants)), options=tuple(options),
         duplicates=tuple(dups), not_shown=tuple(not_shown), pareto_front=front,
         optimiser=OptimiserInfo(basket.method, basket.exact, ref.total, s.calls, s.incomplete),
-        notes=())
+        notes=notes)
 
 
 def quote_options(

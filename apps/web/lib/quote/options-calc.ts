@@ -35,9 +35,9 @@ export const FLAG_TEXT: Record<string, { text: string; tone: "gray" | "amber" | 
 export const flagText = (f: string): { text: string; tone: "gray" | "amber" | "red" } => FLAG_TEXT[f] ?? { text: humanCode(f), tone: "gray" };
 
 export const BUCKET_LABEL: Record<string, string> = {
-  review: "Needs your review", unmatched: "Unmatched", indicative_only: "Indicative only", no_offer: "No offer", skipped: "Skipped", priced: "Priced",
+  review: "Needs your review", unmatched: "Unmatched", indicative_only: "Indicative only", no_offer: "No offer", not_available_in_time: "Not available in time", skipped: "Skipped", priced: "Priced",
 };
-export const BUCKET_SHORT: Record<string, string> = { review: "to review", unmatched: "unmatched", indicative_only: "indicative only", no_offer: "no offer", skipped: "skipped" };
+export const BUCKET_SHORT: Record<string, string> = { review: "to review", unmatched: "unmatched", indicative_only: "indicative only", no_offer: "no offer", not_available_in_time: "not available in time", skipped: "skipped" };
 export const bucketShort = (b: string): string => BUCKET_SHORT[b] ?? humanCode(b);
 export const bucketLabel = (b: string): string => BUCKET_LABEL[b] ?? humanCode(b);
 
