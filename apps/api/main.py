@@ -50,6 +50,7 @@ from .middleware import IdempotencyStore, SecurityMiddleware, make_idempotency
 from .price_file_routes import price_file_router
 from .quote_rfq_routes import quote_rfq_router
 from .quote_routes import quote_router
+from .telemetry_routes import telemetry_router
 
 log = logging.getLogger("purchasing.api")
 
@@ -534,6 +535,7 @@ def create_app(
     app.include_router(quote_router(auth, profile))
     app.include_router(quote_rfq_router(auth, svc, profile))
     app.include_router(price_file_router(auth))
+    app.include_router(telemetry_router(auth))
 
     @app.exception_handler(_TooLargeError)
     async def _too_large(_: Request, __: _TooLargeError) -> JSONResponse:

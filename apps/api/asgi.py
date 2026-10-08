@@ -12,6 +12,7 @@ docs/architecture/known-gaps.md (H2).
 from __future__ import annotations
 
 import os
+import secrets
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
@@ -81,11 +82,19 @@ def build_app(env: Mapping[str, str] | None = None, *, clock: Clock | None = Non
     clk = clock or _SystemClock()
     url = e.get("DATABASE_URL", "").strip()
     if not url:
+        from components.telemetry.store import InMemoryTelemetryStore
+        from components.verify.plausibility import InMemoryPriceHistory
+
         from .quote_service import QuoteUnavailableError, build_quote_service
 
+        books: dict[str, InMemoryPriceHistory] = {}  # one history per tenant (hard rule 7)
         app = create_app(
-            build_in_memory_service(profile=profile, clock=clock), build_authenticator(e),
-            cors_origins=origins, profile=profile, inbound_secret=secret)
+            build_in_memory_service(
+                profile=profile, clock=clock,
+                price_history=lambda tenant: books.setdefault(tenant, InMemoryPriceHistory())),
+            build_authenticator(e), cors_origins=origins, profile=profile, inbound_secret=secret)
+        app.state.telemetry = InMemoryTelemetryStore()
+        app.state.telemetry_key = secrets.token_bytes(32)  # dev only: events do not persist
         try:  # in-memory stores; the demo seed only with QUOTE_DEMO_DATA=1
             app.state.quote_service = build_quote_service(
                 profile, clock=clk, **_quote_service_kwargs(e))
@@ -102,9 +111,11 @@ def _build_pg_app(url: str, e: Mapping[str, str], profile: Any, clk: Clock,
 
     from employees.purchasing.service import build_pg_service
 
+    from aidb.price_history import PgPriceHistory
     from aidb.repositories import PgEventStore
     from aidb.session import make_engine
     from aidb.state import PgSharedState
+    from aidb.telemetry import PgReviewEvents
 
     from .quote_pg import build_pg_stores
     from .quote_provision import demo_shared_summaries
@@ -117,8 +128,10 @@ def _build_pg_app(url: str, e: Mapping[str, str], profile: Any, clk: Clock,
     engine = make_engine(url)  # app_user: every session verifies the role does not bypass RLS
     events = PgEventStore(engine, clk, pii_key=pii, chain_key=chain)
     shared = PgSharedState(engine, clock=clk)
+    history = PgPriceHistory(engine)
     service = build_pg_service(
-        profile, engine, shared, events, clock=clk, approval_secret=approval, audit_key=chain)
+        profile, engine, shared, events, clock=clk, approval_secret=approval, audit_key=chain,
+        price_history=history.for_tenant)
     opts = _quote_service_kwargs(e)
     from components.pricing import PricingConfig
 
@@ -131,6 +144,9 @@ def _build_pg_app(url: str, e: Mapping[str, str], profile: Any, clk: Clock,
         service, build_authenticator(e), cors_origins=origins, profile=profile,
         inbound_secret=secret, idempotency_store=shared.idempotency)
     app.state.quote_service = quote
+    app.state.telemetry = PgReviewEvents(engine)
+    # derived from the stable audit key: stored reviewer references stay comparable across restarts
+    app.state.telemetry_key = hmac.new(chain, b"telemetry-reviewer-key", hashlib.sha256).digest()
     return app
 
 

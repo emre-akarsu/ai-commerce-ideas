@@ -939,6 +939,95 @@
         "title": "DecisionResult",
         "type": "object"
       },
+      "DrillIn": {
+        "additionalProperties": false,
+        "properties": {
+          "expected": {
+            "title": "Expected",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "subject_id": {
+            "title": "Subject Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "subject_id",
+          "expected"
+        ],
+        "title": "DrillIn",
+        "type": "object"
+      },
+      "DrillOut": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "DrillOut",
+        "type": "object"
+      },
+      "DrillsOut": {
+        "properties": {
+          "catch_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Catch Rate"
+          },
+          "caught": {
+            "title": "Caught",
+            "type": "integer"
+          },
+          "median_seconds_to_catch": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Seconds To Catch"
+          },
+          "total_exposed": {
+            "title": "Total Exposed",
+            "type": "integer"
+          },
+          "wilson_high": {
+            "title": "Wilson High",
+            "type": "string"
+          },
+          "wilson_low": {
+            "title": "Wilson Low",
+            "type": "string"
+          }
+        },
+        "required": [
+          "total_exposed",
+          "caught",
+          "catch_rate",
+          "wilson_low",
+          "wilson_high",
+          "median_seconds_to_catch"
+        ],
+        "title": "DrillsOut",
+        "type": "object"
+      },
       "Event": {
         "additionalProperties": false,
         "properties": {
@@ -999,6 +1088,75 @@
           "hash"
         ],
         "title": "Event",
+        "type": "object"
+      },
+      "EventIn": {
+        "additionalProperties": false,
+        "description": "Numbers are strict: a JSON `true` or `\"1500\"` is a 422, not a silent 1 or 1500.",
+        "properties": {
+          "duration_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms"
+          },
+          "event": {
+            "title": "Event",
+            "type": "string"
+          },
+          "meta": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Meta",
+            "type": "object"
+          },
+          "subject_id": {
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "surface": {
+            "title": "Surface",
+            "type": "string"
+          }
+        },
+        "required": [
+          "surface",
+          "subject_id",
+          "event"
+        ],
+        "title": "EventIn",
+        "type": "object"
+      },
+      "EventsIn": {
+        "additionalProperties": false,
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/EventIn"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Events",
+            "type": "array"
+          }
+        },
+        "required": [
+          "events"
+        ],
+        "title": "EventsIn",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -2636,6 +2794,39 @@
         "title": "StopAck",
         "type": "object"
       },
+      "StoredOut": {
+        "properties": {
+          "stored": {
+            "title": "Stored",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "stored"
+        ],
+        "title": "StoredOut",
+        "type": "object"
+      },
+      "SummaryOut": {
+        "properties": {
+          "drills": {
+            "$ref": "#/components/schemas/DrillsOut"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/SurfaceRowOut"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "rows",
+          "drills"
+        ],
+        "title": "SummaryOut",
+        "type": "object"
+      },
       "SupplierProfileView": {
         "additionalProperties": false,
         "description": "FR-SU-2..4. ``verification`` and ``suppressed`` are never set through the profile PUT.",
@@ -2721,6 +2912,119 @@
           "verification"
         ],
         "title": "SupplierProfileView",
+        "type": "object"
+      },
+      "SurfaceRowOut": {
+        "properties": {
+          "approved": {
+            "title": "Approved",
+            "type": "integer"
+          },
+          "approved_under_2s_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved Under 2S Share"
+          },
+          "deferred": {
+            "title": "Deferred",
+            "type": "integer"
+          },
+          "dismissed": {
+            "title": "Dismissed",
+            "type": "integer"
+          },
+          "edit_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edit Rate"
+          },
+          "edited": {
+            "title": "Edited",
+            "type": "integer"
+          },
+          "expand_before_approve_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expand Before Approve Rate"
+          },
+          "expanded": {
+            "title": "Expanded",
+            "type": "integer"
+          },
+          "median_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Ms"
+          },
+          "p90_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P90 Ms"
+          },
+          "rejected": {
+            "title": "Rejected",
+            "type": "integer"
+          },
+          "risk_tier": {
+            "title": "Risk Tier",
+            "type": "string"
+          },
+          "shown": {
+            "title": "Shown",
+            "type": "integer"
+          },
+          "surface": {
+            "title": "Surface",
+            "type": "string"
+          }
+        },
+        "required": [
+          "surface",
+          "risk_tier",
+          "shown",
+          "expanded",
+          "approved",
+          "edited",
+          "rejected",
+          "deferred",
+          "dismissed",
+          "median_ms",
+          "p90_ms",
+          "edit_rate",
+          "expand_before_approve_rate",
+          "approved_under_2s_share"
+        ],
+        "title": "SurfaceRowOut",
         "type": "object"
       },
       "Tier": {
@@ -4701,6 +5005,146 @@
           }
         },
         "summary": "Go Live"
+      }
+    },
+    "/v1/telemetry/drills": {
+      "post": {
+        "operationId": "post_drill_v1_telemetry_drills_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DrillIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DrillOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Post Drill"
+      }
+    },
+    "/v1/telemetry/events": {
+      "post": {
+        "operationId": "post_events_v1_telemetry_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoredOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Post Events"
+      }
+    },
+    "/v1/telemetry/summary": {
+      "get": {
+        "operationId": "get_summary_v1_telemetry_summary_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "since",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Since"
+            }
+          },
+          {
+            "in": "query",
+            "name": "until",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Until"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Summary"
       }
     },
     "/v1/vendors": {
