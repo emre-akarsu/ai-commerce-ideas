@@ -1,0 +1,16 @@
+{
+  "clean": 300,
+  "clean_flagged": 0,
+  "clean_wrong": 0,
+  "escaped_by_type": {
+    "decimal_slip": 10,
+    "expired_validity": 0,
+    "transposed_quantity": 0,
+    "unit_swap": 0,
+    "vat_swap": 0,
+    "wrong_currency": 0,
+    "wrong_pack": 5
+  },
+  "injected": 210,
+  "set_hash": "406157ca88b3fee9ef20c234d72d6156c978168b37e01070e564793c3813a014"
+}

@@ -12,6 +12,7 @@ typecheck:
 	$(PY) -m mypy packages apps employees
 eval:
 	$(PY) -m evals.run
+	$(PY) -m evals.verification.run --check
 check: lint test eval
 demo-api:
 	$(PY) scripts/demo_api.py

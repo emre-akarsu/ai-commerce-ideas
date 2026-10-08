@@ -19,7 +19,6 @@ from components.parts.spec.normaliser import normalise
 from evals.metrics import (
     critical_mismatch_upper_bound,
     required_n_for_wilson_bound,
-    required_n_for_zero_error_bound,
 )
 
 BANNER = "SYNTHETIC SMOKE SET - proves the pipeline, not product accuracy"
@@ -98,7 +97,7 @@ def render(results: list[Result]) -> tuple[str, str]:
         f"Wilson 95% upper bound on critical-mismatch rate: {bound:.4f} (gate <= {GATE_BOUND})",
         f"needed for the gate: >= {MIN_AB_ITEMS} A/B items with zero errors (one error would need "
         f"{required_n_for_wilson_bound(GATE_BOUND, errors=1)}); zero errors in n shows <1% only at "
-        f"n={required_n_for_zero_error_bound(0.01)}",
+        f"n={required_n_for_wilson_bound(0.01)}",
         f"VERDICT: {verdict}",
         BANNER,
     ]
