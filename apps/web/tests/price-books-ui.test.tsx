@@ -116,14 +116,14 @@ describe("UploadDialog and RfqDialog modes", () => {
 
   it("rfq: API mode prepares for approval (disabled without a quote), mock mode keeps the demo button", () => {
     const api = text(renderToStaticMarkup(<RfqDialog book={book()} api tenant="demo-tenant-a" scope="bathroom_full" onClose={() => {}} />));
-    expect(api).toContain("Quote requests for these gaps");
+    expect(api).toContain("Ask for missing prices");
     expect(api).toContain("Nothing is sent from this screen");
     expect(isDisabled(tagWith(api, 'data-act="prepare-rfqs"'))).toBe(true);
     expect(api).not.toContain("data-demo-button");
     expect(api).not.toContain("Demo only");
 
     const mock = text(renderToStaticMarkup(<RfqDialog book={book()} api={false} tenant="demo-tenant-a" scope="bathroom_full" onClose={() => {}} />));
-    expect(mock).toContain("Send RFQ for these gaps");
+    expect(mock).toContain("Ask for missing prices");
     expect(mock).toContain("data-demo-button");
     expect(mock).not.toContain("data-act=\"prepare-rfqs\"");
   });
@@ -142,9 +142,9 @@ describe("PriceBooksApp in mock mode", () => {
     vi.stubGlobal("fetch", fetchSpy);
     const out = text(renderToStaticMarkup(<PriceBooksApp />));
     expect(out).toContain("data-summary");
-    expect(out).toContain("Upload price file");
-    expect(out).toContain("Send RFQ for these gaps");
-    expect(out).toContain("Synthetic");
+    expect(out).toContain("Upload prices");
+    expect(out).toContain("Ask for missing prices");
+    expect(out).toContain("(fictional)"); // the demo ribbon in the shell carries the "Demo data" statement
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 });
