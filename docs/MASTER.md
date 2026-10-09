@@ -648,7 +648,7 @@ One line per document. Screenshots in `mvp/screenshots/` and raw notes in `../re
 | [`product/review/vc-partner-review.md`](product/review/vc-partner-review.md) | Role-play VC partner review |
 | [`architecture/README.md`](architecture/README.md) | Architecture design v0.2, with a status banner and a table of where the code differs (see C2) |
 | [`architecture/current-modules.md`](architecture/current-modules.md) | The modules as built: computed import graph, line counts, who uses whom |
-| [`architecture/activity-diagrams.md`](architecture/activity-diagrams.md) | One activity diagram per module and per optimization, AI steps marked |
+| [`architecture/activity-diagrams.md`](architecture/activity-diagrams.md) | Activity diagrams of the modules (none for `core` or `employees/refurb`; `doc_parse` and `imports` share one) and of the optimizations, AI steps marked |
 | [`architecture/adr/001-python-fastapi-htmx.md`](architecture/adr/001-python-fastapi-htmx.md) | ADR-001 Python, FastAPI, HTMX |
 | [`architecture/adr/002-event-log-and-state-machine.md`](architecture/adr/002-event-log-and-state-machine.md) | ADR-002 hash-chained events and state machine |
 | [`architecture/adr/003-send-service-isolation.md`](architecture/adr/003-send-service-isolation.md) | ADR-003 send-service as sole sender |

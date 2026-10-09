@@ -1,6 +1,6 @@
 # Current modules and interactions
 
-Status as of 2026-10-09, read from the code at commit `691aa58`. Python line counts are measured from the repository (non-test files only). The import graph is computed from the `import` statements, not drawn by hand. Everything runs on synthetic data. The longer description of the system is in [`docs/technical`](../technical/README.md), and one activity diagram per module is in [`activity-diagrams.md`](activity-diagrams.md).
+Status as of 2026-10-09, read from the code at commit `691aa58`. Python line counts are measured from the repository (non-test files only). The import graph is computed from the `import` statements, not drawn by hand. Everything runs on synthetic data. The longer description of the system is in [`docs/technical`](../technical/README.md), and the activity diagrams of the modules are in [`activity-diagrams.md`](activity-diagrams.md) (`core` and `employees/refurb` have none, and `doc_parse` and `imports` share one).
 
 ## 1. Module map and imports
 

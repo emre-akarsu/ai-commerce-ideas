@@ -146,7 +146,7 @@ outbound RFQs (`legal.business_identity`). It is a generic, profile-driven mecha
   factory is outside that check. See `apps/worker/README.md`.
 - **Tenant scoping of the values is in-process.** The values are copied into read-only mappings when `Settings` is built
   and read through a tenant-scoped provider (`TenantIdentities.identity_for(tenant_id)`), but they still come from
-  deployment settings, not from the tenant-scoped repositories (hard rule 7). When they move to a per-tenant table the
+  deployment settings, not from the tenant-scoped repositories (rule 7 in `CLAUDE.md`, R10 in the product spec). When they move to a per-tenant table the
   provider should be backed by that repository (and RLS), and a change of details should be audited.
 - **Follow-ups** copy the identity lines of the original message. Follow-up plans are per-process (H2), so a restart still
   loses them, with or without the block. Every way a plan can end early is audited as a `send.refused` event with the
