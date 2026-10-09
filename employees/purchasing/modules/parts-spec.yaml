@@ -1,0 +1,8 @@
+# Deterministic required-attribute table; at most two questions, then escalate (R4).
+id: parts-spec
+version: 1.0.0
+provides: [SpecNormaliser@1]
+effects: pure
+consumes: [request]
+entry: employees.purchasing.steps:spec
+predicates: { not_spec_ok: "employees.purchasing.steps:not_spec_ok" }

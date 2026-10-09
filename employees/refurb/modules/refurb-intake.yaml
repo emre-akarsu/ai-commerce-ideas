@@ -1,0 +1,6 @@
+id: refurb-intake
+version: 1.0.0
+provides: [RequestIntake@1]
+effects: pure
+consumes: [request]
+entry: employees.refurb.steps:intake

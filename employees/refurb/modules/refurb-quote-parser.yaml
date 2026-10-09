@@ -1,0 +1,10 @@
+# Rule-based, tool-less parser: every field keeps its verbatim span (grounded); injected
+# instructions and bank-detail changes are flagged and quarantined, never obeyed (R6).
+id: refurb-quote-parser
+version: 1.0.0
+provides: [QuoteExtractor@1]
+effects: pure
+consumes: [vendor]
+grounded: true
+entry: employees.refurb.steps:parse
+evals: [tests/refurb]

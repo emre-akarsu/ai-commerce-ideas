@@ -1,0 +1,9 @@
+id: refurb-scope-check
+version: 1.0.0
+provides: [ScopePlanner@1]
+requires: [RequestIntake@1]
+effects: pure
+consumes: [request, pack]
+entry: employees.refurb.steps:scope
+predicates: { needs_info: "employees.refurb.steps:needs_info" }
+settings: [max_suppliers_per_rfq]

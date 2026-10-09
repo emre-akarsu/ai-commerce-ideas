@@ -1,0 +1,9 @@
+# The optional LLM sees only structured fields (never raw request text) and has no tools.
+id: parts-rfq-drafter
+version: 1.0.0
+provides: [RfqDrafter@1]
+requires: [PartIdentifier@1]
+effects: pure
+consumes: [request]
+llm: { role: planner, tools: [] }
+entry: employees.purchasing.steps:draft_rfq

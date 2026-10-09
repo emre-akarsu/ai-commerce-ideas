@@ -1,0 +1,7 @@
+id: refurb-packets
+version: 1.0.0
+provides: [RfqPacketBuilder@1]
+effects: pure
+consumes: [request]
+entry: employees.refurb.steps:packets
+predicates: { nothing_to_send: "employees.refurb.steps:nothing_to_send" }

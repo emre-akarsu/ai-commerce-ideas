@@ -1,0 +1,19 @@
+# Refurbishment trades (electrical, plastering, kitchens) for landlords and property managers.
+# Level 1 pack: data only, every step bound to an existing refurb module. Demo data is synthetic.
+id: refurb-trades
+version: 1.0.0
+title: Refurb trades quotes
+workflow: quote_to_award@1
+jurisdictions: [uk, uk-scotland, uk-ni]
+bindings:
+  RequestIntake@1: refurb-intake@1
+  ScopePlanner@1: refurb-scope-check@1
+  RfqPacketBuilder@1: refurb-packets@1
+  QuoteExtractor@1: refurb-quote-parser@1
+  QuoteComparator@1: refurb-compare@1
+approvals:
+  approve_send: { mode: single, roles: [buyer, owner] }
+  award: { mode: single, roles: [owner], distinct_from_requester_over: "5000", amount_key: award_amount }
+settings:
+  max_suppliers_per_rfq: 4
+synthetic: true
