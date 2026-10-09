@@ -28,15 +28,26 @@ Branch `claude/agentic-commerce-research-gjjwnk`. No pull request has been opene
 | Task | Files | Ledger section |
 |---|---|---|
 | A | `docs/technical/06-security-and-trust.md` | 06 security |
-| B | `docs/technical/01-system-overview.md` | 01 overview |
-| C | `docs/user-guide/README.md`, `05-safety-rules.md`, `06-glossary.md`, `07-troubleshooting.md` | UG README/05/06/07 |
+| B | `docs/technical/01-system-overview.md` | 01 overview: **done** (`fb592c3`) |
+| C | `docs/user-guide/README.md`, `05-safety-rules.md`, `06-glossary.md`, `07-troubleshooting.md` | UG README/05/06/07: **done** (`b64ff3e`) |
 | D | `docs/user-guide/01-getting-started.md`, `02-requests.md` | UG 01+02 |
-| E | `docs/user-guide/03-quote-a-job.md`, `04-suppliers-setup-activity.md` | UG 03+04 |
+| E | `docs/user-guide/03-quote-a-job.md`, `04-suppliers-setup-activity.md` | UG 03+04: **done** (`b64ff3e`) |
 | F | `docs/technical/README.md`, `11-diagram-index.md`, `docs/README.md`, `README.md`; provenance wording in technical 02, 03, 04, 08 | 11 + README, provenance |
 | K | `docs/architecture/known-gaps.md` (rows 20 to 35, row 4), `job-kits.md`, `current-modules.md`, `docs/MASTER.md`, `docs/mvp/README.md` | cross-document items, [`defect-register.md`](defect-register.md) |
 | V1 to V4 | read-only second check of the corrected pages 02, 08 / 03, 04 / 05, 07 / 09, 10 | none |
 
 Tasks A to F and K edit disjoint files and can run at the same time. V1 to V4 only read. The first two attempts to run them as parallel agents failed before any file was touched, because the account's usage limit was reached. If agents are not available, do the same work directly: read the ledger section, verify each item in the code, apply it with `tools/ed.py`, run the link check.
+
+## Findings waiting to be applied (second check, task V1, and others)
+
+These were verified in the code. Apply them after task F has finished, because F also edits the wording of technical 02 and 08.
+
+- `docs/technical/08-deployment-and-operations.md`, Roles bullet: add that tenant creation (`aidb.migrate.create_tenant`, used by `scripts/provision_demo_tenant.py`) works with the compose owner but fails on the free-tier VM with `new row violates row-level security policy for table "tenants"` (reproduced: the NOSUPERUSER owner is refused, the `postgres` superuser works). Create tenants as the superuser there.
+- Same page, Retention bullet: `purge_review_events` refuses a role that is **neither** a superuser **nor** has `BYPASSRLS` (the guard is `rolsuper OR rolbypassrls`). The page says it wrongly.
+- Same page, health bullet: `scripts/check_production_readiness.py` prints nine checks (2 pass, 7 fail); the seven failing ones cover the six `REMAINING_H2` items, and the prepared-message cache and the approval-link notifier are checked separately.
+- Same page, compose and VPS section: `deploy/docker/Dockerfile` has `COPY src ./src`, but `src/` holds only an empty directory that git does not track, so a build from a fresh clone should fail at that step (read from the files, not run: no Docker daemon). Workaround: `mkdir src`. Also a known-gaps row (task K was asked to add it as row 39).
+- `docs/technical/02-request-lifecycle.md`, send-failure bullet: after a transport failure the request keeps the state it had (`RFQ_APPROVED` for the first message, `RFQ_SENT` or later for the next ones), not always `RFQ_APPROVED`.
+- Reports of V2, V3 and V4 (pages 03, 04, 05, 07, 09, 10) are applied by the lead when they arrive.
 
 ## How to continue, in order
 

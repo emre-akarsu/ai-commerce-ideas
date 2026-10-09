@@ -104,7 +104,7 @@ Unverified provenance claims: "generated from the table" (no generator in repo) 
 03-21 ?: l.154-163 shared state is seven tables incl approval_tokens (SHARED_STATE_TABLES).
 03-22 ?: l.197-205 revision ids are 0001..0007 (file names have suffix).
 
-## UG README/05/06/07 (a054 DONE) - 18 problems  [STATUS: PENDING (task C)]
+## UG README/05/06/07 (a054 DONE) - 18 problems  [STATUS: APPLIED (b64ff3e)]
 UG-1 ?: 07:10, 06:90 opted-out vendors cannot be lifted by "Allow contact" (clears profile.suppressed only; opted_out only via admin API).
 UG-2 ?: 07:39 403 comes from POST decision (Approve/Decline), not opening the link (GET).
 UG-3 ?: 07:50 price file >900,000 bytes -> 413 "file too large" (service), not "request body too large" (middleware >1,000,000 for other routes).
@@ -188,7 +188,7 @@ UG-18 ?: 07:51 supplier CSV: >1,000,000 -> 409; >5,000,000 -> 413.
 07-20 ?: l.118 connect-src: non-production also allows ws://localhost:*.
 OMITTED env/vars: OUT (e2e demo-check), NODE_ENV (web), ENV (worker: production raises without AUDIT_* keys), ENV/AUTH_MODE forced by demo_api.py (dev/test; Dockerfile CMD is the demo script), DEPLOYMENT_PROFILE default uk in provision_demo_tenant.py, PGPORT 55432 (run_local.sh), PROJECT/ZONE/NAME (gcp scripts), PY (Makefile), Settings fields not in table: approval_threshold, send_approval_ttl, substitution_ttl, max_vendors, down_now_max_vendors, daily_approval_threshold, reply_token_ttl, profile_tag, enabled_families, tiers_enabled, base_currency, raw_email_days, tax_name, rfq_ask_tax_basis, identity_fields, identity_labels, identity_required.
 
-## 01 overview (ab8c DONE) - 21 problems (technical/01-system-overview.md); counts of lines, 57 edges, migrations etc. all verified OK  [STATUS: PENDING (task B)]
+## 01 overview (ab8c DONE) - 21 problems (technical/01-system-overview.md); counts of lines, 57 edges, migrations etc. all verified OK  [STATUS: APPLIED (fb592c3); 01-17 partial]
 01-1 ?: l.112 "Every component also imports core": doc_parse, job_kits, telemetry do not.
 01-2 ?: l.220 demo_api.py never imports asgi; builds own app (create_app + build_in_memory_service, AUTH_MODE=test).
 01-3 ?: l.39 GCP: API+PG optional add-ons; base is Caddy + static page; optional API unit runs demo_api.py (in-memory, never uses PG).
@@ -238,7 +238,7 @@ U12-23 ?: 02:137,147 two links (approve + decline) per approver; each page shows
 U12-24 ?: 02:165 SPEC_CONFIRMED when no questions open, whatever assumptions say ("Confirm 1 assumption" in NEXT bar).
 U12-25 ?: 02:176, 01:68, known-gaps:230 ESCALATED: no NEXT bar rendered when no next step (guarded by na.step); card "The purchase order draft exists..."; "Done" never displayed -> my defect description wrong; re-verify.
 
-## UG 03+04 (a403 DONE) - 24 problems  [STATUS: PENDING (task E)]
+## UG 03+04 (a403 DONE) - 24 problems  [STATUS: APPLIED (b64ff3e)]
 U34-1 ?: 03:27 WC replacement wizard has 4 steps (no Measure; measurements []); "Step N of 4".
 U34-2 ?: 03:33 WC pan-alignment offers "Not sure" (maps to offset), others "Don't know".
 U34-3 ?: 03:60 "Reuse this job" is a card heading; its button is "Save as template" (needs a name).
