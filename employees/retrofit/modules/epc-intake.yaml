@@ -1,0 +1,8 @@
+# Reads the EPC as structured data (score and the report's recommended measures). Parsing an EPC
+# PDF is not built; the register's data is the intended source.
+id: epc-intake
+version: 1.0.0
+provides: [RequestIntake@1]
+effects: pure
+consumes: [request]
+entry: employees.retrofit.steps:intake

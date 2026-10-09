@@ -1,0 +1,30 @@
+# Landlord EPC C retrofit (England). Plans measures from the EPC to reach band C within the cost
+# cap, gets like-for-like quotes from certified installers, and keeps the record for an exemption
+# claim. Level 2 pack: three new modules; quote parsing and comparison reuse the refurb modules.
+#
+# Policy values come from the government's 2025 consultation on private rented homes and its
+# response (band C by 1 Oct 2030; GBP 10,000 cap per property; qualifying spend from 1 Oct 2025
+# counts). Confirm against the final regulations before go-live. Not legal advice.
+id: landlord-epc-retrofit
+version: 1.0.0
+title: Landlord EPC C retrofit
+workflow: quote_to_award@1
+jurisdictions: [uk]
+bindings:
+  RequestIntake@1: epc-intake@1
+  ScopePlanner@1: epc-retrofit-planner@1
+  RfqPacketBuilder@1: epc-installer-packets@1
+  QuoteExtractor@1: refurb-quote-parser@1
+  QuoteComparator@1: refurb-compare@1
+approvals:
+  approve_send: { mode: single, roles: [landlord, agent] }
+  award: { mode: single, roles: [landlord] }
+settings:
+  target_band: C
+  cost_cap: "10000"
+  deadline: "2030-10-01"
+  max_installers_per_rfq: 4
+  required_certs:
+    solar_pv: mcs
+    air_source_heat_pump: mcs
+synthetic: true

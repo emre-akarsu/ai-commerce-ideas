@@ -1,0 +1,7 @@
+id: epc-installer-packets
+version: 1.0.0
+provides: [RfqPacketBuilder@1]
+effects: pure
+consumes: [request]
+entry: employees.retrofit.steps:packets
+predicates: { nothing_to_send: "employees.retrofit.steps:nothing_to_send" }
