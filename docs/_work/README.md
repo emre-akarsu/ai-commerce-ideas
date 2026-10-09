@@ -2,6 +2,10 @@
 
 Saved on 2026-10-09 so that the work can be continued from where it stopped. This folder is working material, not part of the published documentation. Delete it when the work is finished (git history keeps it).
 
+## Stopped here
+
+The documentation work was stopped on the user's request on 2026-10-09. State at that moment: every page has been fact-checked once against the code and corrected; technical 02, 03, 04, 05, 07, 08, 09 and 10 also had a second check and its fixes. Everything is committed and pushed. The documentation portal was **not rebuilt and not published**: `out/index.html` in the scratch directory is a rehearsal build. To continue: run tasks V5 to V10 (or skip them), apply their findings, then follow steps 3 to 10 of "How to continue".
+
 ## What this is
 
 The user guide, the technical guide, the documentation hub and corrections to the architecture, MVP and engine notes were written in October 2026 against the code at commit `691aa58`. An independent reviewer then checked every technical and user-guide page against the code and reported about 250 problems (the **ledger**, [`findings-ledger.md`](findings-ledger.md)). The ledger is model output, so each item is verified in the code before the page is changed. Verified items are applied page by page. Some items turned out to be wrong and were not applied.
@@ -35,13 +39,13 @@ Branch `claude/agentic-commerce-research-gjjwnk`. No pull request has been opene
 | F | `docs/technical/README.md`, `11-diagram-index.md`, `docs/README.md`, `README.md`; provenance wording in technical 02, 03, 04, 08 | 11 + README, provenance: **done** (`53bd8d1`) |
 | K | `docs/architecture/known-gaps.md` (rows 20 to 41, row 4), `job-kits.md`, `current-modules.md`, `docs/MASTER.md`, `docs/mvp/README.md` | cross-document items, [`defect-register.md`](defect-register.md): **done** (`9219c42`; the register's rows 22, 25, 26, 27, 29, 30, 32 were corrected, rows 36 to 41 added) |
 | V1 to V4 | read-only second check of the corrected pages 02, 08 / 03, 04 / 05, 07 / 09, 10 | none: **done**, findings applied (`53bd8d1`, `d411b3c`) |
-| V5 to V10 | read-only second check of 01 and 06 / user guide 01, 02 / 03, 04 / README, 05 to 07 / the hub pages / the architecture notes (see `agent-prompts.md`) | none: running; apply their findings, then the work is finished |
+| V5 to V10 | read-only second check of 01 and 06 / user guide 01, 02 / 03, 04 / README, 05 to 07 / the hub pages / the architecture notes (see `agent-prompts.md`) | none: **stopped on the user's request before any of them reported**. Run them again to continue |
 
 Tasks A to F and K edit disjoint files and can run at the same time. V1 to V4 only read. The first two attempts to run them as parallel agents failed before any file was touched, because the account's usage limit was reached. If agents are not available, do the same work directly: read the ledger section, verify each item in the code, apply it with `tools/ed.py`, run the link check.
 
 ## Findings waiting to be applied
 
-The findings of V1 to V4 are applied. The findings of V5 to V10 are applied by the lead when they arrive (they check the pages the fixers edited).
+The findings of V1 to V4 are applied. V5 to V10 (the second check of the pages the fixers edited: technical 01 and 06, the user guide, the hub pages, the architecture notes) were stopped before they reported, so those pages have had one fact-check pass and one round of fixes, but no second independent check. Nothing else is waiting.
 
 ## How to continue, in order
 
