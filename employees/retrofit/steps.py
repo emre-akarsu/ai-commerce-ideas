@@ -110,11 +110,13 @@ def plan(data: Data, cfg: StepConfig) -> dict[str, Any]:
     eligible = [i for i in data.get("installers", []) if set(needed) <= set(i["certs"])]
     limit = int(s.get("max_installers_per_rfq", 4))
     if score >= target_score:
-        questions.append(f"The EPC is already band {band(score)}; no works are needed for {target}.")
+        now = band(score)
+        questions.append(f"The EPC is already band {now}; no works are needed for {target}.")
     elif not chosen:
         questions.append("No recommended measure fits within the remaining cost cap.")
     elif not eligible:
-        questions.append(f"None of your installers holds every scheme needed ({', '.join(needed)}).")
+        schemes = ", ".join(needed)
+        questions.append(f"None of your installers holds every scheme needed ({schemes}).")
     elif len(eligible) > limit:
         questions.append(f"Pick at most {limit} installers for one RFQ.")
 
@@ -140,7 +142,8 @@ def plan(data: Data, cfg: StepConfig) -> dict[str, Any]:
             "basis": "EPC recommendations; costs and gains are indicative until quoted",
         },
         "rfq": rfq,
-        "suppliers": [{"id": i["id"], "name": i["name"], "contact": i["contact"]} for i in eligible],
+        "suppliers": [{"id": i["id"], "name": i["name"], "contact": i["contact"]}
+                      for i in eligible],
         "open_questions": questions,
     }
 
