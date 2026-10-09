@@ -105,3 +105,33 @@ YOUR PAGES: docs/technical/05-quote-engine.md and docs/technical/07-configuratio
 ## Task V4: verify pages 09 and 10 (read-only)
 
 YOUR PAGES: docs/technical/09-testing-and-evals.md and docs/technical/10-extending.md. Run `git diff 1bc7de6 -- <page>` for each and verify every added or changed line against the code. Extra checks: page 09: every command in the commands table against Makefile and apps/web/package.json; the e2e script table against apps/web/e2e/*.mjs (what each script reads and prints); the per-directory test counts with `pytest <dir> --collect-only -q -o addopts=""` for each directory (the table must add up to the stated total of 5,322; run the whole collection once to confirm the total); the hypothesis claim (count the modules that import hypothesis and those that set derandomize); page 10: every recipe step against the real code paths (the route and service steps in apps/api and employees/purchasing, the state-machine and workflow steps, the aidb table steps, the family registry in packages/components/parts/families/registry.py, the profile checklist, the job-kit scripts and npm scripts, the web steps in apps/web), including every file path, function name and command it names.
+
+---
+
+## Second check of the pages the fixers edited (read-only; run after tasks A to F)
+
+Same method as V1 to V4: `git diff 1bc7de6 -- <page>` and verify every added or changed line against the code, then read the whole page once for leftovers and contradictions. For the user guide, also check every quoted button, heading, message and label against the web app (`apps/web/components`, `apps/web/app`, `apps/web/lib`) and the server message it shows, and check that the page uses the words the screens use. Page 06 and the known-gaps rows it cites: the cited row numbers must exist in docs/architecture/known-gaps.md and say what the page says.
+
+## Task V5: verify pages 01 and 06 (read-only)
+
+YOUR PAGES: docs/technical/01-system-overview.md and docs/technical/06-security-and-trust.md. Extra checks: page 01: the import graph and its edges against an import walk of packages, apps and employees (lazy and TYPE_CHECKING imports included), the component list, the line counts and their stated basis, the repository layout table against `git ls-files`, the container and deployment statements against deploy/*; page 06: every file, function and test it cites exists and does what the page says (`grep -n` each symbol), the R1 to R12 table against the code, the keys table against asgi.py, worker_main.py and evidence/log.py, and the latent-gap list against the code.
+
+## Task V6: verify user guide pages 01 and 02 (read-only)
+
+YOUR PAGES: docs/user-guide/01-getting-started.md and docs/user-guide/02-requests.md.
+
+## Task V7: verify user guide pages 03 and 04 (read-only)
+
+YOUR PAGES: docs/user-guide/03-quote-a-job.md and docs/user-guide/04-suppliers-setup-activity.md.
+
+## Task V8: verify user guide README, 05, 06 and 07 (read-only)
+
+YOUR PAGES: docs/user-guide/README.md, 05-safety-rules.md, 06-glossary.md and 07-troubleshooting.md. For 07, every refusal message in the tables must be the exact text the server or the web app produces (grep the message), and each remedy must be possible in the app.
+
+## Task V9: verify the hub pages (read-only)
+
+YOUR PAGES: docs/technical/README.md, docs/technical/11-diagram-index.md, docs/README.md and README.md (repository root). Extra checks: every link target and anchor, every number (operations, tables, components, diagrams, gaps), the defects table of the technical README against docs/architecture/known-gaps.md (same facts, right row numbers), the diagram index against the diagrams that really exist (count the fences), the Run it commands in the root README (read the Makefile, package.json and scripts; do not start long-lived servers).
+
+## Task V10: verify the architecture notes (read-only)
+
+YOUR PAGES: docs/architecture/known-gaps.md (the section "Found while writing the documentation (2026-10-09)", rows 1 to 39, and the other lines that changed), docs/architecture/current-modules.md, docs/architecture/job-kits.md, docs/MASTER.md and docs/mvp/README.md (only the changed lines of each). Every row of known-gaps must be reproducible or readable in the code exactly as written, with the evidence cell pointing at real symbols; check at least the severity words and the workaround of each row.
