@@ -1,0 +1,10 @@
+# Keyword rules, no model: the class and the matched word are recorded as evidence.
+id: repair-triage
+version: 1.0.0
+provides: [ScopePlanner@1]
+requires: [RequestIntake@1]
+effects: pure
+consumes: [request, pack]
+entry: employees.repairs.steps:triage
+predicates: { needs_info: "employees.repairs.steps:needs_info" }
+settings: [hazard_keywords, fix_within_working_days, quotes_needed, job_limit]

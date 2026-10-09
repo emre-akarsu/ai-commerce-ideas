@@ -1,0 +1,6 @@
+# Illustrative letting agent (synthetic tenant; see employees/repairs/demo.py).
+id: repairs-demo
+workflow: quote_to_award@1
+pack: renters-repairs@1
+profile: uk
+tenant: demo-letting-agent

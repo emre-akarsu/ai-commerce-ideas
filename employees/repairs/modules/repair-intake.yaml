@@ -1,0 +1,6 @@
+id: repair-intake
+version: 1.0.0
+provides: [RequestIntake@1]
+effects: pure
+consumes: [request]
+entry: employees.repairs.steps:intake
