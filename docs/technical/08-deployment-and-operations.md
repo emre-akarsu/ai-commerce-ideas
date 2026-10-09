@@ -27,8 +27,8 @@ The shipped entrypoint `apps.api.asgi:app` builds its service with no deployment
 | `dbinit` | `postgres:16-alpine` | One-shot. Gives `app_user` its password. |
 | `provision` | the API image | One-shot, idempotent. Creates `demo-tenant-a` and `demo-tenant-b` and loads the synthetic price files (`scripts/provision_demo_tenant.py`). Remove it and `QUOTE_DEMO_DATA` for anything that is not a demo. |
 | `api` | the API image | `uvicorn apps.api.asgi:app`, as `app_user`, `DEPLOYMENT_PROFILE=uk`, `ENV=staging`, `QUOTE_DEMO_DATA=1`. Read-only root filesystem, a `tmpfs` for `/tmp`, all capabilities dropped, `no-new-privileges`, memory cap 384 MB. |
-| `caddy` | `caddy:2-alpine` | TLS (automatic when `SITE_ADDRESS` is a domain), **basic auth on the whole site** (the demo has test logins; never remove it), security headers, `/api/*` proxied to `api:8000`, everything else served from `www/` with a fallback to `index.html`. |
-| `backup` | `postgres:16-alpine` | A `pg_dump` at start and every 24 hours into `./backup`, keeping seven days. |
+| `caddy` | `caddy:2-alpine` | TLS (automatic only when `SITE_ADDRESS` is a domain; the default `:80` is plain HTTP, to be reached through an SSH tunnel), **basic auth on the whole site** (the demo has test logins; never remove it), security headers, `/api/*` proxied to `api:8000`, everything else served from `www/` with a fallback to `index.html`. |
+| `backup` | `postgres:16-alpine` | A `pg_dump` at start and every 24 hours into `./backup`, then `find -mtime +7 -delete`, which removes dumps older than seven full days, so about eight daily dumps are kept. |
 
 Start order is enforced: database healthy, then `migrate`, `dbinit`, `provision`, `api`, `caddy`.
 
@@ -53,19 +53,19 @@ Set `SITE_ADDRESS=your.domain` in `.env` once DNS points at the server and Caddy
 
 1. `PROJECT=<id> ./create-vm.sh` creates the VM (it refuses zones outside the free regions). Its startup script installs Caddy, adds 2 GB of swap and generates the access password into `/root/rfq-access-password.txt`.
 2. `PROJECT=<id> ./deploy.sh <page.html>` copies the demo page, the Caddyfile and the backup script.
-3. Reach it with `gcloud compute ssh rfq-free -- -L 8080:localhost:80`, which needs no firewall rule and no domain. To serve it publicly, point a domain at the VM, open only 80 and 443 and set `SITE_ADDRESS` in `/etc/rfq/site.env`.
+3. Reach it with `gcloud compute ssh rfq-free -- -L 8080:localhost:80`, which needs no firewall rule and no domain. To serve it publicly, point a domain at the VM, open only 80 and 443, set `SITE_ADDRESS` in `/etc/rfq/site.env` and restart Caddy (it reads the file only when it starts).
 4. Optional API: copy the repository to `/srv/rfq/app`, make a virtualenv in `/srv/rfq/venv`, `pip install -e .`, and install `rfq-api.service`. The unit runs **`scripts/demo_api.py`**, the in-memory demo, with `MemoryMax=300M`, `ProtectSystem=strict`, `NoNewPrivileges` and `PrivateTmp`. State is lost on restart.
-5. Optional database: `./postgres-setup.sh` installs PostgreSQL tuned for 1 GB and listening on localhost only, creates the owner role and `rfq`, and saves credentials to `/etc/rfq/db.env`. Run the migrations as the owner, then `./postgres-setup.sh app-password` for the `app_user` password.
+5. Optional database: `./postgres-setup.sh` installs PostgreSQL tuned for 1 GB and listening on localhost only, creates the owner role (`rfq_owner`, `NOSUPERUSER NOBYPASSRLS`, and so unable to create roles) and `rfq`, and saves credentials to `/etc/rfq/db.env`. **As the repository stands, the migrations then fail.** The first migration creates the `app_user` role and the owner may not (`permission denied to create role`; reproduced on a fresh PostgreSQL 16). Create the role once as the superuser before migrating, for example `sudo -u postgres psql -c "CREATE ROLE app_user LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE"`; the migrations then pass (checked: all seven, as a role without `CREATEROLE`). Then run the migrations as the owner, and `./postgres-setup.sh app-password` for the `app_user` password. The GCP README says the migration creates `app_user`, which is true only when the migrating role can create roles, as in the compose stack. This is row 20 of [known gaps](../architecture/known-gaps.md#found-while-writing-the-documentation-2026-10-09).
 
 Rules it follows: never open ports 8000 or 5432, keep basic auth on, and put no secret in the repository. The README lists the free-tier limits (one `e2-micro` per month in `us-west1`, `us-central1` or `us-east1`, 30 GB standard disk, 1 GB egress). Those figures came from a web search and should be confirmed on Google's page.
 
 ## Database operations
 
-- **Roles.** Migrations and provisioning run as the owner. The application and the worker run as `app_user`, which has `NOSUPERUSER NOBYPASSRLS`. A connection as the owner would bypass row-level security, and `tenant_session` refuses it.
+- **Roles.** Migrations and provisioning run as the owner. The application and the worker run as `app_user`, which has `NOSUPERUSER NOBYPASSRLS`. A superuser or a role with `BYPASSRLS` ignores row-level security, and `tenant_session` refuses to run on such a connection. The compose owner is a superuser (the official PostgreSQL image makes `POSTGRES_USER` one). The free-tier VM's `rfq_owner` is an ordinary role: every tenant table uses `FORCE ROW LEVEL SECURITY`, so the policies still apply to it, and `tenant_session` would not refuse it. The application must connect as `app_user` either way.
 - **Migrate:** `python -c "from aidb.migrate import upgrade; upgrade('<owner url>')"`.
 - **Backups:** the compose `backup` service dumps `rfq` in custom format (`pg_dump -Fc`) daily. Copy the dumps off the server and **test a restore** (`pg_restore`) before any real data. This has not been tested.
 - **Tenants:** `scripts/provision_demo_tenant.py` is the only provisioning path, and it is for the demo. There is no tenant-creation endpoint or screen.
-- **Retention:** `retention.*` is in the profile, and the worker has `purge_expired_raw_email`, but no retention job runs in any deployment here. `review_events` have an owner-role purge function (`purge_review_events`).
+- **Retention:** `retention.*` is in the profile, and the worker has `purge_expired_raw_email`, but no retention job runs in any deployment here. `purge_review_events` (`aidb.telemetry`) deletes review events older than a cutoff, but nothing calls it, and it refuses any role that is not a superuser or does not have `BYPASSRLS`, so it works with the compose owner and not with the free-tier VM's `rfq_owner`.
 
 ## Keys and rotation
 
@@ -77,22 +77,22 @@ Rules it follows: never open ports 8000 or 5432, keep basic auth on, and put no 
 | `app_user` password | `ALTER ROLE app_user PASSWORD ...` and update `DATABASE_URL` for the API and worker. |
 | `SUPABASE_JWT_SECRET` | Existing tokens stop verifying. |
 
-The API and the worker must share `AUDIT_CHAIN_KEY` and `APPROVAL_SECRET`.
+The API and the worker must share `AUDIT_CHAIN_KEY` and `AUDIT_PII_KEY` (the worker's own start-up notes say so). Set `AUDIT_PII_KEY` explicitly in both: when it is unset the API derives it from the chain key, but the worker does not, so it would use a random key (and `ENV=production` makes it refuse to start), and the personal-data digests it writes would not match the API's. The worker does not read `APPROVAL_SECRET`.
 
 ## Health and logs
 
-- `GET /healthz` answers `{"status": "ok"}` without authentication. It does not check the database.
-- Logging is Python's standard `logging`. An unhandled error logs only the exception type, never a trace or a body, and the client gets a generic `500`. There is no structured logging, tracing, metrics or error-reporting service in the code.
-- Start-up warns when `AUDIT_CHAIN_KEY` or `AUDIT_PII_KEY` is unset and an ephemeral key is used.
+- `GET /healthz` answers `{"status": "ok"}` without authentication, from the API process. It does not check the database. In the compose stack Caddy proxies only `/api/*`, so the path is `/api/healthz`, behind the site's basic auth, and nothing in the stack calls it (the `api` service has no health check).
+- Logging is Python's standard `logging`. An unhandled error is logged by the application as its exception type only, and the client gets a generic `500`, but that is not the whole log: Starlette re-raises after sending the `500`, and `uvicorn` (the compose command) then logs `Exception in ASGI application` with the **full traceback, including the exception message**, which can contain submitted values. The application's own comment says it logs no trace; under `uvicorn` that does not hold (row 21 of [known gaps](../architecture/known-gaps.md#found-while-writing-the-documentation-2026-10-09)). There is no structured logging, tracing, metrics or error-reporting service in the code.
+- With `DATABASE_URL` set, start-up requires `AUDIT_CHAIN_KEY` and `APPROVAL_SECRET` (at least 16 characters each; otherwise it stops with a `RuntimeError`), and an unset `AUDIT_PII_KEY` is derived from the chain key. Without `DATABASE_URL` (the in-memory build) a keyless audit log logs a warning and uses an ephemeral key, which `ENV=production` refuses.
 - `scripts/check_production_readiness.py` prints each `REMAINING_H2` item as PASS or FAIL by reading the source (no network, no database). It exits 1 while anything fails. A PASS means the code has the property, not that the system is production ready.
 - The worker task `worker.verify_audit_chain` re-verifies each tenant's chain. The worker is not deployed here.
 
 ## What operating this would need
 
-These are not built, and each is listed in [known gaps](../architecture/known-gaps.md):
+These are not built. [Known gaps](../architecture/known-gaps.md) tracks most of them; a restore test and a continuous-integration pipeline are not tracked there:
 
 - A real mail transport and an inbound mail provider, with SPF, DKIM and DMARC reported for each reply.
 - Delivery of approval links to the approvers.
 - A web sign-in, and a way to set the approver list, company details and buyer names without code.
-- The worker deployed, with its inbound source and send-service factory wired.
+- The worker deployed, with its inbound source and send-service factory wired (known gaps covers the factory; `apps/worker/worker_main.py` notes that the deployment must supply the inbound source).
 - The six `REMAINING_H2` items closed, a restore test, and a continuous-integration pipeline (none is configured in the repository).

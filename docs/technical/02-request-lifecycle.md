@@ -4,7 +4,7 @@ This page follows one request from the first sentence to a purchase order draft:
 
 ## The state machine
 
-`Workflow.transition` (`packages/components/rfq/workflow/machine.py`) is the **only** code that writes `Request.state` (hard rule 6). It appends a hash-chained event first, then flips the state, under a lock, so an event and a state change cannot diverge.
+`Workflow.transition` (`packages/components/rfq/workflow/machine.py`) is the **only** code that writes `Request.state` (CLAUDE.md rule 6, spec feature F8). It appends a hash-chained event first, then flips the state, under a lock, so inside the process an event and a state change cannot diverge. The service stores the request in a separate step after `transition` returns, outside that lock and not in one database transaction ("multi-step operations are separate transactions" is one of the open production gaps), so a failure between the two would leave the event ahead of the stored state, and the next move would then raise `StateDrift`.
 
 The diagram is generated from the machine's own transition table. Edges to `CANCELLED` and `ESCALATED` are left out of the picture and listed below it.
 
@@ -51,7 +51,7 @@ stateDiagram-v2
 ```
 
 - **`CANCELLED`** is reachable from every state except `PO_SENT`, `CLOSED`, `EXPIRED` and itself.
-- **`ESCALATED`** is reachable from every non-terminal state (and from nowhere once it is `CLOSED`, `CANCELLED` or `EXPIRED`). It needs a non-empty `reason` (R4: after two unanswered questions the outcome is a defined state, never a guess).
+- **`ESCALATED`** is reachable from every state except `CLOSED`, `CANCELLED`, `EXPIRED` and `ESCALATED` itself. It needs a non-empty `reason` (R4: after two unanswered questions the outcome is a defined state, never a guess).
 - **`EXPIRED`** is reachable only from the states drawn.
 - **Terminal states:** `CLOSED`, `CANCELLED`, `EXPIRED`.
 
@@ -75,7 +75,7 @@ The table allows more than the service uses today. This is every call site in `e
 | `RECEIVED` to `SPEC_DRAFT` | `POST /v1/requests` (intake) | `agent` |
 | `SPEC_DRAFT` to `NEEDS_INFO`, `SPEC_CONFIRMED` or `ESCALATED` | The spec normaliser's result (questions, complete, or incomplete after two questions or an unhandled family) | `agent` |
 | `NEEDS_INFO` to `SPEC_DRAFT` | `POST .../answers` | the user |
-| `SPEC_CONFIRMED` or `NEEDS_INFO` to `SPEC_DRAFT` | `POST .../assumptions/{id}/invalidate` (the value is dropped and asked again) | the user |
+| `SPEC_CONFIRMED` or `NEEDS_INFO` to `SPEC_DRAFT`, and at once on to `NEEDS_INFO` or `ESCALATED` | `POST .../assumptions/{id}/invalidate` when the family has a question for that attribute: the value is dropped and asked again (the move to `SPEC_DRAFT` is the user's, the next move is the agent's, and a third question escalates). For any other attribute the value is just dropped and nothing moves. | the user, then `agent` |
 | `SPEC_CONFIRMED` to `ESCALATED` | A safety-critical request whose candidates are all Tier D | `agent` |
 | `SPEC_CONFIRMED` to `RFQ_DRAFTED` | `POST .../rfqs/prepare` (buyer) | the user |
 | `RFQ_DRAFTED` to `RFQ_APPROVED` | The first `POST /v1/rfqs/{id}/approve-send` | the user |
@@ -87,9 +87,9 @@ The table allows more than the service uses today. This is every call site in `e
 | `APPROVAL_PENDING` to `APPROVED` or `DECLINED` | `POST /v1/approval-links/{token}/decide` | the approver |
 | `QUOTE_SELECTED` or `APPROVED` to `PO_DRAFTED` | `POST .../po-draft` | the user |
 | `PO_DRAFTED` to `CANCELLED` | `PurchasingService.cancel_po_draft` (**no API route**) | the user |
-| `SPEC_DRAFT` to `SPEC_CONFIRMED` to `RFQ_DRAFTED` | `PurchasingService.prepare_text_rfq` (quote to RFQ): a new container request per message | `agent`, then the user |
+| `RECEIVED` to `SPEC_DRAFT` to `SPEC_CONFIRMED` to `RFQ_DRAFTED` | `PurchasingService.prepare_text_rfq` (quote to RFQ): a new container request per message | `agent`, `agent`, then the user |
 
-**Defined but not used by any code path:** every move to `EXPIRED` and to `CLOSED`, `PO_DRAFTED` to `PO_SENT`, `PO_DRAFTED` to `APPROVAL_PENDING`, `RFQ_APPROVED` to `RFQ_DRAFTED`, `COMPARISON_READY` to `QUOTES_COLLECTING`, `QUOTE_SELECTED` to `COMPARISON_READY`, `DECLINED` to `COMPARISON_READY` or `CLOSED`, `ESCALATED` to anything, and `CANCELLED` from any state but `PO_DRAFTED`. There is no timer, no close endpoint and no route that sends a purchase order. So `EXPIRED`, `CLOSED` and `PO_SENT` are never reached, and a declined or escalated request stays where it is.
+**Defined but not used by any code path:** `RECEIVED` to `NEEDS_INFO` (intake always goes to `SPEC_DRAFT` first), a move to `ESCALATED` from any state other than `SPEC_DRAFT` and `SPEC_CONFIRMED`, every move to `EXPIRED` and to `CLOSED`, `PO_DRAFTED` to `PO_SENT`, `PO_DRAFTED` to `APPROVAL_PENDING`, `RFQ_APPROVED` to `RFQ_DRAFTED`, `COMPARISON_READY` to `QUOTES_COLLECTING`, `QUOTE_SELECTED` to `COMPARISON_READY`, `DECLINED` to `COMPARISON_READY` or `CLOSED`, `ESCALATED` to anything, and `CANCELLED` from any state but `PO_DRAFTED`. There is no timer, no close endpoint and no route that sends a purchase order. So `EXPIRED`, `CLOSED` and `PO_SENT` are never reached, and a declined or escalated request stays where it is.
 
 ## 1. Create, clarify, confirm
 
@@ -104,20 +104,25 @@ sequenceDiagram
   participant L as EventLog
   W->>A: POST /v1/requests (text, quantity, need_by, ...)
   A->>S: create_request (requester role)
-  S->>P: parse_request_text, then normalise
-  P-->>S: family, attributes, open questions
+  S->>P: parse_request_text (quantity, need-by, urgency words)
   S->>L: request.created
   S->>WF: SPEC_DRAFT (agent)
   WF->>L: request.transition (first)
-  S->>S: record assumptions (defaults and inferences)
-  alt open questions, at most two
-    S->>WF: NEEDS_INFO (agent)
-  else incomplete after two questions, or family not enabled
+  S->>P: normalise (family, attributes, questions)
+  P-->>S: family, attributes, open questions
+  alt family not enabled
     S->>WF: ESCALATED (agent, reason)
-  else complete
-    S->>WF: SPEC_CONFIRMED (agent)
-    S->>P: find_candidates (tiers A to D)
-    S->>L: candidates.found
+  else family handled
+    S->>S: record assumptions (rule defaults and inferences)
+    alt open questions, at most two
+      S->>WF: NEEDS_INFO (agent)
+    else incomplete after two questions
+      S->>WF: ESCALATED (agent, reason)
+    else complete
+      S->>WF: SPEC_CONFIRMED (agent)
+      S->>P: find_candidates (tiers A and B offered, C hidden, D reported)
+      S->>L: candidates.found
+    end
   end
   A-->>W: RequestDetail
   W->>A: POST /v1/requests/{id}/answers
@@ -127,9 +132,9 @@ sequenceDiagram
 
 Notes:
 
-- The quantity is never read from the text for a purchase decision. The form sends it, and the screen says *The agent does not read this from the text*.
+- The web form sends the quantity and the need-by date and says *The agent does not read this from the text*, but the service does read them when they are left out: `create_request` takes the quantity and the need-by date parsed from the text (`qty 4`, `4 pcs`, `x4`, a date) when the caller sends none, and `prepare` only checks that the quantity is not zero. The hint on the form is wrong for a blank box.
 - Intake can only **raise** caution: text that looks like "safety critical" sets the criticality hint, but no text can lower it (`criticality or parsed.criticality_hint`).
-- Every attribute has a source (`user_input`, `rule_default`, `model_inference`, ...) and a confidence. An attribute that is not user-stated becomes an `Assumption` row, and a **critical** one blocks preparing messages until a person confirms it (R3). `model_inference` can never satisfy a critical attribute.
+- Every attribute has a source (`user_input`, `nameplate_ocr`, `manufacturer_table`, `standard`, `rule`, `po_history` or `model_inference`) and a confidence. An attribute whose source is `rule` (ledger source `default_template`) or `model_inference` becomes an `Assumption` row (a value looked up from a standard does not), and a **critical** one blocks preparing messages until a person confirms it (R3). `model_inference` can never satisfy a critical attribute, and no code in the shipped path sets that source today: it is only read.
 - `MAX_QUESTIONS` is 2 (`packages/components/parts/spec/normaliser.py`).
 
 ## 2. Prepare, approve, send
@@ -148,7 +153,7 @@ sequenceDiagram
   A->>S: prepare_rfqs (buyer role)
   S->>S: checks: state, quantity, critical assumptions closed, Tier A/B candidates, vendor guards (preferred, verified, not suppressed, not a sole trader), vendor limit, business identity
   S->>SS: prepare(rfq, vendor, identity lines)
-  SS-->>S: PreparedMessage (exact bytes, mime_hash, footer)
+  SS-->>S: PreparedMessage (exact bytes, mime_hash; the footer is inside the bytes)
   S->>S: keep in the in-process prepared map
   S->>L: rfq.prepared
   S->>S: RFQ_DRAFTED (user)
@@ -162,7 +167,7 @@ sequenceDiagram
   S->>S: RFQ_APPROVED (user), first message only
   S->>SS: send(prepared, approval)
   SS->>SS: authenticate, kill switch, hash, expiry, tenant, footer, identity, plain text, kind, nonce, vendor and domain, limits
-  SS->>T: send(raw bytes)
+  SS->>T: deliver(to, subject, raw_mime)
   T-->>SS: message id
   SS->>L: send.delivered
   S->>S: RFQ_SENT (system, send_ref)
@@ -173,10 +178,10 @@ Where the rules bite:
 
 - **R1.** Only the send-service holds the transport. It accepts only an `Approval` that is exactly the record the approval service registered, covers the exact bytes (SHA-256 of the whole message), has not expired, and has not been used (the nonce is single-use, kept in `spent_approvals` where the primary key is the guarantee). The planner has no mail credentials.
 - **R8.** A footer naming the sender and the AI disclosure is mandatory, and the profile's company-identity lines must be present. Both are re-checked at send time.
-- **R12.** The recipient must be the vendor on record, at its registered domain, and the vendor must not be opted out.
+- **R12 and the vendor rules.** The recipient must be the vendor on record, at its registered domain (R12 also covers the call-back before a contact change takes effect). A vendor that has opted out is refused as well, under the contact etiquette of spec section 4a.
 - **Limits.** One exact message is sent once (`duplicate_send`). Recipients per request are capped twice: the service applies `comms.max_vendors` (and `comms.down_now_max_vendors` for a *Machine down* request) when preparing, and the send-service re-checks at send time with its own limit (a fixed two for a *Machine down* request).
 - **The prepared-message map is per process.** After a restart, `approve_send` answers *message changed or was never prepared*, and the list of prepared messages omits the entry. Prepare again. This is one of the open production gaps.
-- A refusal inside the send-service is a `409 conflict` with the message `send refused: <code>`. The codes are `kill_switch`, `hash_mismatch`, `unknown_approval`, `wrong_approval_kind`, `approval_expired`, `nonce_replayed`, `tenant_mismatch`, `recipient_not_vendor`, `vendor_opted_out`, `domain_mismatch`, `footer_missing`, `identity_missing`, `malformed_message`, `unsafe_text`, `standing_rule_violation`, `cap_exceeded`, `duplicate_send` and `recipient_limit`. (`vendor_missing` and `follow_up_cancelled` are audit-only codes for follow-up plans.) `transport_failure` is a separate error: delivery is unknown and the approval stays used.
+- A refusal inside the send-service is a `409 conflict` with the message `send refused: <code>`. The codes are `kill_switch`, `hash_mismatch`, `unknown_approval`, `wrong_approval_kind`, `approval_expired`, `nonce_replayed`, `tenant_mismatch`, `recipient_not_vendor`, `vendor_opted_out`, `domain_mismatch`, `footer_missing`, `identity_missing`, `malformed_message`, `unsafe_text`, `standing_rule_violation`, `cap_exceeded`, `duplicate_send` and `recipient_limit`. (`vendor_missing` and `follow_up_cancelled` are audit-only codes for follow-up plans.) `transport_failure` is a separate error in the send-service (delivery is unknown and the approval stays used), but `approve_send` catches the base error, so it too reaches the client as `409 conflict` with `send refused: transport_failure`; the request stays in `RFQ_APPROVED` and a `send.failed` event is written. Other `409`s from `approve_send` carry no `send refused` prefix: `message changed or was never prepared: review the new hash`, `RFQ was already sent`, `cannot send in state ...`.
 
 ## 3. A reply comes in
 
@@ -192,7 +197,7 @@ sequenceDiagram
   participant L as EventLog
   I->>A: POST /v1/inbound/quotes (X-Inbound-Signature, X-Inbound-Timestamp)
   A->>A: HMAC over timestamp and raw body, within 300 seconds
-  A->>S: ingest_inbound_reply(reply_token, from_domain, dmarc_aligned, text)
+  A->>S: ingest_inbound_reply(reply_token, from_domain, dmarc_aligned, source_text)
   S->>S: verify the signed reply token (tenant, rfq, vendor, expiry)
   alt a stop request from the vendor's own authenticated domain
     S->>S: suppress the vendor, return StopAck
@@ -205,7 +210,7 @@ sequenceDiagram
     S->>V: verify (number checks, second reading, plausibility)
     V-->>S: findings, which only add flags
     S->>S: save the quote (new version)
-    S->>L: quote.ingested, quote.verified
+    S->>L: quote.ingested (and quote.verified when verification found something)
     S->>WF: QUOTES_COLLECTING, then COMPARISON_READY when every sent RFQ has a usable quote
     S->>S: cancel pending follow-ups
   end
@@ -241,14 +246,15 @@ sequenceDiagram
   S->>WF: QUOTE_SELECTED (quote id, version, hash, total)
   alt substitution, or total over the threshold, or over the daily total, or a forcing flag
     S->>AP: issue a signed single-use token per eligible approver and action (approve, decline)
-    AP->>N: notify(approver, token)
     S->>WF: APPROVAL_PENDING (system)
+    S->>N: notify(approver, token), after the move
     Note over N: Only an in-memory notifier exists. Nothing delivers the link.
     W->>A: GET /v1/approval-links/{token} (no auth, read only)
     W->>A: POST /v1/approval-links/{token}/decide (bearer token, buyer or admin)
     A->>S: decide_approval_link
     S->>AP: consume_token (approver, action, quote version and hash, request)
     alt approve
+      S->>AP: for a substitution, issue the SubstitutionApproval and append approval.substitution_recorded
       S->>WF: APPROVED (the approver)
     else decline
       S->>WF: DECLINED (the approver), release reserved spend
@@ -265,9 +271,10 @@ sequenceDiagram
 Rules visible here:
 
 - **What forces an approval.** A part that is not Tier A (a substitution), a total above `approvals.threshold`, a total that takes the day's committed spend over `approvals.daily_aggregate_threshold`, or any of these flags: `condition_not_new`, `condition_unrecognised`, `currency_assumed_usd`, `freight_unknown`, `buyer_entered`, `tax_basis_unknown`, `currency_ambiguous`, or a verification finding that needs a person. `tax_basis_assumed`, `lead_time_working_days_assumed` and the attention flag are shown on the link but do not force one.
-- **What refuses a selection.** A quote excluded from the comparison, an expired validity (`validity_expired`), a quarantined or injection-flagged quote, an offered part of Tier D, or a tier that the profile does not enable.
+- **What refuses a selection.** A request that is not in `QUOTES_COLLECTING` or `COMPARISON_READY`; a quote that does not belong to the request (`404`); a quote excluded from the comparison; an expired validity (`validity_expired`); a quarantined, injection-flagged or `vendor_pending_callback` quote; an offered part of Tier D; a tier that the profile does not enable; or a quote with no price, currency or offered part number.
+- **A selection that needs an approval but has no eligible approver** is refused with `409 no eligible approver`, **after** the request has already moved to `QUOTE_SELECTED` and its spend has been committed. Nothing rolls that back: the request stays in `QUOTE_SELECTED` with approval required and no link, `select-quote` is refused from that state, and the purchase order draft is refused (known-gaps row 24).
 - **R11.** The link is a signed token (`itsdangerous`) bound to the approver, the quote version, the quote hash and the action. It is single-use and short-lived. `GET` only renders; the decision needs an authenticated session. The route accepts any bearer token, but the service requires the **buyer** role and that the caller **is** the approver the token was issued to. Above the threshold, or when a forcing flag or the daily total applied, the requester cannot be an eligible approver (`no eligible approver`).
-- **R2.** `create_po_draft` re-checks that the offered part number is an approved Tier A candidate, or that a substitution approval exists for that candidate and quote version. The draft keeps the request's own candidate spelling, never the vendor's.
+- **R2.** `create_po_draft` (through `check_r2` in `employees/purchasing/service.py`) re-checks that the offered part number is an approved Tier A candidate, or that a substitution approval exists for that candidate and quote version. The draft keeps the request's own candidate spelling when the offered part matches a candidate; otherwise it keeps the vendor's offered part number with its whitespace collapsed.
 - **R9.** Totals are `Decimal`. A purchase order draft books the amount against the per-order and daily caps (`spend_holds`, `cap_spend`) and declining or cancelling releases it.
 - **Nobody sends the order.** `po-draft.csv` is a file for a person to use. The send-service can send a PO-purpose message, but no route or workflow step triggers `PO_SENT`.
 - **Approval-link delivery.** The only notifier is `InMemoryNotifier`. The link is created and recorded, and in a real deployment nothing yet delivers it to the approver.
@@ -282,12 +289,18 @@ Every state change and every notable action appends a hash-chained event, per te
 | `request.transition` | `Workflow.transition`, with `from` and `to` |
 | `assumption.created`, `.confirmed`, `.invalidated` | the assumption ledger |
 | `rfq.prepared`, `quote_rfq.linked` | prepare and quote-to-RFQ |
-| `approval.issued`, `approval.token_issued`, `approval.token_consumed`, `approval.substitution_recorded`, `approval.rule_created`, `approval.rule_revoked` | the approval service |
+| `approval.issued`, `approval.token_issued`, `approval.token_consumed`, `approval.rule_created`, `approval.rule_revoked` | the approval service |
+| `approval.substitution_recorded` | `PurchasingService.decide_approval_link`, next to the approval service's own `approval.issued` |
 | `send.delivered`, `send.followup_delivered`, `send.refused`, `send.failed`, `send.kill_switch` | the send-service and the kill switch |
-| `quote.ingested`, `quote.verified`, `price_history.record_failed` | quote ingestion |
-| `vendor.upserted`, `vendor.contact_changed`, `vendor.contact_confirmed`, `supplier.attested`, `supplier.verification_reset`, `supplier.profile_set`, `supplier.suppressed`, `supplier.unsuppressed`, `import.vendors`, `import.csv` | suppliers |
+| `quote.ingested`, `quote.verified` (only when verification produced findings) | quote ingestion |
+| `price_history.record_failed` | `create_po_draft`, when the price of the drafted order could not be kept |
+| `vendor.upserted`, `vendor.contact_changed`, `vendor.contact_confirmed`, `supplier.attested`, `supplier.verification_reset`, `supplier.profile_set`, `supplier.suppressed`, `supplier.unsuppressed`, `import.vendors` | suppliers |
+| `import.csv` | `POST /v1/imports/csv` (the parts and PO-history validator) |
 | `setup.go_live` | the go-live record |
 | `quote_created`, `match_approved`, `kit_template_saved`, `kit_template_deleted` | the quote service |
 | `audit.pii_redacted` | personal-data redaction |
+| `price_file_loaded` | the price-file upload |
+| `inbound.parsed`, `audit.chain_verified`, `audit.chain_invalid`, `usage.rollup`, `retention.raw_email_purged` | the worker (not deployed) |
+| `tool.call`, `tool.refused` | `@tool` calls by the planner |
 
 `GET /v1/audit` returns the events (the `_pii` key removed) and whether the chain verifies. `GET /v1/audit/export` returns a file that `scripts/verify_audit_export.py` can verify offline with the chain key. A request-scoped export holds a subset of the chain, so only the hashes and the links between adjacent events are checked.
