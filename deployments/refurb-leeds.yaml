@@ -1,0 +1,8 @@
+# Illustrative deployment: a landlord in Leeds (synthetic tenant, see employees/refurb/demo.py).
+id: refurb-leeds
+workflow: quote_to_award@1
+pack: refurb-trades@1
+profile: uk
+tenant: demo-harlow-property
+settings:
+  max_suppliers_per_rfq: 3

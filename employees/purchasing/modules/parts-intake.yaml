@@ -1,0 +1,6 @@
+id: parts-intake
+version: 1.0.0
+provides: [RequestIntake@1]
+effects: pure
+consumes: [request]
+entry: employees.purchasing.steps:intake

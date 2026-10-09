@@ -1,0 +1,9 @@
+id: refurb-compare
+version: 1.0.0
+provides: [QuoteComparator@1]
+requires: [QuoteExtractor@1]
+effects: pure
+consumes: [vendor]
+grounded: true
+entry: employees.refurb.steps:compare
+predicates: { no_rankable_quote: "employees.refurb.steps:no_rankable_quote" }

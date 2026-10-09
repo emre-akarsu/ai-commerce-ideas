@@ -1,0 +1,15 @@
+# Industry-neutral buy-side flow (ADR-012). Steps name capabilities; packs bind modules to them.
+# Kernel steps (Approval, SendService, AwaitReplies) are implemented by the platform and cannot be
+# rebound. The linter refuses any composition where SendService is not directly behind an Approval.
+workflow: quote_to_award@1
+title: Request, scope, RFQs, approve, send, read replies, compare, award
+steps:
+  - { id: intake,       uses: RequestIntake@1 }
+  - { id: scope,        uses: ScopePlanner@1, branch: { needs_info: stop } }
+  - { id: packets,      uses: RfqPacketBuilder@1, branch: { nothing_to_send: stop } }
+  - { id: approve_send, uses: Approval@1, human: required, covers: outbound }
+  - { id: send,         uses: SendService@1 }
+  - { id: replies,      uses: AwaitReplies@1 }
+  - { id: parse,        uses: QuoteExtractor@1 }
+  - { id: compare,      uses: QuoteComparator@1, branch: { no_rankable_quote: stop } }
+  - { id: award,        uses: Approval@1, human: required, covers: recommendation }

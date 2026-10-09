@@ -1,0 +1,5 @@
+id: mro-bearings-uk
+workflow: rfq_planning@1
+pack: mro-bearings@1
+profile: uk
+tenant: demo-acme-plant

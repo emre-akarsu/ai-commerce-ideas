@@ -1,0 +1,10 @@
+# The purchasing planner graph (employees/purchasing/graph.py) expressed as a template. It drafts
+# only: the reviewed draft is handed to PurchasingService, which owns the hash-bound send approval.
+workflow: rfq_planning@1
+title: Request, spec, candidates, draft RFQ, human review
+steps:
+  - { id: intake,     uses: RequestIntake@1 }
+  - { id: spec,       uses: SpecNormaliser@1, branch: { not_spec_ok: stop } }
+  - { id: candidates, uses: PartIdentifier@1, branch: { none_offerable: stop } }
+  - { id: draft_rfq,  uses: RfqDrafter@1 }
+  - { id: review,     uses: Approval@1, human: required, covers: draft }

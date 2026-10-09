@@ -1,0 +1,9 @@
+# Tiers are assigned by rules, never by a model (R2, R3). Seed data is synthetic.
+id: parts-candidates
+version: 1.0.0
+provides: [PartIdentifier@1]
+requires: [SpecNormaliser@1]
+effects: read
+consumes: [request]
+entry: employees.purchasing.steps:candidates
+predicates: { none_offerable: "employees.purchasing.steps:none_offerable" }

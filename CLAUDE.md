@@ -8,6 +8,9 @@ Product: MRO parts identification and sourcing agent. Source of truth: `docs/pro
 ## Configurable deployments
 Jurisdiction/market behaviour comes from a deployment profile (`profiles/<id>.yaml`, `packages/aiplat/profile.py`; design in `docs/architecture/configurability.md`, ADR-011). Never hard-code currency, tax, language, legal wording, retention or thresholds; read them from the resolved profile. Hard rules R1-R12 have no config keys and must not be made configurable. New market: use `docs/templates/new-deployment-checklist.md`; `pytest tests/profiles` runs conformance over every profile.
 
+## Composable workflows (ADR-012)
+A deployment (`deployments/<id>.yaml`) = workflow template (`workflows/`) + industry pack (`packs/<id>/pack.yaml`) + profile + tenant. Packs bind modules (`employees/<pack>/modules/*.yaml`, code in `steps.py`) to capabilities; Approval, SendService and AwaitReplies are kernel steps nobody can rebind. `python -m aiplat.compose validate deployments/*.yaml` resolves and lints; `pytest tests/compose` covers it. Design and status: `docs/architecture/composability.md` §12.
+
 ## Commands
 - `make test` · `make lint` · `make eval` · `make check` (uses the venv python automatically).
 - Tests must run offline and deterministically: no network, no real LLM, no real email.

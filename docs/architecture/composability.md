@@ -1,6 +1,6 @@
 # Composable workflows and industry packs: design (proposal v0.1)
 
-Status: **proposal** (ADR-012). Goal: build many versions of the same workflow for different industries with minimal configuration, and let many ideas plug into one platform as modules that can be wired together in a workflow, without ever weakening hard rules R1 to R12. Builds on `configurability.md` (ADR-011) and the pack manifest in `packages/aiplat/manifest.py`. No code in this repo implements it yet.
+Status: **partly built** (ADR-012). Sections 3, 4 and 7 have a first implementation in `packages/aiplat/compose` (see section 12); the rest is still a proposal. Goal: build many versions of the same workflow for different industries with minimal configuration, and let many ideas plug into one platform as modules that can be wired together in a workflow, without ever weakening hard rules R1 to R12. Builds on `configurability.md` (ADR-011) and the pack manifest in `packages/aiplat/manifest.py`. Section 12 lists what is built.
 
 ## 1. Where the repo is today
 
@@ -189,3 +189,20 @@ Rule of three: extract an abstraction only after two concrete uses exist. Purcha
 - **Plug-in supply chain.** Third-party modules could read tenant data. Mitigation: internal modules only until a signing and review process exists.
 - **Packs carrying unreviewed regulated content** (gates, legal wording). Mitigation: each gate rule names a source and a reviewer; the linter blocks production use without one.
 - **Hard to say how much this saves.** The saving per new industry is unmeasured; track new lines of Python per pack from the second pack on.
+
+## 12. What is built (2026-10-09)
+
+| Piece | Where | Notes |
+|---|---|---|
+| Models: capability refs, `module.yaml`, workflow templates, packs, deployments | `packages/aiplat/compose/models.py` | Strict, frozen. Branches use the key `branch` (YAML 1.1 reads a bare `on` as `true`), name a module predicate and jump only forward, so a template is a DAG with no expressions |
+| Kernel steps | `Approval@1`, `SendService@1`, `AwaitReplies@1` | Implemented by the runner; a pack or deployment cannot bind or replace them; a module cannot provide them or declare a `send` effect |
+| Composition root | `packages/aiplat/compose/resolve.py` | Deployment = template + pack@major + profile + tenant. Settings: pack defaults, then tenant overrides of keys the pack declares. One `ResolvedComposition` with a digest and per-key provenance |
+| Linter | `packages/aiplat/compose/lint.py` | C1, C2, C3, C6, C7 built; C4, C5, C8, C9 not yet |
+| Approval rules | `packages/aiplat/compose/approval.py` | `single` or `quorum` (2-15 distinct people), allowed roles, requester excluded above an amount. Zero approvers cannot be expressed |
+| Runner | `packages/aiplat/compose/runner.py` | Compiles to LangGraph. An Approval interrupts with the data it covers and its hash; the resume must carry the same hash. SendService re-checks the hash and calls an injected port; the runner holds no credentials |
+| Templates | `workflows/quote_to_award.v1.yaml`, `workflows/rfq_planning.v1.yaml` | |
+| Modules | `employees/refurb/modules/`, `employees/purchasing/modules/` | Thin wrappers (`steps.py`) over the existing refurb parser and comparison and the purchasing planner |
+| Packs and deployments | `packs/refurb-trades`, `packs/mro-bearings`; `deployments/*.yaml` | Validate with `python -m aiplat.compose validate deployments/*.yaml` |
+| Tests | `tests/compose/` | Hostile compositions for each lint rule, a refurb golden flow, and parity with the hand-built purchasing graph |
+
+Not built yet: wiring the `SendService@1` port to `components.send_service` (it needs the hash-bound `Approval` from the approvals service, so a deployment adapter is the next step); a Postgres checkpointer; VAT handling outside the workflow path (the refurb parser still imports `VAT_RATE`; the workflow's parse step re-normalises inc-VAT totals with the profile's `tax.standard_rate`); pack data files beyond `settings` (taxonomy, questions, gates); C4, C5, C8 and C9.

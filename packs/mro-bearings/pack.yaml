@@ -1,0 +1,14 @@
+# MRO bearings and V-belts: the purchasing planner as a pack. Synthetic seed data, not licensed.
+id: mro-bearings
+version: 1.0.0
+title: MRO bearings and belts planner
+workflow: rfq_planning@1
+jurisdictions: [us, uk, uk-scotland, uk-ni]
+bindings:
+  RequestIntake@1: parts-intake@1
+  SpecNormaliser@1: parts-spec@1
+  PartIdentifier@1: parts-candidates@1
+  RfqDrafter@1: parts-rfq-drafter@1
+approvals:
+  review: { mode: single, roles: [buyer] }
+synthetic: true
