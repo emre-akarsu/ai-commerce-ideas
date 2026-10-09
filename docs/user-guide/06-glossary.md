@@ -1,6 +1,6 @@
 # Glossary
 
-The words the screens use. They are defined once in the app (`apps/web/lib/labels.ts`), so what you read here is what the screens say.
+The words the screens use. Many of them are defined in one file of the app (`apps/web/lib/labels.ts`) with a one-sentence tip, and the screens show that tip where they use the term, for example for *Rough price* and *Ways to buy*. Not every screen reads from that file. The other entries (the roles, *Assumption*, *Approval link*, *Quarantine* and similar) explain words the screens use but the file does not define. They were written for this guide from how the screens behave.
 
 ## People and access
 
@@ -26,7 +26,7 @@ The words the screens use. They are defined once in the app (`apps/web/lib/label
 | **Inferred** | Worked out from your text rather than stated by you. Shown with how sure the app is. |
 | **Default** | A standing assumption such as *Prices are ex-VAT unless the supplier says otherwise*. |
 | **NEXT bar** | The bar at the bottom of a request that says what to do now and who has to do it. |
-| **Needs engineering review** | The part is unclear or safety critical, so the app will not guess. A person outside the app has to decide. |
+| **Needs engineering review** | The part is unclear, safety critical, or a kind of part this deployment does not handle, so the app will not guess. A person outside the app has to decide. |
 
 ## Parts and matching
 
@@ -49,7 +49,7 @@ The words the screens use. They are defined once in the app (`apps/web/lib/label
 | Term | Meaning |
 |---|---|
 | **Confirmed price** | A price that counts in totals: from a price file you confirmed, or from a real supplier reply. |
-| **Rough price** | A rough guide from past invoices or shop listings. Never added to a total, and not a quote. |
+| **Rough price** | A rough guide from past invoices or shop listings. Not a quote. The Quote and Compare pages never add it to a total. The job wizard's **Prices** card does add up observed shop prices, as a range marked *Not a kit total and not a quote*. |
 | **No price yet** | A line no supplier has a usable price for. |
 | **Skipped** | Left out by you, or a quantity of zero. |
 | **Out of date** | Older than the allowed age, so it is shown but not used. |
@@ -61,7 +61,7 @@ The words the screens use. They are defined once in the app (`apps/web/lib/label
 | **Supplier price** | One supplier's price for one product, with the date it was seen and whether VAT is included. |
 | **Source (price)** | How a price was obtained, from least to most trusted: *On request*, *Past invoices*, *Price file*, *Regular price file*, *Contract feed*. |
 | **Price file** | A CSV or Excel file of prices that you upload. |
-| **Quarantined row** | A row in a price file that was held back (for example no VAT basis, or a price far from the others) and is not used until fixed. |
+| **Quarantined row** | A row in a price file that could not be read safely and was held back, for example an unreadable VAT basis, an invalid price or a repeated row. It is not used. Fix the file and load it again. A price far from the others is not quarantined: it is flagged *A price looks unusual* and left out of the best price. |
 | **Not a supplier quote** | A comparison of prices observed in your data, at the times shown. It is not an offer that can be accepted, and it does not reserve stock. |
 
 ## Quotes and comparing
@@ -84,11 +84,11 @@ The words the screens use. They are defined once in the app (`apps/web/lib/label
 | Term | Meaning |
 |---|---|
 | **Approval** | A recorded human decision. A message approval covers one exact message. A quote approval covers one quote at one version. |
-| **Approval link** | A single-use, expiring link to a bare page where one named approver approves or declines one quote. |
+| **Approval link** | A single-use, expiring link to a bare page where one named approver approves or declines one quote. Each link carries one of the two actions. |
 | **Quarantine** | Holding something back, shown but unused, until a person reviews it. |
 | **Sender check** | Checks that a reply really came from the supplier's own domain. A failed check holds the reply back. |
-| **Suppressed, Do not contact** | A supplier that asked not to be contacted, or that a person blocked. Only an admin can reverse it. |
-| **Verified supplier** | A supplier an admin has checked, with a recorded note. Only verified suppliers can be sent a message. |
+| **Suppressed, Do not contact** | A supplier that asked not to be contacted, or that a person blocked. Only an admin can reverse it, with **Allow contact** on **Suppliers**. A supplier marked as opted out in its record (only the API can set this) is refused in the same way, shows no *Suppressed* badge, and cannot be reversed from any screen. |
+| **Verified supplier** | A supplier an admin has checked and marked as verified, with a note on how if they wrote one. Only verified suppliers can be sent a message. |
 | **Alias address** | The address replies go to. It belongs to the system, so suppliers do not write to a personal mailbox. |
 | **Message fingerprint** | A short code for the exact text of a prepared message. Your approval is tied to it. |
 | **Kill switch, Stop all sending** | One switch that stops every message from the account. Queued messages are refused. |

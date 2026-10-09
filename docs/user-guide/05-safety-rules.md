@@ -13,9 +13,9 @@ These rules are built into the code and have **no setting to switch them off**. 
 | **R7** | **The app never opens links or scrapes sites** found in a reply. | Links in replies are text, not links. |
 | **R8** | **Every message says it was prepared with an AI assistant, and that only your purchase order binds.** The footer cannot be removed. Messages go out in your company's name from an alias address. | The **Added by the system, cannot be edited** block under each message. |
 | **R9** | **Money is exact.** Amounts use exact decimal arithmetic with a stated currency, unit and VAT basis, and there are **per-order and daily caps**. | Every price shows *ex VAT* or *inc VAT*. A price without a stated basis or currency is flagged and cannot be compared silently. |
-| **R10** | **Tenants are isolated.** One company's data cannot be read by another, and the database itself enforces this. | You only ever see your own company's data. |
-| **R11** | **Approval links cannot be forged.** The link only shows the quote. The decision needs a signed-in person, and the link is tied to one approver, one quote version and one action. It works once and expires. Above the approval threshold the approver cannot be the requester. | The bare **Approve a quote** page. |
-| **R12** | **Supplier identity is checked.** A reply must come from the supplier's registered domain and pass email authentication (the inbound mail provider reports whether DMARC aligned). If it does not, it is quarantined and never processed automatically. Changes to a supplier's contact details are admin-only and need a call to confirm. | **Failed sender check**, **Sender authenticated**, and the *Not verified* supplier badge. |
+| **R10** | **Tenants are isolated.** One company's data cannot be read by another. The program only reaches the data of one company at a time, and when the deployment uses a database, the database enforces this too. The demo build keeps its data in memory and has no database, so there the separation is in the program only. | You only ever see your own company's data. |
+| **R11** | **Approval links cannot be forged.** The link only shows the quote. The decision needs a signed-in person, and the link is tied to one approver, one quote version and one action. It works once and expires. The approver cannot be the person who asked when the total, or the day's total, is above its approval threshold, or when the quote carries a flag that forces an approval (for example *Entered by hand* or *VAT basis not stated*). | The bare **Approve a quote** page. |
+| **R12** | **Supplier identity is checked.** A reply must come from the supplier's registered domain and pass email authentication (the inbound mail provider reports whether DMARC aligned). If it does not, it is quarantined and never processed automatically. Changing a supplier's email address or domain is admin-only. It resets the supplier's verification and holds back its replies until a confirming call is recorded. The app has no screen for those changes or for recording the call yet. A change to a phone number is not covered by this rule. | **Failed sender check**, **Sender authenticated**, and the *Not verified* supplier badge. |
 
 ## Where AI is used
 
@@ -28,8 +28,8 @@ The footer says a message was *prepared with an AI assistant* because the produc
 - **It does not send real email.** Approved messages go to a recording transport. No mail provider or inbound mail provider is connected.
 - **It does not deliver approval links.** The link is created, but nothing emails it to the approver yet.
 - **It does not place orders.** It drafts a purchase order and gives you a CSV file.
-- **It does not remember your suppliers' real prices for you**, apart from price files you upload.
-- **It has no live market data.** Prices come from your own price files.
+- **It remembers only some prices for you.** Apart from the replies stored with each request, it keeps the price files you upload, and the unit price of a quote once you create a purchase order draft from it. It uses that second kind only to flag a later quote whose price or quantity looks out of line with past orders.
+- **It has no live market data.** Prices come from the price files you upload and from supplier replies. Job templates can carry sample shop prices; the job wizard shows them only as a range marked *Not a kit total and not a quote*.
 
 The full list of known limits is in [known gaps](../architecture/known-gaps.md).
 

@@ -12,7 +12,7 @@ It describes what the screens do today. It does not describe plans.
 
 ## What the app does
 
-You describe what you need. The app works out what part that is, asks you only the questions it cannot answer itself, and lists any assumptions it made. It then prepares one quote request per supplier you choose. **A person reads and approves each message before anything is sent.** Replies are read, checked and compared like for like. When you pick a quote, a purchase order draft is prepared for you to send yourself.
+You describe what you need. The app works out what part that is, asks you only the questions it cannot answer itself, and lists any assumptions it made. It then prepares one quote request per supplier you choose. **A person reads and approves each message before anything is sent.** Replies are read, checked and compared like for like. When you pick a quote, an approver confirms it where the rules require, and you then create a purchase order draft to send yourself.
 
 There are two ways in:
 
