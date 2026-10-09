@@ -98,19 +98,20 @@ flowchart TB
   aidb --> verify
 ```
 
-Every component also imports `core`, which is left out of the picture. Three edges are unusual: `rfq` and `verify` import each other (no module cycle); `aidb` imports `apps.api.middleware` once, lazily, for the idempotency store types; `aiplat` imports `evidence` so that a tool call can append an audit event. `matching` takes only `rfq.quotes.inert` (inert-text handling) from `rfq`. Components never import packs, and `employees/refurb` imports no component.
+Most components also import `core`, which is left out of the picture (`doc_parse`, `job_kits` and `telemetry` do not). Three edges are unusual: `rfq` and `verify` import each other (no module cycle); `aidb` imports `apps.api.middleware` once, lazily, for the idempotency store types; `aiplat` imports `evidence` so that a tool call can append an audit event. `matching` takes only `rfq.quotes.inert` (inert-text handling) from `rfq`. Components never import packs, and `employees/refurb` imports no component.
 
 ## 2. How a job becomes a quote
 
 ```mermaid
 flowchart TB
   subgraph Web["Web app"]
-    w0["Job wizard"]
+    w0["Job wizard: resolves the kit in the browser"]
     w1["Supplier prices: upload, ask for missing prices"]
     w10["Quote, Ways to buy, Compare"]
   end
   subgraph API["API and QuoteService"]
-    a1["POST /v1/kits/resolve, /v1/quotes"]
+    a0["POST /v1/kits/resolve: no screen calls it"]
+    a1["POST /v1/quotes"]
     a2["GET /v1/quotes/id/options, /v1/price-books"]
     a3["POST /v1/price-files"]
     a4["POST /v1/quotes/id/rfq-drafts"]
@@ -134,6 +135,7 @@ flowchart TB
     r8["PurchasingService.prepare_text_rfq: unsent messages, approved one by one"]
   end
   w0 --> a1 --> k1 --> q2 --> m3
+  a0 --> k1
   m3 <--> d3
   m3 --> p4
   w1 --> a3 --> p4
@@ -149,6 +151,8 @@ flowchart TB
 ```
 
 Price files enter only as files a person uploads (hard rule R7): nothing is fetched. Approvals and private offers are per customer. The messages for missing prices are text drafts that join the ordinary approve-and-send flow, so a person approves each one.
+
+The Job wizard resolves the kit in the browser, with a TypeScript port of the resolver (`apps/web/lib/kits/resolve.ts`); in connected mode its **Build the quote** button posts to `POST /v1/quotes`. `POST /v1/kits/resolve` exists and no screen calls it. The Quote and Supplier prices screens do not open the wizard's quote: each load posts its own `POST /v1/quotes`, built from the template's sample sizes and defaults (see [known gaps](known-gaps.md#found-while-writing-the-documentation-2026-10-09), row 18).
 
 ## 3. Module table
 
@@ -178,7 +182,7 @@ Apps and packs: `apps/api` 3,177 lines (50 routes), `apps/worker` 362, `employee
 ## 4. What this means
 
 - The request-to-order flow is wired end to end: web app, API, purchasing pack, and the RFQ, send, approval and audit components, on in-memory or PostgreSQL stores. It stops at a purchase order draft: nothing sends a purchase order, no real mail transport exists, and approval links are not delivered.
-- The quote engine is **served by the API** (`/v1/kits/resolve`, `/v1/quotes`, `/v1/quotes/{id}/options`, `/v1/price-books`, `/v1/price-files`, `/v1/kit-templates`, `/v1/quotes/{id}/rfq-drafts`), persists to PostgreSQL when `DATABASE_URL` is set, appends hash-chained events for quotes, match approvals and templates, and has web screens. Quote data exists only for the `uk` profile, and the API starts only with that profile.
+- The quote engine is **served by the API** (`/v1/kits/resolve`, `/v1/quotes`, `/v1/quotes/{id}/options`, `/v1/price-books`, `/v1/price-files`, `/v1/kit-templates`, `/v1/quotes/{id}/rfq-drafts`), persists to PostgreSQL when `DATABASE_URL` is set, appends hash-chained events for quotes, match approvals and templates, and has web screens. No screen calls `/v1/kits/resolve`: the Job wizard resolves kits in the browser and posts to `/v1/quotes`. Quote data exists only for the `uk` profile, and the API starts only with that profile.
 - The worker has tasks for inbound parsing, follow-ups, audit-chain verification, retention and metering, but it is not deployed and two of its dependencies (an inbound source and a send-service factory) are not wired.
-- The refurb prototype under `employees/refurb` predates the components, imports none of them, and keeps its own hash-chained audit log.
+- The refurb prototype under `employees/refurb` was added on 2026-10-03: after the first components (2026-10-02) and before the quote-engine ones (2026-10-06 and later). It imports none of the components (only the standard library) and keeps its own hash-chained audit log.
 - The planner graph (`employees/purchasing/graph.py`) is run only by tests. The API calls `PurchasingService` directly.
