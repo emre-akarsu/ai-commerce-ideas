@@ -25,7 +25,7 @@ Results recorded on 2026-10-09 at commit `691aa58`, in the sandbox this guide wa
 
 | Check | Result |
 |---|---|
-| `pytest tests evals -o addopts=""` (the same tests `make test` runs: `evals/` holds no test files) | **5,322 passed**, 0 failed, 0 skipped, 1 warning (a short HMAC key in an authentication test), in 8 minutes 7 seconds. PostgreSQL was reachable, so the 182 `tests/aidb` tests ran. |
+| `pytest tests evals -o addopts=""` (the same tests `make test` runs: `evals/` holds no test files) | **5,322 passed**, 0 failed, 0 skipped, 1 warning (a short HMAC key in an authentication test), in 8 minutes 7 seconds. PostgreSQL was reachable, so none of the 242 tests that need it was skipped. |
 | `make lint` (`ruff check packages apps employees tests evals`) | All checks passed. |
 | `cd apps/web && npm test` | 404 tests in 28 files passed. |
 | `npm run lint` and `npm run typecheck` | Both exited 0. |
@@ -41,7 +41,7 @@ Counts are the tests collected on 2026-10-09 (`pytest tests --collect-only -q`);
 
 | Directory | Covers | Tests |
 |---|---|---:|
-| `tests/aidb` | Migrations, row-level security, the event chain and triggers, the Postgres repositories and stores. Uses a **real PostgreSQL**: `AIDB_TEST_PG_URL` (default `postgresql://postgres@127.0.0.1:54329/postgres`, started by `scripts/pg_dev.sh start`). Each session gets a fresh, migrated database. **If Postgres is unreachable these tests are skipped with a reason**, so a green run without Postgres has not exercised them. | 182 |
+| `tests/aidb` | Migrations, row-level security, the event chain and triggers, the Postgres repositories and stores. Uses a **real PostgreSQL**: `AIDB_TEST_PG_URL` (default `postgresql://postgres@127.0.0.1:54329/postgres`, started by `scripts/pg_dev.sh start`). Each session gets a fresh, migrated database. **If PostgreSQL is unreachable, 242 tests are skipped with a reason** (174 of these 182, and 68 in `tests/api`, `tests/e2e`, `tests/sendservice` and `tests/worker`), so a green run without it has not exercised them. | 182 |
 | `tests/api` | Routes, authentication, idempotency and size limits, hardening, price files, the quote routes, RFQ drafts, telemetry routes, the profile endpoint. Also checks that `apps/api/openapi.json` is current. | 300 |
 | `tests/e2e` | Whole flows over HTTP with an in-process client: the vertical slice (UK and default), the MVP flow, business identity, the demo API, and a Postgres-backed service. | 50 |
 | `tests/pack` | The purchasing pack: the service, prepare gates, text RFQs, the planner, settings, quote verification, price history, production-readiness, profile behaviour. | 422 |
@@ -72,11 +72,11 @@ The browser scripts in `apps/web/e2e` are **not** part of `npm test`. They drive
 | `quote.mjs` | The Quote, Ways to buy and Supplier prices screens against the generated data for both tenants and every scope. Reads `WEB_URL`. |
 | `a11y.mjs` | Runs axe-core on each screen of the **demo build** (`DEMO_URL`, default `http://127.0.0.1:3300/page.html`) in light and dark and prints `ok` or `FAIL` lines. |
 | `overflow.mjs` | Prints the horizontal scroll width of each page at phone width. Port 3100 is written into the script, and it fails nothing. |
-| `demo-check.mjs`, `demo-final-check.mjs`, `demo-kits-check.mjs`, `demo-options-check.mjs` | Open the demo build on ports 3200 to 3204 written into each script and print the page text and screenshots. They assert nothing. |
+| `demo-check.mjs`, `demo-final-check.mjs`, `demo-kits-check.mjs`, `demo-options-check.mjs` | Open the demo build on the port written into each script (3200, 3201, 3203 and 3204) and print the start of the page text (`demo-options-check.mjs` prints three yes/no text tests), the horizontal-overflow measurement and the console messages. `demo-check.mjs` and `demo-kits-check.mjs` also save screenshots to the folder in `OUT`. They assert nothing. |
 | `shots.mjs` | Captures the screenshots in `docs/mvp/screenshots` (reads `WEB_URL`). |
 | `cdp.mjs` | The small DevTools client the others share. |
 
-Only `flow.mjs`, `kits.mjs` and `quote.mjs` print `PASS` or `FAIL` lines and a count of failures.
+`flow.mjs`, `kits.mjs` and `quote.mjs` print `PASS` or `FAIL` lines and a count of failures, and always exit 0. `a11y.mjs` prints `ok` or `FAIL` lines and exits 1 on any serious or critical violation. The other scripts assert nothing.
 
 ## Evaluations
 
@@ -92,4 +92,4 @@ What these cannot tell us (from the harness's own README): coverage beyond two p
 
 ## Conventions for new tests
 
-From `CLAUDE.md`: write the failing test first; keep functions small and typed; report what you ran and its result plainly, including failures. Seed data is synthetic and labelled as such. A hard rule is never weakened to make a test pass: if a ticket seems to need that, stop and report.
+From `CLAUDE.md`: write the failing test first; keep functions small and typed; report what you ran and its result plainly, including failures. Seed data is synthetic and labelled as such. Hard rules are never weakened; if a ticket seems to need that, stop and report.

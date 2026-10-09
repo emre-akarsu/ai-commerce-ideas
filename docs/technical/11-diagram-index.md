@@ -1,6 +1,6 @@
 # Diagram index
 
-All the diagrams in the documentation, and where to find them. Almost all are Mermaid, so GitHub and most Markdown viewers draw them from the source; six small sketches in older architecture notes are plain text and are marked as such in the last table. No script in the repository produces or updates the source of any diagram: they were written from the code, and a person has to check them against it when it changes. The documentation portal published from these files draws the Mermaid diagrams as static images with a text alternative.
+All the diagrams in the documentation, and where to find them. Almost all are Mermaid, so GitHub and most Markdown viewers draw them from the source; six small sketches in older architecture notes are plain text and are marked as such in the last table. No script in the repository produces or updates the source of any diagram: they were written from the code, and a person has to check them against it when it changes.
 
 ## System diagrams (this guide)
 
