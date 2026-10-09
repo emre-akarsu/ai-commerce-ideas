@@ -1,6 +1,6 @@
 # Job-kit wizard (web): config-driven UI
 
-As of 2026-10-06. Route `/kits` in `apps/web` ("Job kits" in the navigation; `#/kits` in the single-file demo). Status: built and checked in a real browser against the synthetic/illustrative seed kits (`needs_tradesperson_review`). Not tested with users; whether buyers want a kit wizard at all is unproven (see `docs/architecture/job-kits.md`).
+As of 2026-10-06, updated 2026-10-09 for the 2026-10-08 redesign and API mode. Route `/kits` in `apps/web`, reached from the navigation item "Quote a job" (the page heading is "Job"; `#/kits` in the single-file demo). Status: built and checked in a real browser against the synthetic/illustrative seed kits (`needs_tradesperson_review`). Not tested with users; whether buyers want a kit wizard at all is unproven (see `docs/architecture/job-kits.md`).
 
 The page is generated from the job-kit UI export (`profiles/data/job_kits/<market>/export/*.json`, schema `profiles/data/job_kits/export.schema.json`). A product owner changes questions, wording, defaults, options, tags, help text, widget hints, forced-by reasons or price bands by editing the kit files and re-exporting. No React code changes.
 
@@ -17,6 +17,8 @@ The page is generated from the job-kit UI export (`profiles/data/job_kits/<marke
 | `lib/kits/state.ts` | Wizard reducer and the Include / Not needed / Already have reducer. |
 | `lib/kits/summary.ts` | Assumption ledger, checks panel, prices, badges, RFQ draft payload. |
 | `lib/kits/catalog.ts` | Bundled kits plus a pasted preview. |
+| `lib/kits/templates.ts` | `kit-template/1` documents: build one from the wizard state, apply one to a scope. |
+| `lib/kits/template-store.ts` | Where templates live: this browser (localStorage) in demo mode, the account (`/v1/kit-templates`) in API mode. |
 | `lib/kits/generated/` | Copied exports, market parameters and `index.ts`. Written by `scripts/sync-kits.mjs`; do not edit. |
 | `components/kits/` | `kits-app.tsx` (flow), `widgets.tsx` (widget registry), `lines.tsx` (review blocks), `config-tab.tsx`. |
 | `tests/kits-*.test.ts` | Reader and migration, parity with Python, `widgetFor`, finish level, reducers, summary views. |
@@ -57,9 +59,11 @@ Other config-driven parts:
 
 ## Flow
 
-Pick a scope (cards) → the config's upfront questions (at most 3) → measure (sample sizes pre-filled for preview) → review (ledger, sections collapsed, checks panel, **Accept all defaults** as the primary button) → summary → **Create RFQ draft**.
+Pick a scope (cards) → the config's upfront questions (at most 3) → measure (sample sizes pre-filled for preview) → review (ledger, sections collapsed, checks panel, **Accept all defaults** as the primary button) → summary (main action **Build the quote**; **Create RFQ draft** is under "Advanced: request data").
 
-**Create RFQ draft is not wired.** There is no API endpoint that takes a kit. The request mock (`lib/mock.ts`, not owned here) creates single-part bearing requests, so adding kit lines to a mock request would mislabel them. The button shows the JSON payload and says plainly that nothing was created or sent. Any real wiring must go through the existing request and approval workflow (R1, R6).
+**Build the quote:** in demo mode it is a link that opens `/quote` for the kit's scope. In API mode it posts the answers, measurements, allowances, choices and line states to `POST /v1/quotes` and shows "Quote created: <id>". It does not open that quote, and the Quote screen builds its own from the template's sample sizes (see `quote-ui.md`, Data source).
+
+**Create RFQ draft is not wired.** It shows the JSON payload and says plainly that nothing was created or sent. The panel text still says "There is no API endpoint yet that takes a kit", which is no longer true: `POST /v1/kits/resolve` and `POST /v1/quotes` take a kit body. What is missing is a request built from the kit's lines; the per-supplier text drafts come from a saved quote (`POST /v1/quotes/{id}/rfq-drafts`). The request mock (`lib/mock.ts`) creates bearing requests, or V-belt requests when the text mentions a belt, so adding kit lines to a mock request would mislabel them. Any real wiring must go through the existing request and approval workflow (R1, R6).
 
 ## Semantics mirrored from the Python resolver
 
@@ -131,17 +135,17 @@ From `apps/web`:
 - **Market parameters:** the export does not carry them. `sync-kits.mjs` reads them from `parameters.yaml` with a minimal reader (the `parameters:` block only), and a pasted config for a market with no bundled parameters shows "cannot calculate" on lines that need them. Putting `parameters` (and lookup tables) into the export would remove this coupling. That is a schema change for the exporter's owner.
 - **Lookup rows** (the electric-shower circuit by kW) are named on the line, but the row values are not shown, for the same reason.
 - **Measurement bounds** are generic fallbacks by unit. The reader also accepts optional `min`, `max` and `step` on a measurement (an app extension, not in the contract).
-- **Encoding:** `demo/inline.mjs` writes `page.html` without `<meta charset="utf-8">`. Served as plain `text/html`, non-ASCII text ("—", "£", "²") shows as mojibake. It renders correctly when the host sends UTF-8. The fix is a one-line change in `inline.mjs` (not owned by this work).
+- **Encoding:** `demo/inline.mjs` now writes `<meta charset="utf-8">`, so the built page declares UTF-8 whatever the host sends (this was a defect when the note was first written).
 - Accessibility was designed for and checked for overflow, focus and keyboard use in a real browser. There has been no WCAG audit or screen-reader pass.
 - The wizard state is not saved. Reloading the page starts again. There is no exit-and-resume yet.
 
 ## Presets and former quotes as templates (2026-10-07)
 
 * **Defaults are pre-selected** on every question and option; the person confirms or changes only what differs.
-* **Set every line at once** (Review step): Budget / Most used / Premium / Template defaults. Scopes with a `finish_level` question follow it; others get a per-line pick of the option carrying the tag, and lines with no such option keep their default. A preset replaces hand-made option picks (the screen says so); later per-line changes still win. Line states and measurements are untouched. Premium is never pre-selected, only applied on an explicit tap.
-* **Former quote as template** (`lib/kits/templates.ts`, format `kit-template/1`): "Save as template" on the summary stores answers, measurements, allowances, option picks and left-out lines in this browser (localStorage, guarded; per-viewer only). The scope step lists templates for the same scope or the same job type, plus a built-in synthetic example. Applying one drops anything the new scope does not have (counted, never guessed) and lands on the measure step so sizes are confirmed. No prices are stored: prices always come from the current price book.
-* Not built: server-side/shared templates (a template is per browser), templates that carry supplier choices, and templates for the quote screen's review decisions.
+* **Set every line at once** (Review step): Budget / Standard / Premium / Defaults. Scopes with a `finish_level` question follow it; others get a per-line pick of the option carrying the tag, and lines with no such option keep their default. A preset replaces hand-made option picks (the screen says so); later per-line changes still win. Line states and measurements are untouched. Premium is never pre-selected, only applied on an explicit tap.
+* **Former quote as template** (`lib/kits/templates.ts`, format `kit-template/1`): "Save as template" on the summary stores answers, measurements, allowances, option picks and left-out lines. Demo mode keeps them in this browser (localStorage, guarded; per-viewer only). API mode saves them to the account through `GET`, `PUT` and `DELETE /v1/kit-templates` (at most 30 per account; the 31st is refused with `409`). The scope step lists templates for the same scope or the same job type, plus a built-in synthetic example. Applying one drops anything the new scope does not have (counted, never guessed) and lands on the measure step so sizes are confirmed. No prices are stored: prices always come from the current price book.
+* Not built: templates that carry supplier choices, and templates for the quote screen's review decisions. Known defect: deleting a saved template fails when the web app and the API are on different origins, because the API's CORS configuration allows `GET`, `POST`, `PATCH` and `PUT` but not `DELETE`.
 
 ## Journey top navigation (2026-10-07)
 
-One infographic track across the whole buying journey, shown on the Job kits, Price books and Quote screens (`components/journey.tsx`, `lib/journey.ts`): **Job kit, Prices, Quote, Compare, Request quotes**. Numbered nodes joined by a progress line; earlier stages show a check; every node is a link. Compare opens the Quote screen scrolled to Options; Request quotes opens the Price books RFQ preview (one message per supplier, individual on request). A back / next bar sits under the page. The wizard's own steps (Job, Questions, Measure, Review, Summary) use the same track style. Stages only open screens: sending and approving stay behind the approval flow. In the published demo it is the same single page with hash routing, so the whole journey is navigable without a server.
+One infographic track across the whole buying journey, shown on the Job, Supplier prices and Quote screens (`components/journey.tsx`, `lib/journey.ts`): **Job, Prices, Quote, Compare, Ask suppliers**. Numbered nodes joined by a progress line; earlier stages show a check; every node is a link. Compare opens the Quote screen scrolled to Options; Ask suppliers opens the Price books RFQ preview (one message per supplier, individual on request). A back / next bar sits under the page. The wizard's own steps (Job, Questions, Measure, Review, Summary) use the same track style. Stages only open screens: sending and approving stay behind the approval flow. In the published demo it is the same single page with hash routing, so the whole journey is navigable without a server.

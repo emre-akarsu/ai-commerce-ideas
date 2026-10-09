@@ -18,9 +18,9 @@ Frozen files (`packages/components/core/domain.py`, `ports.py`) are not edited. 
 
 | Method | Path | Role | Purpose |
 |---|---|---|---|
-| PUT | `/v1/vendors/{id}/profile` | buyer+ | Set the editable fields (`account_number`, `account_type`, `credit_days`, `delivery_threshold`, `quote_validity_days`, `contact_kind`). Single-line plain text, length-limited by the same sanitiser as other one-line fields. Cannot set `verification` or `suppressed` |
-| POST | `/v1/vendors/{id}/attest` | admin | `{note?}` sets `verification.state = attested` with the caller and time; appends an event. Changing `domain` or `contact_email` later resets the state to `unverified` |
-| POST | `/v1/vendors/import` | buyer+ | FR-SU-1. Multipart CSV with a header row; accepted columns `name, domain, contact_email, phone, account_number, account_type, credit_days, quote_validity_days, contact_kind` (`name`, `domain`, `contact_email` required). Every row is either created or listed as rejected with its row number and a reason; none is dropped silently. Returns `{created: int, updated: int, rejected: [{row: int, reason: string}]}`. Imported vendors start `unverified`. Rows with a control or hidden character, an over-long value, a bad domain or a bad email are rejected. A row matching an existing vendor by domain and contact email updates its profile fields only |
+| PUT | `/v1/vendors/{id}/profile` | buyer+ | Replaces all six editable fields (`account_number`, `account_type`, `credit_days`, `delivery_threshold`, `quote_validity_days`, `contact_kind`): a field that is omitted is cleared. Single-line plain text, length-limited by the same sanitiser as other one-line fields. A `delivery_threshold` currency the profile does not accept is `409`; malformed or out-of-range values are `422`. Cannot set `verification` or `suppressed` |
+| POST | `/v1/vendors/{id}/attest` | admin | `{note?}` sets `verification.state = attested` with the caller and time; appends an event. Changing `domain` or `contact_email` later (admin only, through `PATCH /v1/vendors/{id}`) resets the state to `unverified` and appends a `vendor.contact_changed` event with `pending_callback: true`, which quarantines the vendor's replies until a call-back is confirmed. No route confirms it yet (see known gaps) |
+| POST | `/v1/vendors/import` | buyer+ | FR-SU-1. Multipart CSV with a header row; accepted columns `name, domain, contact_email, phone, account_number, account_type, credit_days, quote_validity_days, contact_kind` (`name`, `domain`, `contact_email` required). Every row is either created or listed as rejected with its row number and a reason; none is dropped silently. A problem with the file itself (an unknown, duplicate or missing required column, an empty file, a non-UTF-8 file, or a file over `max_csv_bytes`) is a `409` and imports nothing. Returns `{created: int, updated: int, rejected: [{row: int, reason: string}]}`. Imported vendors start `unverified`. Rows with a control or hidden character, an over-long value, a bad domain or a bad email are rejected. A row matching an existing vendor by domain and contact email updates its profile fields only |
 | POST | `/v1/vendors/{id}/suppress` | buyer+ | Marks the vendor suppressed (no further sends); appends an event |
 | POST | `/v1/vendors/{id}/unsuppress` | admin | Clears it; appends an event |
 
@@ -28,7 +28,7 @@ Effects on `POST /v1/requests/{id}/rfqs/prepare` (all **409** `conflict`, nothin
 - `vendor not verified: <name>` unless `verification.state == attested`.
 - `vendor suppressed: <name>` when `suppressed` or the existing `opted_out` is true.
 - `individual subscriber: not enabled` when `contact_kind == individual`, unless the service setting `allow_individual_subscribers` is true (default false; counsel has not confirmed that one-to-one RFQs to sole traders are outside direct marketing).
-A reply whose text is a stop request (case-insensitive "stop", "unsubscribe", "remove me") from a vendor domain suppresses that vendor and appends an event; it never triggers any other action.
+A reply whose whole text is a stop request (case-insensitive "stop", "unsubscribe", "remove me", with an optional "please") from the vendor's own domain **with DMARC aligned** suppresses that vendor, appends an event and answers a `StopAck`; without alignment nothing is suppressed and the text takes the ordinary inbound path. It never triggers any other action.
 
 ## 2. Assumption ledger (FR-IN-4)
 
@@ -57,7 +57,7 @@ Items (computed, none hold a secret): `profile` (profile id and digest shown), `
 
 | Method | Path | Role | Purpose |
 |---|---|---|---|
-| GET | `/v1/audit/export` | admin | `?request_id=` optional. `{tenant: "<hash id>", generated_at, profile: "<id>@<digest12>", chain_valid: bool, head_hash, events: EventView[]}` (PII fields redacted as in `GET /v1/audit`) |
+| GET | `/v1/audit/export` | admin | `?request_id=` optional. `{tenant: "<16-hex hash of the tenant id>", generated_at, profile: "<id>@<digest12>", chain_valid: bool, head_hash, events: Event[], request_id: string|null}` (the `_pii` payload key is removed as in `GET /v1/audit`; each event still carries its raw `tenant_id`) |
 
 `scripts/verify_audit_export.py <file>` recomputes the hash chain from the exported events and exits non-zero on any mismatch; it needs no database and no network.
 
@@ -77,7 +77,7 @@ PO PDF export (CSV exists), accounting sync, second-approver flow changes, enfor
 
 | Method | Path | Role | Purpose |
 |---|---|---|---|
-| GET | `/v1/requests/{id}/rfqs/prepared` | buyer+ | Returns `PreparedRFQ[]` for the request's RFQs that are prepared and not yet sent, re-rendered from stored state so the approver always sees the exact bytes that will be sent. `mime_hash` must equal what `rfqs/prepare` returned for the same stored RFQ and what `approve-send` verifies; if the bytes cannot be reproduced exactly the endpoint returns an empty list (the UI then asks the user to prepare again). Read-only: it never changes state and never sends. Cross-tenant ids return 404 |
+| GET | `/v1/requests/{id}/rfqs/prepared` | buyer+ | Returns `PreparedRFQ[]` for the request's RFQs that are prepared and not yet sent, re-rendered from the very message objects that `approve-send` verifies, so the approver sees the exact bytes that will be sent. `mime_hash` equals what `rfqs/prepare` returned for the same RFQ. The prepared messages are held in this process's memory, so an RFQ whose message is no longer held (after a restart) or cannot be previewed is **left out on its own** and the others are still returned (the UI then asks the user to prepare again). Read-only: it never changes state and never sends. Cross-tenant ids return 404 |
 
 Reason: `prepare` returns the previews once, and `RequestDetail.rfqs` carries only summaries, so a page reload would otherwise lose the text the human must approve.
 

@@ -1,7 +1,7 @@
 # Product matching engine
 
 Component: `packages/components/matching`. Spec: `docs/product/07-product-matching-engine-spec-v2.md`.
-Status: working pipeline on synthetic data only. Nothing here is evidence of product accuracy.
+Status: working pipeline on synthetic data only, used by the quote API (`/v1/quotes`, `/v1/quotes/{id}/decisions`). Nothing here is evidence of product accuracy.
 
 ## 1. Architecture
 
@@ -85,7 +85,7 @@ CLAUDE.md numbering first, spec R-numbers second.
 | 3 (R3) provenance | Verification needs confidence >= 0.7 and a non-`model_inference` source. Reasons are templated. The judge note is marked unverified. Ontology entries and classification codes carry provenance. |
 | 4 (R6/R7) untrusted text | Order-line, catalogue and builder text is sanitised, capped, fenced and JSON-encoded; output is schema-checked; ids not offered are discarded; no link fetching. Prompt-injection tests exist for the judge and builder. |
 | 5 (R9) money | `Decimal` for scores, prices and the cost estimate. Units convert with exact `Decimal` arithmetic. |
-| 6 (R6 follow-up) events | Not wired. Approval records and the ontology change log are local hash-chained or in-memory structures. Writing them through the workflow module's hash-chained `Event` log is a follow-up. |
+| 6 (R6 follow-up) events | Wired by the caller, not by this component. `QuoteService.decide` appends a `match_approved` event to the hash-chained log, and with `DATABASE_URL` set match approvals are stored in PostgreSQL (`approved_matches`). The ontology change log stays local to the writer. |
 | 7 (R10) tenant isolation | `ApprovedMatchStore` is keyed by tenant id; a test confirms another tenant never sees an approval. |
 | 1 (R1) | Not applicable: the engine sends and orders nothing and imports no transport. |
 
@@ -115,7 +115,7 @@ interface (`search`, `score_item`) is what a production backend must implement.
 
 ## 6. Known gaps
 
-* Event wiring (rule 6) is not done; see section 3.
+* Event wiring (rule 6) is done for match approvals by the API's quote service and not for the ontology change log; see section 3.
 * No price normalisation across pack sizes; the match group is not price-ranked.
 * Mirror ambiguity such as `3m x 20` is not flagged.
 * All data is synthetic. Required-attribute lists, thresholds, weights and the ontology are

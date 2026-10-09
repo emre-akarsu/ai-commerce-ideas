@@ -1,6 +1,6 @@
 # Contract change proposals
 
-(Appended by backend-engineer / data layer. Nothing here has been applied to frozen contracts.)
+(Appended by backend-engineer / data layer. Status checked against the code on 2026-10-09: the only change ever made to `domain.py` or `ports.py` after the monorepo refactor is the additive, defaulted tax-basis fields of 2026-10-02 (below, marked applied). Every other entry is a proposal. Where a non-frozen part of a proposal has since been built, the entry says so.)
 
 ## aidb: EventLog storage port (evidence/log.py)
 `EventLog` keeps its chain, heads and index in process memory, so persisting needed a subclass
@@ -19,28 +19,32 @@ Tables use primary key `(tenant_id, id)` so ids are not an existence oracle acro
 `TenantStore` (in-memory) raises `TenantIsolationError` on a cross-tenant id; the PG store raises
 `NotFoundError` (RLS hides the row). HTTP layers already must map both to 404.
 
-## purchasing pack: proposals from `employees/purchasing/service.py` (nothing applied)
-- `ApprovalService.peek_token(token) -> TokenClaims`: public, signature-checked, non-consuming decode.
+## purchasing pack: proposals from `employees/purchasing/service.py` (none applied to a frozen file; see the notes in each item)
+- `ApprovalService.peek_token(token) -> TokenClaims` (**still open**: the service calls the private `_decode` with a `noqa`): public, signature-checked, non-consuming decode.
   The service's side-effect-free `get_approval_link(token)` has no ctx, so it must learn tenant,
   approver, action and quote version from the signed token; it currently calls the private
   `ApprovalService._decode`. Please make that public (or add `peek_token`).
 - `ApprovalService.issue_substitution_approval(..., request_id=None)`: the `approval.issued` event
-  for a SubstitutionApproval carries no `request_id`, so it is missing from the per-request audit
-  view. The service works around it with its own `approval.substitution_recorded` event.
+  for a SubstitutionApproval carried no `request_id`, so it was missing from the per-request audit
+  view. **Built since:** the method now takes `request_id` and `quote_id` and binds them into the
+  approval subject (`purchase_orders/approvals/service.py`). The service still emits its own
+  `approval.substitution_recorded` event as well.
 - `aidb.PgStore.for_tenant` is a context manager (one transaction), whereas `SendService` and
   `ApprovalService` call `store.for_tenant(t)` and use the result as a plain object. A Postgres
-  `build_pg_service` therefore needs either a `Store`-protocol adapter that opens one
-  tenant_session per call, or those services accepting a repository factory. Not built.
+  `build_pg_service` therefore needed either a `Store`-protocol adapter that opens one
+  tenant_session per call, or those services accepting a repository factory. **Built since** as
+  `build_pg_service` (`employees/purchasing/service.py`) over `PgServiceStore`
+  (`employees/purchasing/pg_wiring.py`), without a frozen-file change.
 - `Request` has no field for the approval/selection state; the service derives the selected quote
   (id, version, fingerprint) from the `QUOTE_SELECTED` transition event and candidates from a
   `candidates.found` event. A typed `Selection`/`CandidateSet` record in `domain.py` would be
   simpler to query in SQL.
 
 
-## 2026-10-02 (lead): tax basis on quotes (deployment profiles)
+## 2026-10-02 (lead): tax basis on quotes (deployment profiles) - APPLIED to `domain.py`
 Additive, defaulted fields so stored data stays valid: `ExtractedQuote.tax_text`; `Quote.unit_price_quoted`, `Quote.tax_basis` ("ex_tax"|"inc_tax"|"unknown"), `Quote.tax_rate`. `Quote.unit_price_each` is the EX-TAX price once the basis is known, so comparison stays like-for-like. Reason: UK (and most non-US) B2B quotes are ex-VAT by norm and may state VAT inclusively; the active deployment profile (`aiplat.profile`) decides the default basis, rate and handling of unknown basis.
 
-## 2026-10-06 (backend, buy-side RFQ MVP): no frozen-file change needed
+## 2026-10-06 (backend, buy-side RFQ MVP): no frozen-file change needed (the `SPEC_CONFIRMED -> SPEC_DRAFT` edge is in `machine.py`)
 `domain.py` and `ports.py` are untouched. `Vendor` stays as is: the supplier profile, attestation and suppression live in the new `components/suppliers` records keyed by `(tenant_id, vendor_id)`, and `VendorView` (API) is `Vendor` plus `profile`. Assumption rows are `components.suppliers.Assumption`. Two non-frozen notes for the owners:
 - `components/rfq/workflow/machine.py`: added the transition `SPEC_CONFIRMED -> SPEC_DRAFT`, used only when a person invalidates an assumption (the request returns to its open questions through `Workflow.transition`, never a direct status write). The only way to reopen a confirmed spec before this was through ESCALATED.
 - Preferable later: a `Vendor.profile`-style typed field or a `SupplierProfile` port in `domain.py`/`ports.py` so `PgStore` and `Store` share one protocol (today `PgTenantStore.profiles/assumptions` match `SupplierTenantStore` structurally).

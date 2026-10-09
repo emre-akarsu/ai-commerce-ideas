@@ -156,15 +156,15 @@ Tests (`tests/profiles/`) assert each invariant is enforced and that the tenant 
   with a default therefore moves the digest of a profile that never mentions it. Compare digests only within one schema
   version, and read an audit trail with the schema change dates below in mind. Recorded digests (`profile@first 12 hex`):
 
-  | Profile | before business identity (3020f74) | + `legal.business_identity` (a2c000e) | + `tax.ask_basis_in_rfq`, UK VAT corrections (7de8408) | UK notice rewording (this change) |
-  |---|---|---|---|---|
-  | `us` | c20d65ea0b93 | 6fe769e7fe3f | 249a80f9d6d5 | 249a80f9d6d5 (no change: no schema key, no US text moved) |
-  | `uk` | 1f168cd964a4 | c2c123a946d9 | 8f9394bda544 | 951429ab0feb |
-  | `uk-scotland` | 82f535b95af0 | 62caa7ac3045 | e17e8154e0a6 | df527e5ab57d |
-  | `uk-ni` | ec559293d741 | 8cec94830eca | 51ab015a267a | 63deb6bde544 |
+  | Profile | before business identity (3020f74) | + `legal.business_identity` (a2c000e) | + `tax.ask_basis_in_rfq`, UK VAT corrections (7de8408) | UK notice rewording | current (2026-10-09, `691aa58`) |
+  |---|---|---|---|---|---|
+  | `us` | c20d65ea0b93 | 6fe769e7fe3f | 249a80f9d6d5 | 249a80f9d6d5 (no change: no schema key, no US text moved) | 0186287a0e31 |
+  | `uk` | 1f168cd964a4 | c2c123a946d9 | 8f9394bda544 | 951429ab0feb | 175bf42fc7a2 |
+  | `uk-scotland` | 82f535b95af0 | 62caa7ac3045 | e17e8154e0a6 | df527e5ab57d | 5624422ea576 |
+  | `uk-ni` | ec559293d741 | 8cec94830eca | 51ab015a267a | 63deb6bde544 | 48b00cd563e5 |
 
   Any later profile edit or schema key moves these again; `python -m aiplat.profile validate <id>` prints the current value.
 - A profile does not translate model-extracted text; non-English vendor replies need separate extractor evaluation.
-- Tenant overrides are validated but stored by the application database, not yet by a UI; no admin screen exists.
+- Tenant overrides are validated against the whitelist when they are passed to the resolver (`load_profile(..., tenant_overrides=...)`), but nothing in the application supplies them: no table, route or screen stores them yet (only tests pass overrides).
 - Jurisdiction legal text in a profile is a starting point, never legal advice.
 - Business-identity values come from deployment settings, not from a per-tenant table or admin screen; see `known-gaps.md`.

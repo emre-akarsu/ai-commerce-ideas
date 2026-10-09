@@ -93,7 +93,7 @@ steps:
   - { id: award,    uses: Approval@1, human: required }
 ```
 
-A runner compiles the template to the existing LangGraph runtime (Postgres checkpointer, resumable loops). The purchasing graph stays as the reference until a template reproduces its behaviour in a test.
+A runner would compile the template to the existing LangGraph runtime; resumable loops need a checkpointer, and a Postgres one has not been built (the purchasing graph takes an injected checkpointer, and `build_graph` is imported only by a test). The purchasing graph stays as the reference until a template reproduces its behaviour in a test.
 
 ## 5. Industry packs
 

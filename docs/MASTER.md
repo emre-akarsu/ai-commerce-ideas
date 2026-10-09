@@ -1,6 +1,6 @@
 # MASTER: buy-side RFQ platform and product idea (single navigable source)
 
-As of **2026-10-06**. Branch `claude/agentic-commerce-research-gjjwnk`. This file summarises and links; it does not replace the source documents. Where this file and a source disagree, the source wins, and section 8.3 lists the disagreements found between sources. Links are relative to `docs/`.
+As of **2026-10-06**; sections 1 to 6 were re-checked against the code on **2026-10-09** (commit `691aa58`), while sections 7 to 10 (research digest, decisions, roadmap, index) are as of 2026-10-06 and were not re-checked. Branch `claude/agentic-commerce-research-gjjwnk`. This file summarises and links; it does not replace the source documents. Where this file and a source disagree, the source wins, and section 8.3 lists the disagreements found between sources. Where a document and the code disagree, the code wins. The built system is described in [`technical/`](technical/README.md) (engineers) and [`user-guide/`](user-guide/README.md) (people who use it). Links are relative to `docs/`.
 
 **Product-market fit is unproven.** No buyer or supplier has been interviewed (`product/06-platform-buyside-rfq-lean-canvas.md`, `uk/01-uk-pmf-lean-canvas.md`). **All seed, demo, price and job-kit data is synthetic/illustrative**, not licensed cross-reference data. Nothing here is legal, tax or financial advice. Every number carries its source in brackets; numbers marked *(est.)* or *(assumption)* are judgement, not measurement.
 
@@ -16,7 +16,7 @@ One place to answer: what the product is, which rules can never bend, how the pl
 
 | Tag | Meaning |
 |---|---|
-| **BUILT** | Code in the repo with tests, per the cited doc. I did not re-run the test suite for this file |
+| **BUILT** | Code in the repo with tests. Sections 1 to 6 were checked against the code on 2026-10-09; test counts and results are in [`technical/09-testing-and-evals.md`](technical/09-testing-and-evals.md) |
 | **PARTIAL** | Built with documented gaps ([`architecture/known-gaps.md`](architecture/known-gaps.md)) |
 | **WIP** | In progress on 2026-10-06 (uncommitted, or committed but not wired into the product) |
 | **PROPOSED** | Design doc or ADR with status "proposed"; no implementing code |
@@ -27,16 +27,20 @@ One place to answer: what the product is, which rules can never bend, how the pl
 
 | Area | Status | Evidence |
 |---|---|---|
-| Hard rules R1-R12 enforced in code (send-service, approvals, hash-chained events, tenancy) | BUILT (in-memory; PARTIAL for multi-process) | [`architecture/known-gaps.md`](architecture/known-gaps.md) H2, L5; [`product/review/code-security-review.md`](product/review/code-security-review.md) |
+| Hard rules R1-R12 enforced in code (send-service, approvals, hash-chained events, tenancy) | BUILT. In-memory by default, PostgreSQL-backed when `DATABASE_URL` is set; `ENV=production` is still refused until six listed items (H2) are closed | [`technical/06-security-and-trust.md`](technical/06-security-and-trust.md); [`architecture/known-gaps.md`](architecture/known-gaps.md) H2, L5; [`product/review/code-security-review.md`](product/review/code-security-review.md) |
 | Purchasing pack (MRO: bearings, V-belts) API + workflow | BUILT | [`architecture/api-contract.md`](architecture/api-contract.md); `employees/purchasing/` |
-| Buy-side RFQ MVP (UK): supplier profiles, assumption ledger, setup/go-live, evidence export, Next.js workspace | BUILT / PARTIAL | [`mvp/README.md`](mvp/README.md) (2,913 Python tests and 52 web tests reported there; not re-run here) |
+| Buy-side RFQ MVP (UK): supplier profiles, assumption ledger, setup/go-live, evidence export, Next.js workspace | BUILT / PARTIAL | [`mvp/README.md`](mvp/README.md); test counts and results as of 2026-10-09 in [`technical/09-testing-and-evals.md`](technical/09-testing-and-evals.md) |
 | Deployment profiles (us, uk, uk-scotland, uk-ni) | BUILT | ADR-011, [`architecture/configurability.md`](architecture/configurability.md), `../profiles/` |
 | Refurb pack (mandate, parser, compare, audit; demo) | BUILT (no UI, no persistence) | [`refurb/README.md`](refurb/README.md) |
-| Job-kit library v0.2 (job type → scope → module → line; resolver; UI export JSON) | BUILT as data + resolver (commit `000c6bc`); unreviewed synthetic seed; not called by any API or workflow step | [`architecture/job-kits.md`](architecture/job-kits.md), `../profiles/data/job_kits/uk/`, `../packages/components/job_kits/` |
-| Job-kit wizard UI in `apps/web` | WIP | no job-kit screen in `../apps/web/app/` yet; a resolved-kit test fixture appeared (uncommitted) while this file was written |
+| Job-kit library v0.2 (job type → scope → module → line; resolver; UI export JSON) | BUILT as data and resolver, and called by the API (`POST /v1/kits/resolve`, and by the quote engine); unreviewed synthetic seed | [`architecture/job-kits.md`](architecture/job-kits.md), `../profiles/data/job_kits/uk/`, `../packages/components/job_kits/` |
+| Job-kit wizard UI in `apps/web` | PARTIAL | the `/kits` wizard is built (Job, Questions, Measure, Review, Summary, with a config tab); regulated-work gates and RFQ packets are not (section 5.3). [`mvp/kits-ui.md`](mvp/kits-ui.md), `../apps/web/app/kits/` |
 | Composable workflows, capability contracts, industry packs, composition linter | PROPOSED | ADR-012, [`architecture/composability.md`](architecture/composability.md) |
-| Platform services (logging redaction, onboarding workflow, kill-switch registry) | PROPOSED | [`architecture/platform-services-and-buyside-rfq.md`](architecture/platform-services-and-buyside-rfq.md) |
-| Intent-driven quoting (intent → scope → BOM → gates → RFQ packets) | PROPOSED | [`product/05-intent-driven-quotes-proposal.md`](product/05-intent-driven-quotes-proposal.md) |
+| Platform services (logging redaction, onboarding workflow, kill-switch registry) | PARTIAL. Built: per-tenant kill switch (`POST /v1/admin/kill-switch`), setup readiness and recorded go-live, audit-log redaction. Not built: operational-log redaction (`get_logger()`), the onboarding workflow | [`architecture/platform-services-and-buyside-rfq.md`](architecture/platform-services-and-buyside-rfq.md) |
+| Intent-driven quoting (intent → scope → BOM → gates → RFQ packets) | PARTIAL. The kit → matching → pricing → draft-quote pipeline is built and served by the API, and RFQ *drafts* per supplier go through the normal approval flow. Intent parsing, regulated-work gates (G1-G6) and RFQ packets are PROPOSED | [`product/05-intent-driven-quotes-proposal.md`](product/05-intent-driven-quotes-proposal.md) |
+| Quote engine: matching, pricing, price books, quoting, ways to buy, price-file upload | BUILT and served by the API for the `uk` profile on synthetic data; PARTIAL: no real price source, and the API starts only with `DEPLOYMENT_PROFILE=uk` | [`technical/05-quote-engine.md`](technical/05-quote-engine.md); [`architecture/quoting.md`](architecture/quoting.md) |
+| Verification layer (number checks, plausibility, second reading compared with the first) | BUILT and wired into quote reading; no language model is called in the shipped code | [`architecture/verification.md`](architecture/verification.md); `../packages/components/verify/` |
+| Review telemetry (content-free review events, seeded drills, pooled summaries) | BUILT: routes, Postgres store, web hook | [`technical/04-api-reference.md`](technical/04-api-reference.md); `../packages/components/telemetry/` |
+| User and technical documentation | BUILT (this change) | [`user-guide/`](user-guide/README.md), [`technical/`](technical/README.md) |
 | AI Employees stack (Supabase, Render, LangGraph, Next.js) | PROPOSED in ADR-010, partly used in code | ADR-010, [`architecture/ai-employees-stack-map.md`](architecture/ai-employees-stack-map.md) |
 | Market, legal, channel, data-source and template research | RESEARCH | section 7 |
 | Demand, frequency, willingness to pay, supplier reply rate | HYPOTHESIS (untested) | Phase 0 tests T1-T9, U1-U6 ([`uk/01-uk-pmf-lean-canvas.md`](uk/01-uk-pmf-lean-canvas.md) §7) |
@@ -64,7 +68,7 @@ One place to answer: what the product is, which rules can never bend, how the pl
 
 **MVP scope: buy-side RFQ, UK** [BUILT/PARTIAL] ([`mvp/README.md`](mvp/README.md)). Web-form intake with at most two clarifying questions; assumption ledger the buyer confirms; supplier CSV import, profile and admin attestation before first send; exact-message preview and hash-bound approval per message; send only through the send-service; reply matching, grounded extraction, quarantine; like-for-like comparison with flags; approval link; PO draft (CSV); hash-chained audit with offline-verifiable export. UK profile adds VAT-basis handling, working-day lead times, GOV.UK bank holidays and a company-details block on every RFQ.
 
-**Intent and job-kit extension** [PROPOSED / WIP]. Start from an outcome ("Victorian terrace, mid-size full bathroom refurb, on a budget") or a job type (bathroom: full, cloakroom, WC only, wet room), ask a few questions, pre-fill a kit of generic spec lines from defaults, let the buyer review, check completeness and regulated-work gates, then feed the normal RFQ flow ([`product/05-intent-driven-quotes-proposal.md`](product/05-intent-driven-quotes-proposal.md), [`../research/intent/06-job-templates-and-kits.md`](../research/intent/06-job-templates-and-kits.md)).
+**Intent and job-kit extension** [PARTIAL: the kit wizard, `POST /v1/kits/resolve`, the quote engine and per-supplier request drafts are built; the outcome-to-scope intent step, regulated-work gates and RFQ packets are PROPOSED]. Start from an outcome ("Victorian terrace, mid-size full bathroom refurb, on a budget") or a job type (bathroom: full, cloakroom, WC only, wet room), ask a few questions, pre-fill a kit of generic spec lines from defaults, let the buyer review, check completeness and regulated-work gates, then feed the normal RFQ flow ([`product/05-intent-driven-quotes-proposal.md`](product/05-intent-driven-quotes-proposal.md), [`../research/intent/06-job-templates-and-kits.md`](../research/intent/06-job-templates-and-kits.md)).
 
 **Channels.** Email first: inbound alias plus outbound send-service; no mailbox OAuth at R0/R1 (ADR-008). Estimated 65-80% of UK supplier RFQ and quote traffic is email *(est., judgement in [`../research/channels/01-channel-usage-estimates.md`](../research/channels/01-channel-usage-estimates.md))*. WhatsApp is optional and later: most plausible for small-trade suppliers and internal approvals (same file), but [`../research/mvp/03-uk-integrations-requirements.md`](../research/mvp/03-uk-integrations-requirements.md) §1.7 keeps it out of the MVP (opt-in, templates, 24 h windows; manual paste of WhatsApp text into a reply is the interim path). Phone/SMS: generated scripts and manual quote logging (spec F21, F22), not an SMS integration.
 
@@ -122,16 +126,18 @@ From [`architecture/composability.md`](architecture/composability.md) §2 and [`
 | 1 Capabilities | Versioned typed contracts (Protocols + Pydantic) in `packages/aiplat`: `IntentParser`, `PartIdentifier`, `EquivalenceResolver`, `ScopePlanner`, `QuantityTakeoff`, `TierOptimiser`, `GateEvaluator`, `MandateCheck`, `RfqPacketBuilder`, `CounterpartyVerifier`, `FraudScreen`, `QuoteExtractor`, `QuoteComparator` | Rarely; versioned | PROPOSED |
 | 2 Modules | Implementations with a `module.yaml` (provides, requires, effects, LLM role/tools, pack extension points, evals, data sources) | Often | PROPOSED (today: plain components under `packages/components/*`) |
 | 3 Workflow templates | Declarative step graph naming capabilities (e.g. `quote_to_award@1`), compiled to LangGraph; no expressions in the DSL | Occasionally | PROPOSED |
-| 4 Industry packs | Data: taxonomy, work packages, gates, questions, attributes, prompts, synthetic seed, evals (e.g. `mro-bearings`, `bathroom-refurb`) | Per vertical | PROPOSED (job-kit library is the first data-only pack-like asset, BUILT but not wired) |
+| 4 Industry packs | Data: taxonomy, work packages, gates, questions, attributes, prompts, synthetic seed, evals (e.g. `mro-bearings`, `bathroom-refurb`) | Per vertical | PROPOSED (job-kit library is the first data-only pack-like asset, BUILT and called by the API) |
 | 5 Profile and tenant | Jurisdiction profile (`profiles/<id>.yaml`) and tenant overrides within a whitelist | Per market / customer | BUILT |
-| Platform services | Trust, Operate, Onboard, Model, Build, Data (section 4.7) | Platform team | PARTIAL / PROPOSED |
-| Infrastructure | Supabase (Postgres, Auth, Vault, Storage), Render web + worker, Procrastinate, Langfuse, Sentry | Platform | PROPOSED (ADR-010) |
+| Platform services | Trust, Operate, Onboard, Model, Build, Data (section 4.8) | Platform team | PARTIAL / PROPOSED |
+| Infrastructure | Supabase (Postgres, Auth, Vault, Storage), Render web + worker, Procrastinate, Langfuse, Sentry | Platform | PARTIAL: Supabase-style JWT authentication (the default `AUTH_MODE`), PostgreSQL with RLS and a Procrastinate worker (not deployed) exist; Langfuse, Sentry, Vault and Storage are not in the code (ADR-010 is still proposed) |
 
 A deployment = template + pack + profile + tenant, resolved into an immutable `ResolvedComposition` with a digest recorded on every event (PROPOSED). Today each event records `profile = <id>@<digest12>` (BUILT). Composition linter (PROPOSED): C1 every send path passes an Approval and the SendService port; C2 tool-using steps never consume vendor data; C3 untrusted data passes grounding before critical fields; C4 money is Decimal with currency/UoM; C5 tenant-scoped repositories only; C6 capabilities bound and version-compatible; C7 pack data validates and has no reserved key; C8 every data source has a licence record; C9 eval suite and frozen gold set before production. Runtime repeats C1-C3.
 
 Levels of effort per new industry: 0 tenant config, 1 data-only pack, 2 pack + one module, 3 new capability (needs ADR). Target: most are level 1; measure new lines of Python per pack (composability §5; savings unmeasured).
 
 ### 4.2 Component diagram
+
+The picture shows the built system. The computed import graph is in [`architecture/current-modules.md`](architecture/current-modules.md) and [`technical/01-system-overview.md`](technical/01-system-overview.md).
 
 ```mermaid
 flowchart TB
@@ -142,49 +148,54 @@ flowchart TB
   end
   SUP[(Supplier inboxes<br/>UNTRUSTED replies)]
   subgraph Web["apps/web (Next.js) - BUILT"]
-    WS[Inbox + request workspace]
-    KITUI[Job-kit wizard - WIP]
+    WS[Home, Requests, Suppliers,<br/>Approve, Audit, Setup]
+    KITUI[Job wizard, Prices, Quote,<br/>Ways to buy, Compare]
   end
-  subgraph API["apps/api (FastAPI) + apps/worker"]
+  subgraph API["apps/api (FastAPI) - BUILT; apps/worker - not deployed"]
     AUTH[JWT auth: tenant/role from token only]
     INB[/inbound webhook HMAC/]
+    QSV[QuoteService]
   end
   subgraph Packs["employees/* (packs)"]
     PUR[purchasing pack<br/>intake, spec, candidates, draft_rfq]
-    REF[refurb pack<br/>mandate, parser, compare]
+    REF[refurb pack<br/>own audit log, imports no component]
   end
   subgraph Components["packages/components/*"]
     PARTS[parts: families, spec, equivalence A-D]
-    RFQ[rfq: workflow state machine, quotes, comparison]
+    RFQ[rfq + verify: workflow state machine,<br/>quote reading and checks, comparison]
     SUPP[suppliers: profile, attestation, assumptions]
-    KITS[job_kits: library, resolver, export - not wired]
     IMP[imports: CSV]
     DOC[doc_parse: no-network sandbox]
     PO[purchase_orders: approvals, caps, links]
     EVD[evidence: hash-chained events, redaction]
     SEND[[send_service: SOLE mail credential holder<br/>Approval hash, footer, recipients, caps]]
+    QENG[quote engine: job_kits, matching,<br/>pricing, quoting, pricebook]
   end
   subgraph Kernel["packages/aiplat + aidb"]
     PROF[profile resolver: ResolvedProfile + digest]
     CTX[ctx, manifest, @tool]
     DB[(Postgres RLS / in-memory)]
-    LLM[LLMProvider: FakeLLM in CI, pinned snapshots]
+    LLM[LLMProvider port:<br/>FakeLLM only, no production client]
   end
   REQ --> WS --> AUTH --> PUR
+  KITUI --> AUTH --> QSV
   APR -->|GET renders, POST decides| AUTH
   ADM --> AUTH
-  KITUI -.-> KITS
+  QSV --> QENG
+  QSV -->|unsent text drafts| PUR
   PUR --> PARTS & RFQ & SUPP & PO & IMP
-  REF --> EVD
   RFQ --> EVD
   PO --> SEND
   RFQ -->|prepare: exact MIME + mime_hash| SEND
   SEND -->|RFQ email from alias, Reply-To buyer| SUP
   SUP --> INB --> DOC -->|quarantined extractor + grounding| RFQ
-  PROF --> PUR & SEND & KITS
+  PROF --> PUR & SEND & QENG
   EVD --> DB
-  PARTS --> LLM
+  RFQ -.optional.-> LLM
+  QENG -.optional judge.-> LLM
 ```
+
+Review telemetry (`components/telemetry`) is served by the API's telemetry routes and stored through `aidb`; it is left out of the picture.
 
 The planner (pack graph) has no import path to the transport; a static scan enforces it, but both run in one process today (known-gaps L5).
 
@@ -197,13 +208,13 @@ From CLAUDE.md and the stack map ([`architecture/ai-employees-stack-map.md`](arc
 | `packages/aiplat` | `manifest.py`, `ctx.py`, `tool.py`, `profile.py` (deployment profiles) |
 | `packages/aidb` | SQLAlchemy models, RLS, repositories, Alembic migrations |
 | `packages/components/core` | **Frozen** `domain.py`, `ports.py`; `fakes.py`, `store.py` |
-| `packages/components/{parts,rfq,purchase_orders,send_service,evidence,doc_parse,imports,suppliers,job_kits}` | Shared components (job_kits not yet wired to API or workflow) |
+| `packages/components/{parts,rfq,purchase_orders,send_service,evidence,doc_parse,imports,suppliers,verify,job_kits,matching,pricing,quoting,pricebook,telemetry}` | Shared components (sixteen with `core`) |
 | `apps/api`, `apps/worker`, `apps/web` | FastAPI, Procrastinate-style worker, Next.js 15 / React 19 web app (+ single-file demo build in `apps/web/demo/`) |
 | `employees/purchasing`, `employees/refurb` | Packs (`employee.yaml`, graph/service, tools) |
-| `profiles/` | `base`, `us`, `uk`, `uk-scotland`, `uk-ni`, `_template`; `data/` (bank holidays, job kits) |
+| `profiles/` | `base`, `us`, `uk`, `uk-scotland`, `uk-ni`, `_template`; `data/` (bank holidays, job kits, matching ontology, pricebook, quoting price files) |
 | `evals/`, `tests/`, `scripts/` | Eval harness (Wilson gate), tests incl. `tests/profiles` conformance, demo and audit-verify scripts |
 
-Commands: `make test`, `make lint`, `make eval`, `make check`, `make demo-api`.
+Commands: `make setup`, `make test`, `make lint`, `make typecheck`, `make eval`, `make check` (lint, test, eval; not typecheck), `make demo-api`.
 
 ### 4.4 Stack
 
@@ -238,7 +249,7 @@ New market: [`templates/new-deployment-checklist.md`](templates/new-deployment-c
 
 - **Spec entities** (spec §6.1): `Tenant`, `User`, `Vendor`, `VendorContact`, `Request{criticality, need_by, site, work_order_ref}`, `Attribute`, `PartFamily`, `Candidate{tier A-D, basis, basis_source, basis_date, evidence}`, `RFQ`, `RFQMessage`, `Quote{fields, source_snippets, version, uom, currency}`, `Comparison`, `Approval`, `StandingRule`, `PurchaseOrderDraft`, `Event`, `GoldenItem`, `Correction`, `ConsentRecord`.
 - **Tiers** (spec §3): A same part (same maker + MPN or same-maker supersession); B documented equivalent with named source and date; C rule-matched candidate, hidden until ≥50 buyer-confirmed matches and the eval gate pass; D needs engineering review, never offered.
-- **Events** (ADR-002): `hash = sha256(prev_hash ‖ canonical(payload, type, actor, ts))`, per-tenant chains, PII committed by digest so redaction keeps the chain verifiable; keyed with `AUDIT_CHAIN_KEY` (known-gaps).
+- **Events** (ADR-002): `hash = HMAC-SHA256(AUDIT_CHAIN_KEY, prev_hash + canonical_json(envelope))`, where the envelope covers id, tenant, request, timestamp, actor, type, payload and the PII digests; per-tenant chains; PII is committed by keyed digest so redaction keeps the chain verifiable. The key is implemented (`AUDIT_CHAIN_KEY`); there is no key version in the chain ([`technical/08-deployment-and-operations.md`](technical/08-deployment-and-operations.md#keys-and-rotation)).
 - **Request state machine**: 19 states in frozen `domain.py`; transitions only through `components/rfq/workflow/machine.py` (section 5.1).
 - **Tax on quotes** (CONTRACT_CHANGES 2026-10-02): `unit_price_quoted`, `tax_basis` (`ex_tax|inc_tax|unknown`), `tax_rate`; `unit_price_each` is ex-tax once the basis is known.
 - **MVP records outside frozen files** (CONTRACT_CHANGES 2026-10-06): supplier profile, attestation, suppression and `Assumption{statement, source: user_said|default_template|model_inference|public_source, confidence, status, critical, gate}` in `components/suppliers`.
@@ -247,7 +258,7 @@ New market: [`templates/new-deployment-checklist.md`](templates/new-deployment-c
 
 ### 4.7 API contract summary
 
-[`architecture/api-contract.md`](architecture/api-contract.md) (v1) and [`architecture/api-contract-mvp.md`](architecture/api-contract-mvp.md) (MVP addendum). Invariants: tenant and user only from the verified JWT; no tenant/user ids in body or query; cross-tenant ids return 404; GET never changes state; idempotency keys on writes; vendor text inert; no endpoint sends except through the send-service with a valid Approval.
+[`architecture/api-contract.md`](architecture/api-contract.md) (v1) and [`architecture/api-contract-mvp.md`](architecture/api-contract-mvp.md) (MVP addendum). The table covers all 50 operations; the generated reference with roles, bodies and answers is [`technical/04-api-reference.md`](technical/04-api-reference.md). Invariants: tenant and user only from the verified JWT; no tenant/user ids in body or query; cross-tenant ids return 404; GET never changes state; idempotency keys on writes; vendor text inert; no endpoint sends except through the send-service with a valid Approval.
 
 | Group | Endpoints (roles) |
 |---|---|
@@ -259,7 +270,14 @@ New market: [`templates/new-deployment-checklist.md`](templates/new-deployment-c
 | PO | `POST .../po-draft` (R2, caps), `GET .../po-draft.csv` (formula-escaped); no PDF yet |
 | Vendors | `GET/POST/PATCH /v1/vendors`, `PUT .../profile`, `POST .../attest` (admin), `POST /v1/vendors/import` (CSV, per-row report), `suppress`/`unsuppress` |
 | Admin | `POST /v1/admin/kill-switch`, `GET /v1/setup`, `POST /v1/setup/go-live` (recorded, not enforced), `GET /v1/audit`, `GET /v1/audit/export` + `scripts/verify_audit_export.py` |
-| Profile | `GET /v1/profile` (formats money, dates, lead times in the UI) |
+| Profile | `GET /v1/profile` (formats money, dates, lead times in the UI; any signed-in user) |
+| Service | `GET /healthz` (no authentication; does not check the database) |
+| Imports | `POST /v1/imports/csv` (buyer; validates and counts rows only, nothing is stored) |
+| Job kits | `POST /v1/kits/resolve` (requester+; nothing stored), `GET /v1/kit-templates` (requester+), `PUT/DELETE /v1/kit-templates/{id}` (buyer+; at most 30 per tenant, the 31st is `409`) |
+| Quotes | `POST /v1/quotes` (buyer+; stores a snapshot), `GET /v1/quotes/{id}` (requester+), `GET /v1/quotes/{id}/options` (requester+), `POST /v1/quotes/{id}/decisions` (buyer+; a person's choice of product for a waiting line) |
+| Price books and files | `GET /v1/price-books` (requester+), `POST/GET /v1/price-files` (buyer+ to upload, requester+ to list; `.csv` or `.xlsx`, at most 900,000 bytes) |
+| Request drafts | `POST/GET /v1/quotes/{id}/rfq-drafts` (buyer+; prepares unsent text messages per supplier or per item, sends nothing) |
+| Telemetry | `POST /v1/telemetry/events` (requester+), `POST /v1/telemetry/drills` and `GET /v1/telemetry/summary` (admin) |
 
 ### 4.8 Security, logging and onboarding platform services
 
@@ -277,7 +295,7 @@ From [`architecture/platform-services-and-buyside-rfq.md`](architecture/platform
 
 ### 5.1 RFQ lifecycle (state machine)
 
-Transitions from `packages/components/rfq/workflow/machine.py`; every non-terminal, non-escalated state can also go to `ESCALATED`. Human-only targets: `RFQ_APPROVED`, `APPROVED`, `DECLINED`. Send states (`RFQ_SENT`, `PO_SENT`) need a verified send reference.
+Transitions from `packages/components/rfq/workflow/machine.py`; every non-terminal, non-escalated state can also go to `ESCALATED` (it needs a reason). Human-only targets: `APPROVED` and `DECLINED`; `RFQ_APPROVED` also accepts a standing pre-authorisation (actor `system` with a `rule_id`, R1). Send states (`RFQ_SENT`, `PO_SENT`) need a verified send reference.
 
 ```mermaid
 stateDiagram-v2
@@ -315,7 +333,7 @@ stateDiagram-v2
   EXPIRED --> [*]
 ```
 
-(`CANCELLED` is reachable from most states; edges omitted for readability. No PO send path exists yet: known-gaps.)
+(Edges omitted for readability: `CANCELLED` is reachable from every state except `PO_SENT` and the three end states; `EXPIRED` is also reachable from `RFQ_DRAFTED`, `RFQ_APPROVED`, `RFQ_SENT`, `QUOTES_COLLECTING`, `COMPARISON_READY` and `APPROVAL_PENDING`, as well as `NEEDS_INFO`. The complete diagram, generated from the table, is in [`technical/02-request-lifecycle.md`](technical/02-request-lifecycle.md). The send-service accepts purchase-order messages, but no API route or workflow step triggers `PO_SENT` yet; only tests do.)
 
 ### 5.2 Steps in words
 
@@ -330,17 +348,19 @@ stateDiagram-v2
 9. **PO.** Draft from the approved quote only; R2 and caps enforced; CSV export; PDF, accounting sync and PO sending not built.
 10. **Learn.** Buyer edits become dev-set corrections; sealed set separate (ADR-009).
 
-### 5.3 Job-kit wizard flow [WIP; UI not built]
+### 5.3 Job-kit wizard flow [PARTIAL: wizard built in `apps/web`; gates and RFQ packets not built]
 
 Combined from [`../research/intent/06-job-templates-and-kits.md`](../research/intent/06-job-templates-and-kits.md), [`../reports/UK%20refurbishment%20top%20picks%20by%20option.md`](../reports/UK%20refurbishment%20top%20picks%20by%20option.md) and the v0.2 library (`max_upfront_questions: 3`).
+
+The built wizard has five steps: **Job, Questions, Measure, Review, Summary** (`apps/web/lib/kits/state.ts`). The list below is the design this section combined; where it differs from the five steps the differences are marked.
 
 1. **Pick job type and scope** (bathroom: full, cloakroom, WC only, wet room).
 2. **Answer at most three upfront questions** (scope lists questions with `ask: upfront|on_review` and a `priority`).
 3. **Measure**: room width, length, tiled height (and room height, partition length when relevant); derived values (floor m², wall tiled m², boards) are formulas shown to the user.
 4. **Review defaults**: every line pre-ticked, each one include / not needed / already have; `on_review` questions and line options (tagged `budget`, `most_used`, `premium`) shown here; optional extras off by default and offered once.
-5. **Completeness and rules check**: dependency rules (`requires`/`excludes`) and empty groups flagged before anything is prepared; regulated-work gates (G1-G6, proposal 05 §6) block a firm price.
+5. **Completeness and rules check**: dependency rules (`requires`/`excludes`) and empty groups flagged before anything is prepared (built). Regulated-work gates (G1-G6, proposal 05 §6) that block a firm price are **PROPOSED**: no gate code exists.
 6. **Assumption ledger**: every untouched default is recorded as `default_template`.
-7. **RFQ**: generic spec lines grouped by supplier type into RFQ packets; normal approval and send flow; quotes compared per line.
+7. **RFQ**: the design groups generic spec lines by supplier type into RFQ packets. What is built is different: `POST /v1/quotes/{id}/rfq-drafts` prepares unsent text drafts per supplier (or per item) for the lines that have no firm price; each is approved one by one through the normal approve-and-send flow. There is no packet concept in the code.
 
 ---
 
@@ -348,17 +368,17 @@ Combined from [`../research/intent/06-job-templates-and-kits.md`](../research/in
 
 ### 6.1 Template hierarchy [BUILT as data; unreviewed]
 
-Design: [`architecture/job-kits.md`](architecture/job-kits.md). `job_type → scope → module → line` (20 modules, 120 unique lines serve four UK bathroom scopes, per that doc), plus shared measurements, derived values, a question bank, parameters and lookup tables. Files under [`../profiles/data/job_kits/uk/`](../profiles/data/job_kits/uk/): `library.yaml` (job types, measurements, derived formulas, `max_upfront_questions: 3`), `questions.yaml` (14 questions defined once), `scopes/bathroom_{full,cloakroom,wc_only,wet_room}.yaml`, 20 `modules/*.yaml` (strip-out, first-fix plumbing, WC, basin, bath, shower, enclosure, tiling, waterproofing, ventilation, electrics, heating, flooring, decorating, adaptations, consumables and others), `parameters.yaml`, and generated `export/*.json` validated by [`../profiles/data/job_kits/export.schema.json`](../profiles/data/job_kits/export.schema.json) (format `job-kit-ui/1`). Resolver: `packages/components/job_kits/` (pure, deterministic, Decimal, AST-whitelisted formulas, never `eval`). All files carry `status: needs_tradesperson_review` and a "synthetic/illustrative" label.
+Design: [`architecture/job-kits.md`](architecture/job-kits.md). `job_type → scope → module → line` (22 modules and 139 unique lines serve four UK bathroom scopes, per that doc), plus shared measurements, derived values, a question bank, parameters and lookup tables. Files under [`../profiles/data/job_kits/uk/`](../profiles/data/job_kits/uk/): `library.yaml` (job types, measurements, derived formulas, `max_upfront_questions: 3`), `questions.yaml` (23 questions defined once), `scopes/bathroom_{full,cloakroom,wc_only,wet_room}.yaml`, 22 `modules/*.yaml` (strip-out, first-fix plumbing, WC, basin, bath, shower, enclosure, tiling, waterproofing, ventilation, electrics, heating, flooring, decorating, adaptations, consumables and others), `parameters.yaml`, and generated `export/*.json` validated by [`../profiles/data/job_kits/export.schema.json`](../profiles/data/job_kits/export.schema.json) (format `job-kit-ui/2`, which is additive over `job-kit-ui/1`). Resolver: `packages/components/job_kits/` (pure, deterministic, Decimal, AST-whitelisted formulas, never `eval`). All files carry `status: needs_tradesperson_review` and a "synthetic/illustrative" label.
 
 ### 6.2 Question budget
 
 - At most three upfront questions per scope (library value; export schema `maxItems: 3`); everything else on review. A question's `priority` is its impact (number of lines whose inclusion or lookup row depends on it); tests fail if an `on_review` question outranks an upfront one ([`architecture/job-kits.md`](architecture/job-kits.md)). The evidence for "ask few, default the rest" comes from the top-picks report: a third of the kit is forced by rules (tanking, primer, adhesive class, backer system, traps, extract rate, shower circuit, TMV), so those are derived, not asked.
-- Report's recommended three per scope: full bathroom = layout, hot-water system, finish level; cloakroom = basin fit, openable window, finish level; WC only = WC type, outlet alignment, pan height; wet room = floor construction, adaptation, hot-water system. **The v0.2 data asks different questions** (section 8.3, C8).
+- Report's recommended three per scope: full bathroom = layout, hot-water system, finish level; cloakroom = basin fit, openable window, finish level; WC only = WC type, outlet alignment, pan height; wet room = floor construction, adaptation, hot-water system. **The data now asks nearly the same questions** (checked 2026-10-09): full bathroom asks `shower_location`, `hot_water_system`, `finish_level`; cloakroom `basin_mount`, `openable_window`, `finish_level`; WC only `wc_type`, `pan_alignment`, `wc_height`; wet room `floor_construction`, `adaptation`, `hot_water_system`. The one difference is that the full-bathroom scope asks where the shower goes rather than the layout (section 8.3, C8).
 - "Don't know" on hot water routes to an electric shower and LP-or-universal taps and raises an electrician flag (report).
 
 ### 6.3 Options with budget / most_used / premium tags
 
-- Code accepts option tags `budget`, `most_used`, `premium` (`OPTION_TAGS` in `packages/components/job_kits/model.py`); five modules carry `options`, but every `tags:` list in the data is empty on 2026-10-06: options exist only where sources named alternatives, and tags wait for the top-picks research to be merged (README).
+- Code accepts option tags `budget`, `most_used`, `premium` (`OPTION_TAGS` in `packages/components/job_kits/model.py`); 15 of the 22 module files carry `options`, and the tags are populated (`budget`, `most_used` or `premium` on 100 options; 4 options have an empty list): options exist where sources named alternatives. The evidence grade and reason for each default are in the data (`evidence_grade`, `why_default`).
 - The report's consolidated table gives budget / most_used / premium per parameter with dated price observations (inc VAT, 2026-10-06) and an evidence grade A-D (A rule/standard, B merchant review counts, C single retailer statement, D forum/old data). Two key shares date from 2007 (shower type 46/38/16 electric/mixer/pumped; 78% of installers preferring copper) [report].
 - Where budget is not compliant (no compliant budget tanking; MR plasterboard not acceptable as a shower substrate where NHBC applies), hide it rather than show it as cheaper [report].
 - Wording: the report recommends user-facing words "budget / standard / premium" so wizard levels are never confused with part Tiers A-D used by R2.
@@ -382,11 +402,11 @@ From [`../profiles/data/job_kits/README.md`](../profiles/data/job_kits/README.md
 
 ### 6.6 Parameters in profiles
 
-Market constants (waste factors, extract rates, adhesive coverage, screw spacing, TMV temperatures, shower circuit lookups) are named parameters in `profiles/data/job_kits/uk/parameters.yaml`, each with value, unit and provenance; formulas may not contain market literals. New market: copy the folder and replace `parameters.yaml`, then follow the deployment checklist. VAT stays in the deployment profile. Selecting the market folder from the deployment profile is not wired yet ([`architecture/job-kits.md`](architecture/job-kits.md)). Note: Approved Document F values are the 2021 edition; a 2026 edition exists, so parameters need an edition field (report).
+Market constants (waste factors, extract rates, adhesive coverage, screw spacing, TMV temperatures, shower circuit lookups) are named parameters in `profiles/data/job_kits/uk/parameters.yaml`, each with value, unit and provenance; formulas may not contain market literals. New market: copy the folder and replace `parameters.yaml`, then follow the deployment checklist. VAT stays in the deployment profile. The API loads `profiles/data/job_kits/<resolved profile id>`, so the folder name must equal the profile id; there is no separate profile key for it, and the API does not start with a profile that has no folder ([`technical/07-configuration.md`](technical/07-configuration.md#the-profile-id-also-selects-data)). Note: Approved Document F values are the 2021 edition; a 2026 edition exists, so parameters need an edition field (report).
 
-### 6.7 Config-driven UI [WIP, to be built in `apps/web`]
+### 6.7 Config-driven UI [BUILT in `apps/web`]
 
-`scripts/export_job_kits.py` writes one `job-kit-ui/1` JSON per scope (questions, upfront list, review defaults, measurements, derived formulas, modules, rules). The planned `apps/web` wizard renders from that JSON so new scopes need no UI code. No job-kit screen exists in `apps/web` yet. The research's own test of value: 5 real users, does the kit make them miss fewer items than free text ([`../research/intent/06-job-templates-and-kits.md`](../research/intent/06-job-templates-and-kits.md), next steps).
+`scripts/export_job_kits.py` writes one `job-kit-ui/2` JSON per scope (questions, upfront list, review defaults, measurements, derived formulas, modules, rules). The `apps/web` wizard (`/kits`, with a config tab beside it) renders from that JSON so new scopes need no UI code; the generated copies are kept in step with `npm run sync-kits`, and a parity test compares the browser's quantities with the Python resolver's. The research's own test of value: 5 real users, does the kit make them miss fewer items than free text ([`../research/intent/06-job-templates-and-kits.md`](../research/intent/06-job-templates-and-kits.md), next steps).
 
 ---
 
@@ -491,7 +511,7 @@ Each subsection: key findings, then the full file. Evidence tags in the sources:
 | D20 | Intent planner: LLM proposes, deterministic critics; gates fail closed, block and warn only | Planning research; no compliance advice | proposal 05 §1, §6, §10 | Proposed |
 | D21 | Price base = customer price lists and received quotes only; no scraping | Terms and robots | proposal 05 §11 | Accepted as design rule |
 | D22 | Job kits are data, `default_template` assumptions, tradesperson-reviewed, licence-clean | Template quality is the product | job_kits README; [`architecture/job-kits.md`](architecture/job-kits.md) | BUILT (data, resolver); review pending |
-| D23 | Defaults = most-used compliant option, never premium; ≤3 upfront questions | Defaults ethics; question budget | top-picks report | WIP (data not yet aligned, C8) |
+| D23 | Defaults = most-used compliant option, never premium; ≤3 upfront questions | Defaults ethics; question budget | top-picks report | BUILT in the loader and data (one default per option set and never premium are loader rules; at most three upfront questions per scope); tradesperson review pending |
 | D24 | Email first; WhatsApp later and optional | Channel estimates; WhatsApp rules | channels research; mvp/03 | Accepted for MVP |
 | D25 | Go-live recorded, not enforced, in MVP | Scope | api-contract-mvp §3 | PARTIAL |
 
@@ -519,15 +539,15 @@ Known gaps: see [`architecture/known-gaps.md`](architecture/known-gaps.md) (H2 p
 | # | Contradiction | Where | Suggested resolution |
 |---|---|---|---|
 | C1 | Hard-rule numbering: spec R1-R12 vs CLAUDE.md rules 1-7. CLAUDE.md also says "Hard rules R1-R12 have no config keys" while listing seven. Several docs cite CLAUDE numbers with an R prefix: proposal 05 §7 (R4 untrusted, R5 Decimal, R6 events, R7 tenancy), [`../research/intent/02-academic.md`](../research/intent/02-academic.md), [`../research/intent/04-uk-price-sources.md`](../research/intent/04-uk-price-sources.md), [`../research/mvp/03-uk-integrations-requirements.md`](../research/mvp/03-uk-integrations-requirements.md), [`../research/intent/06-job-templates-and-kits.md`](../research/intent/06-job-templates-and-kits.md) ("R5" money), `job_kits/resolver.py` docstring and [`architecture/job-kits.md`](architecture/job-kits.md) ("R5" for money), and platform-services §7 ("R4" for prompt injection) | listed files | Cite spec numbering everywhere; add a mapping line to CLAUDE.md |
-| C2 | [`architecture/README.md`](architecture/README.md) v0.2 says "design only, no product code merged, build paused", HTMX UI, `src/purchasing_agent/` layout; the repo has `apps/`, `packages/`, `employees/`, a Next.js app and an MVP reported with 2,913 tests | arch README §0, §4, §16 vs [`mvp/README.md`](mvp/README.md) | Mark arch README historical or update |
+| C2 | [`architecture/README.md`](architecture/README.md) v0.2 says "design only, no product code merged, build paused", HTMX UI, `src/purchasing_agent/` layout; the repo has `apps/`, `packages/`, `employees/`, a Next.js app and an MVP reported with 2,913 tests | arch README §0, §4, §16 vs [`mvp/README.md`](mvp/README.md) | Partly resolved 2026-10-09: the README now carries a status banner and a table of where the code differs; the HTMX and `src/` text stays as history |
 | C3 | ADR-010 is "proposed", ADR-001 (HTMX) still "accepted", yet the built UI is Next.js and auth is Supabase-style JWT | ADR-001, ADR-010, [`mvp/ui-notes.md`](mvp/ui-notes.md) | Accept ADR-010 or record the deviation |
 | C4 | The MVP is built against a "Buy-side RFQ MVP product spec (UK)" with FR ids (29 FRs) that is **not in the repo**; CLAUDE.md names spec 04 v0.2 (MRO identification) as source of truth, and proposal 05 says it is not an amendment to spec 04 | [`architecture/api-contract-mvp.md`](architecture/api-contract-mvp.md), [`mvp/README.md`](mvp/README.md) | Commit the MVP spec or fold its FRs into spec 04 v0.3 |
 | C5 | Roles: spec has three (Requester, Buyer, Admin/Approver); the API has `requester`, `buyer`, `admin` plus an "authenticated approver" that is not a role; the brief for this file lists buyer, approver, admin, supplier (supplier is a counterparty) | spec §2, api-contract | Define approver as a capability bound to the link, not a role, in spec v0.3 |
 | C6 | WhatsApp: channel research says optional for small trades and approvals; mvp/03 says keep it out; refurb README says replies are read from "WhatsApp wording"; product/02 lists SMS/WhatsApp as P1 F16 | channels, mvp/03, refurb README, product/02 | Treat as later and optional; pasted text only for now |
 | C7 | *Resolved while this file was written.* The job-kit README listed v0.1 files (`bathroom_full.yaml`, `wc_replacement.yaml`, ...) that the v0.2 restructure deleted; commit `000c6bc` updated the README (scope `wc_replacement` is now `bathroom_wc_only`). Older docs (e.g. research 06) still use v0.1 names | job_kits README, research 06 | None for the README; read research 06 as v0.1 design |
-| C8 | Upfront questions: the top-picks report recommends layout / hot-water system / finish level (and adaptation for wet rooms); v0.2 scopes ask `layout_change`, `wc_type`, `shower_type` (cloakroom: `floor_finish`; WC only: `soil_outlet`, `joint_system`); `questions.yaml` has no hot-water, finish-level or adaptation question | report vs `scopes/*.yaml` | Decide which list wins; add the missing questions or record why not |
-| C9 | Option tags: code uses `budget / most_used / premium`; the report advises user-facing "budget / standard / premium"; all tags in data are empty | `job_kits/model.py`, modules, report | Keep tag ids, use "standard" as the label; fill tags with evidence grades |
-| C10 | Report says market values belong in `profiles/uk.yaml`; kit parameters live in `profiles/data/job_kits/uk/parameters.yaml`, and selecting that folder from the resolved profile is not wired (no profile key), so kit parameters are not covered by the profile digest | report, job_kits README, [`architecture/job-kits.md`](architecture/job-kits.md) | Add a profile key for the kit market and record the library version on events |
+| C8 | *Largely resolved (checked 2026-10-09).* The top-picks report recommends layout / hot-water system / finish level (and adaptation for wet rooms); the scopes now ask `shower_location`, `hot_water_system`, `finish_level` (full), `basin_mount`, `openable_window`, `finish_level` (cloakroom), `wc_type`, `pan_alignment`, `wc_height` (WC only) and `floor_construction`, `adaptation`, `hot_water_system` (wet room). The remaining difference is `shower_location` for the full bathroom in place of layout | report vs `scopes/*.yaml` | Decide whether to ask layout instead |
+| C9 | Option tags: code uses `budget / most_used / premium`; the report advises user-facing "budget / standard / premium"; the tags in the data are now populated (checked 2026-10-09) | `job_kits/model.py`, modules, report | Keep tag ids, use "standard" as the label |
+| C10 | Report says market values belong in `profiles/uk.yaml`; kit parameters live in `profiles/data/job_kits/uk/parameters.yaml`, and the API now loads the folder named by the resolved profile id (wired; it fails to start if the folder is missing), but there is still no profile key for the kit market, so kit parameters are not covered by the profile digest | report, job_kits README, [`architecture/job-kits.md`](architecture/job-kits.md) | Add a profile key for the kit market and record the library version on events |
 | C11 | `VAT_RATE = Decimal("0.20")` still hard-coded in `employees/refurb/model.py`, against the CLAUDE.md config rule (flagged by proposal 05 and research 03, not yet fixed) | refurb pack | Move to profile (platform-services P4) |
 | C12 | `parts.standards: ["ISO 15"]` is enabled in `base`/`uk`, while ISO's copyright notice reportedly bars AI use (snippet) and BSI/ISO permission (U5) is not in hand; the production licence guard is the safeguard | base.yaml, uk2/11, modules/deep/04a | Keep guard; record licence status per standard |
 | C13 | [`next-stage-playbook.md`](next-stage-playbook.md) uses v0.1 gates (≥70% auto-spec, ≤4 h, WTP ≥$500/mo, $200-500 pilot fee) that spec v0.2 replaced with per-request pricing and statistical gates; it is not marked superseded | playbook vs spec §8-9 | Add a superseded note |
@@ -551,14 +571,14 @@ Grouped by the evidence each step needs. Nothing is dated: sizing is not estimat
 | Counsel session on P1 items (A1-A6) and PECR sole-trader question | Written answers | [`uk/04-counsel-and-adviser-checklist.md`](uk/04-counsel-and-adviser-checklist.md) |
 | P0 platform hardening: `get_logger()` redaction, kill-switch registry, cross-tenant tests | Hostile-string log test passes; kill-switch flip is an audit event | platform-services §6 |
 | Close H2 and sender-facts gaps before any multi-tenant or multi-process run | DB-backed approvals, caps, kill switch, follow-ups | known-gaps |
-| Resolve C8/C9 (question list, option tags from top picks); tradesperson review of one scope | Named reviewer signs `review.*` | job_kits README |
+| Tradesperson review of one scope (C8 and C9 are largely resolved in the data) | Named reviewer signs `review.*` | job_kits README |
 | Doc hygiene: C1 numbering, C2/C3 status, C4 commit the MVP spec | Docs agree | section 8.3 |
 
 ### Next (after Phase 0 signals)
 
 | Step | Evidence needed / exit | Source |
 |---|---|---|
-| Job-kit wizard in `apps/web` from `job-kit-ui/1` | 5-user test: fewer missed items than free text | research 06 |
+| Job-kit wizard in `apps/web`: built from `job-kit-ui/2`; what remains is the 5-user test | 5-user test: fewer missed items than free text | research 06 |
 | P1 contracts and composition (capability Protocols, `module.yaml`, linter C1-C4) | Hostile composition refused; golden flow offline | ADR-012; platform-services §6 |
 | P2 `quote_to_award@1` reproducing the purchasing flow; `mro-bearings` pack; onboarding v0 | Same results as existing e2e tests | platform-services §6 |
 | T5 willingness to pay (one price unit per account) | ≥3 of 5 sign a paid pilot | UK canvas §7 |
@@ -587,6 +607,27 @@ One line per document. Screenshots in `mvp/screenshots/` and raw notes in `../re
 | File | Purpose |
 |---|---|
 | [`MASTER.md`](MASTER.md) | This file: combined navigable summary |
+| [`README.md`](README.md) | Documentation hub: where to start for users, engineers, reviewers and researchers |
+| [`user-guide/README.md`](user-guide/README.md) | User guide: what the app does and does not do, with screenshots |
+| [`user-guide/01-getting-started.md`](user-guide/01-getting-started.md) | The screen, roles, shortcuts, dark mode and phones, a first request |
+| [`user-guide/02-requests.md`](user-guide/02-requests.md) | A request from first words to order draft, and what each status means |
+| [`user-guide/03-quote-a-job.md`](user-guide/03-quote-a-job.md) | Job, Prices, Quote, Compare (ways to buy) and Ask suppliers |
+| [`user-guide/04-suppliers-setup-activity.md`](user-guide/04-suppliers-setup-activity.md) | Suppliers, Setup and the Activity log |
+| [`user-guide/05-safety-rules.md`](user-guide/05-safety-rules.md) | What the app will not do, where AI is used, and the review events it records |
+| [`user-guide/06-glossary.md`](user-guide/06-glossary.md) | The words the app uses |
+| [`user-guide/07-troubleshooting.md`](user-guide/07-troubleshooting.md) | Refusals, messages, things that look like bugs, and known rough edges |
+| [`technical/README.md`](technical/README.md) | Technical guide: reading order, the system in five lines, defects found while writing it |
+| [`technical/01-system-overview.md`](technical/01-system-overview.md) | Context, containers, layers, computed import graph, runtime modes, repository layout |
+| [`technical/02-request-lifecycle.md`](technical/02-request-lifecycle.md) | State machine, what moves it, sequence diagrams, audit events |
+| [`technical/03-data-model.md`](technical/03-data-model.md) | Tables, row-level security, the audit log in the database, migrations |
+| [`technical/04-api-reference.md`](technical/04-api-reference.md) | All 50 operations, authentication, errors, idempotency, limits |
+| [`technical/05-quote-engine.md`](technical/05-quote-engine.md) | Job kits, matching, pricing, ways to buy, price books and files |
+| [`technical/06-security-and-trust.md`](technical/06-security-and-trust.md) | Trust boundaries, where each hard rule is enforced, where a model can be used |
+| [`technical/07-configuration.md`](technical/07-configuration.md) | Profiles, deployment settings, environment variables |
+| [`technical/08-deployment-and-operations.md`](technical/08-deployment-and-operations.md) | Ways to run it, compose, free-tier VM, database operations, keys |
+| [`technical/09-testing-and-evals.md`](technical/09-testing-and-evals.md) | Commands, test areas, evaluations and what they cannot show |
+| [`technical/10-extending.md`](technical/10-extending.md) | Recipes for routes, transitions, tables, families, markets, modules, screens, tools |
+| [`technical/11-diagram-index.md`](technical/11-diagram-index.md) | Every diagram, including the 32 activity diagrams |
 | [`00-market-gaps.md`](00-market-gaps.md) | Round-1 agentic commerce market gap synthesis (2026-10-02) |
 | [`next-stage-playbook.md`](next-stage-playbook.md) | Agentic development plan for Idea 1 (v0.1 gates; see C13) |
 | [`product/01-pmf-lean-canvas.md`](product/01-pmf-lean-canvas.md) | US PMF hypothesis and lean canvas (v0.2 update header) |
@@ -595,11 +636,19 @@ One line per document. Screenshots in `mvp/screenshots/` and raw notes in `../re
 | [`product/04-product-spec.md`](product/04-product-spec.md) | **Source of truth** PRD v0.2: tiers, R1-R12, features, eval, metrics |
 | [`product/05-intent-driven-quotes-proposal.md`](product/05-intent-driven-quotes-proposal.md) | Proposal: intent → scope → BOM → gates → RFQ packets |
 | [`product/06-platform-buyside-rfq-lean-canvas.md`](product/06-platform-buyside-rfq-lean-canvas.md) | Lean canvas for buy-side RFQ on the platform |
+| [`product/07-product-matching-engine-spec-v2.md`](product/07-product-matching-engine-spec-v2.md) | Product Matching Engine Spec v2 |
+| [`product/08-data-sourcing-and-integration-strategy.md`](product/08-data-sourcing-and-integration-strategy.md) | Data sourcing and integration strategy: initial, growth, after growth |
+| [`product/09-decisions-2026-10-07.md`](product/09-decisions-2026-10-07.md) | Decisions taken on the owner's instruction "do best choices" (2026-10-07) |
+| [`product/10-roadmap-to-functional-app.md`](product/10-roadmap-to-functional-app.md) | Next stages to a fully functional app (2026-10-07) |
+| [`product/11-gap-coverage-vs-consolidated-research.md`](product/11-gap-coverage-vs-consolidated-research.md) | Gap coverage against the consolidated founder research |
+| [`product/12-next-version-improvement-triage.md`](product/12-next-version-improvement-triage.md) | Next-version improvement triage: ten candidates |
 | [`product/review/buyer-and-vendor-review.md`](product/review/buyer-and-vendor-review.md) | Role-play buyer and distributor review |
 | [`product/review/code-security-review.md`](product/review/code-security-review.md) | Independent code and security review of the build |
 | [`product/review/security-legal-ml-review.md`](product/review/security-legal-ml-review.md) | Security/legal/ML red team of spec v0.1 |
 | [`product/review/vc-partner-review.md`](product/review/vc-partner-review.md) | Role-play VC partner review |
-| [`architecture/README.md`](architecture/README.md) | Architecture v0.2 (partly stale, see C2) |
+| [`architecture/README.md`](architecture/README.md) | Architecture design v0.2, with a status banner and a table of where the code differs (see C2) |
+| [`architecture/current-modules.md`](architecture/current-modules.md) | The modules as built: computed import graph, line counts, who uses whom |
+| [`architecture/activity-diagrams.md`](architecture/activity-diagrams.md) | One activity diagram per module and per optimization, AI steps marked |
 | [`architecture/adr/001-python-fastapi-htmx.md`](architecture/adr/001-python-fastapi-htmx.md) | ADR-001 Python, FastAPI, HTMX |
 | [`architecture/adr/002-event-log-and-state-machine.md`](architecture/adr/002-event-log-and-state-machine.md) | ADR-002 hash-chained events and state machine |
 | [`architecture/adr/003-send-service-isolation.md`](architecture/adr/003-send-service-isolation.md) | ADR-003 send-service as sole sender |
@@ -621,9 +670,22 @@ One line per document. Screenshots in `mvp/screenshots/` and raw notes in `../re
 | [`architecture/platform-services-and-buyside-rfq.md`](architecture/platform-services-and-buyside-rfq.md) | Platform services, logging vs audit, onboarding, build plan P0-P6 |
 | [`architecture/known-gaps.md`](architecture/known-gaps.md) | Documented limits of the current build |
 | [`architecture/job-kits.md`](architecture/job-kits.md) | Job-kit template library and resolver design |
-| [`architecture/CONTRACT_CHANGES.md`](architecture/CONTRACT_CHANGES.md) | Proposed changes to frozen contracts (none applied) |
+| [`architecture/quoting.md`](architecture/quoting.md) | Quote for products: kits, matching, pricing, draft quote |
+| [`architecture/matching-engine.md`](architecture/matching-engine.md) | Product matching engine |
+| [`architecture/pricing-engine.md`](architecture/pricing-engine.md) | Offer and best-price engine |
+| [`architecture/pricebook.md`](architecture/pricebook.md) | Price book: which merchants a tenant can rely on, and what is missing |
+| [`architecture/quote-options.md`](architecture/quote-options.md) | Quote options: ranked, explained alternatives for the same job |
+| [`architecture/quote-to-rfq.md`](architecture/quote-to-rfq.md) | Quote to RFQ: a saved quote's supplier messages through the approval flow |
+| [`architecture/verification.md`](architecture/verification.md) | Verification layer |
+| [`architecture/price-data-sources.md`](architecture/price-data-sources.md) | Price data sources: final list and activity diagram per method |
+| [`architecture/adr/013-contracted-price-source-ingestion-and-r7.md`](architecture/adr/013-contracted-price-source-ingestion-and-r7.md) | ADR-013 contracted price-and-catalogue sources and R7 (proposed) |
+| [`architecture/stage1-contract.md`](architecture/stage1-contract.md) | Stage 1 contract the quote-pipeline work packages were built against |
+| [`architecture/CONTRACT_CHANGES.md`](architecture/CONTRACT_CHANGES.md) | Proposed changes to frozen contracts (one applied: the tax-basis fields) |
 | [`mvp/README.md`](mvp/README.md) | MVP: how to run, FR coverage, gaps |
 | [`mvp/ui-notes.md`](mvp/ui-notes.md) | Web workspace UI decisions and limits |
+| [`mvp/kits-ui.md`](mvp/kits-ui.md) | Job-kit wizard (web): config-driven UI |
+| [`mvp/quote-ui.md`](mvp/quote-ui.md) | Price books and Quote (web) |
+| [`mvp/ux-audit/04-redesign-brief.md`](mvp/ux-audit/04-redesign-brief.md) | UX audit (jargon, cognitive load, contrast) and redesign brief; results in [`07-redesign-results.md`](mvp/ux-audit/07-redesign-results.md) |
 | [`refurb/README.md`](refurb/README.md) | Refurb RFQ pack summary |
 | [`templates/new-deployment-checklist.md`](templates/new-deployment-checklist.md) | Checklist for a new market/vertical/customer |
 | [`templates/research-kit.md`](templates/research-kit.md) | Six localised research passes |

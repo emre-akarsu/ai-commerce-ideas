@@ -1,6 +1,6 @@
 # Quote options: ranked, explained alternatives for the same job
 
-As of 2026-10-07. Status: built as a pure, offline component on top of the quoting and pricing engines; **no UI, no API endpoint, no persistence, no real price source**. Synthetic data only. Product-market fit is unproven; nothing here is a market claim, and no number in this document is evidence that buyers want these options. Code: `packages/components/quoting/options*.py`; tests: `tests/quoting/test_options*.py`; schema: `profiles/data/quoting/quote-options-ui.schema.json`; frozen fixture: `tests/quoting/fixtures/quote_options_ui_v1_frozen.json`; demo: `python scripts/demo_quote.py --options`.
+As of 2026-10-07; status updated 2026-10-09. Status: a pure, offline component on top of the quoting and pricing engines, served by `GET /v1/quotes/{id}/options` and rendered by the web Quote screen ("Ways to buy"); **option sets are not persisted, no event records a choice, and there is no real price source**. Synthetic data only. Product-market fit is unproven; nothing here is a market claim, and no number in this document is evidence that buyers want these options. Code: `packages/components/quoting/options*.py`; tests: `tests/quoting/test_options*.py`; schema: `profiles/data/quoting/quote-options-ui.schema.json`; frozen fixture: `tests/quoting/fixtures/quote_options_ui_v1_frozen.json`; demo: `python scripts/demo_quote.py --options`.
 
 Numbering. Rules are cited as in CLAUDE.md (rules 1-7), with the spec section 4 number in brackets where they differ. Related: `pricing-engine.md` (offers, gates, basket optimiser), `quoting.md` (the quote and `quote-draft-ui/1`), `pricebook.md`, `matching-engine.md`.
 
@@ -123,7 +123,7 @@ Every amount sits beside its `vat_basis` (totals, deliveries, each line, the sin
 
 ## 8. What is not built
 
-A UI (`apps/web` is untouched), an API endpoint or worker step, persistence of option sets, event recording of a choice (rule 6), a profile section for the config keys, a MILP path (the optimiser is the pricing engine's, see pricing-engine.md section 8), localisation of sentence texts (codes are stable), a "mixed pack" option (buying a dearer pack to cross a threshold), per-line choices inside an option, and any user-research basis for the weights.
+A worker step, persistence of option sets, event recording of a choice (rule 6), buyer inputs in the web screen (the API accepts `budget`, `required_by`, `max_deliveries` and `preferred` as query parameters, but the screen does not send them), a profile section for the config keys, a MILP path (the optimiser is the pricing engine's, see pricing-engine.md section 8), localisation of sentence texts (codes are stable), a "mixed pack" option (buying a dearer pack to cross a threshold), per-line choices inside an option, and any user-research basis for the weights.
 
 ## 9. Honest limits
 

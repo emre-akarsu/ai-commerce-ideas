@@ -1,2 +1,4 @@
 # ADR-001: Python, FastAPI/Pydantic, server-rendered HTMX UI
 **Status:** accepted (2026-10-02). **Context:** one-language stack, strong LLM/eval tooling, small simple UI (approvals, comparison). **Decision:** Python 3.11+, FastAPI, Pydantic v2, Jinja2 + HTMX. **Consequences:** fast to build with agents; escape-by-default templates; revisit React only if UX requires. **Alternatives:** TypeScript full-stack (weaker eval/data tooling); Django (heavier).
+
+**Status note (2026-10-09, added by the documentation update; the decision text above is unchanged):** the server-rendered HTMX UI was never built. The web app is Next.js (`apps/web`; see ADR-010, which is still marked proposed). Python 3.11+, FastAPI and Pydantic v2 are as decided. `jinja2` is still declared in `pyproject.toml`, but no code imports it.

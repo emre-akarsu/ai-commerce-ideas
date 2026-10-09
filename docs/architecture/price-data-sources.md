@@ -2,6 +2,8 @@
 
 Status as of 2026-10-07. Research, not legal advice. Hard rule R7 (spec section 4): no fetching or scraping of third-party links or sites. ADR-013 (proposed, not accepted) describes the only amendment that would allow contracted sources. All merchants and prices in demo data are synthetic. Evidence: `reports/UK product sourcing and price data.md` and the seven notes in `research_notes/UK product sourcing and price data/`.
 
+**As built (2026-10-09), added to this 2026-10-07 research note:** only two of the sources below are in the code. A **manual quote** goes through the existing request flow. A person's **price file** is uploaded in the app (`POST /v1/price-files`: `.csv` or `.xlsx`, up to 900,000 bytes, attested by the uploader) and parsed in the API process with no network access; a separate sandboxed parser (stack-map item S4) is not built, and forwarding a file to the alias address is not built. **Invoice and statement ingestion is not built**: nothing in the code parses invoices, and the price book reports that level as not produced. Every source marked as needing the R7 amendment is not built. See [`docs/technical/05-quote-engine.md`](../technical/05-quote-engine.md).
+
 Diagram key: teal = a person must act; amber dashed = step needs the R7 amendment and is not built; green = quote line or reference data; amber solid = indicative only; red = refused.
 
 ## Final list
@@ -9,8 +11,8 @@ Diagram key: teal = a person must act; amber dashed = step needs the R7 amendmen
 | Method | What it gives | Who supplies it | How it enters | Becomes | Status |
 | --- | --- | --- | --- | --- | --- |
 | [Manual quote](#manual) | A price a merchant has confirmed for this job, with VAT basis and validity | The merchant, by email reply or a logged phone call | Existing RFQ flow: you approve the exact message; the reply is quarantined and extracted | Quote line | Use now (inside R7) |
-| [Merchant price file](#pricefile) | Your negotiated trade prices for many products at once | Your merchant's account manager, as CSV or Excel by email | You upload it or forward it to your alias address; parsed in the no-network sandbox | Quote line (if attested) | Use now (inside R7) |
-| [Your invoices and statements](#invoices) | What you last paid, by product and merchant | You, forwarding supplier invoices or statements | Per-merchant alias email; parsed in the sandbox | Indicative only | Use now (inside R7) |
+| [Merchant price file](#pricefile) | Your negotiated trade prices for many products at once | Your merchant's account manager, as CSV or Excel by email | You upload it in the app; parsed in the API process, no network (forwarding to the alias address and a separate sandbox are not built) | Quote line (if attested) | Built (upload); inside R7 |
+| [Your invoices and statements](#invoices) | What you last paid, by product and merchant | You, forwarding supplier invoices or statements | Planned: per-merchant alias email, parsed in a sandbox (not built) | Indicative only | Not built (would be inside R7) |
 | [Merchant trade-account integration](#tradeacct) | Your live account prices through the merchant's own channel | The merchant, after a written agreement: EDI, punch-out (cXML, OCI) or an account API | Allowlisted gateway with fixed endpoints; no URL input | Quote line (account-specific, with validity) | After R7 amendment (ADR-013, not decided) |
 | [Retail feed: affiliate network or merchant feed](#retailfeed) | Public retail prices, usually VAT-inclusive, with barcodes and stock | Awin (Wickes, Travis Perkins, Homebase, Plumbworld), Impact (B&Q), Kelkoo; Screwfix says its programme is closed | Allowlisted gateway, only with written advertiser permission | Indicative only | After R7 amendment (ADR-013, not decided) |
 | [Search or shopping API](#searchapi) | Google Shopping style prices across merchants, via a scraping vendor | SerpApi, Serper, DataForSEO and similar; Google's own APIs cannot read other sellers' prices | Allowlisted gateway, only after gate S and the owner switching it on | Indicative only, off by default | After R7 amendment (ADR-013, not decided) |
@@ -68,7 +70,7 @@ flowchart LR
 <a id="pricefile"></a>
 ### Merchant price file
 
-**Status:** Use now (inside R7). **Becomes:** Quote line (if attested).
+**Status:** Built for upload (inside R7); forwarding to an alias address is not built. **Becomes:** Quote line (if attested).
 
 You hold a trade account. The fastest real source: City Plumbing already emails price lists to Tradify customers.
 
@@ -77,12 +79,12 @@ flowchart LR
   subgraph L0["Buyer"]
     direction LR
     pricefile_a["Ask your account manager for the file"]
-    pricefile_c["Upload it, or forward to your alias address"]
+    pricefile_c["Upload it in the app (forwarding to an alias address is not built)"]
     pricefile_f["Attest validity and VAT basis"]
   end
   subgraph L1["Platform"]
     direction LR
-    pricefile_d["Parse in the sandbox, no network, by row"]
+    pricefile_d["Parse in the API process, no network, by row (separate sandbox not built)"]
     pricefile_e["Quarantine bad rows, strip links, strict types"]
     pricefile_g(["Stored private to you; quote line if attested"])
   end
@@ -113,7 +115,7 @@ flowchart LR
 <a id="invoices"></a>
 ### Your invoices and statements
 
-**Status:** Use now (inside R7). **Becomes:** Indicative only.
+**Status:** Not built (it would be inside R7). **Becomes:** Indicative only.
 
 No price file yet. Gives a realistic reference price and shows which products you buy most.
 

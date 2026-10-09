@@ -1,6 +1,26 @@
 # Architecture — MRO Parts Identification and Sourcing Agent
 
-**Version 0.2 · 2026-10-02 · Status: design only. No product code is merged; the vertical-slice build is paused by the founder.** Implements `docs/product/04-product-spec.md` v0.2. Decisions are recorded in `adr/` (ADR-001…009). Product-market fit is unproven (`docs/product/03-red-team-vc-review.md`); this design is deliberately small, replaceable, and built so that its core safety properties hold even if a model misbehaves.
+**Version 0.2 · 2026-10-02 · a design document, with a status update of 2026-10-09 below.** Implements `docs/product/04-product-spec.md` v0.2. Decisions are recorded in `adr/` (ADR-001 to ADR-013). Product-market fit is unproven (`docs/product/03-red-team-vc-review.md`); this design is deliberately small, replaceable, and built so that its core safety properties hold even if a model misbehaves.
+
+> **Status update, 2026-10-09 (code at commit `691aa58`).** This page is the v0.2 design. Most of it is now built, in a different layout from the one drawn here: product code lives in `packages/` (platform and components), `apps/` (API, worker, web) and `employees/` (the purchasing pack). The vertical slice is built, plus a quote engine the v0.2 design did not have. **What the code actually does is described in [`docs/technical`](../technical/README.md)**, and the module map is in [`current-modules.md`](current-modules.md). The sections below keep the v0.2 wording as design history. The table that follows lists where the code differs from it, so read it first.
+
+### Where the code differs from this design
+
+| Design says | Code today |
+|---|---|
+| Layout `src/purchasing_agent/` (§4 table) | `src/purchasing_agent/` is an empty directory. Modules moved to `packages/components/*` (commit `cb3535f`). Mapping under the §4 table. |
+| Approval UI with HTMX, FastAPI + HTMX UI, Jinja2 (§4, §13) | The UI is a Next.js 15 app (`apps/web`) that calls the FastAPI API (`apps/api`). No HTMX anywhere. `jinja2` is declared but unused. ADR-001 is superseded for the UI by ADR-010. |
+| Audit hash `sha256(prev_hash ‖ canonical(payload, type, actor, ts))` (§7) | `HMAC-SHA256(AUDIT_CHAIN_KEY, prev_hash + "\|" + canonical_json(envelope))`, one chain per tenant. |
+| R0 uses "in-memory/SQLite for tests" (§7, §13) | In-memory stores only. SQLite is not used. |
+| R0 transport is a "file outbox" (§4, §9) | `RecordingTransport`, an in-memory fake that records what would be sent. There is no file outbox and **no real mail transport**. |
+| "Cost caps per request and per tenant-day are enforced in code; spend is recorded on each Event" (§8) | Purchase-order per-order and daily caps are enforced (`CapPolicy`, `cap_spend`). There is **no model cost cap**: `matching.llm_cost_ceiling_per_1000_lines` is a policy value used only by the matching evaluation's cost report. |
+| R1 on a managed platform with a worker, parsing sandbox, object storage (§9) | `deploy/docker/compose.yaml` (one VPS: Caddy, API, Postgres, backup) and `deploy/gcp-free-tier` (one VM). No worker service, no object store, no parsing-sandbox service. |
+| Structured logs, OpenTelemetry, GitHub Actions, S3-compatible storage, Anthropic SDK behind `LLMProvider` (§9, §13) | Standard `logging`. There is no tracing, no CI configuration in the repository, no object storage, and **no production `LLMProvider`** (`anthropic` is an optional extra; only `FakeLLM` exists). |
+| "Send-service as sole credential holder" (§2, §4) | No mail credential, SMTP or provider code exists. `MailTransport` is a Protocol, and the send-service is the only caller of the port. The property that matters (nothing else can send) holds; the credential does not exist yet. |
+| Job runner is an open decision (§15 item 6) | Decided: Procrastinate on Postgres (`apps/worker`), not deployed. |
+| "No feature modules are merged ... held in a git stash" (§16) | Merged. The stash is empty. |
+| Postgres RLS "(R1)", per-tenant keys | Row-level security is built (migrations 0001 to 0007, 30 tables, forced). Per-tenant encryption keys are not. |
+| Evaluation sealed set and κ ≥ 0.8 (§12) | The Wilson-bound gate (n = 189) is implemented. The sealed set and κ process are described, not built; all data is synthetic. |
 
 ## 1. Goals and non-goals
 
@@ -70,7 +90,9 @@ External dependencies: transactional email provider (alias domain, inbound parse
  audit log (hash-chained)  ◀── every module      eval harness (dev/sealed) ◀── buyer corrections (consent-gated)
 ```
 
-### Module responsibilities (src/purchasing_agent/)
+### Module responsibilities (v0.2 layout)
+
+Today's paths: `domain.py` and `ports.py` are `packages/components/core/`; `families/`, `spec/` and `equivalence/` are `packages/components/parts/`; `quotes/`, `comparison/` and `workflow/` are `packages/components/rfq/`; `approvals/` is `packages/components/purchase_orders/approvals/`; `sendservice/` is `packages/components/send_service/`; `audit/` is `packages/components/evidence/`; `store.py` is `packages/components/core/store.py` plus `packages/aidb`; `api/` is `apps/api` (JSON API) and `apps/web` (UI). The orchestration lives in `employees/purchasing`.
 
 | Module | Responsibility | Never does |
 |---|---|---|
@@ -198,7 +220,7 @@ Python 3.11+, FastAPI, Pydantic v2, Jinja2 + HTMX, SQLAlchemy 2 + Alembic, Postg
 3. **Photo/nameplate OCR** approach and accuracy target (interface only in R0).
 4. **Per-tenant encryption keys** — managed KMS vs. application-level.
 5. **Operator access model** — tooling for JIT access and customer-visible logs.
-6. **Job runner** — DB-backed table vs. a workflow engine, revisited if volume or complexity grows.
+6. **Job runner** — decided: Procrastinate on Postgres (`apps/worker`), not yet deployed.
 
 ## 16. Status of the build
-Foundation committed: scaffold, frozen contracts (`domain.py`, `ports.py`, `fakes.py`), and ADRs. **No feature modules are merged.** A first wave of partial, untested module code was paused at the founder's request and is held in a git stash (`git stash list`), not on the branch.
+As of 2026-10-09 the request-to-purchase-order-draft flow, the quote engine, the web app and the Postgres persistence are built, with 5,322 Python tests and 404 web tests, all passing in the run of 2026-10-09 ([results](../technical/09-testing-and-evals.md)). They run on synthetic data only. Missing for any real use: a real mail transport and inbound provider, delivery of approval links, a web sign-in, a deployed worker, and closure of the six production gaps in `apps/api/asgi.py` (`REMAINING_H2`, [known gaps](known-gaps.md)). `ENV=production` is refused on purpose. See [`docs/technical`](../technical/README.md).

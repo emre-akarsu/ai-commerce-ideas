@@ -8,6 +8,7 @@ When the server refuses something, the screen shows the reason in plain words un
 |---|---|---|
 | *vendor not verified: NAME* | The supplier has not been verified. | Ask an admin to verify it on **Suppliers**. |
 | *vendor suppressed: NAME* | The supplier asked not to be contacted, or was blocked. | An admin can lift it with **Allow contact**, if that is right. |
+| *vendor … is not a preferred vendor* | The supplier is not marked *preferred*. Suppliers added with the **Add supplier** form are not; suppliers imported from a CSV file are. No screen sets the flag. | Add the supplier by CSV import instead (known defect). |
 | *individual subscriber: not enabled* | The supplier is a sole trader or individual. Sending to individuals is switched off in this build. | Nothing yet. |
 | *assumptions open: N critical assumption(s) unconfirmed* | A critical assumption on the request is still open. | Open the **Request** step and confirm or reject each one. |
 | *business identity incomplete: missing …* | Your company's details that the profile requires are not set. | An admin must complete them. They are deployment settings, not a screen. |
@@ -66,8 +67,10 @@ When the server refuses something, the screen shows the reason in plain words un
 
 - A request in **Needs engineering review** shows *Done* in the NEXT bar and is not listed on **Home**. It is still under **Requests**, and nothing in the app can move it on.
 - The request page's back link says **← Inbox**, but the screen it returns to is called **Home**.
-- The **Add supplier** button is enabled for buyers although only an admin can add a supplier.
+- The **Add supplier** button is enabled for buyers although only an admin can add a supplier, and a supplier added with it cannot be asked for a quote (it is not marked *preferred*).
 - Some server-generated sentences still say *indicative* where the screens say *rough*.
+- When the app is connected to its server, the **Quote** and **Supplier prices** pages build a quote for the job type from the template's sample sizes and defaults each time they open. The sizes and answers you entered in the job wizard do not reach them, and **Build the quote** in the wizard creates a separate quote that no page opens.
+- In the job wizard's **Advanced: request data** panel, the text *there is no API endpoint yet that takes a kit* is out of date; it is the creation of a request from the kit's lines that is missing.
 
 ## Still stuck
 

@@ -1,5 +1,7 @@
 # Stage 1 contract: persist and wire the quote pipeline (2026-10-07)
 
+> **Status (2026-10-09):** Stage 1 is built. This file is kept as the contract the work packages were built against; where the code differs, the code wins. The current description is in [`docs/technical`](../technical/README.md) ([quote engine](../technical/05-quote-engine.md), [API reference](../technical/04-api-reference.md)). Details that differ from the text below are noted inline.
+
 Source plan: `docs/product/10-roadmap-to-functional-app.md` Stage 1. Parallel work packages build against this file; if something here must change, write it to `docs/architecture/CONTRACT_CHANGES.md` and report instead of editing another package's files. Hard rules R1-R12 and CLAUDE.md apply; `packages/components/core/domain.py` and `ports.py` are frozen.
 
 ## Ownership (no two packages edit the same file)
@@ -16,7 +18,7 @@ Tenant comes from the verified token only; every method is bound to one tenant (
 * `OfferStore`: structurally satisfies `components.quoting.context.TenantOffers` (`for_tenant(tenant_id) -> OfferRepository`, with `add`, `add_many`, `get`, `search(OfferFilter)`, `remove`, `count`). Money and quantities are stored as strings and re-read as `Decimal` (rule 5); an offer re-validates on read.
 * `ApprovedMatchStore`: `components.matching.approvals.ApprovedMatchStore` (per tenant, signature to SKU).
 * `ImportStore`: `components.pricebook.ImportSummary` rows (one per price-file load), append-only.
-* `TemplateStore`: `kit-template/1` documents (see `apps/web/lib/kits/templates.ts`): `list()`, `put(template)`, `delete(id)`; max 30 per tenant, same-name-same-scope replaces.
+* `TemplateStore`: `kit-template/1` documents (see `apps/web/lib/kits/templates.ts`): `list()` (newest first), `put(template)`, `delete(id)`; at most 30 per tenant, and a template with the same name and scope replaces the older one. A new 31st template is refused with `409 conflict` (`at most 30 templates per tenant`); it is not silently dropped.
 * `QuoteSnapshotStore`: saved `quote-draft-ui/1` documents plus the kit input that produced them: `add(snapshot) -> id`, `get(id)`, `list(limit)`; versioned, never updated in place.
 
 ## Endpoints (all under `/v1`, tenant and role from the bearer token, bodies reject unknown fields, 404 for another tenant's id)
@@ -28,7 +30,7 @@ Tenant comes from the verified token only; every method is bound to one tenant (
 | `GET /quotes/{id}/options` | requester+ | `budget`, `required_by`, `max_deliveries`, `preferred` (comma list), all optional | `<quote-options-ui/1>` |
 | `GET /price-books` | requester+ | `quote_id` optional | `<price-books-ui/1>` incl. `rfq_messages` (one aggregated message per supplier, plus per item) |
 | `POST /quotes/{id}/decisions` | buyer+ | `{line_id, sku_id, note}` | updated `{id, quote}`; stores the approval in `ApprovedMatchStore` and appends a hash-chained event (rule 6) |
-| `GET /kit-templates`, `PUT /kit-templates/{id}`, `DELETE /kit-templates/{id}` | requester+ read, buyer+ write | `kit-template/1` | list / document |
+| `GET /kit-templates`, `PUT /kit-templates/{id}`, `DELETE /kit-templates/{id}` | requester+ read, buyer+ write | `kit-template/1` (the `id` in the body must equal the path, else `422`) | `GET` returns the list; `PUT` returns the stored `kit-template/1` document; `DELETE` returns `{"id": ..., "deleted": true}` (`404` if the id is not the tenant's) |
 Responses use the existing generated documents' formats unchanged, so the web readers keep working. The API reads the deployment profile (never constants), uses the injected clock, and sends nothing: request drafts stay data and go through the existing prepare/approve/send flow (R1). A decision for a line that failed a critical attribute check is refused (rule 3); a candidate outside Tier A needs a substitution approval (rule 2). Money is `Decimal` strings.
 
 ## Events (rule 6)

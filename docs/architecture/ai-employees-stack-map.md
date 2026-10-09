@@ -4,6 +4,8 @@ As of 2026-10-02. Maps every use case from the research (Ideas 1–5, the Idea 1
 
 **How to read the tags.** **[S]** = in your stack. **[C]** = one of your 15 shared components. **[+]** = added by me for these use cases. Tool names marked "example" are not endorsements; I did not benchmark, price-check, or licence-check anything. I have not seen your LedgerKit code, and your stack doc says its non-core picks were not re-checked; I did not re-check them either. Fit verdicts and conflicts are my judgement.
 
+> **Where the code differs from this map (checked 2026-10-09; this file is otherwise as of 2026-10-02).** The web UI is Next.js 15 with no CopilotKit and no shadcn/ui (a CopilotKit sidebar is planned). The database is Postgres 16 with our own FORCE RLS migrations; Supabase only issues the JWTs the API verifies, and pgvector is mentioned in comments but not used. The LangGraph planner (`employees/purchasing/graph.py`) is run only by tests and has no Postgres checkpointer. Procrastinate is the worker's queue, but the worker is not deployed. No Render or cron configuration exists in the repo. The directories are `purchase_orders`, `send_service` and `doc_parse`; the `catalog` and `mandates` components do not exist. See [`docs/technical/01-system-overview.md`](../technical/01-system-overview.md).
+
 ## 1. Your stack in one line per layer, and how it fits this project
 
 | # | Layer | Your pick | Fit for the purchasing use cases |
@@ -79,7 +81,7 @@ name: Parts Sourcing Agent
 role: Identifies maintenance parts and gets quotes from the buyer's vendors; a person approves every send and order
 model: anthropic/claude-sonnet-5-5          # extractor model configured separately, no tools
 integrations: [email-alias, csv-import]
-tools: [purchasing.tools.identify_part, purchasing.tools.draft_rfq, purchasing.tools.compare_quotes]
+tools: [employees.purchasing.tools.identify_part, employees.purchasing.tools.draft_rfq, employees.purchasing.tools.compare_quotes]
 workflows:
   quote_request: { approval: buyer }          # send-service enforces the hash-bound approval
   follow_up: { schedule: "0 */4 * * *", approval: standing_rule }   # default off

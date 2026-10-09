@@ -1,6 +1,6 @@
 # Buy-side RFQ MVP: what is built and how to run it
 
-Status as of 2026-10-06. This is a build against the "Buy-side RFQ MVP product spec (UK)" and `docs/architecture/api-contract-mvp.md`. Product-market fit is unproven, no customer has used it, and all data in the demo is synthetic. Nothing here sends real email.
+Status as of 2026-10-06, with the run instructions, the experience paragraph and the screen list updated on 2026-10-09 for the 2026-10-08 redesign (six-item navigation, five-stage journey) and the quote engine now served by the API. The coverage table and the known-gaps paragraph are the 2026-10-06 assessment and were not re-run; [`docs/technical/README.md`](../technical/README.md) lists the current gaps and the defects found since. This is a build against the "Buy-side RFQ MVP product spec (UK)" and `docs/architecture/api-contract-mvp.md`. Product-market fit is unproven, no customer has used it, and all data in the demo is synthetic. Nothing here sends real email.
 
 ## Run it
 
@@ -13,13 +13,17 @@ NEXT_PUBLIC_API_URL=http://127.0.0.1:8000 NEXT_PUBLIC_DEV_TOKEN=<token> APP_ENV=
 APP_ENV=local NEXT_PUBLIC_API_MOCK=1 npm run dev -- -p 3100
 ```
 
-`uvicorn` is needed for `make demo-api` and is not installed by default in the sandbox venv (`pip install uvicorn`). Only one dev server can use `apps/web` at a time (they share `.next`).
+`uvicorn` is a declared dependency, so `make setup` installs it before `make demo-api`. Only one dev server can use `apps/web` at a time (they share `.next`).
 
-Checks: `make check` (Python lint, 2,913 tests, evals) and in `apps/web`: `npm run lint`, `npm run typecheck`, `npm test` (52 tests). A real-browser run of the whole flow against the mock: `apps/web/e2e/flow.mjs` (Node 22, headless Chromium; set `CHROME_BIN`; not part of CI). Screenshots are in `docs/mvp/screenshots/` (desktop, 390 px phone, dark).
+Checks: `make check` (Python lint, tests, evals) and in `apps/web`: `npm run lint`, `npm run typecheck`, `npm test`. Test counts and results as of 2026-10-09 are in [`docs/technical/09-testing-and-evals.md`](../technical/09-testing-and-evals.md). A real-browser run of the whole flow against the mock: `apps/web/e2e/flow.mjs` (Node 22 was used here, headless Chromium; set `CHROME_BIN`; there is no CI). Screenshots are in `docs/mvp/screenshots/` (desktop, 390 px phone, dark).
 
 ## The experience
 
-One persistent shell, client-side navigation, keyboard first. **Inbox** groups open requests by what the user must do next. A request opens as a **workspace** with a step rail (Request, Suppliers, Approve and send, Replies, Compare, Purchase order) and a sticky next-action bar; the page opens on the step that needs you and never moves you off the step you are reading. Approving is always an explicit button press on one message; no shortcut presses it. Details and limits: `ui-notes.md`.
+One persistent shell, client-side navigation, keyboard first. **Home** (page heading "Needs you") groups open requests by what the user must do next, with a pipeline strip (Questions, Choose, Approve, Waiting). A request opens as a **workspace** with a step rail (Request, Suppliers, Approve and send, Replies, Compare, Purchase order) and a sticky next-action bar; the page opens on the step that needs you and never moves you off the step you are reading. Approving is always an explicit button press on one message; no shortcut presses it. Details and limits: `ui-notes.md`.
+
+### Screens
+
+Six navigation items: **Home**, **Quote a job** (the job wizard at `/kits`, then Supplier prices at `/price-books` and Quote at `/quote`, as the stages Job, Prices, Quote, Compare, Ask suppliers), **Requests** (the list, and `/requests/[id]` for a request's workspace), **Suppliers**, **Setup** (admin only) and **Activity** (admin only). The approval page `/approve/[token]` opens from a link and is not in the navigation. The quote screens are described in `kits-ui.md` and `quote-ui.md`.
 
 ## Coverage of the 29 functional requirements
 

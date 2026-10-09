@@ -109,6 +109,8 @@ Each quote card has a **Where each value came from** section that quotes the exa
 
 A reply can be **Quarantined: not used until a person reviews it**. That happens when it fails the sender check, when it contains instructions aimed at the agent, when bank details have changed, or when the supplier's domain or contact address was changed and the change has not yet been confirmed by a call. A quarantined reply is shown but cannot be selected.
 
+You do not have to wait for every supplier: as soon as one reply has been read, the **Compare** step opens. The request moves to *Ready to compare* by itself once every message that was sent has a usable reply.
+
 If a supplier replied by phone or another way, open **Got a reply by phone or another way?** and press **Paste a reply**. Choose the supplier, paste what they said (include the currency symbol and name the part) and press **Add quote**. A quote you enter by hand is flagged **Entered by hand**, which means it always needs an approver other than you.
 
 If a supplier's reply is nothing but *stop*, *unsubscribe* or *remove me*, sent from its own authenticated domain, the supplier is suppressed and nothing else happens: that text is not read as a quote or as an instruction.
@@ -163,8 +165,8 @@ The label on a request in lists and at the top of its page.
 | **Spec confirmed** | The part is identified and the assumptions are settled. | Buyer: choose suppliers |
 | **Messages prepared** | Messages are written and waiting for approval. | Buyer: approve each |
 | **Messages approved**, **Messages sent** | Approved, and sent (in this build, recorded). | The suppliers |
-| **Waiting for replies** | Sent; waiting for replies. | The suppliers (or paste a reply) |
-| **Ready to compare** | At least one usable quote has been read. | Buyer: select a quote |
+| **Waiting for replies** | Sent; not every supplier has given a usable reply yet. As soon as one reply has been read, the **Compare** step opens and you can select a quote without waiting for the rest. | The suppliers (or paste a reply) |
+| **Ready to compare** | Every message that was sent has a usable reply. | Buyer: select a quote |
 | **Quote selected** | A quote is selected. A purchase order can be drafted now if no approval was needed. | Buyer |
 | **Waiting for approver** | An approval link was issued. | The approver |
 | **Approved** | The approver approved. | Buyer: create the purchase order draft |

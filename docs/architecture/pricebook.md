@@ -1,6 +1,6 @@
 # Price book: which merchants a tenant can rely on, and what is missing
 
-As of 2026-10-07. Status: built as a pure component with a demo export; **synthetic data only, no persistence, no API endpoint, no scheduler, no upload UI, no real price source**. Product-market fit is unproven; nothing here is a market claim and no number is evidence of accuracy. Code: `packages/components/pricebook/`; tests: `tests/pricebook/`; data: `profiles/data/pricebook/`; export script: `scripts/export_demo_data.py`; generated demo JSON: `apps/web/lib/quote-data/`. It implements steps 1.2 (price book), 1.4 (request your price file) and 1.6 (RFQ for gaps) of `docs/product/08-data-sourcing-and-integration-strategy.md` section 2.
+As of 2026-10-07; status updated 2026-10-09. Status: a pure component with a demo export that the API now serves: the book is computed on each `GET /v1/price-books` call from the tenant's offers (PostgreSQL when `DATABASE_URL` is set), price files are uploaded through `POST /v1/price-files` and a web upload dialog, and the messages for missing prices are prepared as unsent drafts through `POST /v1/quotes/{id}/rfq-drafts`. **Synthetic data only, no scheduler, no real price source.** Sections 6a, 8.1, 10 and 11 were corrected on 2026-10-09; the rest is as written on 2026-10-07. See also [`docs/technical/05-quote-engine.md`](../technical/05-quote-engine.md). Product-market fit is unproven; nothing here is a market claim and no number is evidence of accuracy. Code: `packages/components/pricebook/`; tests: `tests/pricebook/`; data: `profiles/data/pricebook/`; export script: `scripts/export_demo_data.py`; generated demo JSON: `apps/web/lib/quote-data/`. It implements steps 1.2 (price book), 1.4 (request your price file) and 1.6 (RFQ for gaps) of `docs/product/08-data-sourcing-and-integration-strategy.md` section 2.
 
 Numbering. Rules are cited as in CLAUDE.md (rules 1-7), with the spec section 4 number in brackets where they differ.
 
@@ -108,11 +108,14 @@ turns the per-supplier line groups (`rfq_for_gaps`) into templated drafts
   exact text and sends it (R1); there is no footer and no transport here. The same applies to the
   request-your-price-file drafts, which are already one message per merchant.
 * Export: optional additive key `rfq_messages {default_mode, per_supplier[], per_item[]}` in
-  `price-books-ui/1`; readers that do not know it ignore it. The web "Send RFQ for these gaps"
+  `price-books-ui/1`; readers that do not know it ignore it. The web "Ask for missing prices"
   dialog shows the exact subject and body and has a toggle "One quote per supplier (default)" /
   "Individual quotes, one per item".
-* Not built: wiring to the real RFQ prepare/approve/send flow, and per-supplier aggregation for
-  RFQs of lines that were priced (only gap lines are grouped today).
+* Wired (2026-10-09): in API mode the dialog calls `POST /v1/quotes/{id}/rfq-drafts`, which
+  prepares each message through `PurchasingService.prepare_text_rfq`; nothing is sent until a
+  person approves each one with `POST /v1/rfqs/{id}/approve-send` ([quote-to-rfq.md](quote-to-rfq.md)).
+  Not built: per-supplier aggregation for RFQs of lines that were priced (only gap lines are
+  grouped).
 
 ## 7. The export `price-books-ui/1` (`export.py`)
 
@@ -130,7 +133,7 @@ For `demo-tenant-a` and `demo-tenant-b` and the scopes `full`, `wc_only`, `cloak
 
 Each `<tenant>/<scope>.json` also carries `quote_options` (`quote-options-ui/1`, built by the quoting component's public `quote_options` from the quote **after review**) and `options_inputs`, the demo buyer inputs behind it. The existing keys are unchanged; `meta.formats` still names the two original formats.
 
-* **Inputs (all invented, labelled `SYNTHETIC`)**: a preferred-supplier list (the tenant's first two private price files in manifest order, the rule of `scripts/demo_quote.py`; tenant B has one) in every scope. For **one scope per tenant** (`REFERENCE_SCOPE`, the cloakroom for both) also a budget (A 490, B 240, ex VAT), a required-by date (2026-10-10) and a delivery cap (A 3, B 1), so the balanced option can be computed. The other scopes give no buyer reference, so the export says `balanced.status: not_computed` with the reason and every option's score is `null`. `options_inputs` records `preferred_merchants`, `budget_total`, `budget_vat_basis`, `required_by`, `max_deliveries` and `has_references`.
+* **Inputs (all invented, labelled `SYNTHETIC`)**: a preferred-supplier list (the tenant's first two private price files in manifest order, the rule of `scripts/demo_quote.py`; tenant B has one) in every scope. For **one scope per tenant** (`REFERENCE_SCOPE`, the cloakroom for both) also a budget (A 700, B 240, ex VAT), a required-by date (2026-10-10) and a delivery cap (A 4, B 1), so the balanced option can be computed. The other scopes give no buyer reference, so the export says `balanced.status: not_computed` with the reason and every option's score is `null`. `options_inputs` records `preferred_merchants`, `budget_total`, `budget_vat_basis`, `required_by`, `max_deliveries` and `has_references`.
 * **What the data shows**: tenant A has two to four distinct options per scope (the full bathroom: lowest total, fewest deliveries, fastest, preferred; the cloakroom adds balanced because of the references), tenant B has one merchant with private prices so every option is "same as Lowest total cost". The optimiser is exact only for the small wc_only quote; elsewhere the cheapest total is not proven and every option says so (quote-options.md section 9). Lines in no option (review, unmatched, indicative, no offer) are listed in `excluded_lines`; indicative prices sit in `indicative_block`, never in an option.
 * **`index.json`**: each combination gains `options` (options shown and their ids, duplicates, lowest and highest total, whether balanced is shown and its status, `exact`, `search_incomplete`, excluded and indicative line counts, `has_buyer_references`).
 * The options compare prices the customer holds, from synthetic files; they are not a market-wide best price and nothing is chosen, sent or ordered. Regenerate with `python scripts/export_demo_data.py` (about 17 s); `--check` and `tests/pricebook/test_demo_export.py` compare the files on disk with a fresh run.
@@ -149,18 +152,17 @@ Each `<tenant>/<scope>.json` also carries `quote_options` (`quote-options-ui/1`,
 
 ## 10. What is NOT built
 
-* **Persistence**: the book is computed on demand from the in-memory offer store; no price book table, no history of statuses, no audit of who attested a file.
-* **API and worker**: no endpoint, no job. A caller (the script, a test) builds the inputs.
+* **A stored book**: the book is computed on each `GET /v1/price-books` call from the tenant's offer store (PostgreSQL when `DATABASE_URL` is set, memory otherwise); there is no price-book table, no history of statuses, and no worker job. Who attested a price file is recorded with the file's import summary.
 * **Refresh scheduler and reminders**: `next_refresh_due` is data; nothing watches it or nudges the tenant.
-* **Real upload UI**: files reach the store only through `components.quoting.loading` from text a caller reads. The attestation step (step 1.3) and the import report screen do not exist; `ImportSummary` is the seam for quarantine counts.
+* **A real price source.** Files reach the store through a person's upload (`POST /v1/price-files`, with the attestation and an import report) or, for the demo, `components.quoting.loading` from text a caller reads. Nothing is fetched. (The upload dialog and import report exist since 2026-10-08.)
 * **Invoice and scheduled-file sources** (levels 1 and 3): no source, no offer shape, no ladder rule. Level 4 needs ADR-013 and an R7 amendment.
-* **Sending**: the approval and send-service flow for the request drafts and for the RFQ is not wired to this component; the footer is not here.
+* **Sending from this component**: it never sends. The drafts reach the approval and send-service flow through the API (section 6a); the footer is added there, not here.
 * Per-merchant spend coverage, product-level (rather than line-level) coverage, price history, month-on-month checks, FX, localisation of reason texts and of the request template.
 
 ## 11. Honest limits
 
 * **The data is synthetic.** Fictional merchants, invented prices and invented reviewer decisions. Tenant A's books are all `current` and tenant B's are a mix only because of how the seed files were declared; no status says anything about real merchants.
-* **Coverage is low by construction.** It counts quoted lines with a firm offer from one merchant. The matching gate is strict (quoting.md section 11), so most kit lines never reach pricing; the highest coverage in the demo is Northgate for tenant A on the full bathroom (22 of 77 lines, 28.6%) and Halden for tenant B (16 of 77).
+* **Coverage is low by construction.** It counts quoted lines with a firm offer from one merchant. The matching gate is strict (quoting.md section 11), so some kit lines never reach pricing (20 of the 77 full-bathroom lines are unmatched for tenant A); on the full bathroom the highest coverage in the demo is Corvane for tenant A (32 of 77 lines) and Halden for tenant B (20 of 77), as recounted from the generated data on 2026-10-09 (the 2026-10-07 figures were 22 and 16, before the kit text and matching vocabulary were improved).
 * **Most gaps have no spend estimate**, because review and unmatched lines have no price by design; they are ranked by quantity, which mixes units (an `each` count and a length in metres are compared as bare numbers within that group). Ranking by spend needs a price per line, which needs a match.
 * **`mixed` VAT basis is common**: the seed files carry ex-VAT, inc-VAT and bare prices, so most merchants show `mixed` with the counts beside it. Bare prices are excluded from firm lines by the pricing engine.
 * **Level 2 for a `manual_quote`** and the choice to show the earliest non-expired `valid_until` are judgement calls.

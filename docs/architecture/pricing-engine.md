@@ -1,6 +1,6 @@
 # Offer and best-price engine (stage 2)
 
-As of 2026-10-07. Status: built as a generic core with offline adapters; **no real provider adapter, no persistence, no API wiring**. All fixture data is synthetic/illustrative. Product-market fit is unproven; nothing here is a market claim. Code: `packages/components/pricing/`; tests: `tests/pricing/`; fixtures: `profiles/data/pricing/fixtures/`. Position in the pipeline: `docs/product/07-product-matching-engine-spec-v2.md` maps order lines to approved SKUs (stage 1, where pricing was a non-goal); this component prices them.
+As of 2026-10-07; status updated 2026-10-09. Status: a generic core with offline adapters; **no real provider adapter**. It is reached from the `/v1` quote routes through `components.quoting`, and offers persist in PostgreSQL under row-level security (`PgOfferRepository`, the `offers` table) when `DATABASE_URL` is set; the quote service records events. All fixture data is synthetic/illustrative. Product-market fit is unproven; nothing here is a market claim. Code: `packages/components/pricing/`; tests: `tests/pricing/`; fixtures: `profiles/data/pricing/fixtures/`. Position in the pipeline: `docs/product/07-product-matching-engine-spec-v2.md` maps order lines to approved SKUs (stage 1, where pricing was a non-goal); this component prices them.
 
 Numbering. Rules are cited as in CLAUDE.md (rules 1-7), with the spec §4 number in brackets where they differ (CLAUDE.md compresses R1-R12; MASTER §8.3 C1).
 
@@ -107,7 +107,7 @@ Spec R7: "No fetching or scraping of third-party links or sites; no link-fetch c
 
 ## 8. Not built
 
-Real provider adapters (blocked by R7 as above); persistence (Postgres repository with RLS; the in-memory store is the reference); API/worker wiring and events; FX conversion (other currencies are excluded, not converted); month-on-month price-change checks (no history); consent recording when promoting data to a shared dataset; the MILP solver path; Excel/PDF parsing (use `doc_parse`); UI and localisation of reason codes; per-unit conversion beyond the five units; price breaks; reading availability from price files (the model and the checks exist, no source fills them yet); a line supplied from several offers (a partial quantity from one supplier and the rest from another) or in several deliveries.
+Real provider adapters (blocked by R7 as above); a worker step (persistence in Postgres, the API wiring and events exist since 2026-10-07; see the status line); FX conversion (other currencies are excluded, not converted); month-on-month price-change checks (no history); consent recording when promoting data to a shared dataset; the MILP solver path; Excel/PDF parsing (use `doc_parse`); UI and localisation of reason codes; per-unit conversion beyond the five units; price breaks; reading availability from price files (the model and the checks exist, no source fills them yet); a line supplied from several offers (a partial quantity from one supplier and the rest from another) or in several deliveries.
 
 ## 9. Open questions
 

@@ -1,6 +1,6 @@
 # Platform services and the buy-side RFQ build (proposal v0.1)
 
-Status: **proposal**. Extends `composability.md` (ADR-012) and `ai-employees-stack-map.md`. Product-market fit is unproven; this is a build plan, not a market claim. Sizing and dates are not estimated. "Today" statements were checked against the repo on 2026-10-06.
+Status: **proposal**. Extends `composability.md` (ADR-012) and `ai-employees-stack-map.md`. Product-market fit is unproven; this is a build plan, not a market claim. Sizing and dates are not estimated. "Today" statements were checked against the repo on 2026-10-06; the rows corrected on 2026-10-09 are noted in the table. The built system is described in [`docs/technical`](../technical/README.md).
 
 ## 1. Shape of the system
 
@@ -12,7 +12,7 @@ Every idea runs on the same kernel and the same platform services; a use case is
 | Modules | Behind capability contracts: intake, identification, equivalence, scope planner, RFQ packets, quote extraction, comparison, mandate, counterparty verification, fraud screen | Idea teams |
 | Kernel | R1 to R12, send-service, approvals, hash-chained events, tenancy, `LLMProvider`; not pluggable, not configurable | Core |
 | Platform services | Trust, Operate, Onboard, Build (section 2) | Platform |
-| Infrastructure | Supabase (Postgres, Vault, Storage), Render web and worker, Langfuse and Sentry (stack map) | Platform |
+| Infrastructure | Supabase (Postgres, Vault, Storage), Render web and worker, Langfuse and Sentry (stack map). Today (2026-10-09): Postgres 16 under docker compose, staging on one GCP VM, Supabase only as the issuer of the JWTs the API verifies; Render, Vault, Storage, Langfuse and Sentry are not in the repo | Platform |
 
 ## 2. Cross-cutting platform services
 
@@ -20,15 +20,15 @@ Every idea runs on the same kernel and the same platform services; a use case is
 |---|---|---|---|
 | Trust | Identity and roles | JWT bearer verification with pinned algorithms, tenant, role and user only from the verified token (`apps/api/auth.py`); operators cannot approve or send (R10) | Step-up credential for approvers; just-in-time operator access flow |
 | Trust | Tenancy and data | Row-level security, tenant-scoped repositories (`packages/aidb`) | Per-tenant keys; cross-tenant leak tests for every new table |
-| Trust | Secrets and egress | Send-service is the sole reader of the mail secret; parsing sandbox in `doc_parse` | Egress allowlist for model and enrichment calls; secret rotation runbook |
-| Trust | Audit and evidence | Hash-chained events with PII redaction and digests (`components/evidence/log.py`) | Daily checkpoint and external anchor; export bundle with offline verifier |
+| Trust | Secrets and egress | The send-service is the only caller of the `MailTransport` port (no production transport or mail secret exists yet); parsing sandbox check in `doc_parse` | Egress allowlist for model and enrichment calls; secret rotation runbook |
+| Trust | Audit and evidence | Hash-chained events with PII redaction and digests (`components/evidence/log.py`) | Daily checkpoint and external anchor (an offline verifier for exported audit bundles exists: `scripts/verify_audit_export.py`) |
 | Trust | Privacy and retention | Retention keys in profiles (`retention.*`) | Purge jobs for every new table; access and erasure handling against the chained log |
 | Operate | Logging and observability | Python `logging` in the API and worker | Structured JSON logs with redaction at emit, correlation IDs, trace redaction (section 3) |
-| Operate | Kill switches | Send-service and worker honour a kill switch | One registry with an admin control and an audit event per flip |
-| Operate | Metering and billing | Billing and metering named in the stack map (U23) | Meter from events, not model claims |
-| Operate | Notifications | Named in the stack map | Approval and alert templates with no vendor text |
+| Operate | Kill switches | Send-service and worker honour a kill switch; a per-tenant admin endpoint (`POST /v1/admin/kill-switch`) appends an audit event | One registry that covers every source |
+| Operate | Metering and billing | Metering is a stub (`CounterMeter` counts calls; the worker's usage roll-up does nothing); billing is not built | Meter from events, not model claims |
+| Operate | Notifications | An `ApprovalNotifier` port with an in-memory default; no external notifier | Approval and alert templates with no vendor text |
 | Onboard | Tenant onboarding | Not in the repo (stack map lists an Onboarding component) | An onboarding workflow with go-live gates (section 4) |
-| Model | Model gateway | `LLMProvider` interface, `FakeLLM`, pinned snapshots (ADR-005) | Token and cost budgets per tenant and role; prompt registry with versions; redaction before calls |
+| Model | Model gateway | `LLMProvider` interface and `FakeLLM` (ADR-005); no production adapter and no snapshot pinning yet | Token and cost budgets per tenant and role; prompt registry with versions; redaction before calls |
 | Model | Eval and promotion | `evals/` with Wilson upper-bound gate; `make eval` | Per-module and per-pack frozen sets; golden flows per template |
 | Build | Module SDK | none | Capability Protocols, `module.yaml` loader, composition resolver, linter C1 to C9, contract tests, `aiplat new-pack` scaffolder |
 | Data | Reference data and licences | Source-licence rules in the equivalence design | A licence registry table with `may_store`, `may_ai_serve`, `ttl_hours` and evidence |
@@ -97,7 +97,7 @@ Each phase ends at an exit gate; nothing is dated because sizing is not estimate
 
 | Threat | Control (existing unless marked) |
 |---|---|
-| Prompt injection through vendor mail | Quarantined extractor, grounding check, no link fetching (R4) |
+| Prompt injection through vendor mail | Quarantined extractor, grounding check, no link fetching (R6, R7) |
 | Unapproved send | Send-service sole sender, hash-bound Approval (R1); linter C1 and runtime check (new) |
 | Cross-tenant leak | Row-level security, tenant-scoped repositories (R10); leak tests per new table (new) |
 | Operator misuse | No approve or send for operators; just-in-time access (partly new) |

@@ -24,6 +24,8 @@ Press **Add supplier** and fill in:
 
 A new supplier is **Not verified**, and nobody can send it a message until an admin verifies it. Only an admin can add a supplier. (The button is also shown to buyers in the current web app, but the server refuses a buyer's request.)
 
+> **Known defect.** The server only prepares messages to suppliers marked *preferred*. This form creates suppliers that are **not** marked preferred, and there is no control for it on any screen, so a supplier added here is listed on a request but is refused when you press **Prepare messages** (*vendor ... is not a preferred vendor*). Suppliers created by **CSV import** are marked preferred and work. Until this is fixed, add suppliers by CSV import.
+
 ### Import suppliers from a CSV file (buyer or admin)
 
 Press **Choose CSV file**. The columns are `name`, `domain` and `contact_email` (required), and `phone`, `account_number`, `account_type`, `credit_days`, `quote_validity_days` and `contact_kind` (optional). **Imported suppliers start unverified.**

@@ -57,7 +57,7 @@ The list is pre-filled from the template. You see three numbers: **Lines**, **Se
 
 The summary shows the lines to source, how many you left out, and the checks, each marked OK or Note, for example *All measurements entered*, *12 rules checked and met* and *This template has not been reviewed by a tradesperson. Check every line before ordering.* The **Prices** block here is only a rough guide (*Not a kit total and not a quote*).
 
-Press **Build the quote** to continue. The other buttons are **Change something**, **Start a different job** and **Reuse this job**, which saves your answers, sizes, option picks and left-out lines as a template for similar work (no prices are saved).
+Press **Build the quote** to continue. In the demo build it opens the Quote page. When the app is connected to its server it saves a quote and shows *Quote created* with its id, and the **Quote** page then builds its own quote for the same job type from the template's sample sizes and defaults, so the sizes you entered in the wizard do not reach it (a known defect, see [troubleshooting](07-troubleshooting.md#known-rough-edges-in-this-build)). The other buttons are **Change something**, **Start a different job** and **Reuse this job**, which saves your answers, sizes, option picks and left-out lines as a template for similar work (no prices are saved).
 
 Two links appear at the foot of the wizard: **Advanced: edit job templates (Config)** and, on the summary, **Advanced: request data**. In the demo build, templates are kept in your browser. When the app is connected to its server, they are saved to your account.
 
