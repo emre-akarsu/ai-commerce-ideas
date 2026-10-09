@@ -1,0 +1,16 @@
+import puppeteer from "puppeteer-core";
+const base = "/tmp/claude-0/-home-user-ai-commerce-ideas/8a4ab967-aee2-5285-a889-9780b621444f/scratchpad/portal/out";
+const b = await puppeteer.launch({ executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome", args: ["--no-sandbox", "--allow-file-access-from-files"] });
+const p = await b.newPage();
+await p.setViewport({ width: 390, height: 844 });
+await p.goto("file://" + base + "/test.html#hub", { waitUntil: "load" });
+await new Promise((r) => setTimeout(r, 300));
+await p.click("#ui-menu");
+await new Promise((r) => setTimeout(r, 500));
+console.log("menu open:", await p.evaluate(() => [document.body.className, getComputedStyle(document.getElementById("ui-side")).visibility, document.getElementById("ui-menu").getAttribute("aria-expanded")]));
+await p.screenshot({ path: base + "/shot-phone-menu.png" });
+await p.click('#ui-side a[data-doc="tg-04"]');
+await new Promise((r) => setTimeout(r, 500));
+console.log("after phone nav:", await p.evaluate(() => [document.querySelector("#ui-doc h1").textContent, document.body.className, document.documentElement.scrollWidth, getComputedStyle(document.getElementById("ui-side")).visibility]));
+await p.screenshot({ path: base + "/shot-phone-api.png" });
+await b.close();
