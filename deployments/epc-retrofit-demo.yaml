@@ -1,0 +1,8 @@
+# Illustrative landlord (synthetic tenant; see employees/retrofit/demo.py).
+id: epc-retrofit-demo
+workflow: quote_to_award@1
+pack: landlord-epc-retrofit@1
+profile: uk
+tenant: demo-landlord
+settings:
+  max_installers_per_rfq: 3

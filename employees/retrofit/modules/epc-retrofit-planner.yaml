@@ -1,0 +1,11 @@
+# Cheapest set of recommended measures that reaches the target band within the remaining cap.
+# Deterministic: no model, no tools. Flags the exemption route; never decides it.
+id: epc-retrofit-planner
+version: 1.0.0
+provides: [ScopePlanner@1]
+requires: [RequestIntake@1]
+effects: pure
+consumes: [request, pack]
+entry: employees.retrofit.steps:plan
+predicates: { needs_info: "employees.retrofit.steps:needs_info" }
+settings: [target_band, cost_cap, deadline, max_installers_per_rfq, required_certs]
