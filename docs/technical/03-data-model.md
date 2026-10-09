@@ -1,21 +1,21 @@
 # Data model
 
-Status: the schema after migrations 0001 to 0007, read from a live PostgreSQL 16 database that the migrations were applied to (32 relations). Everything the app stores for a tenant lives behind row-level security.
+Status: the schema after migrations 0001 to 0007, read from a live PostgreSQL 16 database that the migrations were applied to (32 relations). Everything the app stores for a tenant in its own tables lives behind row-level security. Three things are outside that: the platform-wide `shared_offers` table; the `procrastinate_*` queue tables, which the worker reaches through its own `PROCRASTINATE_DATABASE_URL` and which a one-off Procrastinate schema command creates (see `apps/worker/README.md`), not Alembic; and two per-process caches that are not in the database at all, the prepared-message cache and the approval-link notifier (listed in `REMAINING_H2` in `apps/api/asgi.py`).
 
 ## Design
 
-- **One generic shape for the purchasing entities.** `requests`, `vendors`, `rfqs`, `quotes`, `approvals`, `standing_rules`, `po_drafts`, `corrections`, `consent_records`, `supplier_profiles` and `assumptions` share the columns `id`, `tenant_id`, `request_id`, `vendor_id`, `state`, `version`, `created_at` and `data jsonb`. The Pydantic model lives in `data`. The other columns are copies kept for indexing and queries.
-- **The only foreign key is to `tenants`.** Relationships between entities (a request has RFQs, an RFQ has quotes) are by id inside the rows. The database does not enforce them, the repositories do.
+- **One generic shape for the purchasing entities.** `requests`, `vendors`, `rfqs`, `quotes`, `approvals`, `standing_rules`, `po_drafts`, `corrections`, `consent_records`, `supplier_profiles` and `assumptions` share the columns `id`, `tenant_id`, `request_id`, `vendor_id`, `state`, `version`, `created_at` and `data jsonb`. For most of them the Pydantic model lives in `data` (`corrections` and `consent_records` store a plain dict). The other columns are copies kept for indexing and queries.
+- **The only foreign key is to `tenants`.** Relationships between entities (a request has RFQs, an RFQ has quotes) are by id inside the rows. The database does not enforce them. The generic repository checks only that the object is the right type and belongs to the repository's tenant; whether the thing a row points at exists is checked by the service code, not by the storage layer.
 - **Composite primary keys start with `tenant_id`.** Two tenants can use the same id without clashing, and one tenant can never address another's row by id.
-- **Row-level security on 30 tables, forced.** Every tenant table has `ENABLE` and `FORCE ROW LEVEL SECURITY` and one policy, `tenant_isolation`, `tenant_id = current_setting('app.tenant_id', true)` for both `USING` and `WITH CHECK`. With no tenant set the setting is `NULL`, so no row is visible and no insert is accepted. `shared_offers` and `alembic_version` have no policy.
+- **Row-level security on 30 tables, forced.** Every tenant table has `ENABLE` and `FORCE ROW LEVEL SECURITY` and a policy `tenant_isolation`, `tenant_id = current_setting('app.tenant_id', true)` for both `USING` and `WITH CHECK`. `tenants` has no `tenant_id` column, so its policy compares `id` instead, and it has a second policy, `tenants_directory_owner` (migration 0002, `SELECT` only). With no tenant set the setting is `NULL` on a new connection and an empty string on a pooled connection that has been used before; either way no row is visible and no insert is accepted, and a `CHECK (tenant_id <> '')` on each table backs the empty-string case. `shared_offers` and `alembic_version` have no policy.
 - **The app never connects as the owner.** It uses the `app_user` role (`NOSUPERUSER`, `NOBYPASSRLS`, least-privilege grants). `tenant_session` refuses to run if the connected role is a superuser or has `BYPASSRLS` (`PrivilegedRoleError`), so a mistake in the connection string fails loudly.
 - **Append-only where history matters.** Grants are narrowed so that rows that are history can be read and inserted but not changed (see the last column of each table below). The audit log is also protected by triggers.
-- **Money and quantities in `data` are strings** parsed to `Decimal` in code (hard rule 5). The newer typed tables (`price_observations`, `review_events`, `review_drills`) use `numeric` and CHECK constraints for value sets, id shapes and size limits.
-- **Retention deletes are an owner-role job** and are not built.
+- **Money and decimal quantities in `data` are strings** parsed to `Decimal` in code (rule R9 of the product spec, rule 5 in `CLAUDE.md`). Whole-number fields (`Request.quantity`, the PO draft quantity, `Quote.moq`) are JSON numbers. A few typed columns use `numeric`: `price_observations` (`unit_price`, `quantity`), `cap_spend.spent`, `spend_holds.amount` and `follow_up_plans.sched_interval_seconds`. The newer typed tables (`price_observations`, `review_events`, `review_drills`) also use CHECK constraints for value sets, id shapes and size limits.
+- **Retention deletes are an owner-role job** and no deployment runs one. Two pieces exist: `aidb.telemetry.purge_review_events(admin_engine, before)` deletes every tenant's review events older than a cutoff (it refuses a role that is not a superuser and has no `BYPASSRLS`), and the worker has a scheduled `purge_expired_raw_email` task. Nothing calls the first, and `worker_main.py` does not configure the raw-email store the second needs, so that task fails with "no raw email store configured".
 
 ## Relationships
 
-The first diagram is the purchasing side. The lines are logical (by id), not database foreign keys.
+The first diagram is the purchasing side. The lines from `tenants` are real foreign keys (`tenant_id` references `tenants.id`). All the other lines are logical (by id inside the rows), not database foreign keys.
 
 ```mermaid
 erDiagram
@@ -25,16 +25,15 @@ erDiagram
   requests ||--o{ assumptions : "request_id"
   requests ||--o{ rfqs : "request_id"
   requests ||--o{ events : "request_id"
-  requests ||--o{ approvals : "request_id"
-  requests ||--o{ approval_tokens : "claims.request_id"
+  requests ||--o{ approvals : "no request_id on the row"
   requests ||--o| po_drafts : "request_id"
   requests ||--o{ spend_holds : "request_id"
   vendors ||--o| supplier_profiles : "vendor_id"
   vendors ||--o{ rfqs : "vendor_id"
   rfqs ||--o{ quotes : "rfq_id in data (versions)"
-  quotes }o--o| po_drafts : "quote_id, quote_version"
-  approvals ||--o| spent_approvals : "approval id and nonce"
-  events ||--|| event_heads : "head per tenant"
+  quotes ||--o{ po_drafts : "quote_id, quote_version in data"
+  approvals ||--o{ spent_approvals : "two rows: approval id and nonce"
+  event_heads ||--o{ events : "one head row per tenant"
   requests {
     text tenant_id PK
     text id PK
@@ -130,8 +129,7 @@ erDiagram
 
 | Table | Holds | Primary key | The app role may |
 |---|---|---|---|
-| `approval_tokens` | Issued approval links: signed claims, `consumed`, `po_issued`. Consuming one is a single conditional UPDATE, so exactly one caller wins. | `tenant_id, jti` | SELECT, INSERT, UPDATE |
-| `approvals` | Per-message, substitution and standing approvals. Append-only. | `tenant_id, id` | SELECT, INSERT |
+| `approvals` | Approvals of four kinds: per message, standing, purchase order and substitution. Append-only. The row has no `request_id`. | `tenant_id, id` | SELECT, INSERT |
 | `assumptions` | The assumption ledger: one row per entry of a request. Rows are history, never deleted. | `tenant_id, id` | SELECT, INSERT, UPDATE |
 | `consent_records` | Defined, with a repository. No application code writes it yet. | `tenant_id, id` | SELECT, INSERT |
 | `corrections` | Defined, with a repository. No application code writes it yet. | `tenant_id, id` | SELECT, INSERT |
@@ -153,11 +151,14 @@ erDiagram
 
 ### Shared security state
 
+The seven tables the API and worker processes must agree on (`SHARED_STATE_TABLES` in `aidb.models`, migration 0005).
+
 | Table | Holds | Primary key | The app role may |
 |---|---|---|---|
+| `approval_tokens` | Issued approval links: signed claims, `consumed`, `po_issued`. The claims do not name a request. Consuming one is a single conditional UPDATE, so exactly one caller wins. | `tenant_id, jti` | SELECT, INSERT, UPDATE |
 | `cap_spend` | Daily aggregate spend per tenant and UTC day. A reservation is one conditional UPDATE (`spent + amount <= cap`). | `tenant_id, day` | SELECT, INSERT, UPDATE |
-| `follow_up_plans` | Pre-approved follow-up schedules. Follow-ups are off unless a human schedules them. | `tenant_id, id` | SELECT, INSERT, UPDATE |
-| `idempotency_keys` | Stored responses to idempotent writes (2xx only), keyed by tenant and key, with a hash of the request body. | `tenant_id, key` | SELECT, INSERT, DELETE |
+| `follow_up_plans` | A follow-up plan: the bytes of the message that was sent plus a schedule (count and interval). A row exists only if a message was prepared with a schedule. The purchasing service passes none (the default is no follow-ups), so the application as built writes no rows. | `tenant_id, id` | SELECT, INSERT, UPDATE |
+| `idempotency_keys` | Stored responses to idempotent writes (2xx only). The `key` column holds a JSON array of user, role, method, path and the client's `Idempotency-Key`, so a stored response is only replayed to the same user and role. `body_hash` covers the method, the query string and the body. Entries expire after 24 hours, and expired rows of the tenant are deleted on the next write. | `tenant_id, key` | SELECT, INSERT, DELETE |
 | `kill_switches` | The per-tenant kill-switch state. | `tenant_id` | SELECT, INSERT, UPDATE |
 | `spend_holds` | Approved-but-undrafted spend (`committed`) and reserved cap spend (`reserved`) per request. Deleted when the spend is released. | `tenant_id, request_id, kind` | SELECT, INSERT, UPDATE, DELETE |
 | `spent_approvals` | One row per approval id and per nonce handed to the transport. The primary key is the single-use guarantee. | `tenant_id, key` | SELECT, INSERT |
@@ -194,28 +195,30 @@ Every table that has `tenant_id` also has the `tenant_isolation` policy. `correc
 
 ## Migrations
 
+Each revision id is the four-digit number; the file is `packages/aidb/migrations/versions/<id>_<name>.py`.
+
 | Revision | What it adds |
 |---|---|
-| `0001_initial` | The `app_user` role, `tenants`, the generic entity tables, `rule_uses`, `events`, `event_heads`, the append-only triggers, the redaction function, RLS and grants. |
-| `0002_tenant_directory` | `aidb_list_tenant_ids()`, a `SECURITY DEFINER` function that returns tenant ids only, for the worker's per-tenant fan-out (the app role cannot read `tenants` without a tenant context). |
-| `0003_suppliers_assumptions` | `supplier_profiles` and `assumptions`. |
-| `0004_stage2_tables` | `offers`, `shared_offers`, `approved_matches`, `price_imports`, `kit_templates`, `quote_snapshots`. |
-| `0005_shared_state` | `spent_approvals`, `approval_tokens`, `cap_spend`, `spend_holds`, `kill_switches`, `idempotency_keys`, `follow_up_plans`: what the API and worker processes must agree on. |
-| `0006_review_events` | `review_events` and `review_drills`. |
-| `0007_price_observations` | `price_observations`. |
+| `0001` (`_initial`) | The `app_user` role, `tenants`, the generic entity tables, `rule_uses`, `events`, `event_heads`, the append-only triggers, the redaction function, RLS and grants. |
+| `0002` (`_tenant_directory`) | `aidb_list_tenant_ids()`, a `SECURITY DEFINER` function that returns tenant ids only, for the worker's per-tenant fan-out (the app role cannot read `tenants` without a tenant context). |
+| `0003` (`_suppliers_assumptions`) | `supplier_profiles` and `assumptions`. |
+| `0004` (`_stage2_tables`) | `offers`, `shared_offers`, `approved_matches`, `price_imports`, `kit_templates`, `quote_snapshots`. |
+| `0005` (`_shared_state`) | `spent_approvals`, `approval_tokens`, `cap_spend`, `spend_holds`, `kill_switches`, `idempotency_keys`, `follow_up_plans`: what the API and worker processes must agree on. |
+| `0006` (`_review_events`) | `review_events` and `review_drills`. |
+| `0007` (`_price_observations`) | `price_observations`. |
 
 Run them with `python -c "from aidb.migrate import upgrade; upgrade('<owner url>')"` (what the compose `migrate` service does). Migrations run as the owner role. A chain written before the keyed hash was introduced fails verification, and no data migration was provided (the project is pre-release).
 
 ## How the code reaches the tables
 
-`aidb.session.tenant_session(engine, tenant_id)` is the only way application code gets a connection. It opens a transaction, sets `app.tenant_id` with `set_config(..., true)` (a bound parameter, transaction-local, so nothing leaks into the next use of a pooled connection), and checks in the same round trip that the role cannot bypass RLS.
+`aidb.session.tenant_session(engine, tenant_id)` is how application code gets a tenant's connection. The exceptions are deliberate and listed: the worker's `PgTenantDirectory.tenant_ids()` opens a plain connection to call `aidb_list_tenant_ids()` (it needs no tenant, and the function returns ids only), and the owner-role code (migrations, `create_tenant`, the shared price writer, `purge_review_events`) never goes through it. `tenant_session` opens a transaction, sets `app.tenant_id` with `set_config(..., true)` (a bound parameter, transaction-local, so nothing leaks into the next use of a pooled connection), and checks in the same round trip that the role cannot bypass RLS.
 
 | In memory (tests, `demo_api.py`) | PostgreSQL |
 |---|---|
 | `components.core.store` tenant stores | `aidb.repositories.PgStore`, `PgTenantStore`, `PgRepo` (generic `data jsonb` rows) |
 | `EventLog` | `PgEventStore` |
 | In-memory approval, cap, kill-switch, follow-up and idempotency stores | `aidb.state.PgSharedState`: `PgSpentApprovals`, `PgTokenStore`, `PgCapLedger`, `PgSpendBook`, `PgFollowUpPlans`, `PgKillSwitch`, `PgIdempotencyStore` |
-| Quote-engine stores | `aidb.stage2`: `PgOfferStore`, `PgSharedOfferWriter`, `PgApprovedMatchStore`, `PgImportStore`, `PgTemplateStore`, `PgQuoteSnapshotStore` (wired by `apps/api/quote_pg.py`) |
+| Quote-engine stores | `aidb.stage2`: `PgOfferStore`, `PgApprovedMatchStore`, `PgImportStore`, `PgTemplateStore`, `PgQuoteSnapshotStore` (wired by `apps/api/quote_pg.py`), and `PgSharedOfferWriter`, the owner-engine writer for the shared price table (used by `apps/api/quote_provision.py`) |
 | `InMemoryPriceHistory` | `PgPriceHistory` |
 | `InMemoryTelemetryStore` | `PgReviewEvents` |
 | The purchasing service's stores | `employees/purchasing/pg_wiring.py`: `PgServiceStore` and `PgTenantFacade`, used by `build_pg_service` |
@@ -232,7 +235,7 @@ SELECT count(*) FROM requests;                                 -- 0 as app_user
 SELECT set_config('app.tenant_id', 'demo-tenant-a', false);
 SELECT id, state FROM requests ORDER BY created_at;
 
--- is the chain intact? (what GET /v1/audit reports, in SQL form)
+-- the chain as stored (SQL cannot tell you it is intact: GET /v1/audit and scripts/verify_audit_export.py recompute the keyed hashes)
 SELECT seq, type, left(hash, 12) FROM events WHERE tenant_id = 'demo-tenant-a' ORDER BY seq;
 
 -- which tables force RLS?

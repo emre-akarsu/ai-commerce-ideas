@@ -8,21 +8,21 @@ Recipes for the changes people make most. In every case: write the failing test 
 
 1. Add the operation to the service layer first: a method on `PurchasingService` (and its `PurchasingServicePort` Protocol in `employees/purchasing/service_port.py`), or on `QuoteService` for the quote engine. Call `require(ctx, Role.X)` at the top. This is the real authorisation.
 2. Add a Pydantic input model that extends `_In` (`extra="forbid"`) with bounded fields, and a response model. Use `response_model` so the OpenAPI document is complete.
-3. Add the route in `apps/api/main.py`, or in a router module like `quote_routes.py` (an `APIRouter(prefix="/v1")` created by a `build_*_router` function and included by `create_app`). Use the role dependency (`U` any user, `C` requester, `B` buyer, `A` admin) so the role check runs before body validation.
-4. Raise `NotFound`, `Forbidden` or `Conflict` (from the service port). The error handlers turn them into the standard envelope. Never put a submitted value in a message.
+3. Add the route in `apps/api/main.py`, or in a router module like `quote_routes.py` (an `APIRouter(prefix="/v1")` created by a factory such as `quote_router`, `quote_rfq_router`, `price_file_router` or `telemetry_router`, and included by `create_app`). Use the role dependency (`U` any user, `C` requester, `B` buyer, `A` admin) so the role check runs before body validation.
+4. Raise `NotFound` or `Conflict` (from `employees/purchasing/service_port.py`) or `Forbidden` (from `packages/aiplat/ctx.py`; `require` raises it). The error handlers turn them into the standard envelope. Never put a submitted value in a message.
 5. A write that changes state must go through the workflow and append an event. See the next two recipes.
 6. Regenerate the OpenAPI file with `python -m apps.api.export_openapi`. `test_openapi_json_is_current` fails otherwise.
 7. Tests: `tests/api` for the route (including the role matrix and a cross-tenant `404`), and the service in `tests/pack`.
 8. Web: add the method and types to `apps/web/lib/api.ts` and a handler to `lib/mock.ts` so the demo build still works. Add a refusal hint to `refusalHelp` in `lib/flow.ts` if the new route has a refusal people will meet.
-9. Update [the API reference](04-api-reference.md) notes and the route table (the generated parts come from `openapi.json`).
+9. Update [the API reference](04-api-reference.md) notes and the route table. No script generates that page: its tables were written from `apps/api/openapi.json` by hand, so edit them by hand and check them against the file.
 
 ## Add or change a state transition
 
 1. The table is `_BASE` in `packages/components/rfq/workflow/machine.py`. You can add edges between **existing** states. A new state is a frozen-contract change.
-2. A move must go through `Workflow.transition`, called by the service's `_move`. Pick the actor honestly: `user:<id>` for a person, `agent` for the planner, `system` for the machine's own moves. `RFQ_APPROVED`, `APPROVED` and `DECLINED` need a human actor.
+2. A move must go through `Workflow.transition`, called by the service's `_move`. Pick the actor honestly: `user:<id>` for a person, `agent` for the planner, `system` for the machine's own moves. `RFQ_APPROVED`, `APPROVED` and `DECLINED` need a human actor. The one exception is `RFQ_APPROVED` by actor `system` with a `rule_id`, which is how a standing pre-authorisation approves an RFQ.
 3. Put the facts the audit needs in the payload. Raw personal data goes under `_pii` only.
 4. Tests: `tests/workflow` for the table and the refusals, and a service test for the trigger.
-5. Web: add the state's label to `STATE_LABEL` and handle it in `stepStatuses` and `nextAction` in `lib/flow.ts`. (Today `ESCALATED` is not handled in `nextAction`, so such a request shows *Done*; fix that when you touch it.)
+5. Web: add the state's label to `STATE_LABEL` and handle it in `stepStatuses` and `nextAction` in `lib/flow.ts`. (Today `nextAction` has no `ESCALATED` branch, so an escalated request falls through to the final return: the label *Done*, no step and no NEXT bar. The request page shows a card reading *The purchase order draft exists. Export it from the Purchase order step.*, and Home does not list the request unless it has open critical assumptions. Fix that when you touch it.)
 6. Update the diagram and table in [the request lifecycle](02-request-lifecycle.md) and the status table in the user guide.
 
 ## Add an audit event type
@@ -35,21 +35,21 @@ Add the constant next to the others in `employees/purchasing/service.py` or `mvp
 2. Write a new Alembic revision in `packages/aidb/migrations/versions` (the next number after `0007`). Put `tenant_id text NOT NULL REFERENCES tenants(id)` first, composite primary key `(tenant_id, ...)`, call `enable_rls_sql(table)` for `ENABLE`, `FORCE` and the `tenant_isolation` policy, and grant `app_user` only what it needs. Make history tables `SELECT` and `INSERT` only.
 3. Money and quantities are strings in `jsonb` or `numeric` columns, never floats. Add `CHECK` constraints for value sets, id shapes and sizes on typed tables.
 4. Add a Postgres store that satisfies the existing in-memory store's `Protocol`, build it inside `tenant_session`, and wire it in `apps/api/asgi.py` (or `quote_pg.py`).
-5. Update the table catalogue in [the data model](03-data-model.md). Regenerate it from a migrated database (`information_schema` and `pg_policies`) rather than by hand.
+5. Update the table catalogue in [the data model](03-data-model.md). No script generates it: read the new table from a migrated database (`information_schema` and `pg_policies`) and edit the page by hand.
 
 ## Add a part family
 
 A family is **data plus an evaluation set**, never a prompt.
 
-1. Register a `FamilySpec` in `packages/components/parts/families/registry.py`: the required attributes in question order, the critical attributes (a subset of the required ones), a clarifying question for each required attribute, identity attributes (a subset of the critical ones), allowed values, and conditional requirements. The constructor refuses an inconsistent spec.
-2. Add reference data with its licence and source in `packages/components/parts/equivalence/data` and the source list (`sources.py`). Unlicensed or synthetic sources must be blocked in production.
+1. Register a `FamilySpec` in `packages/components/parts/families/registry.py`: the required attributes in question order, the critical attributes (a subset of the required ones), a clarifying question for each required attribute, identity attributes (a subset of the critical ones), allowed values, and conditional requirements. The constructor checks that every required attribute has a question, that the critical attributes are required ones and that the identity attributes are critical ones. It does not check `allowed_values` or the conditional requirements (`required_if`).
+2. Add reference data with its licence and source in `packages/components/parts/equivalence/data` and the source list (`sources.py`). `assert_production_safe` refuses an unlicensed or synthetic source, but it runs only when `find_candidates` is called with `production=True`, and no code outside the tests does that, so today nothing blocks such a source in a running deployment (a known gap).
 3. Add golden rows to `evals/golden` and make `python -m evals.run` meaningful for it. A family is added only with its own table, sources and eval set.
 4. Add it to `parts.enabled_families` in the profiles that should handle it. A request for an unlisted family is escalated, never guessed.
 5. Tests in `tests/families`, `tests/equivalence`, `tests/spec`.
 
 ## Add a market (deployment profile)
 
-Follow `docs/templates/new-deployment-checklist.md`. In short: copy `profiles/_template.yaml`, fill the legal, tax, money and retention sections with local counsel, validate with `python -m aiplat.profile validate <id>`, run `pytest tests/profiles`, write the rationale document with a source and confidence for each non-default value, and review [known gaps](../architecture/known-gaps.md) for the market. For the quote engine also add `profiles/data/matching/<id>/` and `profiles/data/job_kits/<id>/`, **or the API will not start** with that profile (see [configuration](07-configuration.md#the-profile-id-also-selects-data)). A profile can localise and tighten, never loosen a rule: the validator has no key for a hard rule.
+Follow `docs/templates/new-deployment-checklist.md`. In short: copy `profiles/_template.yaml`, fill the legal, tax, money and retention sections with local counsel, validate with `python -m aiplat.profile validate <id>`, run `pytest tests/profiles`, write the rationale document with a source and confidence for each non-default value, and review [known gaps](../architecture/known-gaps.md) for the market. For the quote engine also add `profiles/data/matching/<id>/` and `profiles/data/job_kits/<id>/`. Without the matching data the API entrypoint stops at start-up with a `ClassificationError`; without the job-kit folder it starts and the kit routes answer `503` when they are used (see [configuration](07-configuration.md#the-profile-id-also-selects-data)). A profile is meant to localise and tighten, never to loosen a rule: there is no key for any of R1 to R12. Some keys that tune a rule (`approvals.threshold`, which decides when the requester must differ from the approver, and the `caps.*` limits) can be overridden per tenant and are bounded only from below, so an override could raise them; nothing supplies tenant overrides today (a known gap).
 
 ## Add a job-kit module or question
 
@@ -62,7 +62,7 @@ Job kits are YAML under `profiles/data/job_kits/<id>/`: `library.yaml`, `scopes/
 
 ## Add a price source or merchant
 
-Prices enter only as files a person uploads (`POST /v1/price-files`) or, for the demo, the files in `profiles/data/quoting`. A new **kind** of source (a feed, an API) is a design decision, not a recipe: it needs an allowlist, a licence check and events (see ADR-013, which is only proposed). Do not fetch from the network inside a component (R7).
+Catalogue prices for the quote engine enter only as files a person uploads (`POST /v1/price-files`) or, for the demo, the files in `profiles/data/quoting`. (Separately, a supplier's reply to a quote request is read from the inbound message, and the price of a quote that becomes a PO draft is kept as one point of the tenant's price history.) A new **kind** of source (a feed, an API) is a design decision, not a recipe: it needs an allowlist, a licence check and events (see ADR-013, which is only proposed). Do not fetch from the network inside a component (R7).
 
 ## Add a screen to the web app
 
