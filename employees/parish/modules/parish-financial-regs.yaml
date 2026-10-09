@@ -1,0 +1,9 @@
+id: parish-financial-regs
+version: 1.0.0
+provides: [ScopePlanner@1]
+requires: [RequestIntake@1]
+effects: pure
+consumes: [request, pack]
+entry: employees.parish.steps:rules
+predicates: { needs_info: "employees.parish.steps:needs_info" }
+settings: [quote_tiers]

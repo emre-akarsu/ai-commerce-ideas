@@ -1,0 +1,26 @@
+# Repairs for private rented homes in England: tenant report -> triage -> contractor quotes ->
+# approval -> award, with a timestamped record. Level 2 pack: two new modules; packets, parsing
+# and comparison reuse the refurb modules. Hazard classes and targets are the landlord's policy;
+# check them against Renters' Rights Act duties once dated. Not legal advice.
+id: renters-repairs
+version: 1.0.0
+title: Rented-home repairs
+workflow: quote_to_award@1
+jurisdictions: [uk]
+bindings:
+  RequestIntake@1: repair-intake@1
+  ScopePlanner@1: repair-triage@1
+  RfqPacketBuilder@1: refurb-packets@1
+  QuoteExtractor@1: refurb-quote-parser@1
+  QuoteComparator@1: refurb-compare@1
+approvals:
+  approve_send: { mode: single, roles: [landlord, agent] }
+  award: { mode: single, roles: [landlord, agent], distinct_from_requester_over: "1000", amount_key: award_amount }
+settings:
+  hazard_keywords:
+    emergency: [gas, flood, flooding, sparking, "no heating", "no hot water", "no water", "carbon monoxide", fire]
+    urgent: [damp, mould, leak, leaking, boiler, lock, "broken window"]
+  fix_within_working_days: { emergency: 1, urgent: 5, routine: 20 }
+  quotes_needed: { emergency: 1, urgent: 2, routine: 3 }
+  job_limit: "1500"
+synthetic: true

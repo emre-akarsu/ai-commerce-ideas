@@ -1,0 +1,23 @@
+# Parish and town council purchasing below the tender point: competing quotes as the council's
+# financial regulations require, approval by the clerk to send, award by committee resolution.
+# Level 2 pack: two new modules; packets, parsing and comparison reuse the refurb modules.
+# Defaults follow the shape of the NALC model financial regulations; each council sets its own.
+id: parish-three-quotes
+version: 1.0.0
+title: Parish council quotes
+workflow: quote_to_award@1
+jurisdictions: [uk]
+bindings:
+  RequestIntake@1: parish-intake@1
+  ScopePlanner@1: parish-financial-regs@1
+  RfqPacketBuilder@1: refurb-packets@1
+  QuoteExtractor@1: refurb-quote-parser@1
+  QuoteComparator@1: refurb-compare@1
+approvals:
+  approve_send: { mode: single, roles: [clerk, rfo] }
+  award: { mode: quorum, quorum: 3, roles: [councillor] }
+settings:
+  quote_tiers:       # inc VAT; at or above the last up_to = formal tender (out of scope)
+    - { up_to: "500", quotes: 1 }
+    - { up_to: "30000", quotes: 3 }
+synthetic: true

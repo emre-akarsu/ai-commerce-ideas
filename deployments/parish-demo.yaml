@@ -1,0 +1,7 @@
+# Illustrative parish council (synthetic; see employees/parish/demo.py). A smaller council could
+# set award quorum 2 here; it can never set zero.
+id: parish-demo
+workflow: quote_to_award@1
+pack: parish-three-quotes@1
+profile: uk
+tenant: demo-parish-council
