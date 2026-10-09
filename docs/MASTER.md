@@ -94,7 +94,7 @@ Rule text is quoted from [`product/04-product-spec.md`](product/04-product-spec.
 | R8 | "AI disclosure and authority limits on every RFQ" | Send-service appends a non-removable footer before hashing; sent in the buyer's name, Reply-To buyer |
 | R9 | "Money handled safely" | `Decimal`, explicit UoM/currency, per-order and daily aggregate caps in code |
 | R10 | "Tenant isolation and consented sharing" | RLS, tenant-scoped repositories, capability tokens; consented structured fields only in shared datasets; JIT operator access, no approve/send (per-tenant keys and operator access are design, not built: [rows 37 and 38](architecture/known-gaps.md#found-while-writing-the-documentation-2026-10-09)) |
-| R11 | "Approval links are non-forgeable" | GET renders only; POST with session; token bound to approver + quote-version hash + action; single use; approver ≠ requester above threshold |
+| R11 | "Approval links are non-forgeable" | GET renders only; POST with session; token bound to approver + quote-version hash + action; single use; approver ≠ requester above the threshold, over the daily aggregate, or when the quote carries a flag that forces approval (every quote a buyer pastes in does) |
 | R12 | "Vendor identity" | SPF/DKIM/DMARC alignment to a registered vendor domain (fail ⇒ quarantine); remit-to changes by admin with callback; signed per-RFQ reply token |
 
 Vendor etiquette (spec §4a): RFQs carry account number, part number, quantity, ship-to, need-by, human contact; at most 2 recipients in down-now mode and 4 otherwise (also `comms.*` in [`../profiles/base.yaml`](../profiles/base.yaml)); a won/lost note within 24 hours; **no vendor performance scores shown to customers or other vendors**.
@@ -315,8 +315,8 @@ stateDiagram-v2
   QUOTES_COLLECTING --> COMPARISON_READY
   COMPARISON_READY --> QUOTE_SELECTED
   COMPARISON_READY --> QUOTES_COLLECTING
-  QUOTE_SELECTED --> APPROVAL_PENDING: above threshold
-  QUOTE_SELECTED --> PO_DRAFTED: within standing rule
+  QUOTE_SELECTED --> APPROVAL_PENDING: approval needed
+  QUOTE_SELECTED --> PO_DRAFTED: no approval needed
   QUOTE_SELECTED --> COMPARISON_READY
   APPROVAL_PENDING --> APPROVED: signed link POST
   APPROVAL_PENDING --> DECLINED
@@ -344,7 +344,7 @@ stateDiagram-v2
 5. **Send.** Send-service checks hash, expiry, single-use nonce or standing-rule limits, tenant, recipient domain, opt-out, caps, kill switch, identity lines and character rules, then delivers once and appends an event.
 6. **Replies.** Reply token + DMARC alignment; failures quarantined. Quarantined extractor, grounding check (ungrounded fields blank and flagged), Decimal normalisation with UoM, currency and VAT basis; offered part classified A-D; authenticity tri-state.
 7. **Compare.** Landed cost, lead time vs need-by (working days in UK), tier, flags; never ranks B/C/D over a qualifying A without a stated reason; unknown VAT basis or assumed currency forces human approval; proposal 05 adds a "scope gap" row instead of ranking quotes with different regulated coverage.
-8. **Approve purchase.** Signed link: GET renders, POST decides; approver ≠ requester above threshold (value threshold not wired to the UI yet).
+8. **Approve purchase.** Signed link: GET renders, POST decides; approver ≠ requester above the threshold, over the daily aggregate, or when the quote carries a flag that forces approval (the value threshold is not wired to the UI yet).
 9. **PO.** Draft from the approved quote only; R2 and caps enforced; CSV export; PDF, accounting sync and PO sending not built.
 10. **Learn.** Buyer edits become dev-set corrections; sealed set separate (ADR-009).
 
@@ -538,7 +538,7 @@ Known gaps: see [`architecture/known-gaps.md`](architecture/known-gaps.md) (H2 p
 
 | # | Contradiction | Where | Suggested resolution |
 |---|---|---|---|
-| C1 | Hard-rule numbering: spec R1-R12 vs CLAUDE.md rules 1-7. CLAUDE.md also says "Hard rules R1-R12 have no config keys" while listing seven. Several docs cite CLAUDE numbers with an R prefix: proposal 05 §7 (R4 untrusted, R5 Decimal, R6 events, R7 tenancy), [`../research/intent/02-academic.md`](../research/intent/02-academic.md), [`../research/intent/04-uk-price-sources.md`](../research/intent/04-uk-price-sources.md), [`../research/mvp/03-uk-integrations-requirements.md`](../research/mvp/03-uk-integrations-requirements.md), [`../research/intent/06-job-templates-and-kits.md`](../research/intent/06-job-templates-and-kits.md) ("R5" money), `job_kits/resolver.py` docstring and [`architecture/job-kits.md`](architecture/job-kits.md) ("R5" for money), and platform-services §7 ("R4" for prompt injection) | listed files | Cite spec numbering everywhere; add a mapping line to CLAUDE.md |
+| C1 | Hard-rule numbering: spec R1-R12 vs CLAUDE.md rules 1-7. CLAUDE.md also says "Hard rules R1-R12 have no config keys" while listing seven. Several docs cite CLAUDE numbers with an R prefix: proposal 05 §7 (R4 untrusted, R5 Decimal, R6 events, R7 tenancy), [`../research/intent/02-academic.md`](../research/intent/02-academic.md), [`../research/intent/04-uk-price-sources.md`](../research/intent/04-uk-price-sources.md), [`../research/mvp/03-uk-integrations-requirements.md`](../research/mvp/03-uk-integrations-requirements.md), [`../research/intent/06-job-templates-and-kits.md`](../research/intent/06-job-templates-and-kits.md) ("R5" money), `job_kits/resolver.py` docstring ("R5" for money), and platform-services §7 ("R4" for prompt injection) | listed files | Cite spec numbering everywhere; add a mapping line to CLAUDE.md |
 | C2 | [`architecture/README.md`](architecture/README.md) v0.2 says "design only, no product code merged, build paused", HTMX UI, `src/purchasing_agent/` layout; the repo has `apps/`, `packages/`, `employees/`, a Next.js app and an MVP reported with 2,913 tests | arch README §0, §4, §16 vs [`mvp/README.md`](mvp/README.md) | Partly resolved 2026-10-09: the README now carries a status banner and a table of where the code differs; the HTMX and `src/` text stays as history |
 | C3 | ADR-010 is "proposed", ADR-001 (HTMX) still "accepted", yet the built UI is Next.js and auth is Supabase-style JWT | ADR-001, ADR-010, [`mvp/ui-notes.md`](mvp/ui-notes.md) | Accept ADR-010 or record the deviation |
 | C4 | The MVP is built against a "Buy-side RFQ MVP product spec (UK)" with FR ids (29 FRs) that is **not in the repo**; CLAUDE.md names spec 04 v0.2 (MRO identification) as source of truth, and proposal 05 says it is not an amendment to spec 04 | [`architecture/api-contract-mvp.md`](architecture/api-contract-mvp.md), [`mvp/README.md`](mvp/README.md) | Commit the MVP spec or fold its FRs into spec 04 v0.3 |

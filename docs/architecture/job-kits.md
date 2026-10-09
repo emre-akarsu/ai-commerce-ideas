@@ -1,6 +1,6 @@
 # Job kits: template library and resolver
 
-As of 2026-10-06; "Options, finish levels and forced lines", "Profiles" and "Not done" corrected 2026-10-09. Status: synthetic/illustrative seed data, `needs_tradesperson_review`; not licensed data and not tested with users. Data and schema: `profiles/data/job_kits/README.md`. Research and risks: `research/intent/06-job-templates-and-kits.md`; option picks: `reports/UK refurbishment top picks by option.md`. Changes: `profiles/data/job_kits/CHANGELOG.md`.
+As of 2026-10-06; "Options, finish levels and forced lines", "How it fits the hard rules and profiles" and "Not done" corrected 2026-10-09. Status: synthetic/illustrative seed data, `needs_tradesperson_review`; not licensed data and not tested with users. Data and schema: `profiles/data/job_kits/README.md`. Research and risks: `research/intent/06-job-templates-and-kits.md`; option picks: `reports/UK refurbishment top picks by option.md`. Changes: `profiles/data/job_kits/CHANGELOG.md`.
 
 ## Hierarchy
 
@@ -52,10 +52,12 @@ Formulas and conditions are parsed with `ast` and checked against a whitelist (a
 
 ## How it fits the hard rules and profiles
 
+Rule numbers are the product spec's R1 to R12 (`docs/product/04-product-spec.md`, section 4); `CLAUDE.md` numbers its seven rules differently.
+
 - **R2 (no auto-substitution across tiers).** Lines are generic specs, never part numbers. Matching a line to Tier A or B candidates happens later in the parts flow, and any cross-tier substitution still needs a `SubstitutionApproval`. Choosing an option picks a spec, not a part.
 - **R3 (no claim without provenance).** Every line and option cites sources from the research notes, and every resolved line and applied default is an assumption with source `default_template`, never `model_inference`, so it cannot close a critical attribute on its own.
-- **R5 (money and quantities).** Quantities are `Decimal` with an explicit unit; count units must be whole. Price bands are Decimal strings with explicit currency (GBP), VAT basis and unit, dated and labelled "observed retail price, not verified"; nothing computes with them.
-- **R1, R6, R7.** The resolver sends nothing, writes no state and reads no tenant data. Feeding a kit into an RFQ goes through the existing workflow and approval path.
+- **R9 (money and quantities).** Quantities are `Decimal` with an explicit unit; count units must be whole. Price bands are Decimal strings with explicit currency (GBP), VAT basis and unit, dated and labelled "observed retail price, not verified"; nothing computes with them.
+- **R1, R10 and the workflow rule.** The resolver sends nothing (R1), writes no state (`CLAUDE.md` rule 6, the workflow rule, which has no R number) and reads no tenant data (R10). Feeding a kit into an RFQ goes through the existing workflow and approval path.
 - **Profiles (ADR-011).** Market constants (tile waste factor, extract rates, adhesive and grout rates, screw centres) are named parameters in the market's `parameters.yaml`; formulas may not contain market literals. A new market is a new folder (`profiles/data/job_kits/<market>/`). The API (`QuoteService`) selects the folder from the resolved profile id, `profiles/data/job_kits/<profile id>`; there is no profile key for it, so the folder name must equal the profile id, and only the `uk` library exists (the API does not start with another profile).
 
 ## Not done
