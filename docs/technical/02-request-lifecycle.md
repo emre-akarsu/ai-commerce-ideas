@@ -153,7 +153,7 @@ sequenceDiagram
   A->>S: prepare_rfqs (buyer role)
   S->>S: checks: state, quantity, critical assumptions closed, Tier A/B candidates, vendor guards (preferred, verified, not suppressed, not a sole trader), vendor limit, business identity
   S->>SS: prepare(rfq, vendor, identity lines)
-  SS-->>S: PreparedMessage (exact bytes, mime_hash; the footer is inside the bytes)
+  SS-->>S: PreparedMessage (exact bytes and mime_hash, with the footer inside the bytes)
   S->>S: keep in the in-process prepared map
   S->>L: rfq.prepared
   S->>S: RFQ_DRAFTED (user)
