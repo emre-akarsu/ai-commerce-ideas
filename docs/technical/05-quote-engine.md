@@ -47,6 +47,8 @@ flowchart TB
   wz --> r2
   wz --> r6
   qv --> r2
+  qv --> r3
+  pb --> r2
   pb --> r3
   qv --> r4
   pb --> r5
@@ -109,8 +111,8 @@ With `DATABASE_URL` set, `apps/api/quote_pg.py` builds the Postgres stores, and 
 
 `POST /v1/price-files` (buyer) accepts a `.csv` or `.xlsx`. `apps/api/price_file_service.py` parses it in the API process, with no network, row by row:
 
-- The upload must declare its VAT basis (`inc` or `ex`); without one the request is refused with `422 vat_basis_required`. A row is **quarantined**, never repaired, with a reason: `invalid_price`, `invalid_sku`, `currency_missing`, `invalid_pack_size`, `duplicate_record`, `invalid_offer`, or `vat_basis_unknown` when its own VAT text cannot be read. Outliers (about three times the median), offers whose unit cannot be converted and expired offers are not quarantined at load: they load and are excluded when the line is priced.
-- A file only becomes **firm** when the uploader attests that they may use it and gives a valid-until date. Otherwise its offers load as indicative and never reach a total.
+- The upload must declare its VAT basis (`inc` or `ex`); without one the request is refused with `422` (`validation_error` when the field is missing or empty, `vat_basis_required` for any other value). A row is **quarantined**, never repaired, with a reason code, for example `invalid_price`, `invalid_sku`, `currency_missing`, `currency_not_accepted`, `currency_conflict`, `pack_size_missing`, `invalid_pack_size`, `invalid_pack_unit`, `invalid_uom`, `duplicate_record`, `invalid_offer`, or `vat_basis_unknown` when its own VAT text cannot be read. Outliers (about three times the median), offers whose unit cannot be converted and expired offers are not quarantined at load: they load and are excluded when the line is priced.
+- A file only becomes **firm** when the uploader attests that they may use it and gives a valid-until date (in the form, or in a `valid_until` column of the file). Otherwise its offers load as indicative and never reach a total.
 - The date check and the replacement of the supplier's earlier offers run only if the file yields at least one offer. A file whose rows are all quarantined is summarised and logged, and replaces nothing.
 - The response says how many rows were read, accepted, firm, indicative and quarantined, and why (`reason_counts` and up to a capped list of quarantined rows). The `price_imports` row keeps only the supplier, the tenant, the visibility and the counts of offers and quarantined rows. The file itself is not kept.
 
@@ -118,21 +120,21 @@ Price files enter only as files a person uploads (R7: nothing is fetched). Invoi
 
 ## Configuration
 
-`QuoteService` reads the resolved deployment profile (`PricingConfig.from_mapping` and `GatePolicy.from_mapping`), so currency, VAT basis, delivery policy, offer ages and the matching gate come from `profiles/<id>.yaml`, never from constants. It selects data by the profile id:
+`QuoteService` reads the resolved deployment profile (`PricingConfig.from_mapping` and `GatePolicy.from_mapping`), so currency, VAT basis, delivery policy, offer ages and the matching gate come from `profiles/<id>.yaml`. A few engine settings have no profile key yet and are code defaults: `group_band` and `judge_margin` of the matching gate, the basket limits (`basket_exact_max_lines`, `basket_work_budget`, `outlier_min_peers`, `runner_up_count`) and the options settings. It selects data by the profile id:
 
 - matching data from `profiles/data/matching/<id>/` (classification, ontology, catalogue seed),
 - the kit library from `profiles/data/job_kits/<id>/`,
 - the message templates from `profiles/data/pricebook/` (`request_templates.yaml`, `rfq_templates.yaml`), which is one folder for every profile, not selected by profile id.
 
-Only `uk` has matching and kit data. **With any other profile, the API entrypoint does not start.** `build_quote_service` raises `QuoteUnavailableError` only when the data directory is missing as a `FileNotFoundError`, but `load_classification` wraps that in a `ClassificationError`, so the process stops at start-up with `ClassificationError: cannot read profiles/data/matching/<id>/classification.yaml`. That covers `us` (the default when `DEPLOYMENT_PROFILE` is unset), `uk-scotland` and `uk-ni`. The `503` that the quote routes are meant to answer for a profile without data is therefore never reached. Run the API with `DEPLOYMENT_PROFILE=uk`. Even then the quote routes answer `503` unless there is a catalogue: `QUOTE_DEMO_DATA=1` loads the synthetic seed, and `QUOTE_CATALOGUE_FILE` points at a catalogue file (validated strictly) that wins over the demo seed. `load_catalogue` refuses a file whose `label` does not say the data is synthetic, so the process stops at start-up: **a real catalogue cannot be loaded today** (a gap, listed in the known gaps).
+Only `uk` has matching and kit data. **With any other profile, the API entrypoint does not start.** `build_quote_service` raises `QuoteUnavailableError` only when the data directory is missing as a `FileNotFoundError`, but `load_classification` wraps that in a `ClassificationError`, so the process stops at start-up with `ClassificationError: cannot read profiles/data/matching/<id>/classification.yaml`. That covers `us` (the default when `DEPLOYMENT_PROFILE` is unset), `uk-scotland` and `uk-ni`. The `503` that the quote routes are meant to answer for a profile without data is therefore never reached. Run the API with `DEPLOYMENT_PROFILE=uk`. Even then `POST /v1/quotes` answers `503` unless there is a catalogue: `QUOTE_DEMO_DATA=1` loads the synthetic seed, and `QUOTE_CATALOGUE_FILE` points at a catalogue file (validated strictly) that wins over the demo seed. `load_catalogue` refuses a file whose `label` does not say the data is synthetic, so the process stops at start-up: **a real catalogue cannot be loaded today** (a gap, listed in the known gaps).
 
 ## Known gaps
 
 - `QuoteService.price_books` does not catch `RequestTemplateError`. The buyer name in the drafts is the token's `sub` (and the company is the tenant id) for any tenant that is not a demo one, so a `sub` that looks like an email address or holds markup fails the template's plain-text rule (`buyer_name: links, markup or addresses are not allowed`), and `GET /v1/price-books` answers a generic `500`.
 - The web's *After my reviews* view shows the same quote as *First quote* when the app is connected to the API, because no reviewer decisions are replayed into it.
 - When the web app is connected to the API, the Quote and Supplier prices pages build their own quote from the job template's sample sizes and defaults each time they open. The sizes and answers entered in the Job wizard do not reach them, and the quote that **Build the quote** saves is not the one they open.
-- A real catalogue cannot be loaded: `load_catalogue` refuses any file whose label does not say the data is synthetic. With the `uk` profile and neither `QUOTE_DEMO_DATA` nor a catalogue file, every quote route answers `503`.
-- The *Best overall* option cannot be reached from the web app when it is connected to the API: the page sends no budget, date or delivery limit.
+- A real catalogue cannot be loaded: `load_catalogue` refuses any file whose label does not say the data is synthetic. With the `uk` profile and neither `QUOTE_DEMO_DATA` nor a catalogue file, `POST /v1/quotes` answers `503` (the routes that take a saved quote id answer `404`, because none can exist); the kit, template, price-book and price-file routes still work.
+- The *Best overall* and *Preferred suppliers* options cannot be reached from the web app when it is connected to the API: the page sends no budget, date, delivery limit or preferred list.
 - The kit library and its option tags are an unreviewed synthetic seed (`needs_tradesperson_review`). Option compatibility is not rule-checked, and regulated-work gates are only proposed.
 - There is no intent step ("quote me a bathroom"), no RFQ packets and no catalogue management screen.
 

@@ -1311,7 +1311,7 @@ style SB fill:#f6f3ff,stroke:#5b3fc4,stroke-dasharray:6 4,color:#1e1050
 ## 8. What these diagrams do not show
 
 - **Accuracy and cost.** No model client exists in the repository, so latency, cost and error rates of live calls are not measured. The matching gold set and the seeded-error set are synthetic, and the judge used in the matching eval echoes the scorer.
-- **Modules without a flow.** `core` holds the frozen types and ports; `employees/refurb` is an older prototype that imports no component and has no model call.
+- **Modules without a flow.** `core` holds the frozen types and ports; `employees/refurb` is a separate prototype that imports no component and has no model call.
 - **Deployment.** Compose files, the Postgres role setup and the web build are not drawn.
 - **Notation.** Mermaid flowcharts have no object nodes, swim lanes or fork and join bars. Colour carries who acts; decisions are diamonds; the only dashed frame marks the model call.
 

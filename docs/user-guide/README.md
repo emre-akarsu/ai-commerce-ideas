@@ -18,7 +18,7 @@ There are two ways in:
 
 | Start here | When to use it | Pages |
 |---|---|---|
-| **Requests** (Home, then *New request*) | A part, or a few parts: "4 x 6205-2RS bearings for the packing line". | [Requests](02-requests.md) |
+| **Requests** (Home, then *New request*) | A part, or a few parts: "6205-2RS bearings for the packing line, 4 pcs". | [Requests](02-requests.md) |
 | **Quote a job** | A whole job that needs a materials list, such as a bathroom refit: you answer a few questions, check quantities, see what it costs from the suppliers' price files, then ask suppliers. | [Quote a job](03-quote-a-job.md) |
 
 ## Contents

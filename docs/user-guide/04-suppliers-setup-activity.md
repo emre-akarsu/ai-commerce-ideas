@@ -26,7 +26,7 @@ Press **Add supplier** and fill in:
 
 A new supplier is **Not verified**, and nobody can send it a message until an admin verifies it. Only an admin can add a supplier. (The button is also shown to buyers in the current web app, but the server refuses a buyer's request.)
 
-> **Known defect.** The server only prepares messages to suppliers marked *preferred*. This form creates suppliers that are **not** marked preferred, and there is no control for it on any screen, so a supplier added here is listed on a request but is refused when you press **Prepare N messages for approval** on the request's **Suppliers** step (*vendor ... is not a preferred vendor*; N is the number of suppliers you ticked). **Prepare for approval** on **Supplier prices** is refused the same way. Suppliers created by **CSV import** are marked preferred and work. Until this is fixed, add suppliers by CSV import.
+> **Known defect.** The server only prepares messages to suppliers marked *preferred*. This form creates suppliers that are **not** marked preferred, and there is no control for it on any screen, so a supplier added here is listed on a request but is refused when you press **Prepare N messages for approval** on the request's **Suppliers** step (*vendor ... is not a preferred vendor*; N is the number of suppliers you ticked). **Prepare for approval** on **Supplier prices** is refused the same way. Suppliers created by **CSV import** are marked preferred and work. Until this is fixed, add new suppliers by CSV import. A supplier you already added with this form stays not preferred: a CSV row for a supplier that is already in the list only updates its commercial details, and a row with the same domain or contact email but different details is rejected. An admin can set the mark through the API.
 
 ### Import suppliers from a CSV file (buyer or admin)
 
@@ -48,7 +48,7 @@ Press **Verify** and answer *How did you check this supplier?* (for example: cal
 
 **Suppress** (buyer or admin) stops the app contacting a supplier at once. **Allow contact** (admin only) reverses it. A supplier is also suppressed automatically when its reply is nothing but *stop*, *unsubscribe* or *remove me* (with an optional *please*), sent from its own authenticated domain. A quote that merely contains one of those words is not a stop request.
 
-One exception: a supplier can also carry an *opted out* mark that only the API sets or clears. Such a supplier shows the same reason on a request, but has no **Suppressed** badge, and **Allow contact** does not lift it. An admin has to clear the mark through the API.
+One exception: a supplier can also carry a separate *opted out* mark that only the API sets or clears. Such a supplier shows the same reason on a request, but has no **Suppressed** badge, and **Allow contact** does not lift it. An admin has to clear the mark through the API.
 
 ### Why a supplier cannot be picked
 
@@ -71,7 +71,7 @@ The page says *Get to a safe first send. Each item is checked from the account's
 | Item | Done when |
 |---|---|
 | **Deployment profile** | A profile such as `uk@7c41e0b9a2d3` is active. The code after the `@` identifies the exact profile contents. |
-| **Company details on outgoing mail** | All the fields that the profile requires are present (for the UK profile: legal name, registration number, registered office, where registered). |
+| **Company details on outgoing mail** | All the fields that the profile requires are present (for the UK profile: legal name, registration number, registered office, where registered). No screen sets them: they are part of the deployment's settings, so ask whoever runs your deployment if some are missing. |
 | **At least one verified supplier** | Shows how many are verified. |
 | **Sending is switched on** | The kill switch is not engaged. |
 | **A dry run reached a prepared message** | At least one request has a prepared message. |

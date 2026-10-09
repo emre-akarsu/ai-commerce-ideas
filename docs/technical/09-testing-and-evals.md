@@ -56,7 +56,7 @@ Counts are the tests collected on 2026-10-09 (`pytest tests --collect-only -q`);
 | `tests/doc_parse`, `tests/imports`, `tests/suppliers`, `tests/worker` | Parsing, importers, supplier CSV rules, the worker tasks and retention. | 113 |
 | `tests/docs` | The UK claims ledger: every claim id cited in `docs/uk` is defined, and there are no unfilled placeholders. | 4 |
 | `tests/evals` | The evaluation harness itself. | 32 |
-| `tests/refurb` | The older prototype. | 13 |
+| `tests/refurb` | The refurbishment prototype (`employees/refurb`). | 13 |
 | `tests/test_contracts.py` | The frozen types in `core/domain.py` (tiers, money as `Decimal`, approvals). | 2 |
 
 ### Web tests

@@ -2,7 +2,7 @@
 
 Status: 50 operations on 45 paths, read from `apps/api/openapi.json` (a test, `test_openapi_json_is_current`, fails when the file is stale) and from the code. The older hand-written contracts (`docs/architecture/api-contract.md`, `api-contract-mvp.md`, `stage1-contract.md`) describe intent and some of their details are out of date; this page follows the code.
 
-The endpoint tables below were written from that file (the script that produced them is not in the repository, so they are updated by hand). Regenerate the OpenAPI file with `python -m apps.api.export_openapi`. The running service also serves it, without authentication, at `/openapi.json`. The interactive documentation pages (`/docs`, `/redoc`) are switched off.
+The endpoint tables below were written by hand from that file and the code. No script in the repository produces them, so when a route changes they are updated by hand. Regenerate the OpenAPI file with `python -m apps.api.export_openapi`. The running service also serves it, without authentication, at `/openapi.json`. The interactive documentation pages (`/docs`, `/redoc`) are switched off.
 
 ## Conventions
 
@@ -11,7 +11,7 @@ The endpoint tables below were written from that file (the script that produced 
 | Base | `/v1/...` for everything except `GET /healthz` and the unauthenticated `/openapi.json`. JSON in and out, except multipart uploads and the purchase-order CSV. |
 | Identity | Tenant, user and role come **only** from the verified bearer token, never from the body or a header. See below. |
 | Roles | `requester` < `buyer` < `admin`, each including the one before. Routes check the role through a dependency before the body is validated, so a caller without the role gets `403` and not `422` (checked: a requester posting an empty body to `POST /v1/vendors` gets `403`). The exception is `POST /v1/approval-links/{token}/decide`, which any signed-in user can reach: its body is validated first (`422` for a bad `action`), and the buyer and approver checks are inside the service (`403`). |
-| Tenancy | Every query goes through tenant-scoped repositories; with `DATABASE_URL` set, row-level security applies as well (the in-memory build has no database). A row of another tenant answers `404 not_found`, the same as a missing row. One exception: asking for quote drafts for a merchant that is not in the quote's price book is a `409` that names the merchant. |
+| Tenancy | Every query goes through tenant-scoped repositories; with `DATABASE_URL` set, row-level security applies as well (the in-memory build has no database). A row of another tenant answers `404 not_found`, the same as a missing row. One exception: asking for quote drafts for a merchant id that is not one of the tenant's own verified suppliers (`no verified supplier for 'X'`), or that has no request lines in the quote (`no quote request lines for merchant 'X'`), is a `409` that names it. |
 | Errors | `{"error": {"code": "...", "message": "..."}}` (below). Validation messages name fields, not values. Some `409` messages do contain a submitted value (a candidate part number, a family, a key of `answers`, a merchant id), because the route returns the service's message. |
 | Idempotency | `Idempotency-Key` on `POST`, `PATCH` and `PUT` (below). |
 | Size | JSON bodies up to 1,000,000 bytes. The web layer accepts `/v1/imports/csv` and `/v1/vendors/import` uploads up to 5,000,000 bytes (above that: `413 payload_too_large`), but the service refuses a CSV over `Settings.max_csv_bytes`, 1,000,000 by default and set nowhere in the shipped code, with `409 conflict` and the message `file too large` (checked: 1.1 MB and 1.4 MB files answer `409`, a 5.1 MB file `413`). `/v1/price-files` is not an upload path for the 5,000,000 limit, so its multipart body counts against the 1,000,000 bytes, and the price-file service itself refuses a file over 900,000 bytes with `413 payload_too_large` and the message `file too large`. |
@@ -69,12 +69,12 @@ The store is in memory by default and a Postgres table (`idempotency_keys`) when
 | Method and path | Role | Body | Answers | Notes |
 |---|---|---|---|---|
 | `GET /v1/requests` | requester | - | list of RequestView | Optional `state` filter (a value that is not a state answers `500`). A requester sees only their own requests; buyers and admins see all. |
-| `POST /v1/requests` | requester | CreateRequestIn | RequestDetail | Create a request from free text. `quantity`, `need_by`, `site`, `work_order_ref`, `down_now` and `criticality` are optional; text can only raise criticality. When `quantity` or `need_by` is left out the service reads them from the text (`qty 4`, `4 pcs`, `x4`, a date), and it reads urgency and safety words (`asap`, `down now`, `critical`, `atex` and others) from the text too. |
+| `POST /v1/requests` | requester | CreateRequestIn | RequestDetail | Create a request from free text. `quantity`, `need_by`, `site`, `work_order_ref`, `down_now` and `criticality` are optional; text can only raise criticality. When `quantity` or `need_by` is left out the service reads them from the text (`qty 4`, `4 pcs`, `x4`; a need-by date only after a phrase such as `need by`, `due` or `by`, and only as a weekday name, `today`, `tomorrow` or `YYYY-MM-DD`), and it reads urgency and safety words (`asap`, `down now`, `critical`, `atex` and others) from the text too. |
 | `GET /v1/requests/{request_id}` | requester | - | RequestDetail | The whole request: view, candidates, RFQs, quotes, comparison, events, pending approvals, assumptions, `chain_valid`. |
 | `POST /v1/requests/{request_id}/answers` | requester | AnswersIn | RequestDetail | Only in `NEEDS_INFO`. Unknown attributes are refused. |
 | `GET /v1/requests/{request_id}/assumptions` | requester | - | list of AssumptionView | The assumption ledger for the request. |
 | `POST /v1/requests/{request_id}/assumptions/{assumption_id}/confirm` | requester | - | RequestDetail | A person confirms the row. No code path confirms for the system. |
-| `POST /v1/requests/{request_id}/assumptions/{assumption_id}/invalidate` | requester | - | RequestDetail | The value is dropped. If the family has a question for that attribute the request goes back to its questions (it counts towards the limit of two; a third question escalates the request), otherwise the state does not change. Refused with `409` outside `NEEDS_INFO` and `SPEC_CONFIRMED`. |
+| `POST /v1/requests/{request_id}/assumptions/{assumption_id}/invalidate` | requester | - | RequestDetail | For a row about an attribute the value is dropped: if the family has a question for it the request goes back to its questions (it counts towards the limit of two; a third question escalates the request), otherwise the state does not change; outside `NEEDS_INFO` and `SPEC_CONFIRMED` this is refused with `409`. A row that is not about an attribute (the quote-basis assumption) is only marked invalidated, in any state. A row that is no longer open is `409`. |
 
 ### Messages and replies
 
@@ -165,7 +165,7 @@ These endpoints answer plain JSON documents with a `format` field, not Pydantic 
 
 | Document | Schema file | Served by |
 |---|---|---|
-| `job-kit-ui/2` (and `/1`) | `profiles/data/job_kits/export.schema.json` | the exports bundled in `apps/web/lib/kits/generated` (written by `scripts/export_job_kits.py`); `POST /v1/kits/resolve` answers a different document, `resolved-kit/1` |
+| `job-kit-ui/2` (and `/1`) | `profiles/data/job_kits/export.schema.json` | the exports in `profiles/data/job_kits/<market>/export/` (written by `scripts/export_job_kits.py`), which `npm run sync-kits` copies into `apps/web/lib/kits/generated`; `POST /v1/kits/resolve` answers a different document, `resolved-kit/1` |
 | `quote-draft-ui/1` | `profiles/data/quoting/quote-draft-ui.schema.json` | `POST /v1/quotes`, `GET /v1/quotes/{id}` (inside the `{"id", "quote"}` envelope) |
 | `quote-options-ui/1` | `profiles/data/quoting/quote-options-ui.schema.json` | `GET /v1/quotes/{id}/options` (the document itself, not a wrapper) |
 | `price-books-ui/1` | `profiles/data/pricebook/price-books-ui.schema.json` | `GET /v1/price-books` |

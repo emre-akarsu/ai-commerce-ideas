@@ -1,6 +1,6 @@
 # Diagram index
 
-All the diagrams in the documentation, and where to find them. Every diagram is Mermaid, so GitHub and most Markdown viewers draw it from the source. The documentation portal published from these files draws them as static images with a text alternative.
+All the diagrams in the documentation, and where to find them. Almost all are Mermaid, so GitHub and most Markdown viewers draw them from the source; six small sketches in older architecture notes are plain text and are marked as such in the last table. No script in the repository produces or updates the source of any diagram: they were written from the code, and a person has to check them against it when it changes. The documentation portal published from these files draws the Mermaid diagrams as static images with a text alternative.
 
 ## System diagrams (this guide)
 
@@ -9,9 +9,9 @@ All the diagrams in the documentation, and where to find them. Every diagram is 
 | Context | [System overview](01-system-overview.md#context) | The people and outside systems around the product, and which links exist |
 | Containers as deployed | [System overview](01-system-overview.md#containers-as-deployed-today) | The compose stack: Caddy, API, database, backup, one-shot jobs |
 | Layers | [System overview](01-system-overview.md#layers-and-dependency-rules) | Apps, packs, components and the platform |
-| Computed import graph | [System overview](01-system-overview.md#the-computed-import-graph) | Which package imports which, computed from the code |
+| Computed import graph | [System overview](01-system-overview.md#the-computed-import-graph) | Which package imports which, from the `import` statements in the code |
 | Runtime modes | [System overview](01-system-overview.md#runtime-modes) | What the entrypoint builds, and when it refuses |
-| Request state machine | [Request lifecycle](02-request-lifecycle.md#the-state-machine) | The 19 states and their transitions, generated from the table |
+| Request state machine | [Request lifecycle](02-request-lifecycle.md#the-state-machine) | The 19 states and their transitions, written from `_BASE` in `packages/components/rfq/workflow/machine.py` |
 | Create, clarify, confirm | [Request lifecycle](02-request-lifecycle.md#1-create-clarify-confirm) | Sequence: intake to confirmed spec |
 | Prepare, approve, send | [Request lifecycle](02-request-lifecycle.md#2-prepare-approve-send) | Sequence: the human-approved send path |
 | A reply comes in | [Request lifecycle](02-request-lifecycle.md#3-a-reply-comes-in) | Sequence: webhook to a flagged quote |
@@ -21,9 +21,9 @@ All the diagrams in the documentation, and where to find them. Every diagram is 
 | Quote engine data flow | [Quote engine](05-quote-engine.md#data-flow) | Web, routes, service, components and stores |
 | Trust boundaries | [Security and trust](06-security-and-trust.md#trust-boundaries) | Untrusted input, the inert zone, trusted code |
 
-## Activity diagrams (every module and optimization)
+## Activity diagrams (modules and optimizations)
 
-[`docs/architecture/activity-diagrams.md`](../architecture/activity-diagrams.md) holds 32 activity diagrams, one per module and per optimization, with every step that could use a model marked by a dashed purple outline. They were read from the code at commit `9de0777` and fact-checked in several passes. Colour says who acts: amber is a person, grey is deterministic code, green an optimization, red a hard-rule check or refusal, blue a data store or event, purple a model step.
+[`docs/architecture/activity-diagrams.md`](../architecture/activity-diagrams.md) holds 32 activity diagrams: four overviews, the diagrams of the modules, and five optimizations. Every step that could use a model is marked by a dashed purple outline. Two modules have no diagram of their own: `core` (the frozen types and ports) and `employees/refurb` (a separate prototype that imports no component and has no model call); the file says so under *What these diagrams do not show*. The diagrams were read from the code at commit `9de0777` and corrected after two fact-checks (see the history of that file). Colour says who acts: amber is a person, grey is deterministic code, green an optimization, red a hard-rule check or refusal, blue a data store or event, purple a model step.
 
 **Overview**
 
@@ -91,10 +91,12 @@ All the diagrams in the documentation, and where to find them. Every diagram is 
 
 | Where | What |
 |---|---|
-| [`docs/architecture/README.md`](../architecture/README.md) | The original design diagrams (architecture v0.2) |
+| [`docs/architecture/README.md`](../architecture/README.md) | Two plain-text sketches from the original design (architecture v0.2): the system context and the component view. They show the v0.2 layout, not today's (the table at the top of that page lists the differences). |
 | [`docs/architecture/current-modules.md`](../architecture/current-modules.md) | The module map and the kit-to-quote flow |
-| [`docs/architecture/price-data-sources.md`](../architecture/price-data-sources.md) | Eight diagrams of the price-source options (a design document; only the customer-upload option is built) |
+| [`docs/architecture/price-data-sources.md`](../architecture/price-data-sources.md) | Eight diagrams of the price-source options (a design document; only two options are built: a manual quote through the request flow, and a price file the person uploads) |
 | [`docs/architecture/quoting.md`](../architecture/quoting.md), [`pricebook.md`](../architecture/pricebook.md) | Engine flows |
-| [`docs/MASTER.md`](../MASTER.md) | The product overview and the request state diagram |
+| [`docs/architecture/matching-engine.md`](../architecture/matching-engine.md), [`pricing-engine.md`](../architecture/pricing-engine.md), [`quote-options.md`](../architecture/quote-options.md) | One plain-text sketch each: the matching pipeline, and the data flow of pricing and of quote options |
+| [`docs/architecture/adr/013-contracted-price-source-ingestion-and-r7.md`](../architecture/adr/013-contracted-price-source-ingestion-and-r7.md) | One plain-text sketch of the proposed price-source gateway (a proposal, not built) |
+| [`docs/MASTER.md`](../MASTER.md) | The component diagram and the request state diagram |
 
-Two documents describe a state before the work now in the code and carry a status banner pointing here: the original `architecture/README.md` and `price-data-sources.md`.
+Two documents describe a state before the work now in the code and carry a status banner that points to the [technical guide](README.md): the original `architecture/README.md` and `price-data-sources.md`.
